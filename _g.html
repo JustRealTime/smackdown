@@ -59,26 +59,6 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .qbar{width:100%;height:10px;border:2px solid var(--ink);border-radius:6px;background:#eee7f7;overflow:hidden}
 .qbar i{display:block;height:100%;background:#9be564;width:100%;transition:width .2s linear}
 #quest.low .qbar i{background:#ff6b6b}
-/* customize */
-#custom{z-index:31;background:rgba(43,33,64,.6)}
-#cpanel{width:min(760px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
-#chead{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:3px solid var(--ink)}
-#chead h2{margin:0;font:26px var(--display);flex:1}
-#cbody{display:flex;gap:18px;padding:16px 18px;overflow:auto;flex-wrap:wrap}
-#cprev{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 240px;margin:0 auto}
-#ccanvas{width:240px;height:300px;border:3px solid var(--ink);border-radius:14px;background:repeating-conic-gradient(#d3ebc0 0 25%,#c6e3b0 0 50%) 0 0/40px 40px}
-.crow2{display:flex;gap:6px}
-.cbtn{font:800 13px var(--body);padding:4px 12px;border:3px solid var(--ink);border-radius:9px;background:#fff;cursor:pointer}
-.clab{font:800 12px var(--body);display:flex;align-items:center;gap:6px}
-#copts{flex:1;min-width:260px;display:flex;flex-direction:column;gap:10px}
-.copt{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:center}
-.copt>span{font:800 13px var(--body)}
-.cpick{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.cpick .arr{font:800 16px var(--body);width:30px;height:28px;border:3px solid var(--ink);border-radius:8px;background:#fff;cursor:pointer;padding:0}
-.cpick .val{min-width:84px;text-align:center;font:800 13px var(--body);text-transform:capitalize}
-.sw{width:22px;height:22px;border-radius:6px;border:3px solid var(--ink);cursor:pointer;padding:0}
-.sw.on{outline:3px solid var(--tomato);outline-offset:1px}
-.cpick input[type=color]{width:30px;height:28px;border:3px solid var(--ink);border-radius:8px;padding:0;background:#fff;cursor:pointer}
 /* how to play */
 #howto{z-index:31;background:rgba(43,33,64,.6)}
 #hpanel{width:min(620px,100%);display:flex;flex-direction:column;overflow:hidden}
@@ -266,7 +246,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <input id="server" placeholder="Friends: server address, e.g. 192.168.1.20:8080" autocomplete="off" spellcheck="false">
       <button class="btn alt" type="button" id="joinbtn">Join</button>
     </div>
-    <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
+    <div class="row"><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="mpstatus"></p>
     <p class="small" style="opacity:.6">Build r22</p>
     <dl class="how">
@@ -288,18 +268,6 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
   <div class="panel" id="gpanel">
     <div id="ghead"><h2>Guide</h2><div id="gtabs"><button type="button" class="gtab on" data-t="items">Items</button><button type="button" class="gtab" data-t="perks">Perks</button><button type="button" class="gtab" data-t="rar">Rarity</button></div><button type="button" class="btn alt" id="gclose">Close</button></div>
     <div id="gbody"></div>
-  </div>
-</div>
-
-<div id="custom" class="overlay" hidden>
-  <div class="panel" id="cpanel">
-    <div id="chead"><h2>Your look</h2><button type="button" class="btn alt" id="crand">Randomize</button><button type="button" class="btn" id="cdone">Done</button></div>
-    <div id="cbody">
-      <div id="cprev"><canvas id="ccanvas" width="240" height="300"></canvas>
-        <div class="crow2"><button type="button" class="cbtn" data-dir="down">Front</button><button type="button" class="cbtn" data-dir="right">Side</button><button type="button" class="cbtn" data-dir="up">Back</button></div>
-        <label class="clab">Preview level <input id="clevel" type="range" min="1" max="1000" value="1"><span id="clevelv">1</span></label></div>
-      <div id="copts"></div>
-    </div>
   </div>
 </div>
 
@@ -620,18 +588,15 @@ const SHIRTS=['#ff6b3d','#3db5ff','#9b5de5','#2ec4b6','#ff4f9a','#ffd23f','#5a8d
 const HAIRS=['#3b2417','#1f1a17','#e2b33c','#b5462b','#7a4a2a','#f5f0e6','#4b3b8f','#ff4f9a','#2ec4b6','#00e5ff','#7cff6b','#ff2e2e','#ffffff'];
 const PANTS=['#3d4a7a','#4a3f6b','#5c4033','#35605a','#6d6875'];
 const HSTYLES=['short','short','long','spiky','bald','pony','mohawk','afro','bun','twin','curly','side','flat','braid'], ACCS=['none','none','none','shades','cap','beanie','band','cat','horns','halo','phones','bunny','pirate','chef','antenna','wizard','mask','crownlet'];
-const ACOLS=['#e8475f','#3db5ff','#ffd23f','#2ec4b6','#9b5de5','#2b2140','#ffffff'], SHIRTSTY0=['plain','stripe','logo','dots','check'], SHIRTSTY=['plain','plain','stripe','logo','stripe','dots','check'];
-const SHOECOLS=['#3a2a22','#2b2b3a','#e8e8e8','#c0392b','#2c6fbb','#f2c14e'];
-const HS_ALL=[...new Set(HSTYLES)], ACC_ALL=[...new Set(ACCS)], STY_ALL=SHIRTSTY0;
-let SPRN=0;const SPR={},GW=20,GH=26,OX=2,OY=4,S=3,FY=24;
+const ACOLS=['#e8475f','#3db5ff','#ffd23f','#2ec4b6','#9b5de5','#2b2140','#ffffff'], SHIRTSTY=['plain','plain','stripe','logo','stripe','dots','check'];
+const SPR={},GW=20,GH=26,OX=2,OY=4,S=3,FY=24;
 function sprite(e,look,dir,frame){
-  const key=[look.m,look.pads,look.chest,look.helmet,look.mat,look.capeC,look.cape,look.crown,dir,frame,e.skin,e.shirt,e.hair,e.pants,e.hs,e.acc,e.acol,e.sty,e.shorts,e.shoes].join('|');
+  const key=[look.m,look.pads,look.chest,look.helmet,look.mat,look.capeC,look.cape,look.crown,dir,frame,e.skin,e.shirt,e.hair,e.pants,e.hs,e.acc,e.acol,e.sty,e.shorts].join('|');
   if(SPR[key])return SPR[key];
-  if(++SPRN>3000){for(const k in SPR)delete SPR[k];SPRN=0}   // custom colours can make very many variants
   const c=document.createElement('canvas');c.width=GW;c.height=GH;const g=c.getContext('2d');
   const P=(x,y,w,h,col)=>{if(w<=0||h<=0)return;g.fillStyle=col;g.fillRect(x+OX,y+OY,w,h)};
   const MT=MATS[look.mat],arm=MT.a,armHi=MT.h,armLo=MT.l,CAPE=CAPES[look.capeC];
-  const shoe=e.shoes||SHOE,m=look.m,aw=m>=1?3:2,body=look.chest?arm:e.shirt,f1=frame===1,f2=frame===2;
+  const m=look.m,aw=m>=1?3:2,body=look.chest?arm:e.shirt,f1=frame===1,f2=frame===2;
   const hat=!look.helmet&&!look.crown, ac=e.acol, shades=e.acc==='shades', hs=e.hs, hc=e.hair;
   const leg=(x,y,h,col)=>{if(e.shorts&&h>2){P(x,y,3,2,col);P(x,y+2,3,h-2,e.skin)}else P(x,y,3,h,col)};
   const stripes=(x,w)=>{if(look.chest)return;
@@ -642,8 +607,8 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
     const bw=5+m,tx=6-(m>>1);
     if(look.cape)P(tx-2,9,3,9,CAPE);
     const bx=6+(f1?-1:f2?1:0),fx=8+(f1?1:f2?-1:0);
-    leg(bx,15,4,shade(e.pants,-.25));P(bx,19,4,1,shoe);
-    leg(fx,15,4,e.pants);P(fx,19,4,1,shoe);
+    leg(bx,15,4,shade(e.pants,-.25));P(bx,19,4,1,SHOE);
+    leg(fx,15,4,e.pants);P(fx,19,4,1,SHOE);
     P(tx,9,bw,6,body);P(tx,14,bw,1,look.chest?'#6b4423':shade(e.shirt,-.2));stripes(tx,bw);
     if(look.chest)P(tx+1,10,bw-2,1,armHi);
     P(5,1,8,8,e.skin);
@@ -685,7 +650,7 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
     const tx=5-m,tw=6+2*m;
     if(look.cape&&dir==='down')P(tx-1,9,tw+2,9,CAPE);
     leg(5,15,f1?3:4,e.pants);leg(8,15,f2?3:4,e.pants);
-    P(5,f1?18:19,3,1,shoe);P(8,f2?18:19,3,1,shoe);
+    P(5,f1?18:19,3,1,SHOE);P(8,f2?18:19,3,1,SHOE);
     P(tx,9,tw,6,body);
     if(look.chest){P(tx+1,10,tw-2,1,armHi);P(7,11,2,3,armLo);P(tx,14,tw,1,'#6b4423')}
     else{P(tx,14,tw,1,shade(e.shirt,-.2));if(m>=2)P(tx+1,11,tw-2,1,shade(e.shirt,-.15));stripes(tx,tw);
@@ -863,18 +828,11 @@ function rollItem(luck=0,water=false){let tier=0;for(let i=0;i<=luck;i++)tier=Ma
 const NAME_A=['Blaze','Turbo','Ninja','Comet','Rocket','Storm','Echo','Pixel','Velvet','Lucky','Shadow','Thunder','Atlas','Zen','Jazz','Nova','Raven','Sparks','Glitch','Orbit','Cosmo','Frost','Ember','Breeze','Drift','Flash','Hex','Jet','Knox','Laser','Mystic','Neon','Onyx','Phantom','Quartz','Rogue','Sonic','Titan','Ultra','Vortex','Wild','Xeno','Yeti','Zephyr','Arrow','Bolt','Cobalt','Dusk','Falcon','Gale','Hawk','Iron','Jolt','Karma','Lynx','Magma','Nimbus','Omega','Prism','Quest','Radar','Saber','Tango','Umbra','Viper','Whisper','Zigzag','Astro','Bravo','Cipher','Delta','Flint','Glacier','Halo','Indigo','Jungle','Kraken','Lunar','Meteor','Nebula','Oasis','Pilot','Quake','Rift','Solar','Tundra'];
 const NAME_B=['Alex','Bea','Cole','Dana','Eli','Fay','Gus','Hana','Ivo','Jo','Kira','Leo','Mia','Nico','Opal','Pax','Quin','Rae','Sol','Tess','Uma','Vic','Wes','Xia','Yuri','Zed','Ada','Ben','Cleo','Drew','Emi','Finn','Gia','Hugo','Ines','Jax','Kai','Lola','Milo','Nora','Otto','Pia','Remy','Sky','Theo','Una','Vera','Wren','Yara','Zoe','Abe','Bo','Cam','Dex','Eva','Fox','Gil','Hal','Ian','Jade','Kit','Lux','Max','Ned','Orla','Pat','Ravi','Sam','Tia','Ugo','Val'];
 const NAMES=(()=>{const set=new Set();while(set.size<500)set.add(NAME_A[(Math.random()*NAME_A.length)|0]+' '+NAME_B[(Math.random()*NAME_B.length)|0]);return[...set]})();
-// the player's look (Terraria style: pick every part yourself); the server checks what it receives
-const LOOK_KEYS=['skin','shirt','hair','pants','shoes','acol'],HEX=/^#[0-9a-fA-F]{6}$/;
-function cleanLook(l){if(!l||typeof l!=='object')return null;const o={};
-  for(const k of LOOK_KEYS)if(typeof l[k]==='string'&&HEX.test(l[k]))o[k]=l[k];
-  if(HS_ALL.includes(l.hs))o.hs=l.hs;if(ACC_ALL.includes(l.acc))o.acc=l.acc;if(STY_ALL.includes(l.sty))o.sty=l.sty;if(typeof l.shorts==='boolean')o.shorts=l.shorts;
-  return Object.keys(o).length?o:null}
-const randomLook=()=>({skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),shoes:pick(SHOECOLS),acol:pick(ACOLS),hs:pick(HS_ALL),acc:pick(ACC_ALL),sty:pick(STY_ALL),shorts:Math.random()<.3});
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
   const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
     dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+3,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
-    skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,shoes:pick(SHOECOLS),
+    skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
     ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(.25,.9),brave:rand(0,1),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0,itemAt:0}};
   calcStats(e);return e}
@@ -1032,7 +990,7 @@ function startGame(){
   const t=now();const nm=($('name').value.trim()||'You').slice(0,14);
   try{localStorage.setItem('snackdown-name',nm)}catch(_){}
   if(player)ents=ents.filter(e=>e!==player);
-  player=makeEnt(nm,respawnLvl,true,t);if(LOOK)Object.assign(player,LOOK);ents.push(player);   // Last Stand can bring levels back
+  player=makeEnt(nm,respawnLvl,true,t);ents.push(player);   // Last Stand can bring levels back
   offer=null;perksEl.hidden=true;$('kingbar').hidden=true;
   Object.assign(stats,{won:0,snacks:0,best:0,top:1});
   cam.x=player.x;cam.y=player.y;
@@ -1063,40 +1021,6 @@ function buildGuide(tab){
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
       +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Higher level means longer phrases, and being caught running helps your opponent.</p></div>'}
   $('gbody').innerHTML=h}
-/* ---------- customize: a Terraria style character editor ---------- */
-let LOOK=null;
-try{LOOK=cleanLook(JSON.parse(localStorage.getItem('snackdown-look')))}catch(_){}
-if(!LOOK||Object.keys(LOOK).length<10)LOOK=Object.assign(randomLook(),LOOK||{});
-const saveLook=()=>{try{localStorage.setItem('snackdown-look',JSON.stringify(LOOK))}catch(_){}};
-const COPTS=[
-  {k:'hs',label:'Hair style',list:HS_ALL},{k:'hair',label:'Hair color',pal:HAIRS},
-  {k:'skin',label:'Skin',pal:SKINS},
-  {k:'sty',label:'Top style',list:STY_ALL},{k:'shirt',label:'Top color',pal:SHIRTS},
-  {k:'pants',label:'Pants',pal:PANTS},{k:'shorts',label:'Shorts',bool:true},
-  {k:'shoes',label:'Shoes',pal:SHOECOLS},
-  {k:'acc',label:'Accessory',list:ACC_ALL},{k:'acol',label:'Accessory color',pal:ACOLS}];
-let cDir='down',cLvl=1;
-function buildCustom(){
-  $('copts').innerHTML=COPTS.map(o=>{let h='<div class="copt"><span>'+o.label+'</span><div class="cpick">';
-    if(o.list)h+='<button type="button" class="arr" data-k="'+o.k+'" data-d="-1">◀</button><span class="val">'+LOOK[o.k]+'</span><button type="button" class="arr" data-k="'+o.k+'" data-d="1">▶</button>';
-    else if(o.bool)h+='<button type="button" class="cbtn" data-k="'+o.k+'" data-t="1">'+(LOOK[o.k]?'On':'Off')+'</button>';
-    else h+=o.pal.map(c=>'<button type="button" class="sw'+(LOOK[o.k]===c?' on':'')+'" style="background:'+c+'" data-k="'+o.k+'" data-c="'+c+'"></button>').join('')+'<input type="color" value="'+LOOK[o.k]+'" data-k="'+o.k+'" title="any color">';
-    return h+'</div></div>'}).join('')}
-function openCustom(){buildCustom();$('custom').hidden=false}
-function closeCustom(){$('custom').hidden=true;saveLook()}
-$('custbtn').addEventListener('click',openCustom);$('cdone').addEventListener('click',closeCustom);
-$('crand').addEventListener('click',()=>{LOOK=randomLook();buildCustom()});
-$('copts').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b||b.tagName==='INPUT')return;const k=b.dataset.k,o=COPTS.find(x=>x.k===k);
-  if(b.dataset.d){const L2=o.list,i=(L2.indexOf(LOOK[k])+ +b.dataset.d+L2.length)%L2.length;LOOK[k]=L2[i]}
-  else if(b.dataset.t)LOOK[k]=!LOOK[k];else LOOK[k]=b.dataset.c;
-  buildCustom()});
-$('copts').addEventListener('input',e=>{const b=e.target;if(b.type==='color'&&HEX.test(b.value)){LOOK[b.dataset.k]=b.value;for(const sw of b.parentNode.querySelectorAll('.sw'))sw.classList.remove('on')}});
-$('cprev').addEventListener('click',e=>{const b=e.target.closest('[data-dir]');if(b)cDir=b.dataset.dir});
-$('clevel').addEventListener('input',e=>{cLvl=+e.target.value;$('clevelv').textContent=cLvl});
-(function cloop(){if(!$('custom').hidden){const c=$('ccanvas'),g=c.getContext('2d');g.clearRect(0,0,240,300);g.imageSmoothingEnabled=false;
-    const fr=1+Math.floor(performance.now()/260)%2;g.drawImage(sprite(Object.assign({},LOOK),lookOf(cLvl),cDir,fr),40,50,160,208);}
-  requestAnimationFrame(cloop)})();
-addEventListener('keydown',e=>{if(!$('custom').hidden&&e.key==='Escape')closeCustom()});
 /* ---------- how to play: short animated demos drawn with the game's own sprites ---------- */
 const DE=(shirt,hair,skin)=>({skin:skin||SKINS[0],shirt,hair:hair||'#3b2417',pants:'#3d4a7a',hs:'short',acc:'none',acol:'#fff',sty:'plain',shorts:false});
 const DEMO_A=DE('#3db5ff'),DEMO_B=DE('#ff6b3d','#1f1a17',SKINS[3]),DEMO_C=DE('#9b5de5','#e2b33c',SKINS[7]),DEMO_LOOK=lookOf(1);
@@ -1690,12 +1614,12 @@ let outbox=[], tickN=0, boardAt=0;
 const send=(h,o)=>{if(h&&h.alive)outbox.push([h.cid,o])};
 const isFleeing=(e,t)=>{for(const k in e.fled)if(e.fled[k]>t)return true;return false};
 function srvSpawn(h,lvl,t){
-  const e=makeEnt(h.name,lvl,false,t);e.human=true;if(h.look)Object.assign(e,h.look);e.protect=t+4;e.top=L(e);e.won=0;e.snacks=0;e.respawnLvl=1;
+  const e=makeEnt(h.name,lvl,false,t);e.human=true;e.protect=t+4;e.top=L(e);e.won=0;e.snacks=0;e.respawnLvl=1;
   e.want={ux:0,uy:0,f:0,sprint:false,dash:false};e.h=h;h.e=e;h.dead=false;h.offer=null;h.perksDirty=true;h.dashQ=h.useQ=false;
   ents.push(e);send(h,{t:'spawned',id:e.id});if(owedPicks(e)>0)srvOffer(h);return e}
-function srvJoin(cid,name,look){
+function srvJoin(cid,name){
   const nm=String(name||'').replace(/[^\w .\-]/g,'').trim().slice(0,14)||'Player';
-  const h={cid,name:nm,look:cleanLook(look),alive:true,e:null,known:new Set(),inp:{ux:0,uy:0,f:0,sp:false},dashQ:false,useQ:false,offer:null,dead:false,perksDirty:true};
+  const h={cid,name:nm,alive:true,e:null,known:new Set(),inp:{ux:0,uy:0,f:0,sp:false},dashQ:false,useQ:false,offer:null,dead:false,perksDirty:true};
   humans.set(cid,h);send(h,{t:'welcome',seed:WORLD_SEED,hz:60,snap:SNAP_EVERY});srvSpawn(h,1,now());return h}
 function srvLeave(cid){
   const h=humans.get(cid);if(!h)return;h.alive=false;humans.delete(cid);const e=h.e;if(!e)return;
@@ -1767,7 +1691,7 @@ function srvRec(e,t,full,me){
   for(const k in e.buff){const v=e.buff[k]-t;if(v>0)(r.b=r.b||{})[k]=+v.toFixed(1)}
   if(isFleeing(e,t))r.fl=1;
   if(me&&e!==me&&(e.state==='move'||e.state==='eat')&&Math.abs(e.x-me.x)<700&&Math.abs(e.y-me.y)<700)r.dl=advOf(me,e,t);
-  if(full)r.f={name:e.name,skin:e.skin,shirt:e.shirt,hair:e.hair,pants:e.pants,hs:e.hs,acc:e.acc,acol:e.acol,sty:e.sty,shorts:e.shorts,shoes:e.shoes};
+  if(full)r.f={name:e.name,skin:e.skin,shirt:e.shirt,hair:e.hair,pants:e.pants,hs:e.hs,acc:e.acc,acol:e.acol,sty:e.sty,shorts:e.shorts};
   return r}
 function srvSnapshot(h,t){
   const me=h.e,R=1250,R2=1150,known=new Set(),m={t:'s',e:[],f:[],b:[],o:[]};
@@ -1796,7 +1720,7 @@ function srvStep(dt){
   if(tickN%SNAP_EVERY===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={join:srvJoin,cleanLook,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
+if(role==='server')globalThis.__sim={join:srvJoin,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
@@ -1814,7 +1738,7 @@ function joinGame(){
   $('mpstatus').textContent='Connecting to '+addr+' ...';
   let sock;try{sock=new WebSocket((typeof location!=='undefined'&&location.protocol==='https:'?'wss://':'ws://')+addr)}catch(e){$('mpstatus').textContent='Could not connect: '+e.message;return}
   ws=sock;
-  sock.onopen=()=>sock.send(JSON.stringify({t:'join',name,look:LOOK}));
+  sock.onopen=()=>sock.send(JSON.stringify({t:'join',name}));
   sock.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(_){return}onNet(m)};
   sock.onerror=()=>{if(role!=='client')$('mpstatus').textContent='Could not reach '+addr+'. Is the server running, and are you on the same network?'};
   sock.onclose=()=>{if(role==='client')netLost()}}
@@ -1847,7 +1771,7 @@ function resetSoloWorld(){
   for(let i=0;i<FOOD_OUT;i++)spawnFood(false);for(let i=0;i<FOOD_IN;i++)spawnFood(true);
   for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
   {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}}
-function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,shorts:f.shorts,shoes:f.shoes,
+function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,shorts:f.shorts,
   perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
   x:r.x,y:r.y,tx:r.x,ty:r.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,dashT:0,slideT:0,sprinting:false,fled:{},protect:0,ghosts:[],ghostT:0,chomp:0,
   sq:0,sqv:0,lean:0,skidT:0,bites:0,chewT:0,lastStep:0,lvl:1,ep:0,isPlayer:false,human:false,snapAt:now(),_st:'move',_dash:false};
@@ -2361,6 +2285,7 @@ function loop(){const t=now();let dt=Math.min(.05,t-last);last=t;
   if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t);
   render(t);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
+window.__d={player:()=>player,ents:()=>ents,useItem,giveItem,now,startQuest,questEvent,ITEMS};
 })();
 </script>
 </body>

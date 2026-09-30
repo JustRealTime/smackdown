@@ -95,7 +95,7 @@ function onUpgrade(req, socket) {
       if (op === 9) { socket.write(Buffer.concat([Buffer.from([0x8a, payload.length]), payload])); continue; }
       if (op !== 1) continue;
       let m; try { m = JSON.parse(payload.toString('utf8')); } catch (_) { continue; }
-      if (m.t === 'join' && !c.joined) { c.joined = true; sim.join(cid, m.name); console.log('+ ' + String(m.name || 'Player').slice(0, 14) + ' joined (' + sim.count().humans + ' online)'); }
+      if (m.t === 'join' && !c.joined) { c.joined = true; sim.join(cid, m.name, m.look); console.log('+ ' + String(m.name || 'Player').slice(0, 14) + ' joined (' + sim.count().humans + ' online)'); }
       else if (c.joined) sim.msg(cid, m);
     }
   });
