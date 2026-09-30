@@ -152,3 +152,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - **Dash:** Linksklick dasht wie die Leertaste (nicht auf Buttons/Panels).
 - **Guide:** Button im Startbildschirm öffnet Items, Perks und Seltenheits-Quoten, erzeugt aus den Spieldaten.
 - **Aura:** Der Vorteil-Hinweis färbt jetzt das Spielermodell selbst grün/rot, mit Leuchten um den Körper plus Ring und Zahl.
+
+## Runde 15: Drei Item-Slots
+
+- Man trägt bis zu 3 Items. Jeder Slot hat eine eigene Taste: Q, E, R. Slots behalten ihren Platz, wenn einer benutzt wird.
+- Ist alles voll, bleibt die Kiste liegen. Bots tragen weiter nur ein Item. Pickpocket, Iron Bubble und Item Fairy nutzen freie Slots.
+- Multiplayer: der Client sendet den Slot, der Server schickt alle drei Slots im Snapshot.
