@@ -190,3 +190,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Von außen ist ein Haus ein fester Block: der Schatten fällt nur auf die Seite, die vom Spieler weg zeigt (keine Lichtstreifen durch Türen mehr). Innen gelten weiter die echten Türöffnungen.
 - Zoom startet bei 150 %. Rauszoomen wird mit Levels freigeschaltet: bei Lv 1 gar nicht, danach in 5-%-Schritten bis 80 % bei Lv 60. Reinzoomen geht immer (bis 250 %). Beim Freischalten erscheint ein Hinweis.
+
+## Runde 21: Aura zählt Items und Perks, Tutorial-Menü
+
+- Die Aura (grün/rot, Zahl) berücksichtigt jetzt alles, was ein Duell verändert: Level, Weglaufen, Pro Keyboard (-2 Wörter) und Golden Keyboard (halbe Phrase) bei beiden Seiten, sowie die Perks Short Phrases, Curse, Underdog, Slippery und zusätzlich Warm Fingers, Head Start, Flow State und Autocorrect als "geschenkte Wörter".
+- "How to play" im Startmenü: 8 kurze animierte Szenen (Bewegen/Essen, Sprint/Dash, Perks, Duelle, Aura, Items, Sichtlinie, Zoom) mit den Spiel-Sprites. Navigation per Buttons, Punkte oder Pfeiltasten, Esc schließt. Build r21.

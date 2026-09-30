@@ -53,6 +53,18 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .small{font-size:13px;color:var(--muted);margin:0;font-weight:600}
 
 #zoomtag{position:fixed;left:50%;bottom:calc(200px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:6px 16px;font:18px var(--display);transition:opacity .4s;pointer-events:none;z-index:5}
+/* how to play */
+#howto{z-index:31;background:rgba(43,33,64,.6)}
+#hpanel{width:min(620px,100%);display:flex;flex-direction:column;overflow:hidden}
+#hhead{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:3px solid var(--ink)}
+#hhead h2{margin:0;font:26px var(--display)}
+#hcanvas{width:100%;height:auto;display:block;background:#cfe8b8;border-bottom:3px solid var(--ink);image-rendering:pixelated}
+#htext{margin:0;padding:12px 18px 4px;font-weight:700;font-size:15px;line-height:1.35;min-height:4.6em}
+#htext b{font:19px var(--display);display:block;margin-bottom:2px}
+#hnav{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 16px}
+#hdots{display:flex;gap:7px}
+#hdots i{width:11px;height:11px;border-radius:50%;background:#e4dcef;border:2px solid var(--ink);cursor:pointer}
+#hdots i.on{background:var(--tomato)}
 /* guide */
 #guide{z-index:30;background:rgba(43,33,64,.6)}
 #gpanel{width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
@@ -228,9 +240,9 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <input id="server" placeholder="Friends: server address, e.g. 192.168.1.20:8080" autocomplete="off" spellcheck="false">
       <button class="btn alt" type="button" id="joinbtn">Join</button>
     </div>
-    <button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button>
+    <div class="row"><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="mpstatus"></p>
-    <p class="small" style="opacity:.6">Build r20</p>
+    <p class="small" style="opacity:.6">Build r21</p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -250,6 +262,15 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
   <div class="panel" id="gpanel">
     <div id="ghead"><h2>Guide</h2><div id="gtabs"><button type="button" class="gtab on" data-t="items">Items</button><button type="button" class="gtab" data-t="perks">Perks</button><button type="button" class="gtab" data-t="rar">Rarity</button></div><button type="button" class="btn alt" id="gclose">Close</button></div>
     <div id="gbody"></div>
+  </div>
+</div>
+
+<div id="howto" class="overlay" hidden>
+  <div class="panel" id="hpanel">
+    <div id="hhead"><h2 id="htitle">How to play</h2><button type="button" class="btn alt" id="hclose">Close</button></div>
+    <canvas id="hcanvas" width="560" height="280"></canvas>
+    <p id="htext"></p>
+    <div id="hnav"><button type="button" class="btn alt" id="hprev">Back</button><div id="hdots"></div><button type="button" class="btn" id="hnext">Next</button></div>
   </div>
 </div>
 
@@ -985,6 +1006,106 @@ function buildGuide(tab){
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
       +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Higher level means longer phrases, and being caught running helps your opponent.</p></div>'}
   $('gbody').innerHTML=h}
+/* ---------- how to play: short animated demos drawn with the game's own sprites ---------- */
+const DE=(shirt,hair,skin)=>({skin:skin||SKINS[0],shirt,hair:hair||'#3b2417',pants:'#3d4a7a',hs:'short',acc:'none',acol:'#fff',sty:'plain',shorts:false});
+const DEMO_A=DE('#3db5ff'),DEMO_B=DE('#ff6b3d','#1f1a17',SKINS[3]),DEMO_C=DE('#9b5de5','#e2b33c',SKINS[7]),DEMO_LOOK=lookOf(1);
+const HW=560,HH=280;
+function dBG(g){g.fillStyle='#cfe8b8';g.fillRect(0,0,HW,HH);g.fillStyle='#c4e0ac';for(let x=0;x<HW;x+=40)for(let y=0;y<HH;y+=40)if((x+y)/40%2===0)g.fillRect(x,y,40,40)}
+function dChar(g,e,x,y,dir,t,s,fr){s=s||1;g.save();g.imageSmoothingEnabled=false;g.fillStyle='rgba(43,33,64,.2)';g.beginPath();g.ellipse(x,y+26*s,17*s,6*s,0,0,6.3);g.fill();
+  g.translate(x,y);g.scale(s,s);g.drawImage(sprite(e,DEMO_LOOK,dir||'down',fr==null?0:fr),-30,-52,60,78);g.restore()}
+function dText(g,txt,x,y,size,col,align){g.font=(size||18)+'px "Lilita One","Arial Rounded MT Bold",sans-serif';g.textAlign=align||'center';g.lineJoin='round';g.lineWidth=5;g.strokeStyle='#2b2140';g.strokeText(txt,x,y);g.fillStyle=col||'#fff';g.fillText(txt,x,y)}
+function dKey(g,label,x,y,down){g.save();g.translate(x,y+(down?3:0));g.fillStyle='#fff';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(-22,-16,44,32,7);g.fill();g.stroke();
+  g.fillStyle='#2b2140';g.font='15px "Lilita One",sans-serif';g.textAlign='center';g.fillText(label,0,6);g.restore()}
+function dBar(g,x,y,w,p,col){g.fillStyle='#eee7f7';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(x,y,w,16,8);g.fill();g.stroke();g.fillStyle=col;g.beginPath();g.roundRect(x+2,y+2,Math.max(0,(w-4)*clamp(p,0,1)),12,6);g.fill()}
+function dChip(g,txt,x,y,good){g.fillStyle=good?'#3fd06a':'#ff4d6a';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(x-22,y-14,44,26,13);g.fill();g.stroke();dText(g,txt,x,y+6,17,'#fff')}
+function dGlow(g,x,y,good,m){const c=good?'63,208,106':'255,77,106',gr=g.createRadialGradient(x,y,6,x,y,80);gr.addColorStop(0,'rgba('+c+',.6)');gr.addColorStop(1,'rgba('+c+',0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,80,0,6.3);g.fill();
+  g.strokeStyle=good?'#3fd06a':'#ff4d6a';g.lineWidth=3+m;g.fillStyle='rgba('+c+',.25)';g.beginPath();g.ellipse(x,y+22,44+m*3,20,0,0,6.3);g.fill();g.stroke()}
+const ease=p=>1-Math.pow(1-clamp(p,0,1),3);
+const DEMOS=[
+ {title:'Move and eat',text:'Your snacker walks toward the mouse. Run over snacks to eat them and fill your level bar. Every level needs a few more snacks than the last one.',
+  draw(g,t,st,dt){if(!st.init){st.init=1;st.pos={x:280,y:140};st.lv=1;st.xp=0;st.sn=[[90,70],[470,60],[110,210],[440,215],[280,50],[285,230]].map((p,i)=>({x:p[0],y:p[1],a:1,r:0,e:['🍔','🍕','🍎','🍩','🥤','🍔'][i]}));st.fl=[];st.eat=0}
+    const tx=280+Math.cos(t*.7)*190,ty=140+Math.sin(t*1.05)*85;const ox=st.pos.x;st.pos.x+=(tx-st.pos.x)*Math.min(1,dt*2.4);st.pos.y+=(ty-st.pos.y)*Math.min(1,dt*2.4);
+    dBG(g);for(const f of st.sn){if(!f.a){f.r-=dt;if(f.r<=0)f.a=1}else if(Math.hypot(f.x-st.pos.x,f.y-st.pos.y)<34){f.a=0;f.r=2.5;st.xp+=.34;st.eat=.4;st.fl.push({x:f.x,y:f.y-20,l:1});if(st.xp>=1){st.xp=0;st.lv++;st.fl.push({x:st.pos.x,y:st.pos.y-70,l:1.4,t:'LEVEL UP!'})}}
+      if(f.a){g.font='26px serif';g.textAlign='center';g.fillText(f.e,f.x,f.y+9)}}
+    st.eat=Math.max(0,st.eat-dt);dChar(g,DEMO_A,st.pos.x,st.pos.y,st.pos.x>ox?'right':'left',t,1+st.eat*.25,1+Math.floor(t*7)%2);
+    for(const f of st.fl){f.l-=dt;f.y-=dt*30;g.globalAlpha=clamp(f.l,0,1);dText(g,f.t||'+',f.x,f.y,f.t?22:18,f.t?'#ffc93c':'#fff');g.globalAlpha=1}
+    g.strokeStyle='#2b2140';g.fillStyle='#fff';g.lineWidth=2.5;g.beginPath();g.moveTo(tx,ty);g.lineTo(tx+4,ty+22);g.lineTo(tx+10,ty+16);g.lineTo(tx+17,ty+24);g.lineTo(tx+19,ty+10);g.closePath();g.fill();g.stroke();
+    dText(g,'LEVEL '+st.lv,60,30,18,'#ffc93c');dBar(g,100,16,190,st.xp,'#ffc93c')}},
+ {title:'Sprint and dash',text:'Hold Shift to sprint while your stamina lasts. Space or a left click dashes and slides, the fastest move, but it needs a moment to recharge.',
+  draw(g,t,st){dBG(g);const p=t%3.6;let x,dash=false,sp=p<2;
+    if(p<2)x=60+p*75;else if(p<2.35){dash=true;x=210+ease((p-2)/.35)*200}else if(p<3.1)x=410+ease((p-2.35)/.75)*50;else x=460;
+    const fade=p>3.3?1-(p-3.3)/.3:1;g.globalAlpha=clamp(fade,0,1);
+    if(dash||p>=2.35&&p<3.1)for(let i=1;i<=5;i++){g.globalAlpha=.22*clamp(fade,0,1)*(1-i/6);dChar(g,DEMO_A,x-i*26*(dash?1:.5),150,'right',t,1,0)}
+    g.globalAlpha=clamp(fade,0,1);dChar(g,DEMO_A,x,150,'right',t,1,dash?0:1+Math.floor(t*10)%2);g.globalAlpha=1;
+    dKey(g,'Shift',130,50,sp);dText(g,'sprint',130,88,16,'#fff');dKey(g,'Space',300,50,dash);dText(g,'or click: dash',300,88,16,'#fff');
+    dBar(g,380,36,150,dash?.25:sp?1-p*.22:.85,'#3db5ff');dText(g,'STAMINA',455,30,13,'#fff');
+    if(dash)dText(g,'DASH!',x,100,26,'#ffc93c')}},
+ {title:'Level up and perks',text:'Every few levels you get to pick one of three perks. They come in four rarities: common, rare, epic and legendary. Pick what fits how you play.',
+  draw(g,t,st){dBG(g);const p=t%6,cards=[['🥪','Gourmet','Common','#c3ccd6'],['🪦','Last Stand','Rare','#3db5ff'],['🌊','Flow State','Legendary','#ffc93c']];
+    dText(g,'Level up! Pick a perk',280,36,22,'#fff');
+    cards.forEach((c,i)=>{const a=ease((p-.3-i*.25)/.5),sel=p>3.4&&i===2,x=110+i*170,y=80+(1-a)*160-(sel?8:0);g.save();g.translate(x+60,y+80);const sc=sel?1.08+Math.sin(t*8)*.02:1;g.scale(sc,sc);g.globalAlpha=a;
+      if(i===2){g.shadowColor='#ffc93c';g.shadowBlur=14+Math.sin(t*6)*6}g.fillStyle=i===2?'#fff3c4':'#fff';g.strokeStyle=i===0?'#2b2140':c[3];g.lineWidth=5;g.beginPath();g.roundRect(-60,-80,120,160,14);g.fill();g.stroke();g.shadowBlur=0;
+      g.fillStyle=c[3];g.strokeStyle='#2b2140';g.lineWidth=2.5;g.beginPath();g.roundRect(-40,-66,80,20,10);g.fill();g.stroke();dText(g,c[2].toUpperCase(),0,-51,12,'#2b2140');
+      g.font='40px serif';g.textAlign='center';g.fillText(c[0],0,8);dText(g,c[1],0,48,16,'#2b2140');g.restore()});
+    g.globalAlpha=1;if(p>3.4){dText(g,'✔ picked',450,250,20,'#3fd06a')}}},
+ {title:'Duels',text:'Touch another player and a typing duel starts. Type your phrase faster than they do and you win a chunk of their levels. Lose, and you are eaten.',
+  draw(g,t,st){dBG(g);const p=t%7,meet=ease(p/1.2),ax=90+meet*130,bx=470-meet*130;
+    if(p<1.6){dChar(g,DEMO_A,ax,120,'right',t,1,1+Math.floor(t*8)%2);dChar(g,DEMO_B,bx,120,'left',t,1,1+Math.floor(t*8)%2);if(p>1.1)dText(g,'VS',280,100,34,'#ff6b3d')}
+    else{const txt='river stone cloud',typed=clamp(Math.floor((p-2.2)*4.6),0,txt.length),opp=clamp((p-2.2)/3.6,0,1),won=typed>=txt.length;
+      dChar(g,DEMO_A,150,70,'down',t,.8,0);dChar(g,DEMO_B,410,70,'down',t,.8,0);
+      g.fillStyle='#fff';g.strokeStyle='#2b2140';g.lineWidth=4;g.beginPath();g.roundRect(60,130,440,60,12);g.fill();g.stroke();g.font='26px ui-monospace,Menlo,monospace';g.textAlign='left';
+      let cx=80;for(let i=0;i<txt.length;i++){g.fillStyle=i<typed?'#2f9e4f':'#9a8fb0';g.fillText(txt[i],cx,170);cx+=g.measureText(txt[i]).width}
+      dBar(g,60,205,200,typed/txt.length,'#3fd06a');dBar(g,300,205,200,opp,'#ff4d6a');dText(g,'you',160,245,14,'#fff');dText(g,'them',400,245,14,'#fff');
+      if(won){dText(g,'YOU WIN!  +LEVELS',280,110,26,'#ffc93c')}}}},
+ {title:'The aura: who has the edge?',text:'Look at someone before you touch them. Green and +2 means you type 2 words fewer than they do. Red and -2 means 2 more. Items count too: a Pro Keyboard makes your phrase shorter, so the number goes up.',
+  draw(g,t,st){dBG(g);const p=t%8,item=p>4;
+    const adv=[3,-2,0];dGlow(g,420,150,true,1);dGlow(g,140,150,false,1);
+    dChar(g,DEMO_B,140,140,'right',t,1,0);dChar(g,DEMO_C,420,140,'left',t,1,0);dChar(g,DEMO_A,280,170,'up',t,.9,0);
+    dChip(g,'-2',140,62,false);dChip(g,item?'+5':'+3',420,62,true);
+    g.fillStyle='#fff';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(215,220,130,44,10);g.fill();g.stroke();
+    g.font='26px serif';g.textAlign='center';g.fillText(item?'🎹':'–',250,252);g.fillStyle='#2b2140';g.font='15px "Lilita One",sans-serif';g.textAlign='left';g.fillText(item?'Pro Keyboard':'no item',272,250);
+    if(item){dText(g,'+2 from your item!',420,36,16,'#ffc93c')}}},
+ {title:'Gift boxes and items',text:'Gift boxes lie around the map, in buildings and hidden at the bottom of ponds. You carry up to 3 items. Each slot has a key: Q, W and E. Rarer items are much stronger.',
+  draw(g,t,st){dBG(g);const p=t%7,tiers=[['🧲','#c3ccd6'],['💥','#3db5ff'],['🌟','#ffc93c']],k=Math.floor(t/7)%3,it=tiers[k];
+    const cx=p<2?90+p*80:250;dChar(g,DEMO_A,cx,120,'right',t,1,p<2?1+Math.floor(t*8)%2:0);
+    if(p<2.2){g.font='34px serif';g.textAlign='center';g.fillText('🎁',300+Math.sin(t*3)*0,135)}
+    else if(p<2.8){const q=(p-2.2)/.6;g.strokeStyle=it[1];g.lineWidth=5*(1-q);g.beginPath();g.arc(300,122,20+q*60,0,6.3);g.stroke();g.globalAlpha=1-q*.3;g.font='34px serif';g.fillText(it[0],300,122-q*40);g.globalAlpha=1}
+    for(let i=0;i<3;i++){const x=180+i*90,filled=p>3&&i===k;g.fillStyle='#fff';g.strokeStyle=filled?it[1]:'#7d7196';g.lineWidth=4;g.setLineDash(filled?[]:[6,5]);g.beginPath();g.roundRect(x-34,185,68,72,12);g.fill();g.stroke();g.setLineDash([]);
+      dKey(g,'QWE'[i],x,185,p>5&&i===k&&p<5.4);if(filled){g.font='32px serif';g.textAlign='center';g.fillText(it[0],x,232)}}
+    if(p>5&&p<6.2){const x=180+k*90,q=(p-5)/1.2;g.strokeStyle=it[1];g.lineWidth=6*(1-q);g.beginPath();g.arc(cx,120,30+q*90,0,6.3);g.stroke();dText(g,'USED!',cx,60-q*20,22,it[1])}}},
+ {title:'Houses and line of sight',text:'Walk through the yellow doors to go inside. You can only see what a clear line allows: inside a house you see outside only through the doors, and whoever is behind a house is hidden.',
+  draw(g,t,st){dBG(g);const hx=180,hy=70,hw=200,hh=130,gap=[250,310],px=280+Math.sin(t*.9)*50,py=130;
+    const out=[[280,250,DEMO_B],[90,240,DEMO_C],[470,60,DEMO_B]];
+    // view cone from the player through the door
+    const proj=x=>px+(x-px)*((HH-py)/(hy+hh-py));
+    g.save();g.fillStyle='rgba(22,15,38,.82)';g.beginPath();g.rect(0,0,HW,HH);g.moveTo(gap[0],hy+hh);g.lineTo(proj(gap[0])+0,HH);g.lineTo(proj(gap[1]),HH);g.lineTo(gap[1],hy+hh);g.closePath();g.fill('evenodd');g.restore();
+    g.fillStyle='#e9c78a';g.fillRect(hx,hy,hw,hh);g.strokeStyle='#2b2140';g.lineWidth=6;g.strokeRect(hx,hy,hw,hh);g.fillStyle='#ffd23f';g.fillRect(gap[0],hy+hh-4,gap[1]-gap[0],8);
+    for(const [x,y,e] of out){const inCone=y>hy+hh&&x>proj(gap[0])&&x<proj(gap[1]);if(inCone||x===280&&false)dChar(g,e,x,y,'up',t,.9,0)}
+    dChar(g,DEMO_A,px,py,'down',t,.9,0);
+    dText(g,'inside: light only through the door',280,30,17,'#fff');dText(g,'hidden behind the walls',470,265,14,'#ffb3c0')}},
+ {title:'Zoom',text:'You start zoomed in at 150%. Zoom in any time with the mouse wheel or + and -. Zooming out is unlocked by leveling up, down to 80% at level 60.',
+  draw(g,t,st){dBG(g);const p=t%8,lvl=1+Math.floor(clamp(p/6,0,1)*59),mn=clamp(1.5-.7*(lvl-1)/59,.8,1.5),zoom=p<1?1.5:p<6?mn:mn;
+    const sc=1.5/zoom;g.save();g.translate(280,130);g.scale(1/sc*1.0,1/sc*1.0);g.translate(-280,-130);
+    for(let i=0;i<14;i++){const x=40+(i%7)*80,y=50+Math.floor(i/7)*130;g.font='26px serif';g.textAlign='center';g.fillText(['🍔','🍕','🍎','🍩','🥤','🌳','🏠'][i%7],x,y)}
+    dChar(g,DEMO_A,280,130,'down',t,1,0);g.restore();
+    g.strokeStyle='#2b2140';g.lineWidth=6;g.strokeRect(3,3,HW-6,HH-6);
+    dText(g,'Zoom '+Math.round(zoom*100)+'%',280,40,30,'#fff');dText(g,'Level '+lvl,120,250,20,'#ffc93c','center');
+    dText(g,mn>.8?'🔒 zoom out more at higher levels':'🔓 fully unlocked',360,250,16,mn>.8?'#ffb3c0':'#9ff0b0')}}];
+let howStep=0,howRaf=0,howT0=0,howLast=0,howSt={};
+function showHow(i){howStep=(i+DEMOS.length)%DEMOS.length;howSt={};howT0=performance.now()/1000;howLast=0;const d=DEMOS[howStep];
+  $('htext').innerHTML='<b>'+(howStep+1)+'. '+d.title+'</b>'+d.text;
+  $('hdots').innerHTML=DEMOS.map((_,k)=>'<i data-i="'+k+'" class="'+(k===howStep?'on':'')+'"></i>').join('');
+  $('hprev').style.visibility=howStep?'visible':'hidden';$('hnext').textContent=howStep===DEMOS.length-1?'Done':'Next'}
+function howLoop(){if($('howto').hidden)return;const t=performance.now()/1000-howT0,dt=Math.min(.05,t-howLast);howLast=t;
+  const g=$('hcanvas').getContext('2d');g.setTransform(1,0,0,1,0,0);try{DEMOS[howStep].draw(g,t,howSt,dt)}catch(_){}
+  howRaf=requestAnimationFrame(howLoop)}
+function openHow(){$('howto').hidden=false;showHow(0);cancelAnimationFrame(howRaf);howRaf=requestAnimationFrame(howLoop)}
+function closeHow(){$('howto').hidden=true;cancelAnimationFrame(howRaf)}
+$('howbtn').addEventListener('click',openHow);$('hclose').addEventListener('click',closeHow);
+$('hprev').addEventListener('click',()=>showHow(howStep-1));
+$('hnext').addEventListener('click',()=>{if(howStep===DEMOS.length-1)closeHow();else showHow(howStep+1)});
+$('hdots').addEventListener('click',e=>{const d=e.target.closest('[data-i]');if(d)showHow(+d.dataset.i)});
+addEventListener('keydown',e=>{if($('howto').hidden)return;if(e.key==='Escape')closeHow();else if(e.key==='ArrowRight')showHow(howStep+1);else if(e.key==='ArrowLeft')showHow(howStep-1)});
 function openGuide(tab){buildGuide(tab||'items');$('guide').hidden=false;for(const b of document.querySelectorAll('.gtab'))b.classList.toggle('on',b.dataset.t===(tab||'items'))}
 $('guidebtn').addEventListener('click',()=>openGuide());
 $('gclose').addEventListener('click',()=>{$('guide').hidden=true});
@@ -1264,7 +1385,12 @@ function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=
 function duelWords(a,b,aC,bC,ka,kb){const ps=sentenceWords(a,b,aC,ka),os=sentenceWords(b,a,bC,kb),floor=Math.ceil(Math.max(ps.n,os.n)/2);
   ps.n=Math.max(ps.n,floor);os.n=Math.max(os.n,floor);return[ps,os]}
 // what a duel between a and b would look like right now: positive = b types more words than a, so a has the edge
-function advOf(a,b,t){const [ps,os]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.id]||0)>t,false,false);return os.n-ps.n}
+// the aura counts everything that changes a duel: phrase length (level, running away, perks), keyboard items,
+// and the perks that act like free words (Warm Fingers, Head Start, Flow State, Autocorrect)
+const keyItemOf=e=>e.items.indexOf('gkeys')>=0?'gkeys':e.items.indexOf('keys')>=0?'keys':false;
+function advOf(a,b,t){const [ps,os]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.id]||0)>t,keyItemOf(a),keyItemOf(b));
+  const free=(me,op)=>me.st.warm+(me.st.head-op.st.head)/1.5+(me.st.flow?.5:0)-(op.st.flow?.5:0)+(me.st.forgive-op.st.forgive)*.3;
+  return Math.round((os.n-free(b,a))-(ps.n-free(a,b)))}
 // the higher your level, the longer your phrase: newcomers type 3 words, +1 per 12 levels, up to 20
 function sentenceWords(me,op,caught,kb){const base=clamp(3+Math.floor(L(me)/12),3,20),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
     under=L(op)>L(me)?me.st.underdog:0,curse=op.st.curse,key=kb==='gkeys'?Math.floor(base/2):kb?2:0;
