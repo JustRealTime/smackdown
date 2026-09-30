@@ -173,3 +173,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - In einem Haus sieht man nach draußen nur durch die Türen, als Lichtkegel.
 - Zäune, Laternen, Bänke, Fässer, Lagerfeuer und Möbel blockieren nicht. Der Schatten ist nur Darstellung, der Server und die Bots ändern sich nicht.
 - Umsetzung: Sichtpolygon per Strahlenwurf von der Spielerposition gegen die dem Spieler zugewandten Kanten, als Overlay über der Welt.
+
+## Runde 18: Sicht nur durch Häuser, Kamera-Zoom
+
+- Nur Hauswände blockieren die Sicht. Bäume, Felsen und Props nicht mehr (zu viel Unruhe).
+- Was im Schatten liegt, wird nur abgedunkelt (Boden). Spieler, Bots, Namen, Snacks, Kisten und Orbs im Schatten werden gar nicht gezeichnet.
+- Kamera-Zoom mit Mausrad oder + / - (0 setzt zurück), Bereich 40 % bis 200 %. Ein Badge zeigt den Wert kurz an, er wird im Browser gespeichert.
