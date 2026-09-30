@@ -11,10 +11,10 @@ Der Name ist noch ein Arbeitstitel.
 - **Maus:** Die Figur läuft zum Mauszeiger.
 - **Shift:** Sprint, solange die Ausdauer reicht.
 - **Leertaste:** Dash mit Slide, die schnellste Bewegung, mit Abklingzeit.
-- **Berühren:** Ein Tippduell startet. Wer den englischen Satz schneller richtig tippt, gewinnt und bekommt alle Level des Gegners.
+- **Berühren:** Ein Tippduell startet. Wer die kurze englische Phrase schneller richtig tippt, gewinnt und bekommt alle Level des Gegners.
 
 ## Stand
 
-Prototyp v1: Solo gegen 18 Bots, Snacks mit Essanimation, Level-Looks von 1 bis 100, Tippduelle, Sprint und Dash, betretbare Häuser. Multiplayer kommt später.
+Prototyp v2: Solo gegen 18 Bots, 16 betretbare Gebäude in 5 Typen (Haus, Diner, Bäckerei, Fitnessstudio, Schuppen), zufällig gemischte Charaktere, Level-Looks von 1 bis 100, kurze Tippduelle mit Animationen, Sprint, Dash mit Slide und Essanimation mit Bissen. Multiplayer kommt später.
 
 Die Spielidee und alle bisherigen Entscheidungen stehen in [docs/konzept.md](docs/konzept.md).
