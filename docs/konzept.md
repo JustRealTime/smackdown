@@ -185,3 +185,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Guide: Zeilen statt Karten. Items nach Seltenheit gruppiert (Punkt = Seltenheit), Perks mit Reitern pro Baum, Effekt auf höchstem Rang.
 - Esc im Spiel öffnet "Go to the menu?" (Esc = bleiben, Enter = Menü). Im Einzelspieler pausiert das Spiel dabei. Auf dem Todesbildschirm geht Esc direkt ins Menü.
 - Schatten: dunkler (78 %), auch Partikel im Schatten werden nicht gezeichnet. Im Startmenü steht "Build r19", damit man sieht, ob man die neue Datei hat.
+
+## Runde 20: Hausschatten nur hinten, Zoom per Level
+
+- Von außen ist ein Haus ein fester Block: der Schatten fällt nur auf die Seite, die vom Spieler weg zeigt (keine Lichtstreifen durch Türen mehr). Innen gelten weiter die echten Türöffnungen.
+- Zoom startet bei 150 %. Rauszoomen wird mit Levels freigeschaltet: bei Lv 1 gar nicht, danach in 5-%-Schritten bis 80 % bei Lv 60. Reinzoomen geht immer (bis 250 %). Beim Freischalten erscheint ein Hinweis.
