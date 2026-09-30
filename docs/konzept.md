@@ -195,3 +195,12 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Die Aura (grün/rot, Zahl) berücksichtigt jetzt alles, was ein Duell verändert: Level, Weglaufen, Pro Keyboard (-2 Wörter) und Golden Keyboard (halbe Phrase) bei beiden Seiten, sowie die Perks Short Phrases, Curse, Underdog, Slippery und zusätzlich Warm Fingers, Head Start, Flow State und Autocorrect als "geschenkte Wörter".
 - "How to play" im Startmenü: 8 kurze animierte Szenen (Bewegen/Essen, Sprint/Dash, Perks, Duelle, Aura, Items, Sichtlinie, Zoom) mit den Spiel-Sprites. Navigation per Buttons, Punkte oder Pfeiltasten, Esc schließt. Build r21.
+
+## Runde 22: Quests, Editor, große Karte, neue Items
+
+- Quests (alle ca. 3 Minuten, zufällig): bestimmte Snacks essen, Geschenkboxen öffnen oder eine Unterwasser-Box finden, mit Zeitlimit. Belohnung: Level, sonst verfällt sie. Gesuchte Snacks werden markiert.
+- Charakter-Editor im Startmenü (Frisur, Haar, Haut, Oberteil, Hose, Schuhe, Accessoire, freie Farben), wird gespeichert und an den Server geschickt.
+- Karte 13600 x 13600 (doppelte Fläche), 9 Biome (neu: Dschungel, Vulkan, Zuckerland), ca. 95 Gebäude in 16 Typen (neu: Pizzeria, Schule, Klinik, Kino, Werkstatt, Eisdiele), neue Props (Ruinen, Friedhof, Brunnenplatz), 160 Bots.
+- 8 neue Items, Pro Keyboard ist Epic und nur noch -1 Wort, Golden Keyboard etwa -35 %, Epic/Legendary-Chancen gesenkt.
+- Tutorial mit doppelter Auflösung (scharf).
+- Server-Schritt von ca. 26 ms auf ca. 6 ms optimiert (Kistensuche der Bots gedrosselt, Snack-Sog über das Raster).

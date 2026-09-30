@@ -84,7 +84,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #hpanel{width:min(620px,100%);display:flex;flex-direction:column;overflow:hidden}
 #hhead{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:3px solid var(--ink)}
 #hhead h2{margin:0;font:26px var(--display)}
-#hcanvas{width:100%;height:auto;display:block;background:#cfe8b8;border-bottom:3px solid var(--ink);image-rendering:pixelated}
+#hcanvas{width:100%;height:auto;display:block;background:#cfe8b8;border-bottom:3px solid var(--ink)}
 #htext{margin:0;padding:12px 18px 4px;font-weight:700;font-size:15px;line-height:1.35;min-height:4.6em}
 #htext b{font:19px var(--display);display:block;margin-bottom:2px}
 #hnav{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 16px}
@@ -306,7 +306,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <div id="howto" class="overlay" hidden>
   <div class="panel" id="hpanel">
     <div id="hhead"><h2 id="htitle">How to play</h2><button type="button" class="btn alt" id="hclose">Close</button></div>
-    <canvas id="hcanvas" width="560" height="280"></canvas>
+    <canvas id="hcanvas" width="1120" height="560"></canvas>
     <p id="htext"></p>
     <div id="hnav"><button type="button" class="btn alt" id="hprev">Back</button><div id="hdots"></div><button type="button" class="btn" id="hnext">Next</button></div>
   </div>
@@ -1212,7 +1212,7 @@ function showHow(i){howStep=(i+DEMOS.length)%DEMOS.length;howSt={};howT0=perform
   $('hdots').innerHTML=DEMOS.map((_,k)=>'<i data-i="'+k+'" class="'+(k===howStep?'on':'')+'"></i>').join('');
   $('hprev').style.visibility=howStep?'visible':'hidden';$('hnext').textContent=howStep===DEMOS.length-1?'Done':'Next'}
 function howLoop(){if($('howto').hidden)return;const t=performance.now()/1000-howT0,dt=Math.min(.05,t-howLast);howLast=t;
-  const g=$('hcanvas').getContext('2d');g.setTransform(1,0,0,1,0,0);try{DEMOS[howStep].draw(g,t,howSt,dt)}catch(_){}
+  const g=$('hcanvas').getContext('2d');g.setTransform(2,0,0,2,0,0);try{DEMOS[howStep].draw(g,t,howSt,dt)}catch(_){}
   howRaf=requestAnimationFrame(howLoop)}
 function openHow(){$('howto').hidden=false;showHow(0);cancelAnimationFrame(howRaf);howRaf=requestAnimationFrame(howLoop)}
 function closeHow(){$('howto').hidden=true;cancelAnimationFrame(howRaf)}
@@ -1478,10 +1478,11 @@ function stepEnt(e,dt,t){
   if(e.state==='move'){
     const magnet=bf.magnet>t,hole=bf.blackhole>t,vr=Math.max(st.vac,magnet?420:0,hole?1000:0),gr=hole?800:st.nose?380:magnet?280:0;
     const pull=(o,r,sp)=>{const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);if(d<r&&d>1){const k=Math.min(d,sp*dt)/d;o.x+=dx*k;o.y+=dy*k}};
-    if(vr>0)for(const f of foods)pull(f,vr,hole?900:magnet?540:400);
+    if(vr>0){const sp=hole?900:magnet?540:400;for(let ci=Math.floor((e.x-vr)/FGC);ci<=Math.floor((e.x+vr)/FGC);ci++)for(let cj=Math.floor((e.y-vr)/FGC);cj<=Math.floor((e.y+vr)/FGC);cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(let k=0;k<cell.length;k++)pull(cell[k],vr,sp)}}
     if(gr>0){for(const b of boxes)if(!b.water)pull(b,gr,420);for(const o of orbs)pull(o,gr,hole?800:420)}
-    for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];
-      if(itemRoom(e)&&Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14){boxes.splice(i,1);giveItem(e,t,b.water);if(b.water&&e.isPlayer)sfx.splash(1);break}}
+    e.boxT=(e.boxT||0)-dt;   // bots only look for gift boxes ten times a second, there are many boxes
+    if(e.human||e.boxT<=0){e.boxT=.1;for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];
+      if(Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14&&itemRoom(e)){boxes.splice(i,1);giveItem(e,t,b.water);if(b.water&&e.isPlayer)sfx.splash(1);break}}}
     for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];
       if(Math.abs(o.x-e.x)<e.r+16&&Math.abs(o.y-e.y)<e.r+16){orbs.splice(i,1);const lb=e.lvl;gainXp(e,o.v*st.orbx);e.sqv+=2.5;stars(o.x,o.y,3,[GOLD,'#fff'],120);if(e.isPlayer){sfx.orb();floater(e.x,e.y-56,'+'+(e.lvl-lb).toFixed(1)+' LV',GOLD)}}}
     const fi=Math.floor(e.x/FGC),fj=Math.floor(e.y/FGC);   // only look at the snacks in the neighbouring grid cells
