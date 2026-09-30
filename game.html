@@ -62,16 +62,19 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .gtab{font:800 14px var(--body);padding:6px 14px;border:3px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
 .gtab.on{background:var(--tomato);color:#fff}
 #gbody{overflow:auto;padding:16px 18px 20px;display:flex;flex-direction:column;gap:18px}
-.gsec h3{margin:0 0 8px;font:20px var(--display);display:flex;align-items:center;gap:8px}
-.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.gcard{position:relative;display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:3px solid var(--ink);border-left:9px solid var(--rc,#c3ccd6);border-radius:12px;background:#fff;box-shadow:0 3px 0 var(--ink)}
-.gcard.t2{box-shadow:0 3px 0 var(--ink),0 0 12px #b06bff88}
-.gcard.t3{background:linear-gradient(#fff3c4,#fff);box-shadow:0 3px 0 var(--ink),0 0 14px #ffc93caa}
-.gcard .gi{font-size:30px;line-height:1}
-.gcard b{display:block;font:17px var(--display)}
-.gcard .gr{font:800 10px var(--body);letter-spacing:1px;text-transform:uppercase;color:var(--rt,#7d7196)}
-.gcard p{margin:2px 0 0;font-weight:700;font-size:13px;line-height:1.25}
-.gcard small{display:block;margin-top:3px;font-weight:800;font-size:11px;color:var(--muted)}
+.gsec h3{margin:0 0 4px;font:18px var(--display);display:flex;align-items:baseline;gap:10px}
+.gsec h3 small{font:700 12px var(--body);color:var(--muted)}
+.glist{display:flex;flex-direction:column}
+.grow{display:grid;grid-template-columns:34px 150px 1fr auto;gap:10px;align-items:center;padding:7px 4px;border-top:1px solid #e4dcef}
+.grow:first-child{border-top:0}
+.grow .gi{font-size:22px;text-align:center}
+.grow b{font:16px var(--display);display:flex;align-items:center;gap:7px}
+.grow b i{width:9px;height:9px;border-radius:50%;background:var(--rc);border:2px solid var(--ink);flex:none}
+.grow p{margin:0;font-weight:700;font-size:13px;line-height:1.25}
+.grow small{font-weight:800;font-size:11px;color:var(--muted);white-space:nowrap}
+.gsub{display:flex;gap:6px;flex-wrap:wrap}
+.gsub .gtab{font-size:13px;padding:4px 12px}
+@media (max-width:640px){.grow{grid-template-columns:30px 1fr;}.grow p,.grow small{grid-column:2}}
 .gnote{margin:0;font-weight:700;font-size:14px}
 .gbar{display:flex;height:22px;border:3px solid var(--ink);border-radius:8px;overflow:hidden;margin:4px 0 2px}
 .gbar i{display:block;font:800 11px/16px var(--body);text-align:center;color:#2b2140}
@@ -227,6 +230,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     </div>
     <button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button>
     <p class="small" id="mpstatus"></p>
+    <p class="small" style="opacity:.6">Build r19</p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -246,6 +250,14 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
   <div class="panel" id="gpanel">
     <div id="ghead"><h2>Guide</h2><div id="gtabs"><button type="button" class="gtab on" data-t="items">Items</button><button type="button" class="gtab" data-t="perks">Perks</button><button type="button" class="gtab" data-t="rar">Rarity</button></div><button type="button" class="btn alt" id="gclose">Close</button></div>
     <div id="gbody"></div>
+  </div>
+</div>
+
+<div id="leave" class="overlay" hidden>
+  <div class="panel card" style="text-align:center">
+    <h1 class="logo" style="font-size:36px">Go to the menu?</h1>
+    <p class="small" id="leavenote">Your round ends and you lose your progress.</p>
+    <div class="row" style="justify-content:center"><button class="btn alt" type="button" id="leavestay">Stay <kbd>Esc</kbd></button><button class="btn" type="button" id="leavego">Menu <kbd>Enter</kbd></button></div>
   </div>
 </div>
 
@@ -901,14 +913,18 @@ setInterval(()=>music.tick(.05),50);
 /* ---------- input ---------- */
 // browsers may pause audio until the page gets a click or key press, so wake it up on any of them
 for(const ev of ['pointerdown','keydown'])addEventListener(ev,()=>{sfx.init();music.unlock()},{passive:true});
+let leaveOpen=false;
+function askLeave(on){leaveOpen=on;$('leave').hidden=!on;if(on)$('leavestay').focus()}
 const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
 addEventListener('blur',()=>{shift=false});
 // left click dashes too (clicks on buttons and panels do not)
-addEventListener('mousedown',e=>{if(e.button===0&&game==='play'&&!duel&&!overUI&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
+addEventListener('mousedown',e=>{if(e.button===0&&game==='play'&&!duel&&!overUI&&!leaveOpen&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
 addEventListener('keyup',e=>{if(e.key==='Shift')shift=false});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&(game==='play'||game==='dead')&&!duel&&$('guide').hidden){e.preventDefault();toMenu();return}
+  if(leaveOpen){if(e.key==='Escape'||e.key==='n'){e.preventDefault();askLeave(false)}else if(e.key==='Enter'||e.key==='y'){e.preventDefault();askLeave(false);toMenu()}return}
+  if(e.key==='Escape'&&game==='dead'){e.preventDefault();toMenu();return}
+  if(e.key==='Escape'&&game==='play'&&!duel&&$('guide').hidden){e.preventDefault();askLeave(true);return}
   if(game==='dead'&&e.key==='Enter'){e.preventDefault();playAgain();return}
   if(game!=='play')return;
   if(duel){handleTyping(e);return}
@@ -946,32 +962,37 @@ function startGame(){
   respawnLvl=1;showOffer();
 }
 /* ---------- guide: every item and perk explained ---------- */
+let guideTree='feast';
 function buildGuide(tab){
-  const card=(icon,name,tier,text,extra,tc)=>'<div class="gcard t'+tier+'" style="--rc:'+TIERS[tier].c+';--rt:'+TIERS[tier].t+'"><span class="gi">'+icon+'</span><div><span class="gr">'+TIERS[tier].n+'</span><b>'+name+'</b><p>'+text+'</p>'+(extra?'<small>'+extra+'</small>':'')+'</div></div>';
+  const row=(icon,name,tier,text,extra)=>'<div class="grow" style="--rc:'+TIERS[tier].c+'"><span class="gi">'+icon+'</span><b><i title="'+TIERS[tier].n+'"></i>'+name+'</b><p>'+text+'</p><small>'+(extra||'')+'</small></div>';
   let h='';
   if(tab==='items'){
-    h+='<p class="gnote">Gift boxes lie around the map, inside buildings, and hidden at the bottom of ponds (swim to find them). You can carry 3 items at once; each slot has its own key: <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Better items are much rarer.</p>';
-    for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small class="small">'+TIER_ODDS[t]+'% per box · '+WATER_ODDS[t]+'% underwater</small></h3><div class="ggrid">';
-      for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier!==t)continue;h+=card(it.icon,it.name,t,it.d,it.auto?'Works automatically':it.dur?'Lasts '+it.dur+'s':'Instant')}
+    h+='<p class="gnote">You can carry 3 items. Each slot has a key: <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Better items are much rarer.</p>';
+    for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+TIER_ODDS[t]+'% per box · '+WATER_ODDS[t]+'% underwater</small></h3><div class="glist">';
+      for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier===t)h+=row(it.icon,it.name,t,it.d,it.auto?'automatic':it.dur?it.dur+'s':'instant')}
       h+='</div></div>'}}
   else if(tab==='perks'){
-    h+='<p class="gnote">You pick a perk at Level 2 and then every 4 levels. You are offered 3 cards; the more you invest in a tree, the more of it you see. Legendary perks unlock after 4 points in their tree.</p>';
-    for(const k of Object.keys(TREES)){const T=TREES[k];h+='<div class="gsec"><h3 style="color:'+T.col+'">'+T.icon+' '+T.name+'</h3><div class="ggrid">';
-      for(const p of PERKS.filter(p=>p.tree===k).sort((a,b)=>a.tier-b.tier))h+=card(p.icon,p.name,p.tier,p.d(1)+(p.max>1?' (best: '+p.d(p.max)+')':''),p.max>1?'Up to rank '+p.max:'One time only');
-      h+='</div></div>'}}
+    h+='<p class="gnote">Pick a perk at Level 2, then every 4 levels. Legendary perks unlock after 4 points in their tree.</p><div class="gsub">'
+      +Object.keys(TREES).map(k=>'<button type="button" class="gtab'+(k===guideTree?' on':'')+'" data-tree="'+k+'">'+TREES[k].icon+' '+TREES[k].name+'</button>').join('')+'</div>';
+    h+='<div class="glist">';
+    for(const p of PERKS.filter(p=>p.tree===guideTree).sort((a,b)=>a.tier-b.tier))h+=row(p.icon,p.name,p.tier,p.d(p.max),p.max>1?p.max+' ranks':'once');
+    h+='</div><p class="small">The text shows the effect at the highest rank. The dot shows the rarity: grey common, blue rare, purple epic, gold legendary.</p>'}
   else{
     h+='<p class="gnote">Items and perks come in four rarities. Each step is about three times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
-      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Before you touch someone, look at them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Higher level means longer phrases, and being caught running helps your opponent.</p></div>'}
+      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Higher level means longer phrases, and being caught running helps your opponent.</p></div>'}
   $('gbody').innerHTML=h}
 function openGuide(tab){buildGuide(tab||'items');$('guide').hidden=false;for(const b of document.querySelectorAll('.gtab'))b.classList.toggle('on',b.dataset.t===(tab||'items'))}
 $('guidebtn').addEventListener('click',()=>openGuide());
 $('gclose').addEventListener('click',()=>{$('guide').hidden=true});
 $('gtabs').addEventListener('click',e=>{const b=e.target.closest('.gtab');if(b)openGuide(b.dataset.t)});
+$('gbody').addEventListener('click',e=>{const b=e.target.closest('[data-tree]');if(b){guideTree=b.dataset.tree;openGuide('perks')}});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden)$('guide').hidden=true});
 $('startform').addEventListener('submit',e=>{e.preventDefault();startGame()});
 const playAgain=()=>role==='client'?respawnNet():startGame();
 $('again').addEventListener('click',playAgain);
+$('leavestay').addEventListener('click',()=>askLeave(false));
+$('leavego').addEventListener('click',()=>{askLeave(false);toMenu()});
 $('joinbtn').addEventListener('click',joinGame);
 try{const sv=localStorage.getItem('snackdown-server');if(sv)$('server').value=sv}catch(_){}
 if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host&&!$('server').value)$('server').value=location.host;
@@ -1562,7 +1583,7 @@ function netLost(msg){
   for(const id of ['hud','board','minilogo','mini','kingbar','statusbar','duel','dbanner','count','dead'])$(id).hidden=true;
   resetSoloWorld();$('start').hidden=false;$('mpstatus').textContent=msg==null?'Connection to the server was lost.':msg}
 // Esc leaves the round and goes back to the menu (the server keeps the game for the others)
-function toMenu(){const w=ws;if(role==='client'&&w){role='solo';try{w.close()}catch(_){}}netLost('')}
+function toMenu(){leaveOpen=false;$('leave').hidden=true;const w=ws;if(role==='client'&&w){role='solo';try{w.close()}catch(_){}}netLost('')}
 function resetSoloWorld(){
   WORLD_SEED=(Math.random()*1e9)|0;buildWorld(WORLD_SEED);ents=[];player=null;king=null;foods=[];boxes=[];orbs=[];parts=[];floaters=[];skids=[];botDuels=[];
   for(let i=0;i<FOOD_OUT;i++)spawnFood(false);for(let i=0;i<FOOD_IN;i++)spawnFood(true);
@@ -1639,7 +1660,7 @@ function fxStep(e,dt,t){
   if(e.buff.rush>t&&Math.random()<dt*14)parts.push({k:'star',x:e.x+rand(-16,16),y:e.y-rand(0,30),vx:0,vy:-30,life:.5,max:.5,c:'#ff8fc2',s:rand(4,7),rot:Math.random()*3})}
 function sendInput(t){
   let ux=0,uy=0,f=0;
-  if(player&&game==='play'&&!duel&&!overUI&&player.state!=='eaten'){const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);if(d>6){ux=dx/d;uy=dy/d;f=clamp((d-6)/110,0,1)}}
+  if(player&&game==='play'&&!duel&&!overUI&&!leaveOpen&&player.state!=='eaten'){const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);if(d>6){ux=dx/d;uy=dy/d;f=clamp((d-6)/110,0,1)}}
   const dash=dashPressed;dashPressed=false;const key=ux.toFixed(2)+','+uy.toFixed(2)+','+f.toFixed(1)+','+shift;
   if(dash||(key!==lastIn&&t-inSentAt>.03)||t-inSentAt>.25){netSend({t:'in',ux:+ux.toFixed(3),uy:+uy.toFixed(3),f:+f.toFixed(2),sp:shift,da:dash?1:0});lastIn=key;inSentAt=t}}
 function updateClient(dt,t){
@@ -2022,7 +2043,7 @@ function computeSight(){
   sight=pts}
 function drawSight(v,v2){
   if(!sight)return;const pts=sight;
-  ctx.fillStyle='rgba(22,15,38,.6)';ctx.beginPath();   // ground in shadow is only darkened; people and items in it are not drawn at all
+  ctx.fillStyle='rgba(22,15,38,.78)';ctx.beginPath();   // ground in shadow is only darkened; people and items in it are not drawn at all
   const m=400;ctx.rect(v.x-m,v.y-m,v2.x-v.x+2*m,v2.y-v.y+2*m);
   ctx.moveTo(pts[0],pts[1]);for(let k=2;k<pts.length;k+=2)ctx.lineTo(pts[k],pts[k+1]);ctx.closePath();
   ctx.fill('evenodd')}
@@ -2051,7 +2072,7 @@ function render(t){
   const vis=ents.filter(e=>inView(e.x,e.y,80)&&(e===player||sightOf(e.x,e.y-10)));
   const layer=vis.map(e=>({y:e.y,e})).concat(trees.filter(tr=>inView(tr.x,tr.y,90)).map(tr=>({y:tr.y,tr}))).sort((a,b)=>a.y-b.y);
   for(const o of layer){if(o.e)drawEnt(o.e,t);else drawTree(o.tr,t)}
-  for(const p of parts){const a=clamp(p.life/p.max,0,1);ctx.globalAlpha=a;
+  for(const p of parts){if(!sightOf(p.x,p.y))continue;const a=clamp(p.life/p.max,0,1);ctx.globalAlpha=a;
     switch(p.k){
       case 'ring':{const k=1-a,r=p.s+(p.e-p.s)*(1-(1-k)*(1-k));ctx.strokeStyle=p.c;ctx.lineWidth=1+4*a;ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*p.sq,0,0,6.3);ctx.stroke();break}
       case 'dust':ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.s*(1.7-a*.7),0,6.3);ctx.fill();break;
@@ -2070,7 +2091,7 @@ let last=now();
 function loop(){const t=now();let dt=Math.min(.05,t-last);last=t;
   if(hitstop>0){hitstop-=dt;dt*=.12}
   shake*=Math.pow(.02,dt);kick*=Math.pow(.06,dt);
-  if(role==='client')updateClient(dt,t);else update(dt,t);
+  if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t);
   render(t);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 })();

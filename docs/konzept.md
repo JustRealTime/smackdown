@@ -179,3 +179,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Nur Hauswände blockieren die Sicht. Bäume, Felsen und Props nicht mehr (zu viel Unruhe).
 - Was im Schatten liegt, wird nur abgedunkelt (Boden). Spieler, Bots, Namen, Snacks, Kisten und Orbs im Schatten werden gar nicht gezeichnet.
 - Kamera-Zoom mit Mausrad oder + / - (0 setzt zurück), Bereich 40 % bis 200 %. Ein Badge zeigt den Wert kurz an, er wird im Browser gespeichert.
+
+## Runde 19: Guide aufgeräumt, Esc fragt nach
+
+- Guide: Zeilen statt Karten. Items nach Seltenheit gruppiert (Punkt = Seltenheit), Perks mit Reitern pro Baum, Effekt auf höchstem Rang.
+- Esc im Spiel öffnet "Go to the menu?" (Esc = bleiben, Enter = Menü). Im Einzelspieler pausiert das Spiel dabei. Auf dem Todesbildschirm geht Esc direkt ins Menü.
+- Schatten: dunkler (78 %), auch Partikel im Schatten werden nicht gezeichnet. Im Startmenü steht "Build r19", damit man sieht, ob man die neue Datei hat.
