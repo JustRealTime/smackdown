@@ -84,7 +84,11 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #hpanel{width:min(620px,100%);display:flex;flex-direction:column;overflow:hidden}
 #hhead{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:3px solid var(--ink)}
 #hhead h2{margin:0;font:26px var(--display)}
-#hcanvas{width:100%;height:auto;display:block;background:#cfe8b8;border-bottom:3px solid var(--ink)}
+#hsvg{border-bottom:3px solid var(--ink);line-height:0}
+#hsvg svg{width:100%;height:auto;display:block}
+#hsvg .vt{font-family:'Lilita One','Arial Rounded MT Bold',sans-serif;paint-order:stroke;stroke:#2b2140;stroke-width:5px;stroke-linejoin:round}
+#hsvg .vk{font:800 15px 'Nunito',sans-serif;fill:#2b2140}
+#hsvg .vm{font:700 30px ui-monospace,Menlo,monospace}
 #htext{margin:0;padding:12px 18px 4px;font-weight:700;font-size:15px;line-height:1.35;min-height:4.6em}
 #htext b{font:19px var(--display);display:block;margin-bottom:2px}
 #hnav{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 16px}
@@ -268,7 +272,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     </div>
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="mpstatus"></p>
-    <p class="small" style="opacity:.6">Build r23</p>
+    <p class="small" style="opacity:.6">Build r24</p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -306,7 +310,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <div id="howto" class="overlay" hidden>
   <div class="panel" id="hpanel">
     <div id="hhead"><h2 id="htitle">How to play</h2><button type="button" class="btn alt" id="hclose">Close</button></div>
-    <canvas id="hcanvas" width="1120" height="560"></canvas>
+    <div id="hsvg"></div>
     <p id="htext"></p>
     <div id="hnav"><button type="button" class="btn alt" id="hprev">Back</button><div id="hdots"></div><button type="button" class="btn" id="hnext">Next</button></div>
   </div>
@@ -1122,100 +1126,145 @@ $('clevel').addEventListener('input',e=>{cLvl=+e.target.value;$('clevelv').textC
   requestAnimationFrame(cloop)})();
 addEventListener('keydown',e=>{if(!$('custom').hidden&&e.key==='Escape')closeCustom()});
 /* ---------- how to play: short animated demos drawn with the game's own sprites ---------- */
-const DE=(shirt,hair,skin)=>({skin:skin||SKINS[0],shirt,hair:hair||'#3b2417',pants:'#3d4a7a',hs:'short',acc:'none',acol:'#fff',sty:'plain',shorts:false});
-const DEMO_A=DE('#3db5ff'),DEMO_B=DE('#ff6b3d','#1f1a17',SKINS[3]),DEMO_C=DE('#9b5de5','#e2b33c',SKINS[7]),DEMO_LOOK=lookOf(1);
-const HW=560,HH=280;
-function dBG(g){g.fillStyle='#cfe8b8';g.fillRect(0,0,HW,HH);g.fillStyle='#c4e0ac';for(let x=0;x<HW;x+=40)for(let y=0;y<HH;y+=40)if((x+y)/40%2===0)g.fillRect(x,y,40,40)}
-function dChar(g,e,x,y,dir,t,s,fr){s=s||1;g.save();g.imageSmoothingEnabled=false;g.fillStyle='rgba(43,33,64,.2)';g.beginPath();g.ellipse(x,y+26*s,17*s,6*s,0,0,6.3);g.fill();
-  g.translate(x,y);g.scale(s,s);g.drawImage(sprite(e,DEMO_LOOK,dir||'down',fr==null?0:fr),-30,-52,60,78);g.restore()}
-function dText(g,txt,x,y,size,col,align){g.font=(size||18)+'px "Lilita One","Arial Rounded MT Bold",sans-serif';g.textAlign=align||'center';g.lineJoin='round';g.lineWidth=5;g.strokeStyle='#2b2140';g.strokeText(txt,x,y);g.fillStyle=col||'#fff';g.fillText(txt,x,y)}
-function dKey(g,label,x,y,down){g.save();g.translate(x,y+(down?3:0));g.fillStyle='#fff';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(-22,-16,44,32,7);g.fill();g.stroke();
-  g.fillStyle='#2b2140';g.font='15px "Lilita One",sans-serif';g.textAlign='center';g.fillText(label,0,6);g.restore()}
-function dBar(g,x,y,w,p,col){g.fillStyle='#eee7f7';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(x,y,w,16,8);g.fill();g.stroke();g.fillStyle=col;g.beginPath();g.roundRect(x+2,y+2,Math.max(0,(w-4)*clamp(p,0,1)),12,6);g.fill()}
-function dChip(g,txt,x,y,good){g.fillStyle=good?'#3fd06a':'#ff4d6a';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(x-22,y-14,44,26,13);g.fill();g.stroke();dText(g,txt,x,y+6,17,'#fff')}
-function dGlow(g,x,y,good,m){const c=good?'63,208,106':'255,77,106',gr=g.createRadialGradient(x,y,6,x,y,80);gr.addColorStop(0,'rgba('+c+',.6)');gr.addColorStop(1,'rgba('+c+',0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,80,0,6.3);g.fill();
-  g.strokeStyle=good?'#3fd06a':'#ff4d6a';g.lineWidth=3+m;g.fillStyle='rgba('+c+',.25)';g.beginPath();g.ellipse(x,y+22,44+m*3,20,0,0,6.3);g.fill();g.stroke()}
-const ease=p=>1-Math.pow(1-clamp(p,0,1),3);
+/* ---------- how to play: vector scenes (inline SVG with SMIL animation), crisp at every size ---------- */
+const VI='#2b2140';
+const SPL=n=>Array(n-1).fill('.45 0 .25 1').join(';');
+const mv=(pts,times,dur,o)=>{o=o||{};return '<animateTransform attributeName="transform" type="translate" values="'+pts.map(p=>p.join(' ')).join(';')+'" keyTimes="'+times.join(';')+'" dur="'+dur+'s" repeatCount="indefinite"'+(o.lin?' calcMode="linear"':' calcMode="spline" keySplines="'+SPL(pts.length)+'"')+(o.begin?' begin="'+o.begin+'s"':'')+'/>'};
+const an=(attr,vals,times,dur,o)=>{o=o||{};return '<animate attributeName="'+attr+'" values="'+vals.join(';')+'" keyTimes="'+times.join(';')+'" dur="'+dur+'s" repeatCount="indefinite"'+(o.discrete?' calcMode="discrete"':'')+(o.begin?' begin="'+o.begin+'s"':'')+'/>'};
+const vis=(a,b,c,d,dur)=>an('opacity',[0,0,1,1,0,0],[0,a,b,c,d,1],dur);   // invisible, fades in a..b, stays until c, fades out until d, invisible again
+function vchar(o,anim){o=Object.assign({x:0,y:0,s:1,skin:'#ffd7b0',shirt:'#3db5ff',hair:'#3b2417',pants:'#3d4a7a',shoes:'#3a2a22',hs:'short',bob:false},o);const S='stroke="'+VI+'" stroke-width="3" stroke-linejoin="round"';
+  let back='',front='<path d="M-21 -88 Q-22 -111 0 -111 Q22 -111 21 -88 Q10 -99 0 -97 Q-10 -99 -21 -88Z" fill="'+o.hair+'" '+S+'/>';
+  if(o.hs==='afro')back='<circle cx="0" cy="-92" r="28" fill="'+o.hair+'" '+S+'/>';
+  if(o.hs==='long')back='<rect x="-24" y="-96" width="48" height="50" rx="14" fill="'+o.hair+'" '+S+'/>';
+  if(o.hs==='spiky')front='<path d="M-21 -88 L-23 -106 L-12 -100 L-8 -116 L0 -102 L9 -116 L13 -100 L23 -106 L21 -88 Q10 -99 0 -97 Q-10 -99 -21 -88Z" fill="'+o.hair+'" '+S+'/>';
+  if(o.hs==='mohawk')front+='<path d="M-6 -100 L-4 -122 L4 -122 L6 -100Z" fill="'+o.hair+'" '+S+'/>';
+  if(o.hs==='bun')front+='<circle cx="0" cy="-116" r="9" fill="'+o.hair+'" '+S+'/>';
+  const body='<ellipse cx="0" cy="0" rx="24" ry="7" fill="rgba(43,33,64,.22)"/>'
+   +'<rect x="-12" y="-36" width="10" height="30" rx="4" fill="'+o.pants+'" '+S+'/><rect x="2" y="-36" width="10" height="30" rx="4" fill="'+o.pants+'" '+S+'/>'
+   +'<rect x="-15" y="-9" width="15" height="10" rx="4.5" fill="'+o.shoes+'" '+S+'/><rect x="0" y="-9" width="15" height="10" rx="4.5" fill="'+o.shoes+'" '+S+'/>'
+   +'<rect x="-28" y="-63" width="11" height="32" rx="5.5" fill="'+o.skin+'" '+S+'/><rect x="17" y="-63" width="11" height="32" rx="5.5" fill="'+o.skin+'" '+S+'/>'
+   +'<rect x="-18" y="-68" width="36" height="40" rx="13" fill="'+o.shirt+'" '+S+'/><rect x="-28" y="-63" width="11" height="13" rx="5" fill="'+o.shirt+'" '+S+'/><rect x="17" y="-63" width="11" height="13" rx="5" fill="'+o.shirt+'" '+S+'/>'
+   +back+'<circle cx="0" cy="-86" r="21" fill="'+o.skin+'" '+S+'/>'+front
+   +'<ellipse cx="-8" cy="-85" rx="2.8" ry="3.8" fill="'+VI+'"/><ellipse cx="8" cy="-85" rx="2.8" ry="3.8" fill="'+VI+'"/>'
+   +'<circle cx="-14" cy="-77" r="3.6" fill="#ff8fa0" opacity=".6"/><circle cx="14" cy="-77" r="3.6" fill="#ff8fa0" opacity=".6"/><path d="M-4 -75 Q0 -71 4 -75" fill="none" stroke="'+VI+'" stroke-width="2.2" stroke-linecap="round"/>';
+  return '<g transform="translate('+o.x+' '+o.y+')">'+(anim||'')+'<g transform="scale('+o.s+')"><g>'+(o.bob?'<animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur=".45s" repeatCount="indefinite"/>':'')+body+'</g></g></g>'}
+const vt=(x,y,txt,sz,col,inner,anchor)=>{sz=sz||20;col=col||'#fff';const sw=col===VI?0:sz<16?2.5:sz<24?3.8:5;return '<text x="'+x+'" y="'+y+'" class="vt" style="stroke-width:'+sw+'px" font-size="'+sz+'" fill="'+col+'" text-anchor="'+(anchor||'middle')+'">'+txt+(inner||'')+'</text>'};
+const vkey=(x,y,label,inner)=>'<g transform="translate('+x+' '+y+')"><rect x="-28" y="-18" width="56" height="34" rx="9" fill="#fff" stroke="'+VI+'" stroke-width="3"/><rect x="-28" y="-18" width="56" height="34" rx="9" fill="#ffc93c" opacity="0">'+(inner||'')+'</rect><text x="0" y="6" text-anchor="middle" class="vk">'+label+'</text></g>';
+const vbar=(x,y,w,inner,col)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="18" rx="9" fill="#eee7f7" stroke="'+VI+'" stroke-width="3"/><rect x="'+(x+3)+'" y="'+(y+3)+'" width="0" height="12" rx="6" fill="'+col+'">'+inner+'</rect>';
+const vchip=(x,y,txt,good,inner)=>'<g transform="translate('+x+' '+y+')">'+(inner?'<g>'+inner+'</g>':'')+'<rect x="-26" y="-15" width="52" height="28" rx="14" fill="'+(good?'#3fd06a':'#ff4d6a')+'" stroke="'+VI+'" stroke-width="3"/>'+vt(0,6,txt,18,'#fff')+'</g>';
+const vemo=(x,y,e,sz,inner)=>'<text x="'+x+'" y="'+y+'" font-size="'+(sz||30)+'" text-anchor="middle">'+e+(inner||'')+'</text>';
+const vscene=(defs,inner)=>'<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" role="img"><defs><pattern id="gr" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="80" height="80" fill="#d3eebb"/><rect width="40" height="40" fill="#c9e7b0"/><rect x="40" y="40" width="40" height="40" fill="#c9e7b0"/><path d="M12 30 l3 -8 l3 8 M58 66 l3 -8 l3 8" stroke="#a9d48f" stroke-width="2" fill="none" stroke-linecap="round"/></pattern>'+(defs||'')+'</defs><rect width="560" height="300" fill="url(#gr)"/>'+inner+'</svg>';
+const CUR='<path d="M0 0 L4 24 L11 18 L18 27 L21 12 Z" fill="#fff" stroke="'+VI+'" stroke-width="2.6" stroke-linejoin="round"/>';
+const glowDef=(id,good)=>'<radialGradient id="'+id+'"><stop offset="0" stop-color="'+(good?'#3fd06a':'#ff4d6a')+'" stop-opacity=".7"/><stop offset="1" stop-color="'+(good?'#3fd06a':'#ff4d6a')+'" stop-opacity="0"/></radialGradient>';
+const aura=(x,y,good,id)=>'<circle cx="'+x+'" cy="'+(y-50)+'" r="92" fill="url(#'+id+')"><animate attributeName="r" values="86;96;86" dur="1.6s" repeatCount="indefinite"/></circle><ellipse cx="'+x+'" cy="'+(y+2)+'" rx="48" ry="17" fill="'+(good?'#3fd06a':'#ff4d6a')+'" fill-opacity=".3" stroke="'+(good?'#2fa653':'#d63550')+'" stroke-width="4"/>';
 const DEMOS=[
  {title:'Move and eat',text:'Your snacker walks toward the mouse. Run over snacks to eat them and fill your level bar. Every level needs a few more snacks than the last one.',
-  draw(g,t,st,dt){if(!st.init){st.init=1;st.pos={x:280,y:140};st.lv=1;st.xp=0;st.sn=[[90,70],[470,60],[110,210],[440,215],[280,50],[285,230]].map((p,i)=>({x:p[0],y:p[1],a:1,r:0,e:['🍔','🍕','🍎','🍩','🥤','🍔'][i]}));st.fl=[];st.eat=0}
-    const tx=280+Math.cos(t*.7)*190,ty=140+Math.sin(t*1.05)*85;const ox=st.pos.x;st.pos.x+=(tx-st.pos.x)*Math.min(1,dt*2.4);st.pos.y+=(ty-st.pos.y)*Math.min(1,dt*2.4);
-    dBG(g);for(const f of st.sn){if(!f.a){f.r-=dt;if(f.r<=0)f.a=1}else if(Math.hypot(f.x-st.pos.x,f.y-st.pos.y)<34){f.a=0;f.r=2.5;st.xp+=.34;st.eat=.4;st.fl.push({x:f.x,y:f.y-20,l:1});if(st.xp>=1){st.xp=0;st.lv++;st.fl.push({x:st.pos.x,y:st.pos.y-70,l:1.4,t:'LEVEL UP!'})}}
-      if(f.a){g.font='26px serif';g.textAlign='center';g.fillText(f.e,f.x,f.y+9)}}
-    st.eat=Math.max(0,st.eat-dt);dChar(g,DEMO_A,st.pos.x,st.pos.y,st.pos.x>ox?'right':'left',t,1+st.eat*.25,1+Math.floor(t*7)%2);
-    for(const f of st.fl){f.l-=dt;f.y-=dt*30;g.globalAlpha=clamp(f.l,0,1);dText(g,f.t||'+',f.x,f.y,f.t?22:18,f.t?'#ffc93c':'#fff');g.globalAlpha=1}
-    g.strokeStyle='#2b2140';g.fillStyle='#fff';g.lineWidth=2.5;g.beginPath();g.moveTo(tx,ty);g.lineTo(tx+4,ty+22);g.lineTo(tx+10,ty+16);g.lineTo(tx+17,ty+24);g.lineTo(tx+19,ty+10);g.closePath();g.fill();g.stroke();
-    dText(g,'LEVEL '+st.lv,60,30,18,'#ffc93c');dBar(g,100,16,190,st.xp,'#ffc93c')}},
+  svg(){const D=10,P=[[70,250],[170,170],[300,250],[420,160],[490,250],[70,250]],T=[0,.2,.4,.6,.8,1],E=['🍔','🍕','🍎','🍩'];let s='';
+   for(let i=1;i<=4;i++){const t=T[i];s+=vemo(P[i][0],P[i][1]-8,E[i-1],36,an('opacity',[1,1,0,0,1],[0,t,t+.02,.95,1],D))
+     +vt(P[i][0],P[i][1]-70,'+1',24,'#ffc93c',an('opacity',[0,0,1,1,0,0],[0,t,t+.02,t+.09,t+.12,1],D))}
+   s+=vbar(20,16,250,an('width',[0,0,55,55,110,110,165,165,238,238,0],[0,.17,.2,.37,.4,.57,.6,.77,.8,.97,1],D),'#ffc93c');
+   s+=vt(20,62,'LEVEL 1',20,'#fff','','start')+vt(330,70,'LEVEL UP!',34,'#ffc93c',an('opacity',[0,0,1,1,0,0],[0,.8,.82,.9,.94,1],D));
+   s+='<g>'+mv(P,T,D,{begin:-.6})+CUR+'</g>';
+   s+=vchar({bob:true},mv(P,T,D));return vscene('',s)}},
  {title:'Sprint and dash',text:'Hold Shift to sprint while your stamina lasts. Space or a left click dashes and slides, the fastest move, but it needs a moment to recharge.',
-  draw(g,t,st){dBG(g);const p=t%3.6;let x,dash=false,sp=p<2;
-    if(p<2)x=60+p*75;else if(p<2.35){dash=true;x=210+ease((p-2)/.35)*200}else if(p<3.1)x=410+ease((p-2.35)/.75)*50;else x=460;
-    const fade=p>3.3?1-(p-3.3)/.3:1;g.globalAlpha=clamp(fade,0,1);
-    if(dash||p>=2.35&&p<3.1)for(let i=1;i<=5;i++){g.globalAlpha=.22*clamp(fade,0,1)*(1-i/6);dChar(g,DEMO_A,x-i*26*(dash?1:.5),150,'right',t,1,0)}
-    g.globalAlpha=clamp(fade,0,1);dChar(g,DEMO_A,x,150,'right',t,1,dash?0:1+Math.floor(t*10)%2);g.globalAlpha=1;
-    dKey(g,'Shift',130,50,sp);dText(g,'sprint',130,88,16,'#fff');dKey(g,'Space',300,50,dash);dText(g,'or click: dash',300,88,16,'#fff');
-    dBar(g,380,36,150,dash?.25:sp?1-p*.22:.85,'#3db5ff');dText(g,'STAMINA',455,30,13,'#fff');
-    if(dash)dText(g,'DASH!',x,100,26,'#ffc93c')}},
- {title:'Level up and perks',text:'Every few levels you get to pick one of three perks. They come in four rarities: common, rare, epic and legendary. Pick what fits how you play.',
-  draw(g,t,st){dBG(g);const p=t%6,cards=[['🥪','Gourmet','Common','#c3ccd6'],['🪦','Last Stand','Rare','#3db5ff'],['🌊','Flow State','Legendary','#ffc93c']];
-    dText(g,'Level up! Pick a perk',280,36,22,'#fff');
-    cards.forEach((c,i)=>{const a=ease((p-.3-i*.25)/.5),sel=p>3.4&&i===2,x=110+i*170,y=80+(1-a)*160-(sel?8:0);g.save();g.translate(x+60,y+80);const sc=sel?1.08+Math.sin(t*8)*.02:1;g.scale(sc,sc);g.globalAlpha=a;
-      if(i===2){g.shadowColor='#ffc93c';g.shadowBlur=14+Math.sin(t*6)*6}g.fillStyle=i===2?'#fff3c4':'#fff';g.strokeStyle=i===0?'#2b2140':c[3];g.lineWidth=5;g.beginPath();g.roundRect(-60,-80,120,160,14);g.fill();g.stroke();g.shadowBlur=0;
-      g.fillStyle=c[3];g.strokeStyle='#2b2140';g.lineWidth=2.5;g.beginPath();g.roundRect(-40,-66,80,20,10);g.fill();g.stroke();dText(g,c[2].toUpperCase(),0,-51,12,'#2b2140');
-      g.font='40px serif';g.textAlign='center';g.fillText(c[0],0,8);dText(g,c[1],0,48,16,'#2b2140');g.restore()});
-    g.globalAlpha=1;if(p>3.4){dText(g,'✔ picked',450,250,20,'#3fd06a')}}},
+  svg(){const D=6,pts=[[60,235],[290,235],[470,235],[520,235],[520,235]],T=[0,.5,.62,.8,1];let s='';
+   s+=vkey(150,44,'Shift',an('opacity',[0,0,.85,.85,0,0],[0,.02,.05,.48,.5,1],D))+vt(150,86,'sprint',18)+vkey(330,44,'Space',an('opacity',[0,0,.85,.85,0,0],[0,.5,.52,.66,.68,1],D))+vt(330,86,'or click: dash',18);
+   s+=vt(470,34,'STAMINA',13)+vbar(410,40,140,an('width',[128,128,70,50,128,128],[0,.02,.5,.62,.85,1],D),'#3db5ff');
+   s+=vt(300,140,'DASH!',38,'#ffc93c',an('opacity',[0,0,1,1,0,0],[0,.5,.52,.72,.78,1],D));
+   for(let i=4;i>=1;i--)s+='<g opacity="'+(0.11*(5-i))+'">'+vchar({s:1},mv(pts,T,D,{begin:i*.04}))+'</g>';
+   s+='<g>'+an('opacity',[1,1,0,0,1],[0,.84,.9,.99,1],D)+vchar({bob:true},mv(pts,T,D))+'</g>';
+   for(let i=0;i<3;i++)s+='<rect x="'+(40+i*26)+'" y="'+(205+i*22)+'" width="60" height="4" rx="2" fill="#fff" opacity="0">'+an('opacity',[0,0,.8,0,0],[0,.06+i*.02,.14+i*.02,.4,1],D)+'</rect>';
+   return vscene('',s)}},
+ {title:'Level up and perks',text:'Every few levels you pick one of three perks. They come in four rarities: common, rare, epic and legendary. Choose what fits how you play.',
+  svg(){const D=8,C=[['🥪','Gourmet','COMMON','#c3ccd6','#fff'],['🪦','Last Stand','RARE','#3db5ff','#fff'],['🌊','Flow State','LEGENDARY','#ffc93c','#fff6d5']];let s=vt(280,42,'Level up! Pick a perk',26);
+   C.forEach((c,i)=>{const x=40+i*180,t0=.04+i*.05,sel=i===2;
+     s+='<g>'+mv([[x,300],[x,300],[x,0],[x,0],[x,300]],[0,t0,t0+.08,.92,1],D)
+       +'<g>'+(sel?'<animateTransform attributeName="transform" type="scale" values="1;1;1.07;1.07;1" keyTimes="0;.5;.56;.92;1" dur="'+D+'s" repeatCount="indefinite" additive="sum"/>':'')
+       +(sel?'':an('opacity',[1,1,.35,.35,1],[0,.5,.56,.92,1],D))
+       +'<rect x="0" y="62" width="160" height="200" rx="18" fill="'+c[4]+'" stroke="'+VI+'" stroke-width="4"/><rect x="0" y="62" width="160" height="14" rx="6" fill="'+c[3]+'" stroke="'+VI+'" stroke-width="3"/>'
+       +(sel?'<rect x="-4" y="58" width="168" height="208" rx="20" fill="none" stroke="'+c[3]+'" stroke-width="5"><animate attributeName="stroke-opacity" values=".3;1;.3" dur="1.2s" repeatCount="indefinite"/></rect>':'')
+       +'<rect x="30" y="88" width="100" height="24" rx="12" fill="'+c[3]+'" stroke="'+VI+'" stroke-width="3"/>'+vt(80,106,c[2],13,VI)
+       +vemo(80,170,c[0],52)+vt(80,228,c[1],21,VI)+'</g></g>'});
+   s+=vt(280,288,'✔ picked',26,'#2fa653',an('opacity',[0,0,1,1,0,0],[0,.56,.6,.92,.96,1],D));
+   return vscene('',s)}},
  {title:'Duels',text:'Touch another player and a typing duel starts. Type your phrase faster than they do and you win a chunk of their levels. Lose, and you are eaten.',
-  draw(g,t,st){dBG(g);const p=t%7,meet=ease(p/1.2),ax=90+meet*130,bx=470-meet*130;
-    if(p<1.6){dChar(g,DEMO_A,ax,120,'right',t,1,1+Math.floor(t*8)%2);dChar(g,DEMO_B,bx,120,'left',t,1,1+Math.floor(t*8)%2);if(p>1.1)dText(g,'VS',280,100,34,'#ff6b3d')}
-    else{const txt='river stone cloud',typed=clamp(Math.floor((p-2.2)*4.6),0,txt.length),opp=clamp((p-2.2)/3.6,0,1),won=typed>=txt.length;
-      dChar(g,DEMO_A,150,70,'down',t,.8,0);dChar(g,DEMO_B,410,70,'down',t,.8,0);
-      g.fillStyle='#fff';g.strokeStyle='#2b2140';g.lineWidth=4;g.beginPath();g.roundRect(60,130,440,60,12);g.fill();g.stroke();g.font='26px ui-monospace,Menlo,monospace';g.textAlign='left';
-      let cx=80;for(let i=0;i<txt.length;i++){g.fillStyle=i<typed?'#2f9e4f':'#9a8fb0';g.fillText(txt[i],cx,170);cx+=g.measureText(txt[i]).width}
-      dBar(g,60,205,200,typed/txt.length,'#3fd06a');dBar(g,300,205,200,opp,'#ff4d6a');dText(g,'you',160,245,14,'#fff');dText(g,'them',400,245,14,'#fff');
-      if(won){dText(g,'YOU WIN!  +LEVELS',280,110,26,'#ffc93c')}}}},
- {title:'The aura: who has the edge?',text:'Look at someone before you touch them. Green and +2 means you type 2 words fewer than they do. Red and -2 means 2 more. Items count too: a Pro Keyboard makes your phrase shorter, so the number goes up.',
-  draw(g,t,st){dBG(g);const p=t%8,item=p>4;
-    const adv=[3,-2,0];dGlow(g,420,150,true,1);dGlow(g,140,150,false,1);
-    dChar(g,DEMO_B,140,140,'right',t,1,0);dChar(g,DEMO_C,420,140,'left',t,1,0);dChar(g,DEMO_A,280,170,'up',t,.9,0);
-    dChip(g,'-2',140,62,false);dChip(g,item?'+5':'+3',420,62,true);
-    g.fillStyle='#fff';g.strokeStyle='#2b2140';g.lineWidth=3;g.beginPath();g.roundRect(215,220,130,44,10);g.fill();g.stroke();
-    g.font='26px serif';g.textAlign='center';g.fillText(item?'🎹':'–',250,252);g.fillStyle='#2b2140';g.font='15px "Lilita One",sans-serif';g.textAlign='left';g.fillText(item?'Pro Keyboard':'no item',272,250);
-    if(item){dText(g,'+2 from your item!',420,36,16,'#ffc93c')}}},
- {title:'Gift boxes and items',text:'Gift boxes lie around the map, in buildings and hidden at the bottom of ponds. You carry up to 3 items. Each slot has a key: Q, W and E. Rarer items are much stronger.',
-  draw(g,t,st){dBG(g);const p=t%7,tiers=[['🧲','#c3ccd6'],['💥','#3db5ff'],['🌟','#ffc93c']],k=Math.floor(t/7)%3,it=tiers[k];
-    const cx=p<2?90+p*80:250;dChar(g,DEMO_A,cx,120,'right',t,1,p<2?1+Math.floor(t*8)%2:0);
-    if(p<2.2){g.font='34px serif';g.textAlign='center';g.fillText('🎁',300+Math.sin(t*3)*0,135)}
-    else if(p<2.8){const q=(p-2.2)/.6;g.strokeStyle=it[1];g.lineWidth=5*(1-q);g.beginPath();g.arc(300,122,20+q*60,0,6.3);g.stroke();g.globalAlpha=1-q*.3;g.font='34px serif';g.fillText(it[0],300,122-q*40);g.globalAlpha=1}
-    for(let i=0;i<3;i++){const x=180+i*90,filled=p>3&&i===k;g.fillStyle='#fff';g.strokeStyle=filled?it[1]:'#7d7196';g.lineWidth=4;g.setLineDash(filled?[]:[6,5]);g.beginPath();g.roundRect(x-34,185,68,72,12);g.fill();g.stroke();g.setLineDash([]);
-      dKey(g,'QWE'[i],x,185,p>5&&i===k&&p<5.4);if(filled){g.font='32px serif';g.textAlign='center';g.fillText(it[0],x,232)}}
-    if(p>5&&p<6.2){const x=180+k*90,q=(p-5)/1.2;g.strokeStyle=it[1];g.lineWidth=6*(1-q);g.beginPath();g.arc(cx,120,30+q*90,0,6.3);g.stroke();dText(g,'USED!',cx,60-q*20,22,it[1])}}},
- {title:'Houses and line of sight',text:'Walk through the yellow doors to go inside. You can only see what a clear line allows: inside a house you see outside only through the doors, and whoever is behind a house is hidden.',
-  draw(g,t,st){dBG(g);const hx=180,hy=70,hw=200,hh=130,gap=[250,310],px=280+Math.sin(t*.9)*50,py=130;
-    const out=[[280,250,DEMO_B],[90,240,DEMO_C],[470,60,DEMO_B]];
-    // view cone from the player through the door
-    const proj=x=>px+(x-px)*((HH-py)/(hy+hh-py));
-    g.save();g.fillStyle='rgba(22,15,38,.82)';g.beginPath();g.rect(0,0,HW,HH);g.moveTo(gap[0],hy+hh);g.lineTo(proj(gap[0])+0,HH);g.lineTo(proj(gap[1]),HH);g.lineTo(gap[1],hy+hh);g.closePath();g.fill('evenodd');g.restore();
-    g.fillStyle='#e9c78a';g.fillRect(hx,hy,hw,hh);g.strokeStyle='#2b2140';g.lineWidth=6;g.strokeRect(hx,hy,hw,hh);g.fillStyle='#ffd23f';g.fillRect(gap[0],hy+hh-4,gap[1]-gap[0],8);
-    for(const [x,y,e] of out){const inCone=y>hy+hh&&x>proj(gap[0])&&x<proj(gap[1]);if(inCone||x===280&&false)dChar(g,e,x,y,'up',t,.9,0)}
-    dChar(g,DEMO_A,px,py,'down',t,.9,0);
-    dText(g,'inside: light only through the door',280,30,17,'#fff');dText(g,'hidden behind the walls',470,265,14,'#ffb3c0')}},
+  svg(){const D=10,word='river stone cloud',L=word.length;let s='';
+   s+='<g>'+an('opacity',[1,1,0,0,1],[0,.26,.3,.98,1],D)+vchar({x:0,y:0,s:1.1},mv([[70,190],[220,190],[220,190]],[0,.22,1],D))+vchar({s:1.1,shirt:'#ff6b3d',hair:'#1f1a17',skin:'#c68642',x:0,y:0},mv([[490,190],[340,190],[340,190]],[0,.22,1],D))+vt(280,120,'VS',52,'#ff6b3d',an('opacity',[0,0,1,1,0,0],[0,.2,.23,.27,.3,1],D))+'</g>';
+   s+='<g>'+an('opacity',[0,0,1,1,0,0],[0,.3,.34,.94,.98,1],D)+vchar({x:140,y:120,s:.8,bob:true})+vchar({x:420,y:120,s:.8,shirt:'#ff6b3d',hair:'#1f1a17',skin:'#c68642',bob:true})
+     +'<rect x="50" y="150" width="460" height="64" rx="16" fill="#fff" stroke="'+VI+'" stroke-width="4"/>';
+   for(let i=0;i<L;i++){const ti=.4+i*.032;s+='<text x="'+(75+i*24.5)+'" y="194" class="vm" fill="#9a8fb0">'+word[i]+'<animate attributeName="fill" calcMode="discrete" values="#9a8fb0;#9a8fb0;#2f9e4f;#2f9e4f" keyTimes="0;'+ti+';'+(ti+.001)+';1" dur="'+D+'s" repeatCount="indefinite"/></text>'}
+   s+=vbar(50,228,210,an('width',[0,0,198,198],[0,.4,.95,1],D),'#3fd06a')+vbar(300,228,210,an('width',[0,0,150,150],[0,.4,.95,1],D),'#ff4d6a')+vt(155,276,'you',17)+vt(405,276,'them',17)
+     +vt(280,100,'YOU WIN!  +LEVELS',30,'#ffc93c',an('opacity',[0,0,1,1,0],[0,.88,.9,.97,1],D))+'</g>';
+   return vscene('',s)}},
+ {title:'The aura: who has the edge?',text:'Look at someone before you touch them. Green and +3 means you type 3 words fewer than they do. Red and -2 means 2 more. Items count too: a Pro Keyboard cuts your phrase by a word, so the number goes up.',
+  svg(){const D=8;let s='';
+   s+=aura(130,190,false,'ga')+aura(430,190,true,'gb')+vchar({x:130,y:190,shirt:'#ff6b3d',hair:'#1f1a17',skin:'#c68642'})+vchar({x:430,y:190,shirt:'#9b5de5',hair:'#e2b33c',skin:'#6ec3ff'})+vchar({x:280,y:248,s:.95,hs:'spiky',bob:true});
+   s+=vchip(130,62,'-2',false)+'<g>'+vchip(430,62,'+3',true,an('opacity',[1,1,0,0,1],[0,.5,.52,.98,1],D))+'</g><g>'+vchip(430,62,'+4',true,an('opacity',[0,0,1,1,0],[0,.5,.52,.98,1],D))+'</g>';
+   s+='<g>'+an('opacity',[0,0,1,1,0],[0,.5,.56,.97,1],D)+'<rect x="196" y="256" width="168" height="36" rx="12" fill="#fff" stroke="'+VI+'" stroke-width="3"/>'+vemo(222,282,'🎹',22)+'<text x="240" y="281" class="vk" font-size="15">Pro Keyboard: +1</text></g>';
+   s+=vt(430,30,'+1 from your item',17,'#ffc93c',an('opacity',[0,0,1,1,0],[0,.52,.58,.97,1],D));
+   return vscene(glowDef('ga',false)+glowDef('gb',true),s)}},
+ {title:'Gift boxes and items',text:'Gift boxes lie around the map, in buildings and hidden at the bottom of ponds. You carry up to 3 items, one per slot, each with its own key: Q, W and E. Rarer items are much stronger.',
+  svg(){const D=9;let s='';
+   s+=vemo(330,150,'🎁',44,an('opacity',[1,1,0,0,1],[0,.27,.3,.97,1],D))+'<g>'+mv([[330,150],[330,142],[330,150]],[0,.5,1],1.2,{lin:true}).replace('repeatCount="indefinite"','repeatCount="indefinite"')+'</g>';
+   s+='<circle cx="330" cy="135" r="10" fill="none" stroke="#3db5ff" stroke-width="6" opacity="0">'+an('opacity',[0,0,1,0,0],[0,.29,.3,.42,1],D)+an('r',[10,10,90,90],[0,.3,.42,1],D)+'</circle>';
+   s+=vemo(330,150,'💥',46,'<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.3;.32;.45;.5;1" dur="'+D+'s" repeatCount="indefinite"/>')
+     .replace('<text','<g><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 0;-150 120;-150 120" keyTimes="0;.3;.45;.55;1" dur="'+D+'s" repeatCount="indefinite"/><text').replace('</text>','</text></g>');
+   [['Q',120],['W',220],['E',320]].forEach(([k,x],i)=>{s+='<g transform="translate('+(x+40)+' 200)"><rect x="-44" y="0" width="88" height="86" rx="16" fill="#fff" stroke="'+(i===0?'#3db5ff':'#7d7196')+'" stroke-width="4" '+(i===0?'':'stroke-dasharray="9 7"')+'/>'
+     +(i===0?'<text x="0" y="56" text-anchor="middle" font-size="40" opacity="0">💥'+an('opacity',[0,0,1,1,0,0],[0,.55,.56,.78,.8,1],D)+'</text><text x="0" y="76" text-anchor="middle" class="vk" font-size="12" opacity="0">Shockwave'+an('opacity',[0,0,1,1,0,0],[0,.56,.57,.78,.8,1],D)+'</text>':'')
+     +'</g>'+vkey(x+40,196,k,i===0?an('opacity',[0,0,.9,.9,0,0],[0,.68,.7,.76,.78,1],D):'')});
+   s+='<g>'+vchar({x:0,y:0,bob:true},mv([[70,160],[260,160],[260,160],[260,160]],[0,.27,.6,1],D))+'</g>';
+   s+='<circle cx="260" cy="110" r="10" fill="none" stroke="#3db5ff" stroke-width="6" opacity="0">'+an('opacity',[0,0,1,0,0],[0,.7,.72,.86,1],D)+an('r',[10,10,100,100],[0,.7,.86,1],D)+'</circle>';
+   return vscene('',s)}},
+ {title:'Houses and line of sight',text:'Walk through the yellow doors to go inside. You only see what a clear line allows: inside a house you see out through the doors only, and whoever is behind a wall is hidden.',
+  svg(){const D=8,cone=px=>'M208 196 L'+(px+(208-px)*2.4)+' 300 L'+(px+(352-px)*2.4)+' 300 L352 196 Z',xs=[250,310,250],ds=xs.map(cone);let s='';
+   const dark='M0 0H560V300H0Z M170 76H390V196H170Z '; 
+   s+='<clipPath id="cone"><path d="'+ds[0]+'"><animate attributeName="d" values="'+ds.join(';')+'" dur="'+D+'s" keyTimes="0;.5;1" repeatCount="indefinite"/></path></clipPath>';
+   s+='<g clip-path="url(#cone)">'+vchar({x:290,y:275,s:.9,shirt:'#ff6b3d',hair:'#1f1a17',skin:'#c68642'})+'</g>';
+   s+='<path d="'+dark+ds[0]+'" fill="#160f26" fill-opacity=".86" fill-rule="evenodd"><animate attributeName="d" values="'+ds.map(d=>dark+d).join(';')+'" dur="'+D+'s" keyTimes="0;.5;1" repeatCount="indefinite"/></path>';
+   s+='<path d="'+ds[0]+'" fill="#d3eebb" fill-opacity="0"><animate attributeName="d" values="'+ds.join(';')+'" dur="'+D+'s" keyTimes="0;.5;1" repeatCount="indefinite"/></path>';
+   s+='<rect x="170" y="76" width="220" height="120" fill="#e9c78a" stroke="'+VI+'" stroke-width="7" rx="4"/><rect x="208" y="190" width="144" height="12" fill="#ffd23f" stroke="'+VI+'" stroke-width="3"/>';
+   s+=vchar({y:162,s:.85,bob:true,shirt:'#3db5ff'},mv([[xs[0],162],[xs[1],162],[xs[2],162]],[0,.5,1],D));
+   s+=vt(280,36,'inside: light only through the door',20)+vt(480,286,'hidden behind the wall',15,'#ffb3c0');
+   s=s.replace('<clipPath id="cone">','<defs><clipPath id="cone">').replace('</clipPath>','</clipPath></defs>');
+   return vscene('',s)}},
  {title:'Zoom',text:'You start zoomed in at 150%. Zoom in any time with the mouse wheel or + and -. Zooming out is unlocked by leveling up, down to 80% at level 60.',
-  draw(g,t,st){dBG(g);const p=t%8,lvl=1+Math.floor(clamp(p/6,0,1)*59),mn=clamp(1.5-.7*(lvl-1)/59,.8,1.5),zoom=p<1?1.5:p<6?mn:mn;
-    const sc=1.5/zoom;g.save();g.translate(280,130);g.scale(1/sc*1.0,1/sc*1.0);g.translate(-280,-130);
-    for(let i=0;i<14;i++){const x=40+(i%7)*80,y=50+Math.floor(i/7)*130;g.font='26px serif';g.textAlign='center';g.fillText(['🍔','🍕','🍎','🍩','🥤','🌳','🏠'][i%7],x,y)}
-    dChar(g,DEMO_A,280,130,'down',t,1,0);g.restore();
-    g.strokeStyle='#2b2140';g.lineWidth=6;g.strokeRect(3,3,HW-6,HH-6);
-    dText(g,'Zoom '+Math.round(zoom*100)+'%',280,40,30,'#fff');dText(g,'Level '+lvl,120,250,20,'#ffc93c','center');
-    dText(g,mn>.8?'🔒 zoom out more at higher levels':'🔓 fully unlocked',360,250,16,mn>.8?'#ffb3c0':'#9ff0b0')}}];
-let howStep=0,howRaf=0,howT0=0,howLast=0,howSt={};
-function showHow(i){howStep=(i+DEMOS.length)%DEMOS.length;howSt={};howT0=performance.now()/1000;howLast=0;const d=DEMOS[howStep];
+  svg(){const D=10;let s='<g>'+'<animateTransform attributeName="transform" type="scale" values="1.45;1.45;1;1;.75;.75;1.45" keyTimes="0;.12;.3;.45;.62;.92;1" dur="'+D+'s" repeatCount="indefinite" additive="replace"/>';
+   s+='<g transform="translate(-140 -100)">';
+   const E=['🍔','🍕','🍎','🍩','🥤','🌳','🏠','🍔','🍕','🌳','🍎','🏠','🥤','🍩','🌳','🍔'];
+   E.forEach((e,i)=>{s+=vemo(80+(i%4)*130+(i>>2)%2*30,90+(i>>2)*110,e,34)});s+=vchar({x:280,y:190,bob:false,s:.9})+'</g></g>';
+   s=s.replace('<g><animateTransform','<g transform="translate(0 0)"><g><animateTransform');s=s.replace(/<\/g><\/g>$/,'</g></g></g>');
+   const labels=[['150%','Lv 1',0,.28],['120%','Lv 30',.3,.58],['80%','Lv 60',.6,.94]];
+   labels.forEach(l=>{s+=vt(280,48,'Zoom '+l[0],36,'#fff',an('opacity',[0,0,1,1,0,0],[0,l[2],l[2]+.03,l[3],l[3]+.03,1],D))+vt(120,284,l[1],22,'#ffc93c',an('opacity',[0,0,1,1,0,0],[0,l[2],l[2]+.03,l[3],l[3]+.03,1],D))});
+   s+=vt(380,284,'🔒 zoom out more at higher levels',17,'#ffb3c0',an('opacity',[1,1,0,0,1],[0,.58,.6,.97,1],D))+vt(380,284,'🔓 fully unlocked',17,'#9ff0b0',an('opacity',[0,0,1,1,0],[0,.6,.62,.97,1],D));
+   s+='<rect x="4" y="4" width="552" height="292" rx="10" fill="none" stroke="'+VI+'" stroke-width="6"/>';
+   return vscene('',s)}},
+ {title:'Quests',text:'Every few minutes a quest shows up: find certain snacks or boxes before the time runs out. Finish it for bonus levels. If time runs out, it is gone. The snacks you need glow green.',
+  svg(){const D=10;let s='';
+   s+='<rect x="120" y="14" width="320" height="74" rx="16" fill="#fffdf7" stroke="'+VI+'" stroke-width="4"/>';
+   [['Quest: Eat 3 🍕   0/3',0,.3],['Quest: Eat 3 🍕   1/3',.3,.5],['Quest: Eat 3 🍕   2/3',.5,.7],['Quest: Eat 3 🍕   3/3',.7,1]].forEach(q=>{s+=vt(280,46,q[0],21,VI,an('opacity',[0,0,1,1,0,0],[0,q[1],q[1]+.001,q[2]-.001,q[2],1],D))});
+   s+=vbar(140,58,280,an('width',[268,268,0,0],[0,.06,.82,1],D),'#9be564');
+   const P=[[90,220],[250,250],[430,205]],T=[0,.3,.5,.7];
+   P.forEach((p,i)=>{s+='<circle cx="'+p[0]+'" cy="'+(p[1]-14)+'" r="26" fill="none" stroke="#6fd36f" stroke-width="4"><animate attributeName="r" values="22;28;22" dur="1s" repeatCount="indefinite"/>'+an('opacity',[1,1,0,0,1],[0,T[i+1]||.7,(T[i+1]||.7)+.02,.97,1],D)+'</circle>'
+     +vemo(p[0],p[1]-4,'🍕',34,an('opacity',[1,1,0,0,1],[0,[.3,.5,.7][i],[.3,.5,.7][i]+.02,.97,1],D))});
+   s+=vchar({bob:true},mv([[40,260],[90,230],[250,262],[430,216],[430,216],[40,260]],[0,.28,.5,.7,.95,1],D));
+   s+=vt(280,170,'QUEST COMPLETE!',36,'#9be564',an('opacity',[0,0,1,1,0,0],[0,.72,.74,.9,.93,1],D))+vt(280,206,'+2 levels',26,'#ffc93c',an('opacity',[0,0,1,1,0,0],[0,.74,.76,.9,.93,1],D));
+   return vscene('',s)}},
+ {title:'Make it yours',text:'Press Customize in the menu to build your character: hair, skin, top, pants, shoes and accessories, with any color you like. Your look is saved and other players see it.',
+  svg(){const D=9,L=[{hs:'short',shirt:'#3db5ff',hair:'#3b2417',skin:'#ffd7b0',pants:'#3d4a7a',shoes:'#3a2a22'},{hs:'afro',shirt:'#ff4f9a',hair:'#00e5ff',skin:'#7bd389',pants:'#35605a',shoes:'#c0392b'},{hs:'spiky',shirt:'#ffd23f',hair:'#ff2e2e',skin:'#b48cff',pants:'#4a3f6b',shoes:'#2c6fbb'}];let s='';
+   L.forEach((o,i)=>{const a=i/3,b=(i+1)/3;s+='<g>'+an('opacity',[0,0,1,1,0,0],[0,Math.max(0,a-.001),a+.02,b-.03,b,1],D)+vchar(Object.assign({x:280,y:260,s:1.7,bob:true},o))+'</g>'});
+   const rows=[['Hair',['#3b2417','#00e5ff','#ff2e2e']],['Top',['#3db5ff','#ff4f9a','#ffd23f']],['Skin',['#ffd7b0','#7bd389','#b48cff']],['Shoes',['#3a2a22','#c0392b','#2c6fbb']]];
+   rows.forEach((r,ri)=>{const y=60+ri*58;s+=vt(40,y+8,r[0],19,'#fff','','start');r[1].forEach((c,ci)=>{s+='<circle cx="'+(130+ci*44)+'" cy="'+y+'" r="15" fill="'+c+'" stroke="'+VI+'" stroke-width="3"/><circle cx="'+(130+ci*44)+'" cy="'+y+'" r="20" fill="none" stroke="#ff6b3d" stroke-width="4" opacity="0">'+an('opacity',[0,0,1,1,0,0],[0,ci/3,ci/3+.02,(ci+1)/3-.03,(ci+1)/3,1],D)+'</circle>'})});
+   s+=vt(470,60,'◀  Afro  ▶',24,'#fff')+'<rect x="402" y="100" width="140" height="42" rx="12" fill="#ff6b3d" stroke="'+VI+'" stroke-width="3"/>'+vt(472,128,'Randomize',19)+'<rect x="402" y="156" width="140" height="42" rx="12" fill="#3db5ff" stroke="'+VI+'" stroke-width="3"/>'+vt(472,184,'Done',19);
+   return vscene('',s)}}
+];
+let howStep=0;
+function showHow(i){howStep=(i+DEMOS.length)%DEMOS.length;const d=DEMOS[howStep];
+  $('hsvg').innerHTML=d.svg();
   $('htext').innerHTML='<b>'+(howStep+1)+'. '+d.title+'</b>'+d.text;
   $('hdots').innerHTML=DEMOS.map((_,k)=>'<i data-i="'+k+'" class="'+(k===howStep?'on':'')+'"></i>').join('');
   $('hprev').style.visibility=howStep?'visible':'hidden';$('hnext').textContent=howStep===DEMOS.length-1?'Done':'Next'}
-function howLoop(){if($('howto').hidden)return;const t=performance.now()/1000-howT0,dt=Math.min(.05,t-howLast);howLast=t;
-  const g=$('hcanvas').getContext('2d');g.setTransform(2,0,0,2,0,0);try{DEMOS[howStep].draw(g,t,howSt,dt)}catch(_){}
-  howRaf=requestAnimationFrame(howLoop)}
-function openHow(){$('howto').hidden=false;showHow(0);cancelAnimationFrame(howRaf);howRaf=requestAnimationFrame(howLoop)}
-function closeHow(){$('howto').hidden=true;cancelAnimationFrame(howRaf)}
+function openHow(){$('howto').hidden=false;showHow(0)}
+function closeHow(){$('howto').hidden=true}
 $('howbtn').addEventListener('click',openHow);$('hclose').addEventListener('click',closeHow);
 $('hprev').addEventListener('click',()=>showHow(howStep-1));
 $('hnext').addEventListener('click',()=>{if(howStep===DEMOS.length-1)closeHow();else showHow(howStep+1)});
