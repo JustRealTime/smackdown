@@ -93,6 +93,9 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .stat{border:2px solid var(--ink);border-radius:12px;padding:8px 10px;background:#fff}
 .stat b{display:block;font:26px var(--display);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+#mute{position:fixed;left:16px;top:calc(56px + env(safe-area-inset-top,0px));font:800 12px var(--body);padding:5px 10px;border-radius:99px;box-shadow:0 3px 0 var(--ink);cursor:pointer;z-index:5}
+#mute:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+#mini{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:150px;height:150px;padding:0;overflow:hidden}
 #flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
 #flash.go{animation:flash .35s ease-out}
 @keyframes flash{0%{opacity:.85}100%{opacity:0}}
@@ -106,7 +109,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #duel.in .chip{animation:chipin .35s both}
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 8px))}75%{transform:translateX(calc(-50% + 8px))}}
 #duel.shake{animation:shake .18s}
-@media (max-width:640px){#board{display:none}#hint{display:none}.bars{width:140px}}
+@media (max-width:640px){#mini{display:none}#board{display:none}#hint{display:none}.bars{width:140px}}
 @media (prefers-reduced-motion:reduce){#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
 </style>
 </head>
@@ -115,7 +118,9 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <canvas id="game"></canvas>
 <div id="flash"></div>
 <div id="minilogo" hidden>Snackdown</div>
-<div id="hint" class="panel" hidden>Mouse to walk · <kbd>Shift</kbd> sprint · <kbd>Space</kbd> dash · touch someone to duel</div>
+<button id="mute" class="panel" type="button" aria-label="Toggle sound">Sound on</button>
+<canvas id="mini" class="panel" width="300" height="300" hidden></canvas>
+<div id="hint" class="panel" hidden><kbd>Shift</kbd> sprint · <kbd>Space</kbd> dash · yellow mats are doors · touch to duel</div>
 
 <section id="hud" class="panel" hidden>
   <div id="lvbadge"><small>LEVEL</small><span id="lv">1</span></div>
@@ -143,7 +148,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <dt><kbd>Space</kbd></dt><dd>Dash and slide, the fastest move</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
-    <p class="small">Snacks give 25% of a level, but you can be caught while eating. Win a duel and you get all of your opponent's levels. Higher level means a shorter phrase. Run away and get caught, and your opponent gets a shorter one too.</p>
+    <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Higher level means a shorter phrase. Run away and get caught, and your opponent gets a shorter one too.</p>
     <p class="warn" id="touchwarn" hidden>This prototype needs a keyboard. Please play on a PC for now.</p>
   </form>
 </div>
@@ -189,7 +194,7 @@ function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=inne
 addEventListener('resize',resize);resize();
 
 const INK='#2b2140', GOLD='#ffc93c', CAPE='#d62839', SHOE='#3a2a22';
-const WORLD=3200, BASE=175, DASH_CD=2.2, RAD=18;
+const WORLD=7200, BASE=175, DASH_CD=2.2, RAD=18;
 const rand=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[(Math.random()*a.length)|0];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -227,12 +232,16 @@ const PLANS={
   shed:[['crates','lt',40,40],['crates','rb',40,40]]
 };
 (function makeBuildings(){
-  const order=['home','home','home','home','home','home','diner','diner','diner','bakery','bakery','gym','gym','shed','shed','shed'];
-  for(let i=order.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[order[i],order[j]]=[order[j],order[i]]}
-  order.forEach((type,i)=>{
-    const B=BTYPES[type],cx=400+(i%4)*800+rand(-80,80),cy=400+((i/4)|0)*800+rand(-80,80);
-    const w=rand(B.w[0],B.w[1])|0,h=rand(B.h[0],B.h[1])|0,x=Math.round(cx-w/2),y=Math.round(cy-h/2),side=pick(['n','s','e','w']);
-    const hs={x,y,w,h,side,type,floor:B.floor,roof:pick(B.roofs),food:B.food,alpha:1};
+  // 6x6 grid of cells, 30 of them get a building, the rest stay open ground
+  const order=[];const add=(t,n)=>{for(let i=0;i<n;i++)order.push(t)};add('home',12);add('diner',5);add('bakery',4);add('gym',4);add('shed',5);
+  const cells=[];for(let i=0;i<36;i++)cells.push(i);
+  for(let i=cells.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[cells[i],cells[j]]=[cells[j],cells[i]]}
+  order.forEach((type,n)=>{
+    const c=cells[n],B=BTYPES[type],cx=600+(c%6)*1200+rand(-140,140),cy=600+((c/6)|0)*1200+rand(-140,140);
+    const w=rand(B.w[0],B.w[1])|0,h=rand(B.h[0],B.h[1])|0,x=Math.round(cx-w/2),y=Math.round(cy-h/2);
+    const sides=['n','e','s','w'];for(let i=3;i>0;i--){const j=(Math.random()*(i+1))|0;[sides[i],sides[j]]=[sides[j],sides[i]]}
+    const doors=sides.slice(0,type==='shed'?2:3);   // several entrances, marked with mats outside
+    const hs={x,y,w,h,doors,type,floor:B.floor,roof:pick(B.roofs),food:B.food,alpha:1};
     houses.push(hs);
     const G=110,add=(x,y,w,h)=>walls.push({x,y,w,h});
     const seg=(horiz,x0,y0,len,door)=>{
@@ -240,21 +249,21 @@ const PLANS={
       const a=(len-G)/2;
       if(horiz){add(x0,y0,a,WT);add(x0+a+G,y0,len-a-G,WT)}else{add(x0,y0,WT,a);add(x0,y0+a+G,WT,len-a-G)}
     };
-    seg(true,x,y,w,side==='n');seg(true,x,y+h-WT,w,side==='s');seg(false,x,y,h,side==='w');seg(false,x+w-WT,y,h,side==='e');
-    // furniture sits in the corners so the doorway stays clear
+    seg(true,x,y,w,doors.includes('n'));seg(true,x,y+h-WT,w,doors.includes('s'));seg(false,x,y,h,doors.includes('w'));seg(false,x+w-WT,y,h,doors.includes('e'));
+    // furniture sits in the corners so the doorways stay clear
     const m=WT+8,ix=x+m,iy=y+m,ix2=x+w-m,iy2=y+h-m;
-    for(const [kind,c,fw,fh] of PLANS[type])walls.push({x:c[0]==='l'?ix:ix2-fw,y:c[1]==='t'?iy:iy2-fh,w:fw,h:fh,kind});
+    for(const [kind,cc,fw,fh] of PLANS[type])walls.push({x:cc[0]==='l'?ix:ix2-fw,y:cc[1]==='t'?iy:iy2-fh,w:fw,h:fh,kind});
   });
 })();
 (function scatterNature(){
   const near=(x,y,m)=>houses.some(h=>x>h.x-m&&x<h.x+h.w+m&&y>h.y-m&&y<h.y+h.h+m);
-  for(let i=0;i<300&&trees.length<105;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60);
+  for(let i=0;i<2500&&trees.length<420;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60);
     if(near(x,y,80)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<120))continue;
     trees.push({x,y,s:rand(.85,1.2),pine:Math.random()<.3,alpha:1});walls.push({x:x-9,y:y-6,w:18,h:14,kind:'trunk'})}
-  for(let i=0,n=0;i<200&&n<38;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
+  for(let i=0,n=0;i<600&&n<130;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
     if(near(x,y,50)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<70))continue;
     n++;walls.push({x:x-16,y:y-11,w:32,h:22,kind:'rock'})}
-  for(let i=0;i<90;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!near(x,y,30))bushes.push({x,y,s:rand(.7,1.2)})}
+  for(let i=0;i<330;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!near(x,y,30))bushes.push({x,y,s:rand(.7,1.2)})}
 })();
 const houseAt=(x,y)=>houses.find(h=>x>h.x&&x<h.x+h.w&&y>h.y&&y<h.y+h.h);
 function freeSpot(m){for(let i=0;i<60;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
@@ -268,7 +277,7 @@ function collide(e){const r=e.r;
   e.x=clamp(e.x,r,WORLD-r);e.y=clamp(e.y,r,WORLD-r);}
 
 /* ---------- food ---------- */
-const FOODS=['burger','apple','soda','pizza','donut'], FOOD_OUT=240, FOOD_IN=110;
+const FOODS=['burger','apple','soda','pizza','donut'], FOOD_OUT=1100, FOOD_IN=350;
 let foods=[];
 function spawnFood(inside){let p=null;
   if(inside){let r=Math.random()*houses.reduce((s,h)=>s+h.food,0),h=houses[0];for(const b of houses){r-=b.food;if(r<=0){h=b;break}}
@@ -429,20 +438,20 @@ function sprite(e,look,dir,frame){
   SPR[key]=res;return res;}
 
 /* ---------- entities ---------- */
-const NAMES=['Crunchy Carl','Noodle Nina','Taco Tim','Mochi','Big Bao','Pickle Pete','Sushi Sam','Waffle Wendy','Nacho Ned','Pretzel Paula','Donut Dave','Kimchi Kai','Fries Fiona','Burrito Bo','Cheddar Chad','Pho Phil','Gummy Gus','Bagel Bella','Muffin Max','Curry Cleo','Tofu Tom','Ramen Rae','Gyoza Gil','Latte Lou','Chili Chloe','Brownie Bea','Wasabi Will','Pancake Pip','Salsa Sal','Jelly Jo'];
+const NAMES=['Crunchy Carl','Noodle Nina','Taco Tim','Mochi','Big Bao','Pickle Pete','Sushi Sam','Waffle Wendy','Nacho Ned','Pretzel Paula','Donut Dave','Kimchi Kai','Fries Fiona','Burrito Bo','Cheddar Chad','Pho Phil','Gummy Gus','Bagel Bella','Muffin Max','Curry Cleo','Tofu Tom','Ramen Rae','Gyoza Gil','Latte Lou','Chili Chloe','Brownie Bea','Wasabi Will','Pancake Pip','Salsa Sal','Jelly Jo','Hotdog Hank','Boba Bree','Cookie Cam','Ziti Zoe','Falafel Finn','Gelato Gia','Crepe Cody','Lassi Lea','Miso Max','Nougat Nell','Pepper Pat','Quiche Quin','Rice Ray','Scone Sky','Taffy Tia','Udon Uma','Waffle Walt','Yogurt Yas'];
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
   return{id:nextId++,name,lvl,isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
     dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+3,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
-    skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,
+    skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
     ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(.25,.9),brave:rand(0,1),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0}}}
-function botLevel(){const r=Math.random();return r<.6?rand(1,6):r<.88?rand(6,16):rand(16,34)}
+function botLevel(){const r=Math.random();return r<.7?rand(1,5):r<.93?rand(5,12):rand(12,22)}
 function spawnBot(t){const used=new Set(ents.map(e=>e.name));const free=NAMES.filter(n=>!used.has(n));
   const e=makeEnt(free.length?pick(free):pick(NAMES),botLevel(),false,t);
   if(player){for(let i=0;i<10&&Math.hypot(e.x-player.x,e.y-player.y)<700;i++){const p=freeSpot(40);e.x=p.x;e.y=p.y}}
   ents.push(e);return e}
-const BOTS=18;
+const BOTS=60;
 {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}
 
 /* ---------- fx ---------- */
@@ -453,6 +462,53 @@ function ring(x,y,r0,r1,c,life=.4,sq=.55){parts.push({k:'ring',x,y,vx:0,vy:0,lif
 function stars(x,y,n,cols,sp=200){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(sp*.4,sp);parts.push({k:'star',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:rand(.5,.85),max:.85,c:pick(cols),s:rand(6,11),rot:Math.random()*3})}}
 function streak(x,y,a,len,c='#fff'){parts.push({k:'line',x,y,vx:0,vy:0,life:.22,max:.22,c,s:len,a})}
 function floater(x,y,text,c='#fff',big=false){floaters.push({x,y,text,c,life:1.4,big})}
+
+/* ---------- sound: everything is synthesized, no files ---------- */
+const sfx=(()=>{
+  let ac=null,master=null,noiseBuf=null,muted=false;
+  try{muted=localStorage.getItem('snackdown-mute')==='1'}catch(_){}
+  function init(){
+    if(ac){if(ac.state==='suspended')ac.resume();return}
+    const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+    ac=new C();master=ac.createGain();master.gain.value=muted?0:.8;
+    const comp=ac.createDynamicsCompressor();master.connect(comp);comp.connect(ac.destination);
+    noiseBuf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  }
+  const ok=g=>ac&&!muted&&g>.03;
+  function tone(f,d,{f2=0,type='sine',v=.3,at=0,a=.004}={}){
+    const t0=ac.currentTime+at,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);
+    if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);
+    g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(v,t0+a);g.gain.exponentialRampToValueAtTime(.0001,t0+d);
+    o.connect(g);g.connect(master);o.start(t0);o.stop(t0+d+.05)}
+  function noise(d,{type='bandpass',f=1000,f2=0,q=1,v=.3,at=0}={}){
+    const t0=ac.currentTime+at,s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noiseBuf;
+    fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(f,t0);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t0+d);
+    g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(v,t0+.006);g.gain.exponentialRampToValueAtTime(.0001,t0+d);
+    s.connect(fl);fl.connect(g);g.connect(master);s.start(t0,Math.random()*.5);s.stop(t0+d+.05)}
+  const arp=(notes,gap,o)=>notes.forEach((f,i)=>tone(f,o.d||.22,{...o,at:i*gap}));
+  const SCALE=[523,587,659,784,880,1047,1175,1319];
+  return{
+    init,
+    get muted(){return muted},
+    toggle(){muted=!muted;try{localStorage.setItem('snackdown-mute',muted?'1':'0')}catch(_){}if(master)master.gain.value=muted?0:.8;init();return muted},
+    click(){if(!ok(1))return;tone(600,.07,{f2:900,type:'triangle',v:.25})},
+    start(){if(!ok(1))return;arp([392,523,659,784],.07,{type:'triangle',v:.28,d:.25});noise(.25,{type:'highpass',f:5000,v:.08,at:.2})},
+    boop(g=1){if(!ok(g))return;tone(420,.09,{f2:700,type:'sine',v:.25*g})},
+    bite(n,g=1){if(!ok(g))return;noise(.07,{f:2200,f2:900,q:1.5,v:.55*g});tone(180,.07,{f2:70,type:'square',v:.16*g});tone(340+n*70,.06,{type:'triangle',v:.12*g,at:.01})},
+    sip(n,g=1){if(!ok(g))return;const b=500+Math.random()*300;tone(b,.09,{f2:b*2,v:.22*g});tone(b*1.3,.08,{f2:b*2.4,v:.14*g,at:.06})},
+    yum(g=1){if(!ok(g))return;tone(784,.14,{type:'triangle',v:.28*g});tone(1175,.28,{type:'triangle',v:.28*g,at:.07});tone(2349,.2,{v:.06*g,at:.07})},
+    levelup(){if(!ok(1))return;arp([523,659,784,1047,1319],.075,{type:'triangle',v:.3,d:.3});arp([1047,1319,1568,2093],.075,{v:.08,d:.4,at:0});noise(.5,{type:'highpass',f:6000,v:.1,at:.25})},
+    dash(g=1){if(!ok(g))return;noise(.22,{f:500,f2:3600,q:.8,v:.5*g});tone(320,.16,{f2:110,type:'sine',v:.35*g});noise(.5,{type:'lowpass',f:1400,f2:250,v:.16*g,at:.1})},
+    door(){if(!ok(1))return;tone(880,.35,{v:.16});tone(659,.55,{v:.16,at:.2})},
+    clash(){if(!ok(1))return;tone(170,.4,{f2:38,v:.8});noise(.14,{type:'highpass',f:2500,v:.5});tone(1046,.14,{f2:523,type:'square',v:.12});tone(1568,.2,{v:.1,at:.04})},
+    tick(n){if(!ok(1))return;if(n>0)tone(660,.12,{type:'triangle',v:.3});else{[784,988,1175].forEach(f=>tone(f,.4,{type:'triangle',v:.22}));noise(.2,{type:'highpass',f:3500,v:.15})}},
+    key(streak){if(!ok(1))return;const f=SCALE[streak%SCALE.length];
+      tone(f,.09,{type:'triangle',v:.2});noise(.025,{f:3200,q:2,v:.12})},
+    err(){if(!ok(1))return;tone(150,.18,{f2:80,type:'square',v:.22});noise(.12,{type:'lowpass',f:600,v:.25})},
+    chomp(g=1){if(!ok(g))return;noise(.3,{type:'lowpass',f:3200,f2:180,q:.7,v:.7*g});tone(230,.3,{f2:55,v:.7*g});
+      if(g>=1)arp([392,523,659,784,1047],.08,{type:'square',v:.1,d:.22,at:.18});else tone(700,.1,{f2:300,v:.15*g,at:.1})},
+    lose(){if(!ok(1))return;[[392,.0],[370,.3],[349,.6],[311,.9]].forEach(([f,at],i)=>tone(f,i===3?.7:.28,{f2:f*(i===3?.7:.94),type:'sawtooth',v:.16,at}));noise(.2,{type:'lowpass',f:900,v:.3})}
+  }})();
 
 /* ---------- input ---------- */
 const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
@@ -472,6 +528,7 @@ const toWorld=(sx,sy)=>({x:(sx-W/2)/ZZ+cam.x,y:(sy-H/2)/ZZ+cam.y});
 /* ---------- game flow ---------- */
 const stats={won:0,snacks:0,best:0,top:1};
 function startGame(){
+  sfx.init();sfx.start();
   const t=now();const nm=($('name').value.trim()||'You').slice(0,14);
   try{localStorage.setItem('snackdown-name',nm)}catch(_){}
   if(player)ents=ents.filter(e=>e!==player);
@@ -479,7 +536,7 @@ function startGame(){
   Object.assign(stats,{won:0,snacks:0,best:0,top:1});
   cam.x=player.x;cam.y=player.y;
   game='play';$('start').hidden=true;$('dead').hidden=true;
-  for(const id of ['hud','board','hint','minilogo'])$(id).hidden=false;
+  for(const id of ['hud','board','hint','minilogo','mini'])$(id).hidden=false;
   $('hint').style.opacity=1;setTimeout(()=>{$('hint').style.opacity=0},12000);
 }
 $('startform').addEventListener('submit',e=>{e.preventDefault();startGame()});
@@ -490,7 +547,7 @@ if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(pointer:fine)').matches
 function gainLvl(e,amt){const before=L(e);e.lvl=Math.min(100.99,e.lvl+amt);
   if(e.isPlayer){const after=L(e);stats.top=Math.max(stats.top,after);
     if(after>before){floater(e.x,e.y-70,'LEVEL '+after+'!',GOLD,true);burst(e.x,e.y-20,18,[GOLD,'#fff','#ff6b3d'],200);
-      ring(e.x,e.y+18,8,90,GOLD,.55);ring(e.x,e.y+18,4,60,'#fff',.4);stars(e.x,e.y-20,8,[GOLD,'#fff'],220);e.sqv+=5;kick=Math.max(kick,.07);shake=Math.max(shake,3);
+      sfx.levelup();ring(e.x,e.y+18,8,90,GOLD,.55);ring(e.x,e.y+18,4,60,'#fff',.4);stars(e.x,e.y-20,8,[GOLD,'#fff'],220);e.sqv+=5;kick=Math.max(kick,.07);shake=Math.max(shake,3);
       const u=UNLOCKS.filter(([l])=>l>before&&l<=after).pop();if(u){showToast('New look: '+u[1]+'!');flash();hitstop=.1}}}}
 
 let toastT=0;function showToast(s){const el=$('toast');el.textContent=s;el.hidden=false;el.style.opacity=1;toastT=2.2;restart(el,'pop')}
@@ -524,6 +581,8 @@ function botThink(b,t){
 }
 
 /* ---------- step ---------- */
+const snackGain=lvl=>.25/(1+(Math.floor(lvl)-1)*.08);   // the higher your level, the more snacks a level costs
+const vol=e=>e.isPlayer?1:player?clamp(1-Math.hypot(e.x-player.x,e.y-player.y)/650,0,1)*.6:0;
 const EAT_T=.85;
 const CRUMBS={burger:['#f2a93b','#7a3e1d','#6ab04c'],apple:['#e8475f','#fff6d5','#6ab04c'],pizza:['#ffd23f','#d98e3a','#e8475f'],donut:['#ff8fc2','#e0a860','#fff'],soda:['#9fdcff','#fff','#3db5ff']};
 function stepEnt(e,dt,t){
@@ -534,11 +593,11 @@ function stepEnt(e,dt,t){
     e.stateT-=dt;e.vx*=.8;e.vy*=.8;
     const p=clamp(1-e.stateT/EAT_T,0,1),side=e.dir==='left'?-1:1,need=p<.25?0:p<.45?1:p<.65?2:3;
     while(e.bites<need){e.bites++;const soda=e.eatFood==='soda';
-      burst(e.x+side*4,e.y-10,soda?6:9,CRUMBS[e.eatFood]||['#fff'],soda?70:95);e.sqv+=e.bites%2?-3:3}
+      burst(e.x+side*4,e.y-10,soda?6:9,CRUMBS[e.eatFood]||['#fff'],soda?70:95);e.sqv+=e.bites%2?-3:3;soda?sfx.sip(e.bites,vol(e)):sfx.bite(e.bites,vol(e))}
     e.chewT-=dt;if(p>.25&&e.chewT<=0){e.chewT=.1;e.sqv+=e.bites%2?1.4:-1.4}
     if(e.eatFood==='soda')tl=-side*.13*Math.min(1,p/.25);
-    if(e.stateT<=0){e.state='move';e.bites=0;gainLvl(e,.25);e.sqv+=4;ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
-      if(e.isPlayer){stats.snacks++;floater(e.x,e.y-60,'+25%',GOLD);floater(e.x+18,e.y-84,pick(['YUM!','NOM!','TASTY!']),'#fff')}}}
+    if(e.stateT<=0){e.state='move';e.bites=0;const gn=snackGain(e.lvl);gainLvl(e,gn);e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
+      if(e.isPlayer){stats.snacks++;floater(e.x,e.y-60,'+'+Math.round(gn*100)+'%',GOLD);floater(e.x+18,e.y-84,pick(['YUM!','NOM!','TASTY!']),'#fff')}}}
   else if(e.state==='duel'){e.vx=0;e.vy=0;if(Math.random()<dt*2.5)e.sqv+=Math.random()<.5?-1.6:1.6}
   else if(e.state==='eaten'){e.stateT-=dt;const w=e.eater;if(w){e.x+=(w.x-e.x)*Math.min(1,dt*6);e.y+=(w.y-10-e.y)*Math.min(1,dt*6)}return}
   else{
@@ -549,7 +608,7 @@ function stepEnt(e,dt,t){
     if(w.dash&&e.dashCd<=0){let dx=w.ux,dy=w.uy;
       if(!dx&&!dy){dx=e.dir==='left'?-1:e.dir==='right'?1:0;dy=e.dir==='up'?-1:e.dir==='down'?1:0}
       e.dashT=.17;e.slideT=.6;e.dashCd=DASH_CD;e.vx=dx*780;e.vy=dy*780;
-      e.sq=-.3;e.sqv=10;   // crouch, then spring into a stretch
+      e.sq=-.3;e.sqv=10;sfx.dash(vol(e));   // crouch, then spring into a stretch
       dust(e.x,e.y+22,10,'#e9dcc0',170,5);ring(e.x,e.y+22,6,52,'#fff',.35);
       if(e.isPlayer){kick=Math.max(kick,.09);shake=Math.max(shake,3)}}
     if(e.dashT>0){e.dashT-=dt;if(Math.random()<dt*80){const a=Math.atan2(e.vy,e.vx);streak(e.x-Math.cos(a)*14+rand(-8,8),e.y+rand(-10,16),a,rand(22,44))}}
@@ -572,7 +631,7 @@ function stepEnt(e,dt,t){
     for(const o of ents){if(o===e||o.state!=='move')continue;const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);
       if(d<420&&d>1&&(e.vx*dx+e.vy*dy)/d>80)e.fled[o.id]=t+5}}
   if(e.state==='move')for(let i=0;i<foods.length;i++){const f=foods[i];
-    if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){foods.splice(i,1);e.state='eat';e.stateT=EAT_T;e.bites=0;e.chewT=0;e.eatFood=f.t;e.vx*=.3;e.vy*=.3;e.sqv-=3;break}}
+    if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){foods.splice(i,1);e.state='eat';e.stateT=EAT_T;e.bites=0;e.chewT=0;e.eatFood=f.t;e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));break}}
 }
 
 /* ---------- duels ---------- */
@@ -583,22 +642,22 @@ function startDuel(a,b,t){a.state='duel';b.state='duel';a.vx=a.vy=b.vx=b.vy=0;
   face(a,fx,fy);face(b,-fx,-fy);a.sqv-=4;b.sqv-=4;a.lean=b.lean=0;
   burst(mx,my-20,14,['#fff',GOLD,'#ff6b3d'],220);stars(mx,my-20,8,[GOLD,'#fff','#ff6b3d'],260);
   ring(mx,my,8,80,'#fff',.4);ring(mx,my,4,120,GOLD,.6);
-  if(a.isPlayer||b.isPlayer){hitstop=.16;shake=Math.max(shake,8);kick=Math.max(kick,.1);flash()}
+  if(a.isPlayer||b.isPlayer){hitstop=.16;shake=Math.max(shake,8);kick=Math.max(kick,.1);flash();sfx.clash()}
   if(a.isPlayer||b.isPlayer){const p=a.isPlayer?a:b,o=a.isPlayer?b:a;openTypingDuel(p,o,a.isPlayer?aCaught:bCaught,a.isPlayer?bCaught:aCaught,t)}
-  else{const la=a.lvl+2,lb=b.lvl+2;let pa=la/(la+lb)+(aCaught?.15:0)-(bCaught?.15:0);botDuels.push({a,b,end:t+rand(1.8,3),pa:clamp(pa,.1,.9)})}}
+  else{const la=a.lvl+2,lb=b.lvl+2;let pa=.5+clamp((la-lb)*.01,-.12,.12)+(aCaught?.12:0)-(bCaught?.12:0);botDuels.push({a,b,end:t+rand(1.8,3),pa:clamp(pa,.15,.85)})}}
 function finishDuel(w,l,t){w.state='move';w.protect=t+2.5;w.chomp=.6;
   const gained=Math.max(1,L(l));l.state='eaten';l.stateT=.7;l.eater=w;
   burst(l.x,l.y-10,22,['#fff',GOLD,'#ff8fc2','#3db5ff'],240);stars(l.x,l.y-10,12,[GOLD,'#fff','#ff8fc2','#3db5ff'],280);
   ring(w.x,w.y,10,90,GOLD,.5);w.sqv+=6;
   floater(w.x,w.y-104,'CHOMP!','#fff',true);floater(w.x,w.y-80,'+'+gained+' LV',GOLD,true);
-  if(w.isPlayer||l.isPlayer){hitstop=.22;shake=Math.max(shake,9);kick=Math.max(kick,.14);flash()}
+  if(w.isPlayer||l.isPlayer){hitstop=.22;shake=Math.max(shake,9);kick=Math.max(kick,.14);flash();w.isPlayer?sfx.chomp():sfx.lose()}else sfx.chomp(vol(w)*.7)
   gainLvl(w,gained);
   if(l.isPlayer){deadT=1}}
-function sentenceWords(me,op,caught){const adv=Math.min(3,Math.floor(Math.max(0,L(me)-L(op))/3));return{n:Math.max(2,6-adv-(caught?2:0)),adv}}
+function sentenceWords(me,op,caught){const adv=Math.min(2,Math.floor(Math.max(0,L(me)-L(op))/6));return{n:Math.max(2,6-adv-(caught?2:0)),adv}}
 function openTypingDuel(p,o,pCaught,oCaught,t){
   const ps=sentenceWords(p,o,pCaught),os=sentenceWords(o,p,oCaught);
   const text=pickSentence(ps.n),otext=pickSentence(os.n);
-  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(24+L(o)*.9+rand(-4,4),20,100),phase:'count',countT:2.4,start:0,oStep:0,lastN:''};
+  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(28+o.skill+L(o)*.25+rand(-3,3),18,100),phase:'count',countT:2.4,start:0,oStep:0,lastN:'',streak:0};
   $('dMe').textContent=p.name+' · Lv '+L(p);$('dOp').textContent=o.name+' · Lv '+L(o);
   const chips=[];
   if(pCaught)chips.push(['good','You caught them: 2 fewer words']);
@@ -625,8 +684,8 @@ function handleTyping(e){
   if(e.key==='Backspace'){duel.typed=(e.ctrlKey||e.altKey)?duel.typed.replace(/\S*\s*$/,''):duel.typed.slice(0,-1)}
   else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){e.preventDefault();
     if(duel.typed.length<duel.text.length){const i=duel.typed.length;duel.typed+=e.key;const P=duel.p;
-      if(e.key===duel.text[i]){P.sqv+=1.3;burst(P.x+rand(-10,10),P.y-28,2,[GOLD,'#fff'],80)}
-      else{shake=Math.max(shake,4);restart($('duel'),'shake');burst(P.x,P.y-28,4,['#e8475f'],90)}}}
+      if(e.key===duel.text[i]){duel.streak++;sfx.key(duel.streak);P.sqv+=1.3;burst(P.x+rand(-10,10),P.y-28,2,[GOLD,'#fff'],80)}
+      else{duel.streak=0;sfx.err();shake=Math.max(shake,4);restart($('duel'),'shake');burst(P.x,P.y-28,4,['#e8475f'],90)}}}
   else return;
   renderTyping();
   if(duel.typed===duel.text)endTypingDuel(true);}
@@ -637,7 +696,7 @@ function endTypingDuel(win){const t=now(),w=liveWpm(t);stats.best=Math.max(stats
   if(win){stats.won++;finishDuel(p,o,t);showToast('Chomp! '+w+' WPM')}else{finishDuel(o,p,t);showToast(o.name+' was faster')}}
 function updateDuel(dt,t){
   if(duel.phase==='count'){duel.countT-=dt;const n=Math.ceil(duel.countT/.8),lab=n>0?String(n):'TYPE!';
-    if(lab!==duel.lastN){duel.lastN=lab;$('count').textContent=lab;restart($('count'),'pop');
+    if(lab!==duel.lastN){duel.lastN=lab;$('count').textContent=lab;restart($('count'),'pop');sfx.tick(n);
       const mx=(duel.p.x+duel.o.x)/2,my=(duel.p.y+duel.o.y)/2;ring(mx,my,6,n>0?60:110,n>0?'#fff':GOLD,.4);duel.p.sqv-=2;duel.o.sqv-=2;if(n<=0){shake=Math.max(shake,5);stars(mx,my-20,8,[GOLD,'#fff'],240)}}
     if(duel.countT<=0){duel.phase='type';duel.start=t;renderTyping();setTimeout(()=>{if(duel)$('count').hidden=true},450)}return}
   duel.oProg+=duel.wpm*5/60*dt*rand(.6,1.4);
@@ -674,23 +733,34 @@ function update(dt,t){
   for(const tr of trees){const under=[player,duel&&duel.o].some(q=>q&&Math.abs(q.x-tr.x)<44*tr.s&&q.y>tr.y-80*tr.s&&q.y<tr.y+12);tr.alpha+=((under?.4:1)-tr.alpha)*Math.min(1,dt*8)}
   for(const h of houses){const inside=player&&game==='play'&&houseAt(player.x,player.y)===h;h.alpha+=((inside?0:1)-h.alpha)*Math.min(1,dt*8)}
   if(toastT>0){toastT-=dt;if(toastT<=0)$('toast').style.opacity=0;if(toastT<-.5)$('toast').hidden=true}
-  if(player&&game==='play')updateHud(t);
+  if(player&&game==='play'){const ih=houseAt(player.x,player.y);if(ih&&ih!==player.inHouse)sfx.door();player.inHouse=ih;updateHud(t);drawMini()}
   boardT-=dt;if(boardT<=0&&game==='play'){boardT=.5;updateBoard()}}
 function showDeath(){game='dead';
   $('deadby').textContent='Eaten by '+(player.eater?player.eater.name:'someone')+'. Snack, dash and duel your way back up.';
   $('sLv').textContent=stats.top;$('sWon').textContent=stats.won;$('sSn').textContent=stats.snacks;$('sWpm').textContent=stats.best;
-  for(const id of ['hud','hint'])$(id).hidden=true;
+  for(const id of ['hud','hint','mini'])$(id).hidden=true;
   ents=ents.filter(e=>e!==player);$('dead').hidden=false;$('again').focus()}
 function updateHud(t){const p=player,l=L(p);
   $('lv').textContent=l;$('xpbar').style.width=(l>=100?100:(p.lvl-l)*100)+'%';$('xptxt').textContent=l>=100?'MAX':Math.round((p.lvl-l)*100)+'%';
   $('stbar').style.width=p.stamina+'%';
   $('dsbar').style.width=((1-p.dashCd/DASH_CD)*100)+'%';$('dstxt').textContent=p.dashCd>0?'DASH '+p.dashCd.toFixed(1)+'s':'DASH READY';
-  const nx=UNLOCKS.find(([lv])=>lv>l);$('next').textContent=nx?'Next look: '+nx[1]+' at Lv '+nx[0]:'Fully armored. Legend status.';}
+  const nx=UNLOCKS.find(([lv])=>lv>l);$('next').textContent=(nx?'Next look: '+nx[1]+' at Lv '+nx[0]:'Fully armored. Legend status.')+' · '+Math.ceil(1/snackGain(p.lvl))+' snacks per level';}
 function updateBoard(){const list=ents.filter(e=>e.state!=='eaten').sort((a,b)=>b.lvl-a.lvl);
   let html=list.slice(0,8).map((e,i)=>'<li class="'+(e.isPlayer?'me':'')+'"><span>'+(i+1)+'.</span><b>'+esc2(e.name)+'</b><span>'+L(e)+'</span></li>').join('');
   const r=list.indexOf(player);if(player&&r>=8)html+='<li class="me"><span>'+(r+1)+'.</span><b>'+esc2(player.name)+'</b><span>'+L(player)+'</span></li>';
   $('boardlist').innerHTML=html}
 const esc2=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- sound toggle & minimap ---------- */
+const muteBtn=$('mute');
+const showMute=()=>{muteBtn.textContent=sfx.muted?'Sound off':'Sound on'};showMute();
+muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(!sfx.muted)sfx.click()});
+const mctx=$('mini').getContext('2d');
+function drawMini(){const c=300,k=c/WORLD;mctx.fillStyle='#8bcf66';mctx.fillRect(0,0,c,c);
+  for(const h of houses){mctx.fillStyle=h.roof;mctx.fillRect(h.x*k,h.y*k,Math.max(6,h.w*k),Math.max(6,h.h*k))}
+  const v0=toWorld(0,0),v1=toWorld(W,H);mctx.strokeStyle='rgba(43,33,64,.55)';mctx.lineWidth=2;mctx.strokeRect(v0.x*k,v0.y*k,(v1.x-v0.x)*k,(v1.y-v0.y)*k);
+  mctx.fillStyle='#fff';mctx.beginPath();mctx.arc(player.x*k,player.y*k,9,0,6.3);mctx.fill();
+  mctx.fillStyle='#ff6b3d';mctx.beginPath();mctx.arc(player.x*k,player.y*k,6,0,6.3);mctx.fill()}
 
 /* ---------- render ---------- */
 function hash(i,j){let h=(i*374761393+j*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295}
@@ -755,19 +825,41 @@ function drawTree(tr,t){const s=tr.s,sw=Math.sin(t*1.3+tr.x)*1.6;ctx.save();ctx.
     ctx.fillStyle='#66c25a';ctx.beginPath();ctx.arc(tr.x-9*s+sw,tr.y-44*s,20*s,0,6.3);ctx.fill();
     ctx.fillStyle='#e8475f';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}}
   ctx.restore()}
-function drawRoof(h){if(h.alpha<.02)return;ctx.save();ctx.globalAlpha=h.alpha;const o=10,x=h.x-o,y=h.y-o,w=h.w+2*o,hh=h.h+2*o;
-  ctx.fillStyle='rgba(43,33,64,.25)';ctx.fillRect(x+8,y+12,w,hh);
-  ctx.fillStyle=h.roof;ctx.fillRect(x,y,w,hh);
+const DOOR_G=110;
+function roofPath(h,o,d){const x=h.x-o,y=h.y-o,w=h.w+2*o,hh=h.h+2*o,cx=h.x+h.w/2,cy=h.y+h.h/2,g=DOOR_G/2,D=h.doors;
+  ctx.beginPath();ctx.moveTo(x,y);
+  if(D.includes('n'))ctx.lineTo(cx-g,y),ctx.lineTo(cx-g,y+d),ctx.lineTo(cx+g,y+d),ctx.lineTo(cx+g,y);
+  ctx.lineTo(x+w,y);
+  if(D.includes('e'))ctx.lineTo(x+w,cy-g),ctx.lineTo(x+w-d,cy-g),ctx.lineTo(x+w-d,cy+g),ctx.lineTo(x+w,cy+g);
+  ctx.lineTo(x+w,y+hh);
+  if(D.includes('s'))ctx.lineTo(cx+g,y+hh),ctx.lineTo(cx+g,y+hh-d),ctx.lineTo(cx-g,y+hh-d),ctx.lineTo(cx-g,y+hh);
+  ctx.lineTo(x,y+hh);
+  if(D.includes('w'))ctx.lineTo(x,cy+g),ctx.lineTo(x+d,cy+g),ctx.lineTo(x+d,cy-g),ctx.lineTo(x,cy-g);
+  ctx.closePath()}
+function drawRoof(h){if(h.alpha<.02)return;ctx.save();ctx.globalAlpha=h.alpha;const o=10,x=h.x-o,y=h.y-o,w=h.w+2*o,hh=h.h+2*o,d=o+WT+14;
+  ctx.save();ctx.translate(8,12);roofPath(h,o,d);ctx.fillStyle='rgba(43,33,64,.25)';ctx.fill();ctx.restore();
+  roofPath(h,o,d);ctx.fillStyle=h.roof;ctx.fill();
+  ctx.save();ctx.clip();
   ctx.strokeStyle=shade(h.roof,-.22);ctx.lineWidth=3;
   for(let yy=y+20;yy<y+hh;yy+=20){ctx.beginPath();ctx.moveTo(x,yy);ctx.lineTo(x+w,yy);ctx.stroke()}
-  ctx.fillStyle=shade(h.roof,-.3);ctx.fillRect(x,y+hh/2-6,w,12);
-  ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeRect(x,y,w,hh);
+  ctx.fillStyle=shade(h.roof,-.3);ctx.fillRect(x,y+hh/2-6,w,12);ctx.restore();
+  ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.lineJoin='round';roofPath(h,o,d);ctx.stroke();
   if(h.type==='home'){ctx.fillStyle='#f3e6cf';ctx.fillRect(x+w*.72,y+hh*.18,34,30);ctx.strokeRect(x+w*.72,y+hh*.18,34,30)}
   else if(h.type!=='shed'){   // sign on the roof so you know what is inside
-    const cx=x+w/2,cy=y+hh*.27;ctx.fillStyle='#fffdf7';ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(cx-42,cy-28,84,56,14);ctx.fill();ctx.stroke();
+    const cx=x+w/2,cy=y+hh*.32;ctx.fillStyle='#fffdf7';ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(cx-42,cy-28,84,56,14);ctx.fill();ctx.stroke();
     if(h.type==='gym'){ctx.save();ctx.translate(cx,cy);ctx.fillStyle='#4b4f66';ctx.lineWidth=3;rr(-22,-4,44,8,2);rr(-28,-14,10,28,3);rr(18,-14,10,28,3);ctx.restore()}
     else drawFood(h.type==='diner'?'burger':'donut',cx,cy,1.5)}
   ctx.restore()}
+// yellow welcome mats with bouncing arrows show where you can walk in
+function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4;
+  for(const side of h.doors){const v=side==='n'?[0,-1]:side==='s'?[0,1]:side==='w'?[-1,0]:[1,0],
+      px=side==='n'||side==='s'?cx:side==='w'?h.x:h.x+h.w,py=side==='w'||side==='e'?cy:side==='n'?h.y:h.y+h.h,
+      mx=px+v[0]*40,my=py+v[1]*40,horiz=v[1]!==0;
+    ctx.save();ctx.translate(mx,my);ctx.fillStyle='#ffd23f';ctx.strokeStyle=INK;ctx.lineWidth=3;
+    ctx.beginPath();ctx.roundRect(horiz?-DOOR_G/2:-22,horiz?-22:-DOOR_G/2,horiz?DOOR_G:44,horiz?44:DOOR_G,10);ctx.fill();ctx.stroke();
+    ctx.rotate(Math.atan2(-v[1],-v[0]));ctx.translate(b-4,0);ctx.strokeStyle=INK;ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+    for(let i=-1;i<=1;i+=1){ctx.beginPath();ctx.moveTo(i*11-5,-9);ctx.lineTo(i*11+3,0);ctx.lineTo(i*11-5,9);ctx.stroke()}
+    ctx.restore()}}
 function drawEnt(e,t){
   let frame=0;if(e.walk>0){const k=Math.floor(e.walk)%4;frame=k===1?1:k===3?2:0}
   const look=lookOf(e.lvl);let sc=1,spin=0;
@@ -803,6 +895,7 @@ function render(t){
   const v=toWorld(0,0),v2=toWorld(W,H),inView=(x,y,m)=>x>v.x-m&&x<v2.x+m&&y>v.y-m&&y<v2.y+m;
   drawGround(v.x,v.y,v2.x,v2.y);
   for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawHouseFloor(h);
+  for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawDoorMats(h,t);
   for(const k of skids){ctx.globalAlpha=clamp(k.life/1.6,0,1)*.35;ctx.fillStyle=INK;ctx.save();ctx.translate(k.x,k.y);ctx.rotate(k.a);ctx.fillRect(-9,-2,18,4);ctx.restore()}ctx.globalAlpha=1;
   for(const b of bushes)if(inView(b.x,b.y,30))drawBush(b);
   for(const f of foods)if(inView(f.x,f.y,30))drawFood(f.t,f.x,f.y+Math.sin(t*3+f.bob)*2,.9);
