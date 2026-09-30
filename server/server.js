@@ -95,7 +95,7 @@ function onUpgrade(req, socket) {
       if (op === 9) { socket.write(Buffer.concat([Buffer.from([0x8a, payload.length]), payload])); continue; }
       if (op !== 1) continue;
       let m; try { m = JSON.parse(payload.toString('utf8')); } catch (_) { continue; }
-      if (m.t === 'join' && !c.joined) { c.joined = true; sim.join(cid, m.name, m.look); console.log('+ ' + String(m.name || 'Player').slice(0, 14) + ' joined (' + sim.count().humans + ' online)'); }
+      if (m.t === 'join' && !c.joined) { c.joined = true; sim.join(cid, m.name, m.look, m.near); console.log('+ ' + String(m.name || 'Player').slice(0, 14) + ' joined (' + sim.count().humans + ' online)'); }
       else if (c.joined) sim.msg(cid, m);
     }
   });
@@ -113,8 +113,8 @@ const server = http.createServer((req, res) => {
     const f = path.join(ROOT, 'music', url.slice(7));
     if (fs.existsSync(f)) { res.writeHead(200, { 'Content-Type': 'audio/mpeg' }); fs.createReadStream(f).pipe(res); } else { res.writeHead(404); res.end(); }
   } else if (url === '/status') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(sim.count()));
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' });
+    res.end(JSON.stringify(Object.assign(sim.count(), { players: sim.players() })));
   } else { res.writeHead(404); res.end('not found'); }
 });
 server.on('upgrade', onUpgrade);

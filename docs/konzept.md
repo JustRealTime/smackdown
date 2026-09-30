@@ -208,3 +208,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 ## Runde 23: Tutorial als SVG
 
 - "How to play" besteht jetzt aus 9 animierten Vektor-Szenen (inline SVG mit SMIL): Bewegen/Essen, Sprint/Dash, Perks, Duelle, Aura, Items (Q/W/E), Sichtlinie, Zoom, Quests, Charakter-Editor. Sie sind bei jeder Größe scharf und nutzen eigene Vektor-Figuren statt der Pixel-Sprites. Build r24.
+
+## Runde 24: Mehrspieler einfacher
+
+- Das Startmenü fragt alle paar Sekunden den Server ab (`/status` liefert jetzt auch die Namen und Level der Spieler; erreichbar unter der Seiten-Adresse, der gespeicherten Adresse oder localhost:8080).
+- Gefundene Spieler erscheinen als "Name is playing · Lv N" mit Join-Knopf. Join startet neben diesem Spieler. Läuft ein Server, tritt Play automatisch bei, "or play alone" bleibt als Ausweg. Die manuelle Adresse liegt unter "Play with friends". Build r25.

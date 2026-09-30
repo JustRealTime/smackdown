@@ -39,6 +39,15 @@ input#server{flex:1;min-width:0;font:700 14px var(--body);color:var(--ink);backg
 input#server:focus{outline:3px solid var(--sky);outline-offset:2px}
 .btn.alt{background:var(--sky);font-size:17px;padding:8px 16px}
 #mpstatus{min-height:1.2em;color:var(--bad)}
+#online{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+#olhead{font:800 13px var(--body);color:#2f9e4f}
+#ollist{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow:auto}
+.olrow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;font-size:15px}
+.olrow .btn{font-size:15px;padding:4px 14px}
+.olrow small{color:var(--muted);font-weight:800}
+.lnk{background:none;border:0;color:var(--muted);font:800 12px var(--body);text-decoration:underline;cursor:pointer;align-self:flex-start;padding:0}
+#mpadv summary{font:800 12px var(--body);color:var(--muted);cursor:pointer}
+#mpadv .row{margin-top:6px}
 input#name:focus{outline:3px solid var(--sky);outline-offset:2px}
 .btn{font:20px var(--display);letter-spacing:.5px;color:#fff;background:var(--tomato);border:3px solid var(--ink);border-radius:12px;
   padding:10px 20px;box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .08s}
@@ -266,13 +275,21 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <input id="name" maxlength="14" placeholder="Your name" autocomplete="off" spellcheck="false">
       <button class="btn" type="submit">Play</button>
     </div>
-    <div class="row" id="mprow">
-      <input id="server" placeholder="Friends: server address, e.g. 192.168.1.20:8080" autocomplete="off" spellcheck="false">
-      <button class="btn alt" type="button" id="joinbtn">Join</button>
+    <div id="online" hidden>
+      <div id="olhead"></div>
+      <div id="ollist"></div>
+      <button class="lnk" type="button" id="solobtn">or play alone (offline)</button>
     </div>
+    <details id="mpadv"><summary>Play with friends: server address</summary>
+      <p class="small">Run <b>start-server.bat</b> on one PC. Everyone on the same Wi-Fi opens the address it shows. Then every player who is online appears here with a Join button.</p>
+      <div class="row" id="mprow">
+        <input id="server" placeholder="e.g. 192.168.1.20:8080" autocomplete="off" spellcheck="false">
+        <button class="btn alt" type="button" id="joinbtn">Join</button>
+      </div>
+    </details>
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="mpstatus"></p>
-    <p class="small" style="opacity:.6">Build r24</p>
+    <p class="small" style="opacity:.6">Build r25</p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -1276,12 +1293,29 @@ $('gclose').addEventListener('click',()=>{$('guide').hidden=true});
 $('gtabs').addEventListener('click',e=>{const b=e.target.closest('.gtab');if(b)openGuide(b.dataset.t)});
 $('gbody').addEventListener('click',e=>{const b=e.target.closest('[data-tree]');if(b){guideTree=b.dataset.tree;openGuide('perks')}});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden)$('guide').hidden=true});
-$('startform').addEventListener('submit',e=>{e.preventDefault();startGame()});
+$('startform').addEventListener('submit',e=>{e.preventDefault();if(onlineAddr)joinGame(onlineAddr);else startGame()});   // with a game running online, Play joins it
 const playAgain=()=>role==='client'?respawnNet():startGame();
 $('again').addEventListener('click',playAgain);
 $('leavestay').addEventListener('click',()=>askLeave(false));
 $('leavego').addEventListener('click',()=>{askLeave(false);toMenu()});
-$('joinbtn').addEventListener('click',joinGame);
+$('joinbtn').addEventListener('click',()=>joinGame());
+/* ---------- find running games: list who is playing, each with a Join button ---------- */
+let onlineAddr=null;
+async function probeServer(addr){try{const c=new AbortController(),to=setTimeout(()=>c.abort(),1500);
+    const r=await fetch((typeof location!=='undefined'&&location.protocol==='https:'?'https://':'http://')+addr+'/status',{signal:c.signal,cache:'no-store'});clearTimeout(to);
+    if(!r.ok)return null;const j=await r.json();return j&&Array.isArray(j.players)?j:null}catch(_){return null}}
+function showOnline(j,addr){onlineAddr=addr;$('online').hidden=false;
+  $('olhead').textContent='● Online · '+j.players.length+(j.players.length===1?' player':' players')+' on '+addr;
+  $('ollist').innerHTML=j.players.length?j.players.map(p=>'<div class="olrow"><span>'+esc2(p.name)+' is playing <small>Lv '+p.lvl+'</small></span><button type="button" class="btn alt" data-join="'+esc2(p.name)+'">Join</button></div>').join(''):'<div class="olrow"><small>Nobody yet. Press Play to be the first.</small></div>'}
+let polling=false;
+async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||document.hidden)return;polling=true;
+  try{const cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
+    const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);cand.push('localhost:8080');
+    for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){showOnline(j,a);return}}
+    onlineAddr=null;$('online').hidden=true}finally{polling=false}}
+$('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-join]');if(b&&onlineAddr)joinGame(onlineAddr,b.dataset.join)});
+$('solobtn').addEventListener('click',()=>{onlineAddr=null;startGame()});
+setInterval(pollOnline,3000);setTimeout(pollOnline,300);
 try{const sv=localStorage.getItem('snackdown-server');if(sv)$('server').value=sv}catch(_){}
 if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host&&!$('server').value)$('server').value=location.host;
 try{const n=localStorage.getItem('snackdown-name');if(n)$('name').value=n}catch(_){}
@@ -1766,10 +1800,13 @@ const isFleeing=(e,t)=>{for(const k in e.fled)if(e.fled[k]>t)return true;return 
 function srvSpawn(h,lvl,t){
   const e=makeEnt(h.name,lvl,false,t);e.human=true;if(h.look)Object.assign(e,h.look);e.protect=t+4;e.top=L(e);e.won=0;e.snacks=0;e.respawnLvl=1;
   e.want={ux:0,uy:0,f:0,sprint:false,dash:false};e.h=h;h.e=e;h.dead=false;h.offer=null;h.perksDirty=true;h.dashQ=h.useQ=false;
+  if(h.near){const f=[...humans.values()].find(o=>o!==h&&o.e&&o.e.state!=='eaten'&&o.name===h.near);   // a friend asked to join next to someone
+    if(f){for(let i=0;i<40;i++){const a=Math.random()*6.28,r=rand(200,380),x=clamp(f.e.x+Math.cos(a)*r,60,WORLD-60),y=clamp(f.e.y+Math.sin(a)*r,60,WORLD-60);if(!wallHit(x,y,30)&&!waterAt(x,y)){e.x=x;e.y=y;break}}}
+    h.near=''}
   ents.push(e);send(h,{t:'spawned',id:e.id});if(owedPicks(e)>0)srvOffer(h);return e}
-function srvJoin(cid,name,look){
+function srvJoin(cid,name,look,near){
   const nm=String(name||'').replace(/[^\w .\-]/g,'').trim().slice(0,14)||'Player';
-  const h={cid,name:nm,look:cleanLook(look),alive:true,e:null,known:new Set(),inp:{ux:0,uy:0,f:0,sp:false},dashQ:false,useQ:false,offer:null,dead:false,perksDirty:true};
+  const h={cid,name:nm,look:cleanLook(look),near:String(near||'').slice(0,14),alive:true,e:null,known:new Set(),inp:{ux:0,uy:0,f:0,sp:false},dashQ:false,useQ:false,offer:null,dead:false,perksDirty:true};
   humans.set(cid,h);send(h,{t:'welcome',seed:WORLD_SEED,hz:60,snap:SNAP_EVERY});srvSpawn(h,1,now());return h}
 function srvLeave(cid){
   const h=humans.get(cid);if(!h)return;h.alive=false;humans.delete(cid);const e=h.e;if(!e)return;
@@ -1870,17 +1907,17 @@ function srvStep(dt){
   if(tickN%SNAP_EVERY===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={join:srvJoin,cleanLook,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
+if(role==='server')globalThis.__sim={join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
 const DIRS=['down','up','left','right'], STATES=['move','eat','duel','eaten'];
 const netSend=o=>{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))};
-function joinGame(){
+function joinGame(addrArg,near){
   sfx.init();music.unlock();
   const name=($('name').value.trim()||'Player').slice(0,14);
   try{localStorage.setItem('snackdown-name',name)}catch(_){}
-  let addr=$('server').value.trim();
+  let addr=typeof addrArg==='string'?addrArg:$('server').value.trim();
   if(!addr&&typeof location!=='undefined'&&location.host)addr=location.host;
   if(!addr){$('mpstatus').textContent='Type the address of the server, for example 192.168.1.20:8080';return}
   try{localStorage.setItem('snackdown-server',addr)}catch(_){}
@@ -1888,7 +1925,7 @@ function joinGame(){
   $('mpstatus').textContent='Connecting to '+addr+' ...';
   let sock;try{sock=new WebSocket((typeof location!=='undefined'&&location.protocol==='https:'?'wss://':'ws://')+addr)}catch(e){$('mpstatus').textContent='Could not connect: '+e.message;return}
   ws=sock;
-  sock.onopen=()=>sock.send(JSON.stringify({t:'join',name,look:LOOK}));
+  sock.onopen=()=>sock.send(JSON.stringify({t:'join',name,look:LOOK,near:near||''}));
   sock.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(_){return}onNet(m)};
   sock.onerror=()=>{if(role!=='client')$('mpstatus').textContent='Could not reach '+addr+'. Is the server running, and are you on the same network?'};
   sock.onclose=()=>{if(role==='client')netLost()}}

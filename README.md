@@ -18,12 +18,11 @@ Der Name ist noch ein Arbeitstitel.
 
 ## Mit Freunden spielen (lokales Netz)
 
-1. Auf dem Rechner, der als Host dient, [Node.js](https://nodejs.org) installieren (Version 18 oder neuer).
-2. `start-server.bat` doppelklicken (Windows) oder `node server/server.js` (überall). Windows fragt eventuell nach der Firewall: erlauben.
-3. Der Server zeigt die Adressen an, zum Beispiel `http://192.168.1.20:8080`. Du und deine Freunde öffnet diese Adresse im Browser (gleiches WLAN oder Tailscale) und klickt auf **Join**.
-4. Die Bots bleiben, alle sehen dieselbe Karte, und ihr könnt euch gegenseitig duellieren.
+1. Auf einem Rechner [Node.js](https://nodejs.org) (Version 18 oder neuer) installieren und `start-server.bat` doppelklicken (Windows) oder `node server/server.js` ausführen. Windows fragt eventuell nach der Firewall: erlauben.
+2. Der Server zeigt eine Adresse, zum Beispiel `http://192.168.1.20:8080`. Alle öffnen diese Adresse im Browser (gleiches WLAN oder Tailscale).
+3. **Play** drücken. Sobald jemand spielt, sieht jeder, der das Spiel öffnet, im Menü zum Beispiel „Alex is playing · Lv 4“ mit einem **Join**-Knopf (man startet dann direkt neben ihm). Wenn ein Server läuft, tritt **Play** automatisch dem Spiel bei.
 
-Ohne Server bleibt **Play** der Einzelspielermodus gegen die Bots.
+Ohne Server gibt es nur den Einzelspielermodus gegen die Bots (oder „play alone“ im Menü).
 
 ## Stand
 
