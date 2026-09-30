@@ -204,7 +204,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <p id="next">Next look: shoulder pads at Lv 10</p>
     <p id="treeline"></p>
   </div>
-  <div id="itemslot"><div class="islots"><div class="islot" data-s="0"><kbd>Q</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="1"><kbd>E</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="2"><kbd>R</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div></div><small id="buffs"></small></div>
+  <div id="itemslot"><div class="islots"><div class="islot" data-s="0"><kbd>Q</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="1"><kbd>W</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="2"><kbd>E</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div></div><small id="buffs"></small></div>
 </section>
 
 <div id="statusbar" hidden></div>
@@ -1981,6 +1981,34 @@ function drawTag(e){const tt=now();const l=L(e),txt='Lv '+l+'  '+e.name;const dx
   if(e===king&&e.state!=='duel')drawCrown(e.x+dx,y-24,1.1,tt);
   if(e.state==='duel'&&!e.isPlayer&&!(duel&&duel.o===e)){ctx.font='18px "Lilita One", sans-serif';ctx.strokeText('VS',e.x+dx,y-20);ctx.fillStyle='#ff6b3d';ctx.fillText('VS',e.x+dx,y-20)}
   if(e.state==='duel'&&duel&&(duel.o===e||duel.p===e)){ctx.font='16px "Lilita One", sans-serif';ctx.strokeText('TYPING…',e.x+dx,y-20);ctx.fillStyle=GOLD;ctx.fillText('TYPING…',e.x+dx,y-20)}}
+/* ---------- line of sight: walls, trunks and big props cast a shadow where you cannot see ---------- */
+const BLOCKS=new Set([undefined,'trunk','rock','log','tent','stall','well','crates','haybale']);
+function drawSight(v,v2){
+  if(!player||game!=='play'||player.state==='eaten')return;
+  const ex=player.x,ey=player.y,R=Math.hypot(W,H)/(2*ZZ)+140;
+  const segs=[],angs=[],seen=new Set();
+  const edge=(x1,y1,x2,y2)=>{segs.push(x1,y1,x2,y2);angs.push(Math.atan2(y1-ey,x1-ex),Math.atan2(y2-ey,x2-ex))};
+  const i0=Math.max(0,Math.floor((ex-R)/WGC)),i1=Math.floor((ex+R)/WGC),j0=Math.max(0,Math.floor((ey-R)/WGC)),j1=Math.floor((ey+R)/WGC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const c=wgrid.get(i*1000+j);if(!c)continue;
+    for(const w of c){if(seen.has(w)||!BLOCKS.has(w.kind))continue;seen.add(w);
+      const pad=w.kind==='trunk'?7:0,x=w.x-pad,y=w.y,x2=w.x+w.w+pad,y2=w.y+w.h;
+      if(ex>x-1&&ex<x2+1&&ey>y-1&&ey<y2+1)continue;   // never shadow the wall you are standing in
+      if(x2<ex-R||x>ex+R||y2<ey-R||y>ey+R)continue;
+      // only the sides that face you can block the view
+      if(ey<y)edge(x,y,x2,y);if(ey>y2)edge(x,y2,x2,y2);if(ex<x)edge(x,y,x,y2);if(ex>x2)edge(x2,y,x2,y2)}}
+  const bx=ex-R,by=ey-R,bx2=ex+R,by2=ey+R;
+  edge(bx,by,bx2,by);edge(bx2,by,bx2,by2);edge(bx2,by2,bx,by2);edge(bx,by2,bx,by);
+  angs.sort((p,q)=>p-q);
+  const n=segs.length,pts=[];
+  const cast=a=>{const dx=Math.cos(a),dy=Math.sin(a);let best=1e9;
+    for(let k=0;k<n;k+=4){const sx=segs[k],sy=segs[k+1],ex2=segs[k+2]-sx,ey2=segs[k+3]-sy,den=dx*ey2-dy*ex2;if(den>-1e-9&&den<1e-9)continue;
+      const tt=((sx-ex)*ey2-(sy-ey)*ex2)/den,u=((sx-ex)*dy-(sy-ey)*dx)/den;if(tt>0&&u>=0&&u<=1&&tt<best)best=tt}
+    pts.push(ex+dx*best,ey+dy*best)};
+  let prev=-9;for(const a of angs){if(a-prev<2e-5)continue;prev=a;cast(a-1e-4);cast(a+1e-4)}
+  ctx.fillStyle='rgba(22,15,38,.93)';ctx.beginPath();
+  const m=400;ctx.rect(v.x-m,v.y-m,v2.x-v.x+2*m,v2.y-v.y+2*m);
+  ctx.moveTo(pts[0],pts[1]);for(let k=2;k<pts.length;k+=2)ctx.lineTo(pts[k],pts[k+1]);ctx.closePath();
+  ctx.fill('evenodd')}
 function render(t){
   if(duel&&game==='play')dz+=(.3-dz)*.08;else dz+=(0-dz)*.12;
   ZZ=Z*(1+kick+dz);
@@ -2017,7 +2045,8 @@ function render(t){
   for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawRoof(h);
   for(const e of vis){if(e.state==='eaten'||e.state==='duel'||(e.buff.hide>t&&!e.isPlayer))continue;const hh=houseAt(e.x,e.y);if(hh&&hh.alpha>.5&&!e.isPlayer)continue;drawTag(e)}
   ctx.textAlign='center';for(const f of floaters){ctx.globalAlpha=clamp(f.life,0,1);ctx.font=(f.big?26:18)+'px "Lilita One", sans-serif';
-    ctx.lineWidth=5;ctx.strokeStyle=INK;ctx.strokeText(f.text,f.x,f.y);ctx.fillStyle=f.c;ctx.fillText(f.text,f.x,f.y)}ctx.globalAlpha=1;}
+    ctx.lineWidth=5;ctx.strokeStyle=INK;ctx.strokeText(f.text,f.x,f.y);ctx.fillStyle=f.c;ctx.fillText(f.text,f.x,f.y)}ctx.globalAlpha=1;
+  drawSight(v,v2)}
 
 let last=now();
 function loop(){const t=now();let dt=Math.min(.05,t-last);last=t;

@@ -166,3 +166,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Snacks geben 1,7x so viel Level wie vorher und das Essen dauert 0,6 s statt 0,85 s.
 - Der Hinweistext oben im Spiel ist weg, die Steuerung steht nur noch im Menü.
 - Esc geht zurück ins Menü (im Duell nicht). Im Mehrspielermodus verlässt man dabei den Server.
+
+## Runde 17: Sichtlinie und Schatten
+
+- Wände von Gebäuden, Baumstämme, Felsen, Baumstämme am Boden, Zelte, Stände, Brunnen, Kisten und Heuballen blockieren die Sicht. Dahinter liegt ein dunkler Schatten, in dem man nichts sieht.
+- In einem Haus sieht man nach draußen nur durch die Türen, als Lichtkegel.
+- Zäune, Laternen, Bänke, Fässer, Lagerfeuer und Möbel blockieren nicht. Der Schatten ist nur Darstellung, der Server und die Bots ändern sich nicht.
+- Umsetzung: Sichtpolygon per Strahlenwurf von der Spielerposition gegen die dem Spieler zugewandten Kanten, als Overlay über der Welt.
