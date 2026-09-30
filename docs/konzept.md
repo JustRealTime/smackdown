@@ -225,3 +225,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Perk-Karten nach dem Level-Up reagieren nicht mehr auf die Maus (stören die Steuerung nicht mehr), gewählt wird nur mit 1, 2, 3. Ein bereits voll aufgelevelter Perk wird nie angeboten (auch nicht aus einer alten Auswahl).
 - Sound: maximal 44 gleichzeitige Stimmen, Wiederholungen von Biss/Schluck/Yum/Level-Up werden gedrosselt (schnelles Essen bleibt hörbar), der AudioContext wird bei Bedarf wieder aufgeweckt.
 - Volle Item-Slots: Läuft man über eine Geschenkbox, erscheint "SLOTS FULL!", ein Hinweis und ein Ton. Die Box bleibt liegen. Build r27.
+
+## Runde 27: Play startet sofort, Absturzschutz, Versions-Check
+
+- Play: Läuft schon ein Spiel (im Menü gelistet), tritt man direkt bei. Sonst startet das Spiel sofort als Host (kein Warten auf "Looking for a game"), der Raumname wird im Hintergrund beim Vermittler angemeldet und bei Netzproblemen erneut versucht.
+- Die Spielschleife läuft jetzt auch bei Fehlern weiter (nächster Frame wird zuerst geplant, Update und Render sind abgesichert, ungültige Kamerawerte werden zurückgesetzt). Ein roter Hinweis zeigt die Fehlermeldung, statt dass der Bildschirm einfach dunkel bleibt.
+- Versions-Check: Der Host sendet seine Build-Nummer; wer eine andere Version hat, bekommt eine klare Meldung statt eines kaputten Spiels. Build r28.
