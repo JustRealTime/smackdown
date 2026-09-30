@@ -144,3 +144,11 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Ein Duellsieg bringt jetzt etwa die Hälfte der XP des Verlierers (vorher ein Viertel), Deckel 15 Level statt 8, Mindestgewinn 4 Snacks, Königsbonus 20 %.
 - Die großen Pfeile auf den Türmatten sind weg. Matte und Türpfosten bleiben als Markierung.
+
+## Runde 14: Skins, Perk-Seltenheit, Linksklick-Dash, Guide, sichtbare Auren
+
+- **Skins:** 7 Fantasy-Hautfarben (Schleim, Eis, Geist, Bubblegum, Roboter, Gold, Imp), mehr Shirt- und Haarfarben, Frisuren Mohawk/Afro/Dutt/Zöpfe, Accessoires Katzenohren/Hörner/Heiligenschein/Kopfhörer/Hasenohren, Shirtmuster Punkte und Karo.
+- **Perk-Seltenheit:** Jeder Perk ist Common/Rare/Epic/Legendary (Capstones legendär). Jede Karte würfelt 55/30/11/4 %, dann wird ein Perk dieser Stufe im gewählten Baum gezogen (fehlt die Stufe, eine niedrigere). Karten haben Farbrahmen und Label, Epic/Legendary spielen einen Sound.
+- **Dash:** Linksklick dasht wie die Leertaste (nicht auf Buttons/Panels).
+- **Guide:** Button im Startbildschirm öffnet Items, Perks und Seltenheits-Quoten, erzeugt aus den Spieldaten.
+- **Aura:** Der Vorteil-Hinweis färbt jetzt das Spielermodell selbst grün/rot, mit Leuchten um den Körper plus Ring und Zahl.

@@ -52,6 +52,29 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .warn{margin:0;font-weight:800;color:var(--bad)}
 .small{font-size:13px;color:var(--muted);margin:0;font-weight:600}
 
+/* guide */
+#guide{z-index:30;background:rgba(43,33,64,.6)}
+#gpanel{width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+#ghead{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:3px solid var(--ink);flex-wrap:wrap}
+#ghead h2{margin:0;font:28px var(--display);letter-spacing:.5px}
+#gtabs{display:flex;gap:8px;flex:1}
+.gtab{font:800 14px var(--body);padding:6px 14px;border:3px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
+.gtab.on{background:var(--tomato);color:#fff}
+#gbody{overflow:auto;padding:16px 18px 20px;display:flex;flex-direction:column;gap:18px}
+.gsec h3{margin:0 0 8px;font:20px var(--display);display:flex;align-items:center;gap:8px}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.gcard{position:relative;display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:3px solid var(--ink);border-left:9px solid var(--rc,#c3ccd6);border-radius:12px;background:#fff;box-shadow:0 3px 0 var(--ink)}
+.gcard.t2{box-shadow:0 3px 0 var(--ink),0 0 12px #b06bff88}
+.gcard.t3{background:linear-gradient(#fff3c4,#fff);box-shadow:0 3px 0 var(--ink),0 0 14px #ffc93caa}
+.gcard .gi{font-size:30px;line-height:1}
+.gcard b{display:block;font:17px var(--display)}
+.gcard .gr{font:800 10px var(--body);letter-spacing:1px;text-transform:uppercase;color:var(--rt,#7d7196)}
+.gcard p{margin:2px 0 0;font-weight:700;font-size:13px;line-height:1.25}
+.gcard small{display:block;margin-top:3px;font-weight:800;font-size:11px;color:var(--muted)}
+.gnote{margin:0;font-weight:700;font-size:14px}
+.gbar{display:flex;height:22px;border:3px solid var(--ink);border-radius:8px;overflow:hidden;margin:4px 0 2px}
+.gbar i{display:block;font:800 11px/16px var(--body);text-align:center;color:#2b2140}
+
 /* HUD */
 #hud{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:12px 14px;display:flex;gap:14px;align-items:center}
 #lvbadge{font:34px var(--display);line-height:1;min-width:64px;text-align:center}
@@ -133,7 +156,12 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .pcard b{font:19px var(--display);letter-spacing:.3px}
 .pcard em{font-style:normal;font-weight:800;font-size:11px;color:var(--tc);filter:brightness(.75)}
 .pcard .pd{font-weight:700;line-height:1.25}
-.pcard.cap{background:linear-gradient(#fff6d5,var(--panel))}
+.pcard .prar{font:800 10px var(--body);letter-spacing:1px;text-transform:uppercase;padding:1px 8px;border-radius:8px;background:var(--rc);color:#2b2140;border:2px solid var(--ink)}
+.pcard.t0 .prar{background:#e9eef3}
+.pcard.t1{border-color:#3db5ff}
+.pcard.t2{border-color:#b06bff;box-shadow:0 5px 0 var(--ink),0 0 18px #b06bffaa;background:linear-gradient(#f1e6ff,var(--panel))}
+.pcard.t3{border-color:#ffc93c;background:linear-gradient(#fff3c4,var(--panel));animation:legend 1.4s linear infinite}
+.pcard.t1,.pcard.t2,.pcard.t3{border-top-color:var(--tc)}
 #dbanner{position:fixed;left:50%;top:11%;transform:translate(-50%,-50%);max-width:min(92%,900px);padding:10px 22px;text-align:center;font:clamp(16px,2.3vw,24px) var(--display);letter-spacing:.5px;color:#fff;border:4px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--ink);text-shadow:0 3px 0 var(--ink);pointer-events:none}
 #dbanner.good{background:#3fb950}#dbanner.bad{background:var(--bad)}#dbanner.neutral{background:#5a8dee}
 #dbanner b{display:block;font-weight:400;font-size:1.5em;line-height:1.1}#dbanner small{display:block;font:800 .62em var(--body);letter-spacing:.3px;text-shadow:none;margin-top:2px}
@@ -164,7 +192,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <button id="mute" class="panel" type="button" aria-label="Toggle sound">Sound on</button>
 <button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <canvas id="mini" class="panel" width="300" height="300" hidden></canvas>
-<div id="hint" class="panel" hidden><kbd>Shift</kbd> sprint · <kbd>Space</kbd> dash · yellow mats are doors · touch to duel</div>
+<div id="hint" class="panel" hidden><kbd>Shift</kbd> sprint · <kbd>Space</kbd> or click dash · yellow mats are doors · touch to duel</div>
 
 <section id="hud" class="panel" hidden>
   <div id="lvbadge"><small>LEVEL</small><span id="lv">1</span><small id="rank">Rookie</small></div>
@@ -195,17 +223,25 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <input id="server" placeholder="Friends: server address, e.g. 192.168.1.20:8080" autocomplete="off" spellcheck="false">
       <button class="btn alt" type="button" id="joinbtn">Join</button>
     </div>
+    <button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button>
     <p class="small" id="mpstatus"></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
-      <dt><kbd>Space</kbd></dt><dd>Dash and slide, the fastest move</dd>
+      <dt><kbd>Space</kbd> <kbd>Click</kbd></dt><dd>Dash and slide, the fastest move</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
     <p class="small">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
     <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Higher level means a shorter phrase. Run away and get caught, and your opponent gets a shorter one too.</p>
     <p class="warn" id="touchwarn" hidden>This prototype needs a keyboard. Please play on a PC for now.</p>
   </form>
+</div>
+
+<div id="guide" class="overlay" hidden>
+  <div class="panel" id="gpanel">
+    <div id="ghead"><h2>Guide</h2><div id="gtabs"><button type="button" class="gtab on" data-t="items">Items</button><button type="button" class="gtab" data-t="perks">Perks</button><button type="button" class="gtab" data-t="rar">Rarity</button></div><button type="button" class="btn alt" id="gclose">Close</button></div>
+    <div id="gbody"></div>
+  </div>
 </div>
 
 <div id="dead" class="overlay" hidden>
@@ -501,12 +537,12 @@ const UNLOCKS=[[10,'shoulder pads'],[15,'muscles'],[25,'chest plate'],[40,'big m
 const MATS=[{a:'#c3ccd6',h:'#eef2f6',l:'#8e99a6'},{a:GOLD,h:'#fff0a8',l:'#d99a1a'},{a:'#e8475f',h:'#ffb3bd',l:'#a01e34'},{a:'#3d7dd8',h:'#a9ccff',l:'#1f4a99'},{a:'#3a3550',h:'#9a90c4',l:'#1a1626'},{a:'#8ee9ff',h:'#ffffff',l:'#3fb6d6'},{a:'#9b5de5',h:'#ffd6ff',l:'#5a2a9a'}];
 const CAPES=['#d62839','#7b2fbf','#231a4e'];
 function lookOf(lvl){const l=Math.floor(lvl);return{m:l>=40?2:l>=15?1:0,pads:l>=10,chest:l>=25,helmet:l>=50,mat:l>=1500?6:l>=1000?5:l>=750?4:l>=500?3:l>=350?2:l>=70?1:0,capeC:l>=750?2:l>=400?1:0,cape:l>=85,crown:l>=100,flames:l>=150,wings:l>=200}}
-const SKINS=['#ffd7b0','#f1c27d','#e0ac69','#c68642','#8d5524','#ffe0c7'];
-const SHIRTS=['#ff6b3d','#3db5ff','#9b5de5','#2ec4b6','#ff4f9a','#ffd23f','#5a8dee','#06d6a0'];
-const HAIRS=['#3b2417','#1f1a17','#e2b33c','#b5462b','#7a4a2a','#f5f0e6','#4b3b8f','#ff4f9a','#2ec4b6'];
+const SKINS=['#ffd7b0','#f1c27d','#e0ac69','#c68642','#8d5524','#ffe0c7','#7bd389','#6ec3ff','#b48cff','#ff9ecb','#c9d3dc','#f4c542','#e8684a'];   // the last seven are fantasy skins: slime, ice, ghost, bubblegum, robot, gold, imp
+const SHIRTS=['#ff6b3d','#3db5ff','#9b5de5','#2ec4b6','#ff4f9a','#ffd23f','#5a8dee','#06d6a0','#ff9f1c','#7bdff2','#d00000','#2b2140','#f7f7f7'];
+const HAIRS=['#3b2417','#1f1a17','#e2b33c','#b5462b','#7a4a2a','#f5f0e6','#4b3b8f','#ff4f9a','#2ec4b6','#00e5ff','#7cff6b','#ff2e2e','#ffffff'];
 const PANTS=['#3d4a7a','#4a3f6b','#5c4033','#35605a','#6d6875'];
-const HSTYLES=['short','short','long','spiky','bald','pony'], ACCS=['none','none','none','shades','cap','beanie','band'];
-const ACOLS=['#e8475f','#3db5ff','#ffd23f','#2ec4b6','#9b5de5','#2b2140','#ffffff'], SHIRTSTY=['plain','plain','stripe','logo','stripe'];
+const HSTYLES=['short','short','long','spiky','bald','pony','mohawk','afro','bun','twin'], ACCS=['none','none','none','shades','cap','beanie','band','cat','horns','halo','phones','bunny'];
+const ACOLS=['#e8475f','#3db5ff','#ffd23f','#2ec4b6','#9b5de5','#2b2140','#ffffff'], SHIRTSTY=['plain','plain','stripe','logo','stripe','dots','check'];
 const SPR={},GW=20,GH=26,OX=2,OY=4,S=3,FY=24;
 function sprite(e,look,dir,frame){
   const key=[look.m,look.pads,look.chest,look.helmet,look.mat,look.capeC,look.cape,look.crown,dir,frame,e.skin,e.shirt,e.hair,e.pants,e.hs,e.acc,e.acol,e.sty,e.shorts].join('|');
@@ -517,7 +553,10 @@ function sprite(e,look,dir,frame){
   const m=look.m,aw=m>=1?3:2,body=look.chest?arm:e.shirt,f1=frame===1,f2=frame===2;
   const hat=!look.helmet&&!look.crown, ac=e.acol, shades=e.acc==='shades', hs=e.hs, hc=e.hair;
   const leg=(x,y,h,col)=>{if(e.shorts&&h>2){P(x,y,3,2,col);P(x,y+2,3,h-2,e.skin)}else P(x,y,3,h,col)};
-  const stripes=(x,w)=>{if(look.chest)return;if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))}};
+  const stripes=(x,w)=>{if(look.chest)return;
+    if(e.sty==='dots'){for(let yy=10;yy<14;yy+=2)for(let xx=x+(yy%4?0:1);xx<x+w;xx+=2)P(xx,yy,1,1,shade(e.shirt,.4))}
+    if(e.sty==='check'){for(let yy=10;yy<14;yy++)for(let xx=x;xx<x+w;xx++)if((xx+yy)%2)P(xx,yy,1,1,shade(e.shirt,-.22))}
+if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))}};
   if(dir==='left'||dir==='right'){
     const bw=5+m,tx=6-(m>>1);
     if(look.cape)P(tx-2,9,3,9,CAPE);
@@ -531,6 +570,10 @@ function sprite(e,look,dir,frame){
     if(hs==='pony'){P(3,2,2,5,hc);P(4,2,1,1,'#ff4f9a')}
     if(hs!=='bald'){P(5,1,8,2,hc);P(5,3,3,4,hc)}
     if(hs==='spiky'){P(5,0,2,1,hc);P(8,0,2,1,hc);P(11,0,2,1,hc)}
+    if(hs==='mohawk'){P(6,-2,6,3,hc)}
+    if(hs==='afro'){P(3,-2,11,6,hc);P(3,4,3,4,hc)}
+    if(hs==='bun'){P(5,-2,4,3,hc)}
+    if(hs==='twin'){P(3,3,2,7,hc);P(3,9,2,1,'#ff4f9a')}
     if(shades){P(9,5,3,2,'#1b1b2f');P(5,5,4,1,'#1b1b2f');P(9,5,1,1,'#7ad0ff')}else P(10,5,1,2,INK);
     P(11,7,1,1,'#f08a8a');P(12,7,1,1,'#7a2331');
     const ax=tx+1+(f1?-1:f2?1:0);
@@ -539,7 +582,12 @@ function sprite(e,look,dir,frame){
     if(hat){
       if(e.acc==='cap'){P(5,0,8,2,ac);P(11,2,4,1,shade(ac,-.3))}
       else if(e.acc==='beanie'){P(5,-1,8,3,ac);P(5,2,8,1,shade(ac,-.2));P(8,-2,2,1,'#fff')}
-      else if(e.acc==='band')P(5,2,8,1,ac)}
+      else if(e.acc==='band')P(5,2,8,1,ac)
+      else if(e.acc==='cat'){P(6,-1,2,2,ac);P(10,-1,2,2,ac)}
+      else if(e.acc==='horns'){P(7,-2,2,3,ac);P(6,-3,1,1,ac)}
+      else if(e.acc==='halo')P(5,-3,7,1,'#ffe066')
+      else if(e.acc==='phones'){P(7,3,3,4,ac);P(6,1,5,1,'#2b2140')}
+      else if(e.acc==='bunny'){P(6,-4,2,5,ac);P(9,-3,2,4,ac)}}
     if(look.helmet){P(4,0,10,4,arm);P(4,0,10,1,armHi);P(4,4,3,4,arm);P(13,3,1,1,armLo)}
     if(look.crown){P(6,-2,6,2,GOLD);P(6,-3,1,1,GOLD);P(8,-3,2,1,GOLD);P(11,-3,1,1,GOLD);P(8,-2,2,1,'#e8475f')}
   }else{
@@ -562,6 +610,10 @@ function sprite(e,look,dir,frame){
       if(hs==='pony'){P(12,2,2,4,hc);P(12,2,1,1,'#ff4f9a')}
       if(hs!=='bald'){P(4,1,8,2,hc);P(4,3,1,2,hc);P(11,3,1,2,hc)}else P(5,1,2,1,shade(e.skin,.35));
       if(hs==='spiky'){P(4,0,2,1,hc);P(7,0,2,1,hc);P(10,0,2,1,hc)}
+      if(hs==='mohawk')P(6,-2,4,4,hc);
+      if(hs==='afro'){P(2,-2,12,5,hc);P(2,3,2,6,hc);P(12,3,2,6,hc)}
+      if(hs==='bun')P(6,-2,4,3,hc);
+      if(hs==='twin'){P(2,3,2,6,hc);P(12,3,2,6,hc);P(2,8,2,1,'#ff4f9a');P(12,8,2,1,'#ff4f9a')}
       if(shades){P(5,5,3,2,'#1b1b2f');P(8,5,3,2,'#1b1b2f');P(5,5,1,1,'#7ad0ff');P(8,5,1,1,'#7ad0ff')}else{P(6,5,1,2,INK);P(9,5,1,2,INK)}
       P(5,7,1,1,'#f08a8a');P(10,7,1,1,'#f08a8a');P(7,7,2,1,'#7a2331')}
     else{
@@ -569,11 +621,20 @@ function sprite(e,look,dir,frame){
       else if(hs!=='bald')P(4,1,8,7,hc);else P(5,1,2,1,shade(e.skin,.35));
       if(hs==='pony')P(7,7,2,5,hc);
       if(hs==='spiky'){P(4,0,2,1,hc);P(7,0,2,1,hc);P(10,0,2,1,hc)}
+      if(hs==='mohawk')P(6,-2,4,4,hc);
+      if(hs==='afro'){P(2,-2,12,10,hc)}
+      if(hs==='bun')P(6,-2,4,3,hc);
+      if(hs==='twin'){P(2,3,2,6,hc);P(12,3,2,6,hc)}
       P(3,4,1,2,e.skin);P(12,4,1,2,e.skin)}
     if(hat){
       if(e.acc==='cap'){P(4,0,8,2,ac);if(dir==='down')P(4,2,8,1,shade(ac,-.3));else P(4,2,8,1,ac)}
       else if(e.acc==='beanie'){P(4,-1,8,3,ac);P(4,2,8,1,shade(ac,-.2));P(7,-2,2,1,'#fff')}
-      else if(e.acc==='band')P(4,2,8,1,ac)}
+      else if(e.acc==='band')P(4,2,8,1,ac)
+      else if(e.acc==='cat'){P(4,-1,2,2,ac);P(10,-1,2,2,ac)}
+      else if(e.acc==='horns'){P(3,-1,2,3,ac);P(11,-1,2,3,ac);P(3,-2,1,1,ac);P(12,-2,1,1,ac)}
+      else if(e.acc==='halo'){P(4,-3,8,1,'#ffe066');P(3,-2,1,1,'#ffe066');P(12,-2,1,1,'#ffe066')}
+      else if(e.acc==='phones'){P(3,3,1,4,ac);P(12,3,1,4,ac);P(4,1,8,1,'#2b2140')}
+      else if(e.acc==='bunny'){P(5,-4,2,5,ac);P(9,-4,2,5,ac)}}
     if(look.helmet){P(3,0,10,4,arm);P(3,0,10,1,armHi);P(3,4,1,4,arm);P(12,4,1,4,arm);if(dir==='up')P(4,4,8,4,arm)}
     if(look.crown){P(5,-2,6,2,GOLD);P(5,-3,1,1,GOLD);P(7,-3,2,1,GOLD);P(10,-3,1,1,GOLD);P(7,-2,2,1,'#e8475f')}
     if(look.cape&&dir==='up')P(tx,9,tw,8,CAPE);
@@ -635,7 +696,10 @@ const PERKS=[
   {id:'fortune',tree:'trick',icon:'🍀',name:'Fortune',max:2,d:r=>`Gift boxes roll rarer items (${r} extra roll${r>1?'s':''}, best one counts)`},
   {id:'fairy',tree:'trick',icon:'🧚',name:'Item Fairy',max:1,cap:true,d:()=>'Every 60s you get a free random item'},
 ];
-const PERK_BY={};PERKS.forEach(p=>PERK_BY[p.id]=p);
+// perks have a rarity just like items: the capstones are legendary, the strong ones epic or rare
+const PERK_RARE=['quickbite','vacuum','jackpot','combo','dashcd','slide','longdash','forgive','head','plunder','underdog','laststand','recycle','thief','fortune'], PERK_EPIC=['adrenaline','curse'];
+const PERK_ODDS=[55,30,11,4];
+const PERK_BY={};PERKS.forEach(p=>{PERK_BY[p.id]=p;p.tier=p.cap?3:PERK_EPIC.includes(p.id)?2:PERK_RARE.includes(p.id)?1:0});
 const perkR=(e,id)=>e.perks[id]||0;
 const treePts=(e,tree)=>PERKS.reduce((n,p)=>n+(p.tree===tree?perkR(e,p.id):0),0);
 function calcStats(e){const r=id=>perkR(e,id),m=0;
@@ -651,7 +715,10 @@ function rollOffer(e){
   const trees=Object.keys(byTree).map(k=>({k,w:1+treePts(e,k)*.6}));   // the more you invest in a tree, the more of it you see
   const out=[];
   while(out.length<3&&trees.length){let r=Math.random()*trees.reduce((s,t)=>s+t.w,0),i=0;for(;i<trees.length-1;i++){r-=trees[i].w;if(r<=0)break}
-    const list=byTree[trees.splice(i,1)[0].k],caps=list.filter(p=>p.cap);out.push((caps.length&&Math.random()<.6?pick(caps):pick(list)).id)}
+    const list=byTree[trees.splice(i,1)[0].k];let tr=rollTier(PERK_ODDS),cand=[];
+    while(tr>=0&&!(cand=list.filter(p=>p.tier===tr)).length)tr--;   // nothing of that rarity left in this tree: fall back to a lower one
+    if(!cand.length)cand=list;
+    out.push(pick(cand).id)}
   return out}   // may be fewer than 3 cards (or none) once most perks are maxed
 // every item has a rarity; the strong ones are much harder to find
 const TIERS=[{n:'Common',c:'#c3ccd6',t:'#7d7196'},{n:'Rare',c:'#3db5ff',t:'#1f8fe0'},{n:'Epic',c:'#b06bff',t:'#8a3df0'},{n:'Legendary',c:'#ffc93c',t:'#d99a1a'}];
@@ -808,6 +875,8 @@ for(const ev of ['pointerdown','keydown'])addEventListener(ev,()=>{sfx.init();mu
 const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
 addEventListener('blur',()=>{shift=false});
+// left click dashes too (clicks on buttons and panels do not)
+addEventListener('mousedown',e=>{if(e.button===0&&game==='play'&&!duel&&!overUI&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
 addEventListener('keyup',e=>{if(e.key==='Shift')shift=false});
 addEventListener('keydown',e=>{
   if(game==='dead'&&e.key==='Enter'){e.preventDefault();playAgain();return}
@@ -838,6 +907,30 @@ function startGame(){
   if(respawnLvl>1)showToast('Last Stand: you kept level '+respawnLvl);
   respawnLvl=1;showOffer();
 }
+/* ---------- guide: every item and perk explained ---------- */
+function buildGuide(tab){
+  const card=(icon,name,tier,text,extra,tc)=>'<div class="gcard t'+tier+'" style="--rc:'+TIERS[tier].c+';--rt:'+TIERS[tier].t+'"><span class="gi">'+icon+'</span><div><span class="gr">'+TIERS[tier].n+'</span><b>'+name+'</b><p>'+text+'</p>'+(extra?'<small>'+extra+'</small>':'')+'</div></div>';
+  let h='';
+  if(tab==='items'){
+    h+='<p class="gnote">Gift boxes lie around the map, inside buildings, and hidden at the bottom of ponds (swim to find them). Press <kbd>E</kbd> to use your item. Better items are much rarer.</p>';
+    for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small class="small">'+TIER_ODDS[t]+'% per box · '+WATER_ODDS[t]+'% underwater</small></h3><div class="ggrid">';
+      for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier!==t)continue;h+=card(it.icon,it.name,t,it.d,it.auto?'Works automatically':it.dur?'Lasts '+it.dur+'s':'Instant')}
+      h+='</div></div>'}}
+  else if(tab==='perks'){
+    h+='<p class="gnote">You pick a perk at Level 2 and then every 4 levels. You are offered 3 cards; the more you invest in a tree, the more of it you see. Legendary perks unlock after 4 points in their tree.</p>';
+    for(const k of Object.keys(TREES)){const T=TREES[k];h+='<div class="gsec"><h3 style="color:'+T.col+'">'+T.icon+' '+T.name+'</h3><div class="ggrid">';
+      for(const p of PERKS.filter(p=>p.tree===k).sort((a,b)=>a.tier-b.tier))h+=card(p.icon,p.name,p.tier,p.d(1)+(p.max>1?' (best: '+p.d(p.max)+')':''),p.max>1?'Up to rank '+p.max:'One time only');
+      h+='</div></div>'}}
+  else{
+    h+='<p class="gnote">Items and perks come in four rarities. Each step is about three times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
+      +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
+      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Before you touch someone, look at them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Higher level means longer phrases, and being caught running helps your opponent.</p></div>'}
+  $('gbody').innerHTML=h}
+function openGuide(tab){buildGuide(tab||'items');$('guide').hidden=false;for(const b of document.querySelectorAll('.gtab'))b.classList.toggle('on',b.dataset.t===(tab||'items'))}
+$('guidebtn').addEventListener('click',()=>openGuide());
+$('gclose').addEventListener('click',()=>{$('guide').hidden=true});
+$('gtabs').addEventListener('click',e=>{const b=e.target.closest('.gtab');if(b)openGuide(b.dataset.t)});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden)$('guide').hidden=true});
 $('startform').addEventListener('submit',e=>{e.preventDefault();startGame()});
 const playAgain=()=>role==='client'?respawnNet():startGame();
 $('again').addEventListener('click',playAgain);
@@ -870,9 +963,9 @@ function showOffer(){
     if(owed<=0){offer=null;perksEl.hidden=true;return}
     fresh=!offer;if(fresh){const ids=rollOffer(player);
       if(!ids.length){player.picksDone+=owed;offer=null;perksEl.hidden=true;floater(player.x,player.y-90,'EVERY PERK MAXED!',GOLD,true);return}   // nothing left to pick
-      offer={ids};sfx.cards()}}
+      offer={ids};sfx.cards();const mt=Math.max(...ids.map(i=>PERK_BY[i].tier));if(mt===3)sfx.legendary();else if(mt===2)sfx.epic()}}
   pcards.innerHTML=offer.ids.map((id,i)=>{const p=PERK_BY[id],T=p.tree?TREES[p.tree]:{name:'Any',col:'#ffc93c'},r=perkR(player,id)+1;
-    return '<button type="button" class="pcard'+(p.cap?' cap':'')+'" style="--tc:'+T.col+'" data-i="'+i+'"><span class="pk">'+(i+1)+'</span><span class="pt">'+T.name+(p.cap?' · legendary':'')+'</span><span class="pi">'+p.icon+'</span><b>'+p.name+'</b><em>Rank '+r+(p.max<99?' / '+p.max:'')+'</em><span class="pd">'+p.d(r)+'</span></button>'}).join('');
+    return '<button type="button" class="pcard t'+p.tier+'" style="--tc:'+T.col+';--rc:'+TIERS[p.tier].c+'" data-i="'+i+'"><span class="pk">'+(i+1)+'</span><span class="pt">'+T.name+'</span><span class="pi">'+p.icon+'</span><span class="prar">'+TIERS[p.tier].n+'</span><b>'+p.name+'</b><em>Rank '+r+(p.max<99?' / '+p.max:'')+'</em><span class="pd">'+p.d(r)+'</span></button>'}).join('');
   $('phead').textContent='Level up! Pick a perk'+(owed>1?' ('+owed+' waiting)':'')+'  ·  keys 1 2 3';
   perksEl.hidden=false;if(fresh)restart(perksEl,'up')}
 function choose(i){
@@ -1762,6 +1855,10 @@ function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4,pu=
     // door posts on both sides of the gap
     ctx.fillStyle='#8b5a2b';ctx.strokeStyle=INK;ctx.lineWidth=2.5;
     for(const sg of [-1,1]){const qx=px+(horiz?sg*(DOOR_G/2):0),qy=py+(horiz?0:sg*(DOOR_G/2));ctx.beginPath();ctx.roundRect(qx-6,qy-6,12,12,3);ctx.fill();ctx.stroke()}}}
+const TINT=new Map();
+function tintOf(spr,good,a){const k=(good?'g':'r')+a.toFixed(2);let m=TINT.get(spr);if(!m){m={};TINT.set(spr,m)}
+  if(!m[k]){const c=document.createElement('canvas');c.width=spr.width;c.height=spr.height;const g=c.getContext('2d');g.drawImage(spr,0,0);g.globalCompositeOperation='source-atop';g.fillStyle=good?'rgba(63,208,106,'+a+')':'rgba(255,77,106,'+a+')';g.fillRect(0,0,c.width,c.height);m[k]=c}
+  return m[k]}
 function drawAura(e,l,t){const tier=l>=300?5:l>=200?4:l>=150?3:l>=125?2:l>=100?1:0;if(!tier)return;
   ctx.fillStyle=tier===5?'hsla('+((t*90)%360|0)+',90%,60%,.42)':['','rgba(255,201,60,.35)','rgba(61,181,255,.4)','rgba(255,107,61,.4)','rgba(155,93,229,.45)'][tier];
   ctx.beginPath();ctx.arc(e.x,e.y,38+Math.sin(t*4)*4+tier*2,0,6.3);ctx.fill();
@@ -1805,7 +1902,12 @@ function drawEnt(e,t){
   const puff=e.state==='eat'?Math.abs(Math.sin(t*20))*.03:0;
   if(!e.swim){ctx.fillStyle='rgba(43,33,64,.22)';ctx.beginPath();ctx.ellipse(e.x,e.y+23,17*sc*(1+Math.max(0,-e.sq)*.4),6*sc,0,0,6.3);ctx.fill()}
   const lv=L(e),hid=e.buff.hide>t;
+  let advGood=null,advM=0,advAl=0;
   if(e.adv&&!e.isPlayer&&!hid&&(e.state==='move'||e.state==='eat')){   // green = you type fewer words than them, red = more
+    advGood=e.adv>0;advM=Math.min(3,Math.abs(e.adv));advAl=clamp((640-Math.hypot(e.x-(player?player.x:e.x),e.y-(player?player.y:e.y)))/300,0,1);
+    const gr=ctx.createRadialGradient(e.x,e.y-8,6,e.x,e.y-8,74+advM*6),c3=advGood?'63,208,106':'255,77,106';   // glow around the whole body
+    gr.addColorStop(0,'rgba('+c3+','+(.5*advAl)+')');gr.addColorStop(.6,'rgba('+c3+','+(.28*advAl)+')');gr.addColorStop(1,'rgba('+c3+',0)');
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(e.x,e.y-8,80+advM*6,0,6.3);ctx.fill();
     const dd=Math.hypot(e.x-(player?player.x:e.x),e.y-(player?player.y:e.y)),al=clamp((640-dd)/300,0,1),good=e.adv>0,pu=1+Math.sin(t*5)*.06,m=Math.min(3,Math.abs(e.adv));
     ctx.globalAlpha=al*.9;ctx.fillStyle=good?'rgba(63,208,106,'+(.16+m*.05)+')':'rgba(255,77,106,'+(.16+m*.05)+')';ctx.strokeStyle=good?'#3fd06a':'#ff4d6a';ctx.lineWidth=3+m;
     ctx.beginPath();ctx.ellipse(e.x,e.y+12,(42+m*3)*pu,(20+m*1.5)*pu,0,0,6.3);ctx.fill();ctx.stroke();ctx.globalAlpha=1}
@@ -1815,7 +1917,9 @@ function drawEnt(e,t){
   if(look.wings)drawWings(e,t);
   const wob=e.swim?Math.sin(t*5+e.id)*1.6+5:0;   // swimmers sit low in the water
   if(e.swim){ctx.save();ctx.beginPath();ctx.rect(e.x-90,e.y-140,180,140);ctx.clip()}
-  ctx.save();if(hid)ctx.globalAlpha=e.isPlayer?.45:.2;ctx.translate(e.x,e.y+FY+bob+wob);ctx.rotate(e.lean+spin);ctx.scale(sx*sc*(1+puff),sy*sc);ctx.drawImage(spr,-W0/2,-69,W0,H0);ctx.restore();
+  ctx.save();if(hid)ctx.globalAlpha=e.isPlayer?.45:.2;ctx.translate(e.x,e.y+FY+bob+wob);ctx.rotate(e.lean+spin);ctx.scale(sx*sc*(1+puff),sy*sc);
+  if(advGood!==null){ctx.shadowColor=advGood?'#3fd06a':'#ff4d6a';ctx.shadowBlur=(14+advM*5)*advAl;ctx.drawImage(tintOf(spr,advGood,.22+advM*.05),-W0/2,-69,W0,H0)}   // the model itself is tinted and glows
+  else ctx.drawImage(spr,-W0/2,-69,W0,H0);ctx.restore();
   if(e.swim){ctx.restore();ctx.fillStyle='rgba(94,194,240,.5)';ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;
     for(let i=0;i<2;i++){const ph=(t*1.4+i*.5)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.ellipse(e.x,e.y+6,20+ph*16,7+ph*6,0,0,6.3);ctx.stroke()}ctx.globalAlpha=1;
     ctx.beginPath();ctx.ellipse(e.x,e.y+6,21,7,0,0,6.3);ctx.fill()}
