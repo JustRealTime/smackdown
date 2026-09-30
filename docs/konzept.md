@@ -158,3 +158,11 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Man trägt bis zu 3 Items. Jeder Slot hat eine eigene Taste: Q, E, R. Slots behalten ihren Platz, wenn einer benutzt wird.
 - Ist alles voll, bleibt die Kiste liegen. Bots tragen weiter nur ein Item. Pickpocket, Iron Bubble und Item Fairy nutzen freie Slots.
 - Multiplayer: der Client sendet den Slot, der Server schickt alle drei Slots im Snapshot.
+
+## Runde 16: Tasten, Charaktere, Essen, Menü
+
+- Item-Slots liegen auf Q, W, E (vorher Q, E, R).
+- Mehr Charaktere: Frisuren Locken, Seitenscheitel, Flattop, Zopf; Accessoires Piratenbandana mit Augenklappe, Kochmütze, Antenne, Zaubererhut, Maske, Krönchen.
+- Snacks geben 1,7x so viel Level wie vorher und das Essen dauert 0,6 s statt 0,85 s.
+- Der Hinweistext oben im Spiel ist weg, die Steuerung steht nur noch im Menü.
+- Esc geht zurück ins Menü (im Duell nicht). Im Mehrspielermodus verlässt man dabei den Server.

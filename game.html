@@ -92,7 +92,6 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #board li{display:flex;gap:6px;font-variant-numeric:tabular-nums}
 #board li b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
 #board li.me{color:var(--tomato)}
-#hint{position:fixed;left:50%;transform:translateX(-50%);top:calc(16px + env(safe-area-inset-top,0px));padding:8px 14px;font-weight:800;font-size:13px;transition:opacity .6s;white-space:nowrap}
 #minilogo{position:fixed;left:16px;top:calc(12px + env(safe-area-inset-top,0px));font:26px var(--display);color:var(--tomato);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink)}
 
 /* Duel */
@@ -183,7 +182,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #duel.in .chip{animation:chipin .35s both}
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 8px))}75%{transform:translateX(calc(-50% + 8px))}}
 #duel.shake{animation:shake .18s}
-@media (max-width:640px){.pcard{width:140px;padding-bottom:8px}#itemslot{display:none}#kingbar{white-space:normal;text-align:center;width:max-content;max-width:90%}#mini{display:none}#board{display:none}#hint{display:none}.bars{width:140px}}
+@media (max-width:640px){.pcard{width:140px;padding-bottom:8px}#itemslot{display:none}#kingbar{white-space:normal;text-align:center;width:max-content;max-width:90%}#mini{display:none}#board{display:none}.bars{width:140px}}
 @media (prefers-reduced-motion:reduce){#itemslot .t3,.islot.t3{animation:none}#perks.up{animation:none}.pcard{transition:none}#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#dbanner.pop,#dbanner.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
 </style>
 </head>
@@ -195,7 +194,6 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <button id="mute" class="panel" type="button" aria-label="Toggle sound">Sound on</button>
 <button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <canvas id="mini" class="panel" width="300" height="300" hidden></canvas>
-<div id="hint" class="panel" hidden><kbd>Shift</kbd> sprint · <kbd>Space</kbd> or click dash · yellow mats are doors · touch to duel</div>
 
 <section id="hud" class="panel" hidden>
   <div id="lvbadge"><small>LEVEL</small><span id="lv">1</span><small id="rank">Rookie</small></div>
@@ -232,7 +230,8 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
       <dt><kbd>Space</kbd> <kbd>Click</kbd></dt><dd>Dash and slide, the fastest move</dd>
-      <dt><kbd>Q</kbd> <kbd>E</kbd> <kbd>R</kbd></dt><dd>Use the item in slot 1, 2 or 3 (you carry up to 3)</dd>
+      <dt><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd></dt><dd>Use the item in slot 1, 2 or 3 (you carry up to 3)</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Back to this menu</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
     <p class="small">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
@@ -545,7 +544,7 @@ const SKINS=['#ffd7b0','#f1c27d','#e0ac69','#c68642','#8d5524','#ffe0c7','#7bd38
 const SHIRTS=['#ff6b3d','#3db5ff','#9b5de5','#2ec4b6','#ff4f9a','#ffd23f','#5a8dee','#06d6a0','#ff9f1c','#7bdff2','#d00000','#2b2140','#f7f7f7'];
 const HAIRS=['#3b2417','#1f1a17','#e2b33c','#b5462b','#7a4a2a','#f5f0e6','#4b3b8f','#ff4f9a','#2ec4b6','#00e5ff','#7cff6b','#ff2e2e','#ffffff'];
 const PANTS=['#3d4a7a','#4a3f6b','#5c4033','#35605a','#6d6875'];
-const HSTYLES=['short','short','long','spiky','bald','pony','mohawk','afro','bun','twin'], ACCS=['none','none','none','shades','cap','beanie','band','cat','horns','halo','phones','bunny'];
+const HSTYLES=['short','short','long','spiky','bald','pony','mohawk','afro','bun','twin','curly','side','flat','braid'], ACCS=['none','none','none','shades','cap','beanie','band','cat','horns','halo','phones','bunny','pirate','chef','antenna','wizard','mask','crownlet'];
 const ACOLS=['#e8475f','#3db5ff','#ffd23f','#2ec4b6','#9b5de5','#2b2140','#ffffff'], SHIRTSTY=['plain','plain','stripe','logo','stripe','dots','check'];
 const SPR={},GW=20,GH=26,OX=2,OY=4,S=3,FY=24;
 function sprite(e,look,dir,frame){
@@ -578,6 +577,10 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
     if(hs==='afro'){P(3,-2,11,6,hc);P(3,4,3,4,hc)}
     if(hs==='bun'){P(5,-2,4,3,hc)}
     if(hs==='twin'){P(3,3,2,7,hc);P(3,9,2,1,'#ff4f9a')}
+    if(hs==='curly'){P(4,-2,9,5,hc);P(4,3,3,4,hc)}
+    if(hs==='side')P(10,1,3,4,hc);
+    if(hs==='flat')P(5,-2,8,3,hc);
+    if(hs==='braid'){P(3,3,2,4,hc);P(2,7,2,4,hc);P(2,11,2,1,'#ff4f9a')}
     if(shades){P(9,5,3,2,'#1b1b2f');P(5,5,4,1,'#1b1b2f');P(9,5,1,1,'#7ad0ff')}else P(10,5,1,2,INK);
     P(11,7,1,1,'#f08a8a');P(12,7,1,1,'#7a2331');
     const ax=tx+1+(f1?-1:f2?1:0);
@@ -591,7 +594,13 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
       else if(e.acc==='horns'){P(7,-2,2,3,ac);P(6,-3,1,1,ac)}
       else if(e.acc==='halo')P(5,-3,7,1,'#ffe066')
       else if(e.acc==='phones'){P(7,3,3,4,ac);P(6,1,5,1,'#2b2140')}
-      else if(e.acc==='bunny'){P(6,-4,2,5,ac);P(9,-3,2,4,ac)}}
+      else if(e.acc==='bunny'){P(6,-4,2,5,ac);P(9,-3,2,4,ac)}
+      else if(e.acc==='pirate'){P(5,0,8,2,ac);P(9,5,3,2,'#1b1b2f');P(5,4,8,1,'#1b1b2f')}
+      else if(e.acc==='chef'){P(5,-4,8,4,'#fff');P(5,0,8,1,'#d8dde3')}
+      else if(e.acc==='antenna'){P(8,-3,1,3,'#888');P(7,-4,3,1,ac)}
+      else if(e.acc==='wizard'){P(4,0,10,1,ac);P(5,-1,8,1,ac);P(7,-2,5,1,ac);P(9,-3,3,1,ac);P(10,-4,2,1,'#ffe066')}
+      else if(e.acc==='mask')P(9,6,4,3,ac);
+      else if(e.acc==='crownlet'){P(5,0,8,1,'#ffd23f');P(5,-1,1,1,'#ffd23f');P(8,-1,2,1,'#ffd23f');P(12,-1,1,1,'#ffd23f')}}
     if(look.helmet){P(4,0,10,4,arm);P(4,0,10,1,armHi);P(4,4,3,4,arm);P(13,3,1,1,armLo)}
     if(look.crown){P(6,-2,6,2,GOLD);P(6,-3,1,1,GOLD);P(8,-3,2,1,GOLD);P(11,-3,1,1,GOLD);P(8,-2,2,1,'#e8475f')}
   }else{
@@ -618,6 +627,10 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
       if(hs==='afro'){P(2,-2,12,5,hc);P(2,3,2,6,hc);P(12,3,2,6,hc)}
       if(hs==='bun')P(6,-2,4,3,hc);
       if(hs==='twin'){P(2,3,2,6,hc);P(12,3,2,6,hc);P(2,8,2,1,'#ff4f9a');P(12,8,2,1,'#ff4f9a')}
+      if(hs==='curly'){P(3,-2,10,5,hc);P(3,3,2,4,hc);P(11,3,2,4,hc)}
+      if(hs==='side'){P(4,1,8,3,hc);P(4,3,4,4,hc)}
+      if(hs==='flat')P(4,-2,8,3,hc);
+      if(hs==='braid'){P(11,3,2,9,hc);P(11,11,2,1,'#ff4f9a')}
       if(shades){P(5,5,3,2,'#1b1b2f');P(8,5,3,2,'#1b1b2f');P(5,5,1,1,'#7ad0ff');P(8,5,1,1,'#7ad0ff')}else{P(6,5,1,2,INK);P(9,5,1,2,INK)}
       P(5,7,1,1,'#f08a8a');P(10,7,1,1,'#f08a8a');P(7,7,2,1,'#7a2331')}
     else{
@@ -629,6 +642,9 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
       if(hs==='afro'){P(2,-2,12,10,hc)}
       if(hs==='bun')P(6,-2,4,3,hc);
       if(hs==='twin'){P(2,3,2,6,hc);P(12,3,2,6,hc)}
+      if(hs==='curly'){P(3,-2,10,11,hc)}
+      if(hs==='flat')P(4,-2,8,3,hc);
+      if(hs==='braid'){P(7,7,2,8,hc);P(7,14,2,1,'#ff4f9a')}
       P(3,4,1,2,e.skin);P(12,4,1,2,e.skin)}
     if(hat){
       if(e.acc==='cap'){P(4,0,8,2,ac);if(dir==='down')P(4,2,8,1,shade(ac,-.3));else P(4,2,8,1,ac)}
@@ -638,7 +654,13 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
       else if(e.acc==='horns'){P(3,-1,2,3,ac);P(11,-1,2,3,ac);P(3,-2,1,1,ac);P(12,-2,1,1,ac)}
       else if(e.acc==='halo'){P(4,-3,8,1,'#ffe066');P(3,-2,1,1,'#ffe066');P(12,-2,1,1,'#ffe066')}
       else if(e.acc==='phones'){P(3,3,1,4,ac);P(12,3,1,4,ac);P(4,1,8,1,'#2b2140')}
-      else if(e.acc==='bunny'){P(5,-4,2,5,ac);P(9,-4,2,5,ac)}}
+      else if(e.acc==='bunny'){P(5,-4,2,5,ac);P(9,-4,2,5,ac)}
+      else if(e.acc==='pirate'){P(4,0,8,2,ac);if(dir==='down'){P(5,5,3,2,'#1b1b2f');P(4,4,8,1,'#1b1b2f')}}
+      else if(e.acc==='chef'){P(3,-4,10,4,'#fff');P(4,0,8,1,'#d8dde3')}
+      else if(e.acc==='antenna'){P(7,-3,2,3,'#888');P(6,-4,4,1,ac)}
+      else if(e.acc==='wizard'){P(3,0,10,1,ac);P(4,-1,8,1,ac);P(5,-2,6,1,ac);P(6,-3,4,1,ac);P(7,-4,2,1,'#ffe066')}
+      else if(e.acc==='mask'){if(dir==='down')P(4,6,8,3,ac)}
+      else if(e.acc==='crownlet'){P(4,0,8,1,'#ffd23f');P(4,-1,1,1,'#ffd23f');P(7,-1,2,1,'#ffd23f');P(11,-1,1,1,'#ffd23f')}}
     if(look.helmet){P(3,0,10,4,arm);P(3,0,10,1,armHi);P(3,4,1,4,arm);P(12,4,1,4,arm);if(dir==='up')P(4,4,8,4,arm)}
     if(look.crown){P(5,-2,6,2,GOLD);P(5,-3,1,1,GOLD);P(7,-3,2,1,GOLD);P(10,-3,1,1,GOLD);P(7,-2,2,1,'#e8475f')}
     if(look.cape&&dir==='up')P(tx,9,tw,8,CAPE);
@@ -757,7 +779,7 @@ const NAME_B=['Alex','Bea','Cole','Dana','Eli','Fay','Gus','Hana','Ivo','Jo','Ki
 const NAMES=(()=>{const set=new Set();while(set.size<500)set.add(NAME_A[(Math.random()*NAME_A.length)|0]+' '+NAME_B[(Math.random()*NAME_B.length)|0]);return[...set]})();
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
-  const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0},dashCharges:1,bubbleT:0,eatT:.85,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
+  const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
     dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+3,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
     skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
@@ -883,11 +905,12 @@ addEventListener('blur',()=>{shift=false});
 addEventListener('mousedown',e=>{if(e.button===0&&game==='play'&&!duel&&!overUI&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
 addEventListener('keyup',e=>{if(e.key==='Shift')shift=false});
 addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&(game==='play'||game==='dead')&&!duel&&$('guide').hidden){e.preventDefault();toMenu();return}
   if(game==='dead'&&e.key==='Enter'){e.preventDefault();playAgain();return}
   if(game!=='play')return;
   if(duel){handleTyping(e);return}
   if(e.key==='Shift')shift=true;
-  const slot=e.code==='KeyQ'?0:e.code==='KeyE'?1:e.code==='KeyR'?2:-1;
+  const slot=e.code==='KeyQ'?0:e.code==='KeyW'?1:e.code==='KeyE'?2:-1;
   if(slot>=0&&!e.repeat&&player){if(role==='client')netSend({t:'use',s:slot});else useItem(player,now(),slot)}
   if(offer&&!e.repeat&&(e.key==='1'||e.key==='2'||e.key==='3')){choose(+e.key-1);return}
   if(e.code==='Space'){e.preventDefault();if(!e.repeat)dashPressed=true}
@@ -907,8 +930,8 @@ function startGame(){
   Object.assign(stats,{won:0,snacks:0,best:0,top:1});
   cam.x=player.x;cam.y=player.y;
   game='play';$('start').hidden=true;$('dead').hidden=true;
-  for(const id of ['hud','board','hint','minilogo','mini'])$(id).hidden=false;
-  $('hint').style.opacity=1;setTimeout(()=>{$('hint').style.opacity=0},12000);
+  for(const id of ['hud','board','minilogo','mini'])$(id).hidden=false;
+
   if(respawnLvl>1)showToast('Last Stand: you kept level '+respawnLvl);
   respawnLvl=1;showOffer();
 }
@@ -917,7 +940,7 @@ function buildGuide(tab){
   const card=(icon,name,tier,text,extra,tc)=>'<div class="gcard t'+tier+'" style="--rc:'+TIERS[tier].c+';--rt:'+TIERS[tier].t+'"><span class="gi">'+icon+'</span><div><span class="gr">'+TIERS[tier].n+'</span><b>'+name+'</b><p>'+text+'</p>'+(extra?'<small>'+extra+'</small>':'')+'</div></div>';
   let h='';
   if(tab==='items'){
-    h+='<p class="gnote">Gift boxes lie around the map, inside buildings, and hidden at the bottom of ponds (swim to find them). You can carry 3 items at once; each slot has its own key: <kbd>Q</kbd> <kbd>E</kbd> <kbd>R</kbd>. Better items are much rarer.</p>';
+    h+='<p class="gnote">Gift boxes lie around the map, inside buildings, and hidden at the bottom of ponds (swim to find them). You can carry 3 items at once; each slot has its own key: <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Better items are much rarer.</p>';
     for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small class="small">'+TIER_ODDS[t]+'% per box · '+WATER_ODDS[t]+'% underwater</small></h3><div class="ggrid">';
       for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier!==t)continue;h+=card(it.icon,it.name,t,it.d,it.auto?'Works automatically':it.dur?'Lasts '+it.dur+'s':'Instant')}
       h+='</div></div>'}}
@@ -1022,12 +1045,12 @@ function botThink(b,t){
 function splashFx(e){dust(e.x,e.y+16,12,'#bfe9ff',170,4.5);ring(e.x,e.y+16,6,56,'#fff',.45);ring(e.x,e.y+16,3,34,'#9fdcff',.35);sfx.splash(vol(e))}
 // 1 snack = 1 xp. Level L costs 5 * (1 + 0.15 * (L-1)) xp: level 1 = 5 snacks, level 50 = 41, level 100 = 79
 const lvlCost=lvl=>5*(1+(Math.floor(lvl)-1)*.15);
-const snackGain=lvl=>1/lvlCost(lvl);
+const snackGain=lvl=>1.7/lvlCost(lvl);   // a snack is worth 1.7x what the cost table says, so eating pays off
 const xpOf=lvl=>{const f=Math.floor(lvl);return 5*((f-1)+.15*(f-1)*(f-2)/2)+(lvl-f)*lvlCost(f)};   // everything a player at this level has collected
 function gainXp(e,xp){let guard=0;while(xp>1e-6&&guard++<400){const c=lvlCost(e.lvl),room=(1-(e.lvl-Math.floor(e.lvl)))*c;
   if(xp>=room){gainLvl(e,room/c+1e-9);xp-=room}else{gainLvl(e,xp/c);xp=0}}}   // the higher your level, the more snacks a level costs
 const vol=e=>e.isPlayer?1:player?clamp(1-Math.hypot(e.x-player.x,e.y-player.y)/650,0,1)*.6:0;
-const EAT_T=.85;
+const EAT_T=.6;
 const CRUMBS={burger:['#f2a93b','#7a3e1d','#6ab04c'],apple:['#e8475f','#fff6d5','#6ab04c'],pizza:['#ffd23f','#d98e3a','#e8475f'],donut:['#ff8fc2','#e0a860','#fff'],soda:['#9fdcff','#fff','#3db5ff']};
 /* gift boxes (items) and level orbs (dropped when someone is eaten) */
 const BOX_OUT=100, BOX_IN=70;
@@ -1043,7 +1066,7 @@ for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
 function dropOrbs(x,y,total){if(total<3)return;const n=clamp(Math.round(total/12),1,10);
   for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(120,260);orbs.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v:total/n,life:35,bob:Math.random()*6.28})}}
 // three item slots, each with its own key (Q, E, R); slots keep their place when one is used
-const SLOTS=3, SLOT_KEYS=['Q','E','R'];
+const SLOTS=3, SLOT_KEYS=['Q','W','E'];
 const itemRoom=e=>e.items.indexOf(null)>=0&&(e.human||!e.items.some(Boolean));   // bots only carry one
 const hasItem=(e,k)=>e.items.indexOf(k);
 const firstItem=e=>e.items.findIndex(Boolean);
@@ -1328,7 +1351,7 @@ function updateVisuals(dt,t){
 function showDeath(){game='dead';
   $('deadby').textContent='Eaten by '+(player.eater?player.eater.name:'someone')+'. '+(respawnLvl>1?'Last Stand: you will restart at level '+respawnLvl+'.':'Snack, dash and duel your way back up.');
   $('sLv').textContent=stats.top;$('sWon').textContent=stats.won;$('sSn').textContent=stats.snacks;$('sWpm').textContent=stats.best;
-  for(const id of ['hud','hint','mini','kingbar','statusbar'])$(id).hidden=true;perksEl.hidden=true;offer=null;
+  for(const id of ['hud','mini','kingbar','statusbar'])$(id).hidden=true;perksEl.hidden=true;offer=null;
   ents=ents.filter(e=>e!==player);$('dead').hidden=false;$('again').focus()}
 const islots=[...document.querySelectorAll('.islot')];
 function updateHud(t){const p=player,l=L(p),st=p.st,dcd=DASH_CD*st.dashCd;
@@ -1522,19 +1545,21 @@ function enterClientMode(seed){
   role='client';pendingDuel=null;buildWorld(seed);ents=[];cl=new Map();foods=[];boxes=[];orbs=[];player=null;king=null;kingPos=null;parts=[];floaters=[];skids=[];duel=null;offer=null;
   timeWarp={until:0,owner:null};wasKing=false;Object.assign(stats,{won:0,snacks:0,best:0,top:1});
   game='play';$('start').hidden=true;$('dead').hidden=true;$('mpstatus').textContent='';
-  for(const id of ['hud','board','hint','minilogo','mini'])$(id).hidden=false;
-  $('hint').style.opacity=1;setTimeout(()=>{$('hint').style.opacity=0},12000)}
-function netLost(){
+  for(const id of ['hud','board','minilogo','mini'])$(id).hidden=false;
+}
+function netLost(msg){
   role='solo';ws=null;game='menu';duel=null;offer=null;perksEl.hidden=true;
-  for(const id of ['hud','board','hint','minilogo','mini','kingbar','statusbar','duel','dbanner','count','dead'])$(id).hidden=true;
-  resetSoloWorld();$('start').hidden=false;$('mpstatus').textContent='Connection to the server was lost.'}
+  for(const id of ['hud','board','minilogo','mini','kingbar','statusbar','duel','dbanner','count','dead'])$(id).hidden=true;
+  resetSoloWorld();$('start').hidden=false;$('mpstatus').textContent=msg==null?'Connection to the server was lost.':msg}
+// Esc leaves the round and goes back to the menu (the server keeps the game for the others)
+function toMenu(){const w=ws;if(role==='client'&&w){role='solo';try{w.close()}catch(_){}}netLost('')}
 function resetSoloWorld(){
   WORLD_SEED=(Math.random()*1e9)|0;buildWorld(WORLD_SEED);ents=[];player=null;king=null;foods=[];boxes=[];orbs=[];parts=[];floaters=[];skids=[];botDuels=[];
   for(let i=0;i<FOOD_OUT;i++)spawnFood(false);for(let i=0;i<FOOD_IN;i++)spawnFood(true);
   for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
   {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}}
 function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,shorts:f.shorts,
-  perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0},dashCharges:1,dashCd:0,eatT:.85,stamina:100,
+  perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
   x:r.x,y:r.y,tx:r.x,ty:r.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,dashT:0,slideT:0,sprinting:false,fled:{},protect:0,ghosts:[],ghostT:0,chomp:0,
   sq:0,sqv:0,lean:0,skidT:0,bites:0,chewT:0,lastStep:0,lvl:1,ep:0,isPlayer:false,human:false,snapAt:now(),_st:'move',_dash:false};
   calcStats(e);return e}
@@ -1632,10 +1657,10 @@ function endNetDuel(m){
 function showDeathNet(m){
   game='dead';$('deadby').textContent='Eaten by '+m.by+'. '+(m.keep>1?'Last Stand: you will restart at level '+m.keep+'.':'Snack, dash and duel your way back up.');
   $('sLv').textContent=m.st.top;$('sWon').textContent=m.st.won;$('sSn').textContent=m.st.snacks;$('sWpm').textContent=stats.best;
-  for(const id of ['hud','hint','mini','kingbar','statusbar'])$(id).hidden=true;perksEl.hidden=true;offer=null;$('dead').hidden=false;$('again').focus()}
+  for(const id of ['hud','mini','kingbar','statusbar'])$(id).hidden=true;perksEl.hidden=true;offer=null;$('dead').hidden=false;$('again').focus()}
 function respawnNet(){
   netSend({t:'respawn'});$('dead').hidden=true;game='play';offer=null;
-  for(const id of ['hud','board','hint','minilogo','mini'])$(id).hidden=false;
+  for(const id of ['hud','board','minilogo','mini'])$(id).hidden=false;
   Object.assign(stats,{won:0,snacks:0,best:0,top:1})}
 
 /* ---------- render ---------- */

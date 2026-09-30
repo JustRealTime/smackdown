@@ -11,7 +11,8 @@ Der Name ist noch ein Arbeitstitel.
 - **Maus:** Die Figur läuft zum Mauszeiger.
 - **Shift:** Sprint, solange die Ausdauer reicht.
 - **Leertaste:** Dash mit Slide, die schnellste Bewegung, mit Abklingzeit.
-- **E:** Item benutzen (Geschenkboxen einsammeln).
+- **Q / W / E:** Item in Slot 1, 2 oder 3 benutzen (bis zu 3 Items tragen).
+- **Esc:** zurück ins Menü.
 - **1 / 2 / 3:** Perk beim Level-Up wählen.
 - **Berühren:** Ein Tippduell startet. Wer die englische Wörter-Phrase schneller richtig tippt, gewinnt. Je höher dein Level, desto länger deine Phrase. Der Sieger bekommt einen Teil der XP des Verlierers.
 
