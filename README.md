@@ -16,13 +16,13 @@ Der Name ist noch ein Arbeitstitel.
 - **1 / 2 / 3:** Perk beim Level-Up wählen.
 - **Berühren:** Ein Tippduell startet. Wer die englische Wörter-Phrase schneller richtig tippt, gewinnt. Je höher dein Level, desto länger deine Phrase. Der Sieger bekommt einen Teil der XP des Verlierers.
 
-## Mit Freunden spielen (lokales Netz)
+## Mit Freunden spielen (ohne Server-Datei)
 
-1. Auf einem Rechner [Node.js](https://nodejs.org) (Version 18 oder neuer) installieren und `start-server.bat` doppelklicken (Windows) oder `node server/server.js` ausführen. Windows fragt eventuell nach der Firewall: erlauben.
-2. Der Server zeigt eine Adresse, zum Beispiel `http://192.168.1.20:8080`. Alle öffnen diese Adresse im Browser (gleiches WLAN oder Tailscale).
-3. **Play** drücken. Sobald jemand spielt, sieht jeder, der das Spiel öffnet, im Menü zum Beispiel „Alex is playing · Lv 4“ mit einem **Join**-Knopf (man startet dann direkt neben ihm). Wenn ein Server läuft, tritt **Play** automatisch dem Spiel bei.
+Einfach `index.html` öffnen und **Play** drücken. Wer zuerst spielt, ist automatisch der Host (sein Browser-Tab führt das Spiel aus). Jeder, der danach das Spiel öffnet, sieht im Menü zum Beispiel „Alex is playing · Lv 4“ mit einem **Join**-Knopf und startet neben ihm. Das funktioniert über das Internet per WebRTC; ein kostenloser Vermittlungsdienst (PeerJS) stellt nur die Verbindung her. Für eine private Gruppe unter „Friends: room and server options“ einen gemeinsamen Raumnamen eintragen.
 
-Ohne Server gibt es nur den Einzelspielermodus gegen die Bots (oder „play alone“ im Menü).
+Wichtig: Der Host sollte den Tab offen lassen, sonst endet das Spiel für alle. Ohne Internet startet Play automatisch den Einzelspielermodus.
+
+Optional gibt es weiterhin einen eigenen Server (`start-server.bat`, braucht [Node.js](https://nodejs.org) 18+), z. B. für LAN-Partys ohne Internet. Die Seite dieses Servers zeigt ebenfalls die Spielerliste.
 
 ## Stand
 

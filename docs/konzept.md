@@ -213,3 +213,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Das Startmenü fragt alle paar Sekunden den Server ab (`/status` liefert jetzt auch die Namen und Level der Spieler; erreichbar unter der Seiten-Adresse, der gespeicherten Adresse oder localhost:8080).
 - Gefundene Spieler erscheinen als "Name is playing · Lv N" mit Join-Knopf. Join startet neben diesem Spieler. Läuft ein Server, tritt Play automatisch bei, "or play alone" bleibt als Ausweg. Die manuelle Adresse liegt unter "Play with friends". Build r25.
+
+## Runde 25: Mehrspieler ohne Server-Datei
+
+- Der erste Spieler, der Play drückt, wird Host: sein Tab startet das Serverspiel in einem Web Worker (derselbe Code wie server/server.js). Weitere Spieler verbinden sich per WebRTC (PeerJS, Bibliothek liegt in tools/peerjs.min.js und wird in index.html eingebettet). Der öffentliche PeerJS-Vermittler hilft nur beim Verbinden.
+- Das Menü fragt den Host per kurzer Verbindung nach den Spielern und zeigt "Name is playing" mit Join. Raumname optional. Fällt der Vermittler aus oder ist man offline, startet Play solo. Der Host bekommt beim Verlassen eine Warnung. Build r26. Der Node-Server bleibt als Option.
