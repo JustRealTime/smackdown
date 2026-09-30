@@ -117,3 +117,17 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - **Mehr Gebäude:** 5 neue Typen mit Einrichtung und Dach-Symbol: Arcade (Neon-Boden, Spielautomaten), Scheune (Heu, Fässer), Bibliothek (Teppich, Regale), Gewächshaus (Pflanzkästen) und Café. Zusammen 10 Typen, 30 Gebäude. Alle haben mehrere markierte Eingänge: größere gelbe Matten mit Leuchten, Pfeil und zwei Türpfosten.
 - **Türen garantiert erreichbar:** Vor jeder Tür ist ein Bereich von 160 x 170 px frei von Bäumen, Felsen und Props. Ein automatischer Test (Flutfüllung über die ganze Karte, 25 Zufallswelten, 2150 Türen) findet für jede Tür einen Weg von außen hinein.
 - **Mehr Props:** Zeltlager mit Feuer (6), Marktplätze mit Ständen (5), Teiche mit Schilf und Bänken (6), eingezäunte Felder mit Heuballen, Vogelscheuche und Beeten (5), kleine Parks mit Brunnen, Bänken und Laternen (6), einzelne Brunnen, Fässer und Baumstümpfe, Wegweiser, Pilze und Blumenbeete. Neue Baumarten: Birke, Kirschbaum (mit fallenden Blüten), Herbstbaum. Dazu Baumstämme am Boden.
+
+## Entscheidungen (Runde 11, 30.09.2026)
+- **Vorteil vor dem Duell sichtbar:** Jeder Gegner in der Nähe (bis etwa 640 px) bekommt einen Ring am Boden und eine Zahl neben dem Namen. Grün mit "+2": im Duell würdest du 2 Wörter weniger tippen als er. Rot mit "-3": 3 Wörter mehr. Je größer der Unterschied, desto kräftiger der Ring. Bei Gleichstand gibt es nichts. Die Zahl nutzt dieselbe Rechnung wie das Duell selbst (Level, Perks, ob jemand gerade vor dir flieht). Im Multiplayer rechnet der Server sie für jeden Zuschauer einzeln.
+- **Schwimmen:** Teiche und Seen sind keine Wände mehr. Wer hineinläuft, schwimmt: nur der Oberkörper ist zu sehen, Wellenringe, Platsch-Effekt und -Ton, 55 % Tempo, kein Sprint und kein Dash. Snacks und Items erscheinen nicht im Wasser. Gefrorene Seen im Schnee sind Eis: normales Tempo, aber rutschig (wenig Reibung).
+- **Größere Karte:** 9600 x 9600 statt 7200 x 7200 (etwa 1,8-mal so viel Fläche), 48 Gebäude in einem 8x8-Raster (vorher 30), 100 Bots, 2000 Snacks draußen und 560 drinnen, 100 + 70 Geschenkboxen, 800 Bäume. Die dichte Bauweise bleibt.
+- **Biome:** 6 Biome mit eigenen Farben, Pflanzen und Props, die weich ineinander übergehen (Meadow, Forest, Desert, Snow, Autumn, Swamp). 18 Regionen, die Ränder sind verwackelt und verlaufen über etwa 800 px ineinander, auch der Boden ändert sich (Gras, Sand mit Kieseln, Schnee mit Glitzer, Laub, Sumpf mit Pfützen). Die Minimap zeigt die Biome.
+  - **Meadow:** helle Wiese, Blumen, Birken und Kirschbäume, Märkte, Felder, Parks.
+  - **Forest:** dunkles Grün, dicht mit Kiefern, Farn, Pilze.
+  - **Desert:** Sand, Kakteen und Palmen, Knochen, Oasen (türkis, mit Palmen).
+  - **Snow:** weißer Boden, verschneite Kiefern, Schneemänner, gefrorene Seen.
+  - **Autumn:** orange Boden, Herbstbäume mit fallenden Blättern, Kürbisse, Laubhaufen.
+  - **Swamp:** grün-grauer Boden, Trauerweiden und tote Bäume, trübe Teiche mit Blasen, Schilf.
+- **Mehr Baumarten:** Palme, Kaktus, Schnee-Kiefer, Trauerweide, toter Baum (zusätzlich Birke, Kirsche, Herbst, Kiefer, Laubbaum).
+- **Schneller:** Kollisionen und die Snack-Suche laufen über ein Raster statt über alle Objekte, der Boden wird in 512-px-Blöcken einmal gemalt und nur kopiert. Ein Spielschritt mit 100 Bots braucht etwa 3 ms statt 32 ms.

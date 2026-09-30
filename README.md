@@ -26,7 +26,7 @@ Ohne Server bleibt **Play** der Einzelspielermodus gegen die Bots.
 
 ## Stand
 
-Prototyp v3: Solo oder mit Freunden gegen 60 Bots auf einer großen Karte mit Minimap, 30 betretbare Gebäude mit je mehreren markierten Eingängen in 10 Typen (Haus, Diner, Bäckerei, Fitnessstudio, Schuppen, Arcade, Scheune, Bibliothek, Gewächshaus, Café), Zeltlager, Märkte, Teiche, Felder und Parks, zufällig gemischte Charaktere, Level-Looks bis Level 1500, kurze Tippduelle mit Animationen, Sprint, Dash mit Slide und Essanimation mit Bissen. Es gibt keine Level-Grenze: Perk-Bäume bei Level-Ups, Items, einen König mit Kopfgeld und Level-Orbs. Effekte sind erzeugt, die Hintergrundmusik steckt in `index.html`. Oben links lassen sich Sound und Musik einzeln abschalten. Multiplayer im lokalen Netz gibt es (siehe oben).
+Prototyp v3: Solo oder mit Freunden gegen 100 Bots auf einer großen Karte (9600 x 9600) mit 6 Biomen und Minimap, 30 betretbare Gebäude mit je mehreren markierten Eingängen in 10 Typen (Haus, Diner, Bäckerei, Fitnessstudio, Schuppen, Arcade, Scheune, Bibliothek, Gewächshaus, Café), Zeltlager, Märkte, schwimmbare Teiche, Felder und Parks, zufällig gemischte Charaktere, Level-Looks bis Level 1500, kurze Tippduelle mit Animationen, Sprint, Dash mit Slide und Essanimation mit Bissen. Es gibt keine Level-Grenze: Perk-Bäume bei Level-Ups, Items, einen König mit Kopfgeld und Level-Orbs. Effekte sind erzeugt, die Hintergrundmusik steckt in `index.html`. Oben links lassen sich Sound und Musik einzeln abschalten. Multiplayer im lokalen Netz gibt es (siehe oben).
 
 Die Spielidee und alle bisherigen Entscheidungen stehen in [docs/konzept.md](docs/konzept.md).
 

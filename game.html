@@ -197,6 +197,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <dt><kbd>Space</kbd></dt><dd>Dash and slide, the fastest move</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
+    <p class="small">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
     <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Higher level means a shorter phrase. Run away and get caught, and your opponent gets a shorter one too.</p>
     <p class="warn" id="touchwarn" hidden>This prototype needs a keyboard. Please play on a PC for now.</p>
   </form>
@@ -244,7 +245,7 @@ function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=inne
 addEventListener('resize',resize);resize();
 
 const INK='#2b2140', GOLD='#ffc93c', CAPE='#d62839', SHOE='#3a2a22';
-const WORLD=7200, BASE=175, DASH_CD=2.2, RAD=18;
+const WORLD=9600, BASE=175, DASH_CD=2.2, RAD=18;
 const rand=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[(Math.random()*a.length)|0];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -260,8 +261,35 @@ function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b
 const WORDS=('able about above absent accept access across action active actor adapt adult advice affect after again agent agree ahead alarm album alert alien alive allow alone along alpha always amazing anchor ancient angle animal answer anyone appear arena argue armor around arrive arrow artist ashes aside asleep aspect assist atlas attack attic august author autumn avenue awake award aware axis baby back badge balance ball bamboo banner barrel base basket battle beach beam bear beast beauty bell below bench beyond bicycle bird black blade blank blast blaze blend blind block blood bloom blue board boat bold bolt bone bonus book boost border born boss bottle bottom bounce brain brake branch brave break breath brick bridge brief bright bring broad broken bronze brook brother brown brush bubble bucket build bulb bunch burn burst bush button cabin cable calm camel camera camp canal candle canyon cape captain carbon card careful cargo carpet carry cart case castle catch cause cave ceiling center chain chair chalk champion chance change chaos chapter charge chart chase cheer chess chest chief child chill chimney chin choice choose circle circus city civil claim clap class clean clear clever cliff climb clock close cloth cloud clown club coach coast cobra code coin cold collar color comet common compass copper coral corner cosmic couch could count court cover crack craft crane crash crazy creek crew cricket crisp cross crowd crown crystal cube curve cycle daily dance danger dark dash dawn dazzle dead deal dear debate deck deep deer defend delay delta desert design desk detail device dial diamond diary dice digital dinosaur direct dirt disco dive dizzy doctor dodge dog doll dolphin domain door double dove down dozen draft dragon drama draw dream dress drift drill drive drone drop drum dry duck dune dust duty dwarf eager eagle early earth easel east easy echo edge editor eight elbow elder electric elephant elite empire empty enemy energy engine enjoy enter entry envelope equal error escape essay even event every evil exact example exit expert extra eyes fable face fact fade fair fairy faith fake fall false family fancy fantasy farm fast fate father fault feather fence ferry festival fever field fierce fight film final finger fire firm first fish five flag flame flash flat fleet flight flint float flock flood floor flower fluffy flute flying focus fog fold folk follow foot force forest forge forget forward fossil found four fox frame freedom fresh friend frog front frost frozen fuel full funny future galaxy gallery game garage garden gate gather gear gem general genius gentle ghost giant gift giraffe glass glide globe glory glove glow goal goat gold golf good gorilla grab grace grade grand graph grass gravity great green grid grip ground group grow guard guess guest guide guitar habit hair half hall hammer hand happy harbor hard harmony harp hat hawk head heart heat heavy hedge height helmet help hero hidden high hill hint history hobby hockey hold hole holiday home honest hood hope horizon horn horse hotel hour house human humble hunt hurry hybrid ice icon idea igloo image impact inch index indigo injury ink inner insect inside iron island issue ivory jacket jaguar jar jazz jet jewel job join joke journey joy judge juggle jump jungle junior just kayak keen keep kernel key kick kid kind king kiss kite kitten knee knife knight knock knot know label ladder lake lamp land lantern laser last late laugh launch lava law lazy leader leaf learn leather left legend lens leopard lesson letter level liberty library light lily limit line lion liquid list little lively lizard local lock lodge logic lonely long loop lord loud love low lucky lumber lunar lynx machine magic magnet main major maker mammal map maple marble march marine mark market marsh mask master match matrix maze meadow medal medium melody member memory mental mercy mesh metal meteor method middle might mile mind mine mirror mission mist model modern moment monkey monster month moon moral morning moss moth motor mountain mouse move movie much music mystery myth nail name narrow nation native nature navy near neat neck needle neon nerve nest net never new next nice night ninja noble noise noon north nose note novel now number nurse oak oasis object ocean odd offer office often oil old omega once one online open opera orbit orchid order organ origin other otter outer oval over owl owner oxygen pace pack paddle page pain paint pair palace palm panda panel paper parade parent park parrot party pass past patch path pattern pause peace peak pearl pedal pencil penguin people perfect period pet phantom phone photo piano pick picture piece pigeon pilot pine pink pipe pirate pitch place plain plan planet plant plastic plate play plaza plot plug plus pocket poem point polar pole pond pony pool poor portal pose post pot power prairie press pride prince print prism prize proof proud pulse pump punch pupil puppy pure purple puzzle pyramid quake quality quantum quarter queen quest quick quiet quilt quiz rabbit race radar radio rail rain raise rally ranch range rapid rare raven ray reach ready real realm reason rebel record red reef relax relay reload remote repair reply rescue rest return reward rhythm ribbon rich ride ridge right ring ripple rise risk river road roar robot rock rocket roll roof room root rope rose rough round route royal ruby rule run rush rust sacred saddle safe sail saint sample sand satellite savage scale scarf scene school science scissors score scout screen script sea season secret seed select sense serve seven shadow shake shape share shark sharp shed sheep shelf shell shield shift shine ship shirt shock shoe shoot shop shore short shoulder shout show shrine side sight sign silent silk silver simple sing single sister six size skate sketch skill skin sky slam sleep slice slide slim slope slow small smart smile smoke smooth snake sniper snow soft solar soldier solid solo song sonic sound south space spark speak speed spell spider spin spirit split sport spot spring spy squad square stable staff stage stair stamp stand star start state statue steady steel steep stem step stick still stone stop storm story strange stream street stretch strike string strong studio study style submit summer sun super supply surf surge swamp swan sweep swift swim swing sword symbol system table tackle tail tale talent talk tall tank tape target task team tech temple ten tent terra thank theme theory thick thin thing think third thorn thought thread three thrill throne thumb thunder ticket tide tiger tight timber time tiny tip tired title today together token tomorrow tone tool tooth top torch total touch tough tour tower town toy trace track trade trail train travel tree trend triangle tribe trick trip troop truck true trumpet trust truth tube tunnel turbo turn turtle twelve twin twist two umbrella uncle under union unit unity upper urban use usual valley value vapor vast vault vector velvet venture verse vessel victory video view village vine violet violin virtual vision visit vital voice volcano volume vote voyage wagon waist wait wake walk wall wander war warm warrior wash watch water wave wax way weak wealth weather web wedge week weight welcome west whale wheel whisper white whole wide wild will wind window wing winter wire wise wish witch wizard wolf wonder wood wool word work world worry worth wrap wrist write yacht yard year yellow yes yield young youth zebra zero zigzag zip zone zoom').split(' ');
 function makePhrase(n){const out=[];while(out.length<n){const w=pick(WORDS);if(w!==out[out.length-1])out.push(w)}return out.join(' ')}
 
+/* ---------- biomes: each region has its own colours, plants and props, blended smoothly at the borders ---------- */
+const BIOME=[
+  {n:'meadow',a:[147,212,111],b:[139,207,102]},
+  {n:'forest',a:[92,158,84],b:[84,150,78]},
+  {n:'desert',a:[240,211,145],b:[234,201,128]},
+  {n:'snow',a:[244,249,255],b:[228,240,251]},
+  {n:'autumn',a:[218,164,92],b:[208,154,82]},
+  {n:'swamp',a:[112,155,124],b:[102,145,116]}];
+const B_MEADOW=0,B_FOREST=1,B_DESERT=2,B_SNOW=3,B_AUTUMN=4,B_SWAMP=5;
+const bcent=[], TAU=300, _bw=new Float32Array(6), _bd=new Float32Array(32);
+let bseed=1;
+function hash2(i,j,s){let h=(i*374761393+j*668265263+s*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295}
+function vnoise(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),
+  a=hash2(i,j,s),b=hash2(i+1,j,s),c=hash2(i,j+1,s),d=hash2(i+1,j+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function makeBiomes(){bcent.length=0;bseed=(Math.random()*1e6)|0;const order=[];for(let i=0;i<18;i++)order.push(i%6);
+  for(let i=order.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[order[i],order[j]]=[order[j],order[i]]}
+  for(const b of order){let best=null,bd=-1;   // best-candidate sampling keeps the regions evenly spread
+    for(let k=0;k<40;k++){const x=rand(300,WORLD-300),y=rand(300,WORLD-300);let dm=bcent.length?1e9:0;for(const c of bcent)dm=Math.min(dm,Math.hypot(c.x-x,c.y-y));if(dm>bd){bd=dm;best={x,y,b}}}
+    bcent.push(best)}}
+// weight of every biome at a point: softmax over the (wobbled) distance to the region centres, so borders fade into each other
+function biomeW(x,y,out){out=out||_bw;
+  const qx=x+(vnoise(x/1100,y/1100,bseed)-.5)*900,qy=y+(vnoise(x/1100+40,y/1100+40,bseed+7)-.5)*900;let dm=1e9;
+  for(let i=0;i<bcent.length;i++){const d=Math.hypot(qx-bcent[i].x,qy-bcent[i].y);_bd[i]=d;if(d<dm)dm=d}
+  out.fill(0);let tot=0;for(let i=0;i<bcent.length;i++){const w=Math.exp(-(_bd[i]-dm)/TAU);out[bcent[i].b]+=w;tot+=w}
+  for(let i=0;i<6;i++)out[i]/=tot;return out}
+function biomeAt(x,y){const w=biomeW(x,y);let b=0;for(let i=1;i<6;i++)if(w[i]>w[b])b=i;return b}
+
 /* ---------- world: buildings, furniture, props & nature ---------- */
-const houses=[], walls=[], trees=[], bushes=[], decor=[], doorZones=[], WT=16;
+const houses=[], walls=[], trees=[], bushes=[], decor=[], doorZones=[], ponds=[], WT=16;
 const BTYPES={
   home:{w:[340,420],h:[260,320],roofs:['#e8475f','#3d7dd8','#9b5de5','#f28c28'],floor:'wood',food:1},
   diner:{w:[470,540],h:[300,350],roofs:['#e8475f'],floor:'checker',food:2.4},
@@ -287,17 +315,17 @@ const PLANS={
   cafe:[['booth','lt',80,52],['counter','rt',90,38],['table','lb',52,52],['plant','rb',30,30]]
 };
 function makeBuildings(){
-  // 6x6 grid of cells, 30 of them get a building, the rest stay open ground
+  // 8x8 grid of cells, 48 of them get a building, the rest stay open ground
   const order=[];const add=(t,n)=>{for(let i=0;i<n;i++)order.push(t)};
-  add('home',6);add('diner',3);add('bakery',3);add('gym',3);add('shed',2);add('arcade',3);add('barn',3);add('library',3);add('greenhouse',2);add('cafe',2);
-  const cells=[];for(let i=0;i<36;i++)cells.push(i);
+  add('home',14);add('diner',4);add('bakery',4);add('gym',4);add('shed',3);add('arcade',4);add('barn',4);add('library',4);add('greenhouse',4);add('cafe',3);
+  const CELL=WORLD/8,cells=[];for(let i=0;i<64;i++)cells.push(i);
   for(let i=cells.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[cells[i],cells[j]]=[cells[j],cells[i]]}
   order.forEach((type,n)=>{
-    const c=cells[n],B=BTYPES[type],cx=600+(c%6)*1200+rand(-140,140),cy=600+((c/6)|0)*1200+rand(-140,140);
+    const c=cells[n],B=BTYPES[type],cx=CELL/2+(c%8)*CELL+rand(-140,140),cy=CELL/2+((c/8)|0)*CELL+rand(-140,140);
     const w=rand(B.w[0],B.w[1])|0,h=rand(B.h[0],B.h[1])|0,x=Math.round(cx-w/2),y=Math.round(cy-h/2);
     const sides=['n','e','s','w'];for(let i=3;i>0;i--){const j=(Math.random()*(i+1))|0;[sides[i],sides[j]]=[sides[j],sides[i]]}
     const doors=sides.slice(0,type==='shed'||type==='cafe'?2:3);   // several entrances, marked with mats outside
-    const hs={x,y,w,h,doors,type,floor:B.floor,roof:pick(B.roofs),food:B.food,alpha:1};
+    const hs={x,y,w,h,doors,type,floor:B.floor,roof:pick(B.roofs),food:B.food,alpha:1,biome:biomeAt(cx,cy)};
     houses.push(hs);
     const G=110,add=(x,y,w,h)=>walls.push({x,y,w,h});
     const seg=(horiz,x0,y0,len,door)=>{
@@ -315,73 +343,93 @@ function makeBuildings(){
   });
 }
 const nearHouse=(x,y,m)=>houses.some(h=>x>h.x-m&&x<h.x+h.w+m&&y>h.y-m&&y<h.y+h.h+m)||doorZones.some(z=>x>z.x-m*.6&&x<z.x+z.w+m*.6&&y>z.y-m*.6&&y<z.y+z.h+m*.6);
-const nearWall=(x,y,m)=>walls.some(w=>x>w.x-m&&x<w.x+w.w+m&&y>w.y-m&&y<w.y+w.h+m);
-/* props come in little scenes: a camp, a market, a pond, a fenced field, a park, a well */
+const nearWall=(x,y,m)=>walls.some(w=>x>w.x-m&&x<w.x+w.w+m&&y>w.y-m&&y<w.y+w.h+m)||ponds.some(p=>((x-p.x)/(p.rx+m))**2+((y-p.y)/(p.ry+m))**2<1);
+const waterAt=(x,y)=>{for(let i=0;i<ponds.length;i++){const p=ponds[i];if(((x-p.x)/(p.rx*.95))**2+((y-p.y)/(p.ry*.95))**2<1)return p}return null};
+/* props come in little scenes: a camp, a market, a pond or lake, a fenced field, a park, a well */
 function scatterProps(){
   const used=[];
   const free=(x,y,r)=>!nearHouse(x,y,r+30)&&!used.some(u=>Math.hypot(u.x-x,u.y-y)<u.r+r)&&!nearWall(x,y,r);
-  const find=r=>{for(let i=0;i<300;i++){const x=rand(r+90,WORLD-r-90),y=rand(r+90,WORLD-r-90);if(free(x,y,r)){used.push({x,y,r});return{x,y}}}return null};
-  const solid=(kind,x,y,w,h)=>walls.push({x:x-w/2,y:y-h/2,w,h,kind});
+  const find=(r,allowed)=>{for(let i=0;i<500;i++){const x=rand(r+90,WORLD-r-90),y=rand(r+90,WORLD-r-90);if((!allowed||allowed.includes(biomeAt(x,y)))&&free(x,y,r)){used.push({x,y,r});return{x,y}}}return null};
+  const solid=(kind,x,y,w,h,c)=>walls.push({x:x-w/2,y:y-h/2,w,h,kind,c});
   const dec=(kind,x,y,s=1,c)=>decor.push({kind,x,y,s,c});
-  for(let n=0;n<6;n++){const p=find(180);if(!p)continue;   // camp
+  const ALL=[0,1,2,3,4,5];
+  for(let n=0;n<10;n++){const p=find(180,ALL);if(!p)continue;   // camp
     solid('campfire',p.x,p.y,30,30);for(let i=0;i<3;i++){const a=i*2.09+rand(-.3,.3);solid('tent',p.x+Math.cos(a)*88,p.y+Math.sin(a)*88,66,56)}
     solid('log',p.x-46,p.y+50,58,18);solid('log',p.x+48,p.y-52,58,18);dec('mushroom',p.x+rand(-120,120),p.y+rand(-120,120))}
-  for(let n=0;n<5;n++){const p=find(260);if(!p)continue;   // market
+  for(let n=0;n<7;n++){const p=find(260,[B_MEADOW,B_DESERT,B_AUTUMN]);if(!p)continue;   // market
     for(let i=-1;i<=1;i++)solid('stall',p.x+i*140,p.y,100,46);
     solid('barrel',p.x-190,p.y+40,30,30);solid('barrel',p.x+190,p.y+40,30,30);solid('crates',p.x+66,p.y+70,40,40);dec('flowerbed',p.x,p.y+90,1.2)}
-  for(let n=0;n<6;n++){const p=find(240);if(!p)continue;   // pond
-    solid('pond',p.x,p.y,300,180);solid('parkbench',p.x-70,p.y+118,56,22);solid('parkbench',p.x+70,p.y+118,56,22);
-    for(let i=0;i<10;i++)dec('reed',p.x+rand(-160,160),p.y+(Math.random()<.5?-104:104)+rand(-6,6),rand(.8,1.2));
-    for(let i=0;i<4;i++)dec('lily',p.x+rand(-110,110),p.y+rand(-60,60),rand(.8,1.3))}
-  for(let n=0;n<5;n++){const p=find(260);if(!p)continue;   // fenced field with a gap in the south fence
+  for(let n=0;n<14;n++){   // ponds and lakes you can swim in (frozen in the snow, an oasis in the desert, murky in the swamp)
+    const big=Math.random()<.3,r=big?400:250,p=find(r,[B_MEADOW,B_FOREST,B_DESERT,B_SNOW,B_AUTUMN,B_SWAMP,B_SWAMP]);if(!p)continue;
+    const b=biomeAt(p.x,p.y),kind=b===B_SNOW?'ice':b===B_DESERT?'oasis':b===B_SWAMP?'swamp':'water',rx=big?rand(280,340):rand(140,180),ry=rx*rand(.55,.7);
+    ponds.push({x:p.x,y:p.y,rx,ry,kind});
+    solid('parkbench',p.x-70,p.y+ry+14,56,22);solid('parkbench',p.x+70,p.y+ry+14,56,22);
+    if(kind!=='ice')for(let i=0;i<14;i++){const a=rand(0,6.28);dec('reed',p.x+Math.cos(a)*(rx+8),p.y+Math.sin(a)*(ry+8),rand(.8,1.2))}
+    if(kind==='oasis')for(let i=0;i<5;i++){const a=i*1.26+rand(-.2,.2),tx=p.x+Math.cos(a)*(rx+50),ty=p.y+Math.sin(a)*(ry+50);trees.push({x:tx,y:ty,s:rand(.9,1.15),kind:'palm',alpha:1});walls.push({x:tx-9,y:ty-6,w:18,h:14,kind:'trunk'})}
+    if(kind==='water'||kind==='swamp')for(let i=0;i<(big?9:4);i++)dec('lily',p.x+rand(-rx*.7,rx*.7),p.y+rand(-ry*.6,ry*.6),rand(.8,1.3))}
+  for(let n=0;n<7;n++){const p=find(260,[B_MEADOW,B_AUTUMN]);if(!p)continue;   // fenced field with a gap in the south fence
     const W2=300,H2=200,x0=p.x-W2/2,y0=p.y-H2/2;
     solid('fence',p.x,y0,W2,14);solid('fence',x0,p.y,14,H2);solid('fence',x0+W2,p.y,14,H2);
     solid('fence',x0+55,y0+H2,110,14);solid('fence',x0+W2-55,y0+H2,110,14);   // gap in the middle
     for(let i=0;i<4;i++)solid('haybale',x0+70+i*52,y0+55,44,32);
     for(let r=0;r<3;r++)for(let i=0;i<5;i++)dec('crop',x0+60+i*45,y0+120+r*20,1);
     dec('scarecrow',p.x,p.y+40,1)}
-  for(let n=0;n<6;n++){const p=find(200);if(!p)continue;   // little park
+  for(let n=0;n<9;n++){const p=find(200,[B_MEADOW,B_AUTUMN,B_FOREST]);if(!p)continue;   // little park
     solid('well',p.x,p.y,44,44);solid('parkbench',p.x-90,p.y+34,58,22);solid('parkbench',p.x+90,p.y+34,58,22);
     solid('lamp',p.x-90,p.y-50,14,14);solid('lamp',p.x+90,p.y-50,14,14);
     for(let i=0;i<5;i++)dec('flowerbed',p.x+rand(-130,130),p.y+rand(60,110),rand(.8,1.2),pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff']))}
-  for(let n=0;n<10;n++){const p=find(60);if(!p)continue;solid(pick(['well','barrel','stump']),p.x,p.y,34,34);if(Math.random()<.6)solid('lamp',p.x+40,p.y-20,14,14)}
-  for(let n=0;n<8;n++){const p=find(40);if(p)dec('sign',p.x,p.y,1)}
+  for(let n=0;n<16;n++){const p=find(60,ALL);if(!p)continue;solid(pick(['well','barrel','stump']),p.x,p.y,34,34);if(Math.random()<.6)solid('lamp',p.x+40,p.y-20,14,14)}
+  for(let n=0;n<12;n++){const p=find(40,ALL);if(p)dec('sign',p.x,p.y,1)}
 }
 function scatterNature(){
-  const kinds=['round','round','round','round','pine','pine','pine','birch','cherry','autumn','autumn'];
-  for(let i=0;i<3500&&trees.length<440;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60);
-    if(nearHouse(x,y,80)||nearWall(x,y,60)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<120))continue;
-    trees.push({x,y,s:rand(.85,1.2),kind:pick(kinds),alpha:1});walls.push({x:x-9,y:y-6,w:18,h:14,kind:'trunk'})}
-  for(let i=0,n=0;i<800&&n<150;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
+  const TD=[.55,1,.1,.5,.8,.45];   // how thickly trees grow in each biome
+  const KINDS=[['round','round','birch','cherry','birch','pine'],['pine','pine','pine','round','round','birch'],['palm','cactus','cactus','dead','palm','cactus'],['snowpine','snowpine','snowpine','snowpine','dead','snowpine'],['autumn','autumn','autumn','birch','round','autumn'],['willow','willow','dead','willow','round','dead']];
+  for(let i=0;i<9000&&trees.length<800;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60),b=biomeAt(x,y);
+    if(Math.random()>TD[b]||nearHouse(x,y,80)||nearWall(x,y,60)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<(b===B_FOREST?95:120)))continue;
+    trees.push({x,y,s:rand(.85,1.2),kind:pick(KINDS[b]),alpha:1,b});walls.push({x:x-9,y:y-6,w:18,h:14,kind:'trunk'})}
+  const ROCKC=['#a9a3b8','#8a8f9c','#d6a86a','#dde7f2','#a58a6a','#8a9a8e'];
+  for(let i=0,n=0;i<1600&&n<270;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60),b=biomeAt(x,y);
     if(nearHouse(x,y,50)||nearWall(x,y,40)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<70))continue;
-    n++;if(Math.random()<.25)walls.push({x:x-24,y:y-10,w:48,h:20,kind:'log'});else walls.push({x:x-16,y:y-11,w:32,h:22,kind:'rock'})}
-  for(let i=0;i<420;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!nearHouse(x,y,30)&&!nearWall(x,y,20))bushes.push({x,y,s:rand(.7,1.2)})}
-  for(let i=0;i<260;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!nearHouse(x,y,30)&&!nearWall(x,y,20))decor.push({kind:pick(['flowerbed','flowerbed','mushroom']),x,y,s:rand(.8,1.2),c:pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff'])})}
+    n++;if(Math.random()<.22)walls.push({x:x-24,y:y-10,w:48,h:20,kind:'log'});else walls.push({x:x-16,y:y-11,w:32,h:22,kind:'rock',c:ROCKC[b]})}
+  const BD=[1,1,.55,.6,.9,.9];
+  for(let i=0;i<900;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40),b=biomeAt(x,y);if(Math.random()<BD[b]&&!nearHouse(x,y,30)&&!nearWall(x,y,20))bushes.push({x,y,s:rand(.7,1.2),b})}
+  const DK=[['flowerbed','flowerbed','flowerbed','mushroom'],['mushroom','fern','fern','mushroom','flowerbed'],['bones','pebbles','pebbles','bones'],['snowpile','snowpile','snowman','pebbles'],['leaves','leaves','pumpkin','leaves','mushroom'],['reed','mushroom','fern','lily']];
+  for(let i=0;i<560;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40),b=biomeAt(x,y);if(!nearHouse(x,y,30)&&!nearWall(x,y,20)&&!waterAt(x,y)){const kind=pick(DK[b]);if(kind==='lily')continue;decor.push({kind,x,y,s:rand(.8,1.2),c:pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff'])})}}
 }
 // the world is built from a seed so every player on a server gets exactly the same map
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function buildWorld(seed){const real=Math.random;Math.random=mulberry32(seed);
-  try{houses.length=0;walls.length=0;trees.length=0;bushes.length=0;decor.length=0;doorZones.length=0;makeBuildings();scatterProps();scatterNature()}finally{Math.random=real}}
-let WORLD_SEED=(Math.random()*1e9)|0;buildWorld(WORLD_SEED);
+let WORLD_SEED=0,worldEpoch=0;
+function buildWorld(seed){WORLD_SEED=seed;worldEpoch++;const real=Math.random;Math.random=mulberry32(seed);
+  try{houses.length=0;walls.length=0;trees.length=0;bushes.length=0;decor.length=0;doorZones.length=0;ponds.length=0;
+    makeBiomes();makeBuildings();scatterProps();scatterNature()}finally{Math.random=real}
+  wgBuild()}
+// walls live in a coarse grid so collisions only look at what is close by
+const WGC=160;let wgrid=new Map();
+function wgBuild(){wgrid=new Map();for(const w of walls){const i0=Math.max(0,Math.floor(w.x/WGC)),i1=Math.floor((w.x+w.w)/WGC),j0=Math.max(0,Math.floor(w.y/WGC)),j1=Math.floor((w.y+w.h)/WGC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=i*1000+j;let a=wgrid.get(k);if(!a){a=[];wgrid.set(k,a)}a.push(w)}}}
+function wallHit(x,y,m){const i0=Math.floor((x-m)/WGC),i1=Math.floor((x+m)/WGC),j0=Math.floor((y-m)/WGC),j1=Math.floor((y+m)/WGC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const a=wgrid.get(i*1000+j);if(a)for(const w of a)if(x>w.x-m&&x<w.x+w.w+m&&y>w.y-m&&y<w.y+w.h+m)return true}return false}
+buildWorld((Math.random()*1e9)|0);
 const houseAt=(x,y)=>houses.find(h=>x>h.x&&x<h.x+h.w&&y>h.y&&y<h.y+h.h);
 function freeSpot(m){for(let i=0;i<60;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
-  if(!walls.some(w=>x>w.x-m&&x<w.x+w.w+m&&y>w.y-m&&y<w.y+w.h+m)&&!houses.some(h=>x>h.x-m&&x<h.x+h.w+m&&y>h.y-m&&y<h.y+h.h+m))return{x,y}}return{x:WORLD/2,y:WORLD/2+300}}
-function collide(e){const r=e.r;
-  for(const w of walls){const nx=clamp(e.x,w.x,w.x+w.w),ny=clamp(e.y,w.y,w.y+w.h),dx=e.x-nx,dy=e.y-ny,d2=dx*dx+dy*dy;
-    if(d2>=r*r)continue;
-    if(d2>1e-4){const d=Math.sqrt(d2),ux=dx/d,uy=dy/d;e.x=nx+ux*r;e.y=ny+uy*r;const vn=e.vx*ux+e.vy*uy;if(vn<0){e.vx-=vn*ux;e.vy-=vn*uy}}
-    else{const l=e.x-w.x,rr=w.x+w.w-e.x,t=e.y-w.y,b=w.y+w.h-e.y,m=Math.min(l,rr,t,b);
-      if(m===l)e.x=w.x-r;else if(m===rr)e.x=w.x+w.w+r;else if(m===t)e.y=w.y-r;else e.y=w.y+w.h+r}}
+  if(!wallHit(x,y,m)&&!waterAt(x,y)&&!houses.some(h=>x>h.x-m&&x<h.x+h.w+m&&y>h.y-m&&y<h.y+h.h+m))return{x,y}}return{x:WORLD/2,y:WORLD/2+300}}
+function collide(e){const r=e.r,i0=Math.floor((e.x-r)/WGC),i1=Math.floor((e.x+r)/WGC),j0=Math.floor((e.y-r)/WGC),j1=Math.floor((e.y+r)/WGC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const a=wgrid.get(i*1000+j);if(!a)continue;
+    for(const w of a){const nx=clamp(e.x,w.x,w.x+w.w),ny=clamp(e.y,w.y,w.y+w.h),dx=e.x-nx,dy=e.y-ny,d2=dx*dx+dy*dy;
+      if(d2>=r*r)continue;
+      if(d2>1e-4){const d=Math.sqrt(d2),ux=dx/d,uy=dy/d;e.x=nx+ux*r;e.y=ny+uy*r;const vn=e.vx*ux+e.vy*uy;if(vn<0){e.vx-=vn*ux;e.vy-=vn*uy}}
+      else{const l=e.x-w.x,rr=w.x+w.w-e.x,t=e.y-w.y,b=w.y+w.h-e.y,m=Math.min(l,rr,t,b);
+        if(m===l)e.x=w.x-r;else if(m===rr)e.x=w.x+w.w+r;else if(m===t)e.y=w.y-r;else e.y=w.y+w.h+r}}}
   e.x=clamp(e.x,r,WORLD-r);e.y=clamp(e.y,r,WORLD-r);}
 
 /* ---------- food ---------- */
-const FOODS=['burger','apple','soda','pizza','donut'], FOOD_OUT=1100, FOOD_IN=350;
+const FOODS=['burger','apple','soda','pizza','donut'], FOOD_OUT=2000, FOOD_IN=560;
 let foods=[];
 function spotFor(inside){
   if(!inside)return freeSpot(24);
   let r=Math.random()*houses.reduce((s,h)=>s+h.food,0),h=houses[0];for(const b of houses){r-=b.food;if(r<=0){h=b;break}}
   for(let i=0;i<12;i++){const x=rand(h.x+40,h.x+h.w-40),y=rand(h.y+40,h.y+h.h-40);
-    if(!walls.some(w=>x>w.x-24&&x<w.x+w.w+24&&y>w.y-24&&y<w.y+w.h+24))return{x,y}}
+    if(!wallHit(x,y,24))return{x,y}}
   return null}
 function spawnFood(inside){const p=spotFor(inside);if(p)foods.push({x:p.x,y:p.y,t:pick(FOODS),bob:Math.random()*6.28,inside})}
 for(let i=0;i<FOOD_OUT;i++)spawnFood(false);
@@ -635,7 +683,7 @@ function spawnBot(t){const used=new Set(ents.map(e=>e.name));const free=NAMES.fi
   const e=makeEnt(nm,botLevel(),false,t);
   if(player){for(let i=0;i<10&&Math.hypot(e.x-player.x,e.y-player.y)<700;i++){const p=freeSpot(40);e.x=p.x;e.y=p.y}}
   ents.push(e);return e}
-const BOTS=60;
+const BOTS=100;
 {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}
 
 /* ---------- fx ---------- */
@@ -692,6 +740,7 @@ const sfx=(()=>{
     chomp(g=1){if(!ok(g))return;if(g>=1)music.duck(1);noise(.3,{type:'lowpass',f:3200,f2:180,q:.7,v:.7*g});tone(230,.3,{f2:55,v:.7*g});
       if(g>=1)arp([392,523,659,784,1047],.08,{type:'square',v:.1,d:.22,at:.18});else tone(700,.1,{f2:300,v:.15*g,at:.1})},
     lose(){if(!ok(1))return;[[392,.0],[370,.3],[349,.6],[311,.9]].forEach(([f,at],i)=>tone(f,i===3?.7:.28,{f2:f*(i===3?.7:.94),type:'sawtooth',v:.16,at}));noise(.2,{type:'lowpass',f:900,v:.3})},
+    splash(g=1){if(!ok(g))return;noise(.28,{f:2000,f2:500,q:.6,v:.45*g});tone(320,.16,{f2:120,v:.22*g});tone(760,.1,{f2:1300,v:.1*g,at:.05})},
     pickup(){if(!ok(1))return;arp([784,988,1319,1568],.05,{type:'triangle',v:.24,d:.22});noise(.3,{type:'highpass',f:6500,v:.1,at:.1})},
     orb(){if(!ok(1))return;tone(1319,.12,{type:'triangle',v:.25});tone(1760,.22,{v:.2,at:.05})},
     cards(){if(!ok(1))return;noise(.3,{f:400,f2:3000,q:.8,v:.25});tone(392,.3,{f2:784,type:'triangle',v:.2});tone(1047,.25,{v:.1,at:.18})},
@@ -837,7 +886,8 @@ function botThink(b,t){
     if(kd<1100&&ai.brave>.3&&lb>=L(king)*.3){ai.mode='chase';ai.target=king;ai.hold=rand(2,4)}
     else if(threat&&ai.brave<.75){ai.mode='flee';ai.target=threat}
     else if(prey&&Math.random()<ai.aggr){ai.mode='chase';ai.target=prey;ai.hold=rand(1.2,2.4)}
-    else{let best=null,bd=750;for(const f of foods){const d=Math.abs(f.x-b.x)+Math.abs(f.y-b.y);if(d<bd){bd=d;best=f}}
+    else{let best=null,bd=750;const bi=Math.floor(b.x/FGC),bj=Math.floor(b.y/FGC);   // nearest snack: look through the grid cells around the bot
+      for(let ci=bi-5;ci<=bi+5;ci++)for(let cj=bj-5;cj<=bj+5;cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(const f of cell){if(f.gone)continue;const d=Math.abs(f.x-b.x)+Math.abs(f.y-b.y);if(d<bd){bd=d;best=f}}}
       if(best){ai.mode='food';ai.wx=best.x;ai.wy=best.y}else{ai.mode='wander';if(Math.hypot(ai.wx-b.x,ai.wy-b.y)<60){ai.wx=rand(100,WORLD-100);ai.wy=rand(100,WORLD-100)}}}}
   const moved=Math.hypot(b.x-ai.lx,b.y-ai.ly);ai.lx=b.x;ai.ly=b.y;
   if(ai.stuck<=0&&b.state==='move'&&b.want.f>.5&&moved<12){ai.stuck=.9;const a=Math.random()*6.28;ai.sx=Math.cos(a);ai.sy=Math.sin(a)}
@@ -851,6 +901,7 @@ function botThink(b,t){
 }
 
 /* ---------- step ---------- */
+function splashFx(e){dust(e.x,e.y+16,12,'#bfe9ff',170,4.5);ring(e.x,e.y+16,6,56,'#fff',.45);ring(e.x,e.y+16,3,34,'#9fdcff',.35);sfx.splash(vol(e))}
 // 1 snack = 1 xp. Level L costs 5 * (1 + 0.15 * (L-1)) xp: level 1 = 5 snacks, level 50 = 41, level 100 = 79
 const lvlCost=lvl=>5*(1+(Math.floor(lvl)-1)*.15);
 const snackGain=lvl=>1/lvlCost(lvl);
@@ -861,7 +912,7 @@ const vol=e=>e.isPlayer?1:player?clamp(1-Math.hypot(e.x-player.x,e.y-player.y)/6
 const EAT_T=.85;
 const CRUMBS={burger:['#f2a93b','#7a3e1d','#6ab04c'],apple:['#e8475f','#fff6d5','#6ab04c'],pizza:['#ffd23f','#d98e3a','#e8475f'],donut:['#ff8fc2','#e0a860','#fff'],soda:['#9fdcff','#fff','#3db5ff']};
 /* gift boxes (items) and level orbs (dropped when someone is eaten) */
-const BOX_OUT=60, BOX_IN=45;
+const BOX_OUT=100, BOX_IN=70;
 let boxes=[], orbs=[];
 function spawnBox(inside){const p=spotFor(inside);if(p)boxes.push({x:p.x,y:p.y,bob:Math.random()*6.28,inside})}
 for(let i=0;i<BOX_OUT;i++)spawnBox(false);
@@ -892,6 +943,8 @@ function useItem(e,t){const k=e.item;if(!k)return;const it=ITEMS[k];
   if(e.isPlayer){sfx.item();flash()}}
 function stepEnt(e,dt,t){
   const st=e.st,bf=e.buff;
+  const wt=waterAt(e.x,e.y),swim=!!wt&&wt.kind!=='ice',ice=!!wt&&wt.kind==='ice';   // ponds can be swum in (slowly), frozen ones are slippery
+  if(swim!==!!e.swim){e.swim=swim;if(swim)splashFx(e)}
   e.dashCd=Math.max(0,e.dashCd-dt);e.chomp=Math.max(0,e.chomp-dt);
   if(e.dashCd<=0&&e.dashCharges<st.charges){e.dashCharges++;if(e.dashCharges<st.charges)e.dashCd=DASH_CD*st.dashCd}
   e.sqv+=(-90*e.sq-11*e.sqv)*dt;e.sq=clamp(e.sq+e.sqv*dt,-.42,.42);   // squash & stretch spring
@@ -920,11 +973,11 @@ function stepEnt(e,dt,t){
   else if(e.state==='eaten'){e.stateT-=dt;const w=e.eater;if(w){e.x+=(w.x-e.x)*Math.min(1,dt*6);e.y+=(w.y-10-e.y)*Math.min(1,dt*6)}return}
   else{
     const frozen=bf.freeze>t,w=frozen?{ux:0,uy:0,f:0,sprint:false,dash:false}:e.want,turbo=bf.turbo>t,rk=bf.rocket>t;
-    let sp=BASE*w.f*st.speed*(1-Math.min(.15,L(e)/1000))*(turbo?1.4:1)*(timeWarp.until>t&&timeWarp.owner!==e?.45:1);   // bigger levels are a little slower
-    const spr=w.sprint&&(e.stamina>1||turbo)&&w.f>.2;
+    let sp=BASE*w.f*st.speed*(1-Math.min(.15,L(e)/1000))*(turbo?1.4:1)*(timeWarp.until>t&&timeWarp.owner!==e?.45:1)*(swim?.55:1);   // bigger levels are a little slower
+    const spr=w.sprint&&(e.stamina>1||turbo)&&w.f>.2&&!swim;
     if(spr){sp*=st.sprintx;if(!turbo)e.stamina=Math.max(0,e.stamina-38*dt)}else e.stamina=Math.min(st.staMax,e.stamina+(w.f<.2?30:18)*dt*st.regen);
     e.sprinting=spr;
-    if(w.dash&&(e.dashCharges>0||rk)&&(!rk||e.dashT<=0)){let dx=w.ux,dy=w.uy;
+    if(w.dash&&!swim&&(e.dashCharges>0||rk)&&(!rk||e.dashT<=0)){let dx=w.ux,dy=w.uy;
       if(!dx&&!dy){dx=e.dir==='left'?-1:e.dir==='right'?1:0;dy=e.dir==='up'?-1:e.dir==='down'?1:0}
       if(!rk){e.dashCharges--;if(e.dashCd<=0)e.dashCd=DASH_CD*st.dashCd}
       e.dashT=rk?.22:.17;e.slideT=.6*st.slide;e.vx=dx*780*st.dashv*(rk?1.35:1);e.vy=dy*780*st.dashv*(rk?1.35:1);
@@ -933,6 +986,7 @@ function stepEnt(e,dt,t){
       if(e.isPlayer){kick=Math.max(kick,.09);shake=Math.max(shake,3)}}
     if(e.dashT>0){e.dashT-=dt;if(Math.random()<dt*80){const a=Math.atan2(e.vy,e.vx);streak(e.x-Math.cos(a)*14+rand(-8,8),e.y+rand(-10,16),a,rand(22,44))}}
     else{const fast=Math.hypot(e.vx,e.vy)>sp+60;let k=fast?4.2:14;
+      if(ice)k=Math.min(k,2.4);
       if(e.slideT>0){e.slideT-=dt;k=1.7}   // slide: low friction glide, steer a little
       e.vx+=(w.ux*sp-e.vx)*Math.min(1,k*dt);e.vy+=(w.uy*sp-e.vy)*Math.min(1,k*dt)}
     tl=(e.dashT>0||e.slideT>0)?clamp(e.vx/650,-.6,.6)*.9:e.sprinting?clamp(e.vx/600,-.35,.35):clamp(e.vx/1400,-.15,.15)}
@@ -960,11 +1014,15 @@ function stepEnt(e,dt,t){
       if((e.human||!e.item)&&Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14){boxes.splice(i,1);giveItem(e,t);break}}
     for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];
       if(Math.abs(o.x-e.x)<e.r+16&&Math.abs(o.y-e.y)<e.r+16){orbs.splice(i,1);const lb=e.lvl;gainXp(e,o.v*st.orbx);e.sqv+=2.5;stars(o.x,o.y,3,[GOLD,'#fff'],120);if(e.isPlayer){sfx.orb();floater(e.x,e.y-56,'+'+(e.lvl-lb).toFixed(1)+' LV',GOLD)}}}
-    for(let i=0;i<foods.length;i++){const f=foods[i];
-      if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){foods.splice(i,1);e.state='eat';
-        e.eatT=EAT_T*st.eatT*(bf.rush>t?.35:1);e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
-        if(st.snackGuard)e.protect=Math.max(e.protect,t+st.snackGuard);break}}}
+    const fi=Math.floor(e.x/FGC),fj=Math.floor(e.y/FGC);   // only look at the snacks in the neighbouring grid cells
+    scan:for(let ci=fi-1;ci<=fi+1;ci++)for(let cj=fj-1;cj<=fj+1;cj++){const cell=fgrid.get(ci*1000+cj);if(!cell)continue;
+      for(let k=0;k<cell.length;k++){const f=cell[k];if(f.gone)continue;
+        if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){f.gone=true;cell.splice(k,1);const at=foods.indexOf(f);if(at>=0)foods.splice(at,1);e.state='eat';
+          e.eatT=EAT_T*st.eatT*(bf.rush>t?.35:1);e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
+          if(st.snackGuard)e.protect=Math.max(e.protect,t+st.snackGuard);break scan}}}}
 }
+const FGC=160;let fgrid=new Map();
+function fgBuild(){fgrid=new Map();for(const f of foods){const k=Math.floor(f.x/FGC)*1000+Math.floor(f.y/FGC);let a=fgrid.get(k);if(!a){a=[];fgrid.set(k,a)}a.push(f)}}
 
 /* ---------- duels ---------- */
 let botDuels=[],duel=null,deadT=0;
@@ -1004,6 +1062,8 @@ function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=
 // both sides of a duel: nobody types less than half of what the other side types
 function duelWords(a,b,aC,bC,ka,kb){const ps=sentenceWords(a,b,aC,ka),os=sentenceWords(b,a,bC,kb),floor=Math.ceil(Math.max(ps.n,os.n)/2);
   ps.n=Math.max(ps.n,floor);os.n=Math.max(os.n,floor);return[ps,os]}
+// what a duel between a and b would look like right now: positive = b types more words than a, so a has the edge
+function advOf(a,b,t){const [ps,os]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.id]||0)>t,false,false);return os.n-ps.n}
 // the higher your level, the longer your phrase: newcomers type 3 words, +1 per 12 levels, up to 20
 function sentenceWords(me,op,caught,kb){const base=clamp(3+Math.floor(L(me)/12),3,20),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
     under=L(op)>L(me)?me.st.underdog:0,curse=op.st.curse,key=kb==='gkeys'?Math.floor(base/2):kb?2:0;
@@ -1073,16 +1133,18 @@ function updateDuel(dt,t){
   if(duel.oProg>=duel.oLen)endTypingDuel(false);}
 
 /* ---------- update ---------- */
-let boardT=0,kingT=0,king=null,respawnLvl=1,overUI=false;
+let fgT=0,stockT=0,stockOut=0,stockIn=0,boxOut=0,boxIn=0,boardT=0,kingT=0,king=null,respawnLvl=1,overUI=false;
 function update(dt,t){
-  if(boxes.filter(b=>!b.inside).length<BOX_OUT&&Math.random()<dt*.5)spawnBox(false);
-  if(boxes.filter(b=>b.inside).length<BOX_IN&&Math.random()<dt*.5)spawnBox(true);
+  stockT-=dt;if(stockT<=0){stockT=.25;stockOut=foods.reduce((n,f)=>n+(f.inside?0:1),0);stockIn=foods.length-stockOut;boxOut=boxes.reduce((n,b)=>n+(b.inside?0:1),0);boxIn=boxes.length-boxOut}
+  if(boxOut<BOX_OUT&&Math.random()<dt*.5){spawnBox(false);boxOut++}
+  if(boxIn<BOX_IN&&Math.random()<dt*.5){spawnBox(true);boxIn++}
   for(const o of orbs){o.x+=o.vx*dt;o.y+=o.vy*dt;o.vx*=.92;o.vy*=.92;o.life-=dt}orbs=orbs.filter(o=>o.life>0);
   kingT-=dt;if(kingT<=0){kingT=.25;let best=null;for(const e of ents)if(e.state!=='eaten'&&(!best||e.lvl>best.lvl))best=e;
     const nk=best&&L(best)>=8?best:null;
     if(nk!==king){if(player&&nk===player){showToast('You are the KING! Everyone hunts you');sfx.king()}else if(player&&king===player&&game==='play')showToast('You lost the crown');king=nk}}
-  if(foods.filter(f=>!f.inside).length<FOOD_OUT&&Math.random()<dt*8)spawnFood(false);
-  if(foods.filter(f=>f.inside).length<FOOD_IN&&Math.random()<dt*2)spawnFood(true);
+  if(stockOut<FOOD_OUT&&Math.random()<dt*8){spawnFood(false);stockOut++}
+  if(stockIn<FOOD_IN&&Math.random()<dt*2){spawnFood(true);stockIn++}
+  fgT-=dt;if(fgT<=0){fgT=.1;fgBuild()}
   if(player&&(player.state==='move'||player.state==='eat')&&game==='play'){
     const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);
     player.want=d>6&&!overUI?{ux:dx/d,uy:dy/d,f:clamp((d-6)/110,0,1),sprint:shift,dash:dashPressed}:{ux:0,uy:0,f:0,sprint:false,dash:dashPressed}}
@@ -1105,7 +1167,10 @@ function update(dt,t){
   if(deadT>0){deadT-=dt;if(deadT<=0)showDeath()}
   if(role==='server'){parts.length=0;floaters.length=0;skids.length=0;return}
   updateVisuals(dt,t)}
+let advT=0;
 function updateVisuals(dt,t){
+  if(role==='solo'&&player&&game==='play'){advT-=dt;if(advT<=0){advT=.2;
+    for(const e of ents){if(e===player||(e.state!=='move'&&e.state!=='eat')||Math.abs(e.x-player.x)>700||Math.abs(e.y-player.y)>700){e.adv=undefined;continue}e.adv=advOf(player,e,t)}}}
   for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.9;p.vy*=.9;p.life-=dt}parts=parts.filter(p=>p.life>0);
   for(const f of floaters){f.y-=38*dt;f.life-=dt}floaters=floaters.filter(f=>f.life>0);
   for(const k of skids)k.life-=dt;skids=skids.filter(k=>k.life>0);
@@ -1151,7 +1216,7 @@ const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
 const mctx=$('mini').getContext('2d');
-function drawMini(){const c=300,k=c/WORLD;mctx.fillStyle='#8bcf66';mctx.fillRect(0,0,c,c);
+function drawMini(){const c=300,k=c/WORLD;if(miniSeed!==WORLD_SEED)makeMiniBg();mctx.drawImage(miniBg,0,0);
   for(const h of houses){mctx.fillStyle=h.roof;mctx.fillRect(h.x*k,h.y*k,Math.max(6,h.w*k),Math.max(6,h.h*k))}
   mctx.fillStyle='#9b5de5';for(const b of boxes)if(!b.inside)mctx.fillRect(b.x*k-2,b.y*k-2,4,4);
   const v0=toWorld(0,0),v1=toWorld(W,H);mctx.strokeStyle='rgba(43,33,64,.55)';mctx.lineWidth=2;mctx.strokeRect(v0.x*k,v0.y*k,(v1.x-v0.x)*k,(v1.y-v0.y)*k);
@@ -1237,7 +1302,7 @@ function srvDuels(dt,t){
     sd.pt-=dt;if(sd.pt<=0){sd.pt=.1;for(const s of ['a','b'])if(sd[s].human){const o=s==='a'?'b':'a';send(sd[s].h,{t:'dprog',o:Math.min(1,sd['p'+o]/sd['t'+o].length)})}}}
   for(let i=sds.length-1;i>=0;i--)if(sds[i].done)sds.splice(i,1)}
 /* snapshots */
-function srvRec(e,t,full){
+function srvRec(e,t,full,me){
   const r={i:e.id,x:+e.x.toFixed(1),y:+e.y.toFixed(1),vx:Math.round(e.vx),vy:Math.round(e.vy),d:DIR_I[e.dir],s:STATE_I[e.state]||0,l:+e.lvl.toFixed(2)};
   if(e.dashT>0)r.da=1;if(e.slideT>0)r.sl=1;if(e.sprinting)r.sp=1;if(e.chomp>0)r.ch=1;if(e.human)r.h=1;
   if(e.state==='eat'){r.ef=e.eatFood;r.ep=+(1-e.stateT/e.eatT).toFixed(2)}
@@ -1245,11 +1310,12 @@ function srvRec(e,t,full){
   const pr=e.protect-t;if(pr>0)r.pr=+pr.toFixed(1);
   for(const k in e.buff){const v=e.buff[k]-t;if(v>0)(r.b=r.b||{})[k]=+v.toFixed(1)}
   if(isFleeing(e,t))r.fl=1;
+  if(me&&e!==me&&(e.state==='move'||e.state==='eat')&&Math.abs(e.x-me.x)<700&&Math.abs(e.y-me.y)<700)r.dl=advOf(me,e,t);
   if(full)r.f={name:e.name,skin:e.skin,shirt:e.shirt,hair:e.hair,pants:e.pants,hs:e.hs,acc:e.acc,acol:e.acol,sty:e.sty,shorts:e.shorts};
   return r}
 function srvSnapshot(h,t){
   const me=h.e,R=1250,R2=1150,known=new Set(),m={t:'s',e:[],f:[],b:[],o:[]};
-  for(const e of ents){if(Math.abs(e.x-me.x)>R||Math.abs(e.y-me.y)>R)continue;known.add(e.id);m.e.push(srvRec(e,t,!h.known.has(e.id)))}
+  for(const e of ents){if(Math.abs(e.x-me.x)>R||Math.abs(e.y-me.y)>R)continue;known.add(e.id);m.e.push(srvRec(e,t,!h.known.has(e.id),me))}
   h.known=known;
   for(const f of foods)if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2)m.f.push([f.x|0,f.y|0,FOODS.indexOf(f.t)]);
   for(const b of boxes)if(Math.abs(b.x-me.x)<R2&&Math.abs(b.y-me.y)<R2)m.b.push([b.x|0,b.y|0]);
@@ -1272,7 +1338,7 @@ function srvStep(dt){
   if(tickN%SNAP_EVERY===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={join:srvJoin,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,buildWorld,WORLD,doorZones})};
+if(role==='server')globalThis.__sim={join:srvJoin,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
@@ -1328,7 +1394,7 @@ function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.
   calcStats(e);return e}
 function recToEnt(e,r,t){
   e.snapAt=t;e.tx=r.x;e.ty=r.y;e.vx=r.vx;e.vy=r.vy;e.dir=DIRS[r.d]||'down';e.state=STATES[r.s]||'move';e.lvl=r.l;
-  e.dashing=!!r.da;e.dashT=e.dashing?.1:0;e.slideT=r.sl?.4:0;e.sprinting=!!r.sp;e.chomp=r.ch?.3:0;e.human=!!r.h;
+  e.dashing=!!r.da;e.dashT=e.dashing?.1:0;e.slideT=r.sl?.4:0;e.sprinting=!!r.sp;e.chomp=r.ch?.3:0;e.human=!!r.h;e.adv=r.dl;
   e.protect=t+(r.pr||0);for(const k in e.buff)e.buff[k]=t+((r.b&&r.b[k])||0);e.fled=r.fl?{x:t+1}:{};
   if(e.state==='eat'){e.eatFood=r.ef;e.ep=r.ep||0;e.stateT=e.eatT*(1-e.ep)}
   if(e.state==='eaten'){e.stateT=r.et||0;e.eater=cl.get(r.er)||null}}
@@ -1362,6 +1428,7 @@ function fxStep(e,dt,t){
   const age=Math.min(.12,t-e.snapAt),px=e.tx+e.vx*age,py=e.ty+e.vy*age;
   if(Math.hypot(px-e.x,py-e.y)>350){e.x=px;e.y=py}else{const k=Math.min(1,dt*18);e.x+=(px-e.x)*k;e.y+=(py-e.y)*k}
   e.sqv+=(-90*e.sq-11*e.sqv)*dt;e.sq=clamp(e.sq+e.sqv*dt,-.42,.42);
+  {const wt=waterAt(e.x,e.y),swim=!!wt&&wt.kind!=='ice';if(swim!==!!e.swim){e.swim=swim;if(swim)splashFx(e)}}
   if(e.state!==e._st){
     if(e.state==='eat'){e.bites=0;e.chewT=0;e.sqv-=3;e._lvl0=e.lvl;sfx.boop(vol(e))}
     else if(e._st==='eat'&&e.state==='move'){e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
@@ -1427,18 +1494,65 @@ function respawnNet(){
 
 /* ---------- render ---------- */
 function hash(i,j){let h=(i*374761393+j*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295}
-function drawGround(x0,y0,x1,y1){
-  const T=160;
-  for(let i=Math.floor(x0/T);i<=Math.floor(x1/T);i++)for(let j=Math.floor(y0/T);j<=Math.floor(y1/T);j++){
+const CH=512, GT=64, chunks=new Map();
+function paintTiles(i0,i1,j0,j1){
+  const T=GT,w=_bw;
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){
     if(i<0||j<0||i*T>=WORLD||j*T>=WORLD)continue;
-    ctx.fillStyle=(i+j)%2?'#8bcf66':'#93d46f';ctx.fillRect(i*T,j*T,T,T);
-    const h=hash(i,j),h2=hash(j+7,i+3);
-    if(h<.45){const x=i*T+h2*140+10,y=j*T+h*300%140+10;ctx.fillStyle='#74b85a';
-      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+3,y-9);ctx.lineTo(x+6,y);ctx.moveTo(x+6,y);ctx.lineTo(x+9,y-7);ctx.lineTo(x+12,y);ctx.fill()}
-    if(h2<.3){const x=i*T+h*130+15,y=j*T+h2*400%130+15,c=h<.5?'#fff':'#ffd23f';
-      ctx.fillStyle=c;for(let k=0;k<5;k++){const a=k*1.2566;ctx.beginPath();ctx.arc(x+Math.cos(a)*3.5,y+Math.sin(a)*3.5,2.6,0,6.3);ctx.fill()}
-      ctx.fillStyle=h<.5?'#ffd23f':'#ff6b3d';ctx.beginPath();ctx.arc(x,y,2.2,0,6.3);ctx.fill()}}
+    biomeW(i*T+T/2,j*T+T/2,w);   // blend the colours of all biomes that reach this tile
+    const v=(i+j)%2?'b':'a';let r=0,g=0,b=0,dom=0;
+    for(let k=0;k<6;k++){const c=BIOME[k][v];r+=c[0]*w[k];g+=c[1]*w[k];b+=c[2]*w[k];if(w[k]>w[dom])dom=k}
+    ctx.fillStyle='rgb('+(r|0)+','+(g|0)+','+(b|0)+')';ctx.fillRect(i*T,j*T,T+1,T+1);
+    const h=hash(i,j),h2=hash(j+7,i+3),x=i*T+h2*(T-14)+7,y=j*T+h*(T-14)+7;
+    switch(dom){
+      case B_MEADOW:
+        if(h<.28){ctx.fillStyle='#74b85a';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+3,y-9);ctx.lineTo(x+6,y);ctx.moveTo(x+6,y);ctx.lineTo(x+9,y-7);ctx.lineTo(x+12,y);ctx.fill()}
+        if(h2<.09){const c=h<.5?'#fff':'#ffd23f';ctx.fillStyle=c;for(let k=0;k<5;k++){const a=k*1.2566;ctx.beginPath();ctx.arc(x+Math.cos(a)*3.5,y+Math.sin(a)*3.5,2.6,0,6.3);ctx.fill()}ctx.fillStyle=h<.5?'#ffd23f':'#ff6b3d';ctx.beginPath();ctx.arc(x,y,2.2,0,6.3);ctx.fill()}break;
+      case B_FOREST:
+        if(h<.4){ctx.fillStyle='#3f7d3b';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+3,y-10);ctx.lineTo(x+6,y);ctx.moveTo(x+6,y);ctx.lineTo(x+10,y-8);ctx.lineTo(x+13,y);ctx.fill()}
+        if(h2<.05){ctx.fillStyle='rgba(43,33,64,.12)';ctx.beginPath();ctx.ellipse(x,y,14,7,0,0,6.3);ctx.fill()}break;
+      case B_DESERT:
+        if(h<.22){ctx.fillStyle='#c9a65a';for(let k=0;k<3;k++){ctx.beginPath();ctx.ellipse(x+k*6,y+(k%2)*3,3.2,2.2,0,0,6.3);ctx.fill()}}
+        if(h2<.05){ctx.strokeStyle='#c9a65a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+10,y+3);ctx.lineTo(x+16,y);ctx.stroke()}
+        if(h>.9){ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.ellipse(x,y,22,6,0,0,6.3);ctx.fill()}break;   // dune shine
+      case B_SNOW:
+        if(h<.22){ctx.fillStyle='#fff';ctx.strokeStyle='#bcd3ee';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,2.6,0,6.3);ctx.fill();ctx.stroke()}
+        if(h2<.07){ctx.fillStyle='rgba(150,190,230,.28)';ctx.beginPath();ctx.ellipse(x,y,20,8,0,0,6.3);ctx.fill()}break;
+      case B_AUTUMN:
+        if(h<.32){ctx.fillStyle=['#e8782a','#c0392b','#f2a93b','#a35a1b'][(h2*4)|0];ctx.beginPath();ctx.ellipse(x,y,5,2.6,h*6,0,6.3);ctx.fill();ctx.fillStyle='rgba(43,33,64,.25)';ctx.fillRect(x-1,y-.5,2,1)}
+        if(h2<.06){ctx.fillStyle='#b57d34';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+3,y-8);ctx.lineTo(x+6,y);ctx.fill()}break;
+      case B_SWAMP:
+        if(h<.14){ctx.fillStyle='rgba(43,70,50,.35)';ctx.beginPath();ctx.ellipse(x,y,15,6,0,0,6.3);ctx.fill();ctx.strokeStyle='rgba(180,230,200,.45)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x+4,y-1,2,0,6.3);ctx.stroke()}
+        if(h2<.2){ctx.fillStyle='#4c7a5c';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+3,y-9);ctx.lineTo(x+6,y);ctx.fill()}break}}}
+// the ground never changes, so it is painted once in 512px chunks and then only copied to the screen
+let chunkEpoch=-1;
+function groundChunk(ci,cj){if(chunkEpoch!==worldEpoch){chunks.clear();chunkEpoch=worldEpoch}const key=ci*1000+cj;let c=chunks.get(key);
+  if(c){chunks.delete(key);chunks.set(key,c);return c}   // keep the most recently used at the end
+  c=document.createElement('canvas');c.width=c.height=CH;const g=c.getContext('2d'),main=ctx;ctx=g;g.translate(-ci*CH,-cj*CH);
+  try{paintTiles(ci*CH/GT,(ci+1)*CH/GT-1,cj*CH/GT,(cj+1)*CH/GT-1)}finally{ctx=main}
+  chunks.set(key,c);if(chunks.size>60)chunks.delete(chunks.keys().next().value);return c}
+function drawGround(x0,y0,x1,y1){
+  for(let ci=Math.max(0,Math.floor(x0/CH));ci<=Math.min(WORLD/CH|0,Math.floor(x1/CH));ci++)for(let cj=Math.max(0,Math.floor(y0/CH));cj<=Math.min(WORLD/CH|0,Math.floor(y1/CH));cj++){
+    if(ci*CH>=WORLD||cj*CH>=WORLD)continue;ctx.drawImage(groundChunk(ci,cj),ci*CH,cj*CH,CH+1,CH+1)}
   ctx.strokeStyle=INK;ctx.lineWidth=6;ctx.strokeRect(0,0,WORLD,WORLD);}
+// the minimap background is the same biome blend, painted once per world
+let miniBg=null,miniSeed=-1;
+function makeMiniBg(){miniBg=document.createElement('canvas');miniBg.width=miniBg.height=300;const g=miniBg.getContext('2d'),N=60,c=300/N,w=new Float32Array(6);
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){biomeW((i+.5)*WORLD/N,(j+.5)*WORLD/N,w);let r=0,gg=0,b=0;for(let k=0;k<6;k++){const col=BIOME[k].a;r+=col[0]*w[k];gg+=col[1]*w[k];b+=col[2]*w[k]}
+    g.fillStyle='rgb('+(r|0)+','+(gg|0)+','+(b|0)+')';g.fillRect(i*c,j*c,c+1,c+1)}
+  for(const p of ponds){g.fillStyle=p.kind==='ice'?'#bfe6fa':p.kind==='swamp'?'#4f7f58':p.kind==='oasis'?'#3fd0c9':'#5ec2f0';g.beginPath();g.ellipse(p.x*300/WORLD,p.y*300/WORLD,Math.max(2,p.rx*300/WORLD),Math.max(2,p.ry*300/WORLD),0,0,6.3);g.fill()}
+  miniSeed=WORLD_SEED}
+function drawPond(p,t){const K={water:['#5ec2f0','#2b8fc4'],oasis:['#3fd9cf','#1c9a94'],swamp:['#6f9d62','#3e6b3a'],ice:['#d9f2ff','#8ec5e6']}[p.kind];
+  ctx.fillStyle='rgba(43,33,64,.18)';ctx.beginPath();ctx.ellipse(p.x+3,p.y+6,p.rx+6,p.ry+6,0,0,6.3);ctx.fill();
+  ctx.fillStyle=p.kind==='swamp'?'#7d6b4a':p.kind==='ice'?'#f4faff':'#e8d7a8';ctx.beginPath();ctx.ellipse(p.x,p.y,p.rx+12,p.ry+12,0,0,6.3);ctx.fill();   // shore
+  ctx.fillStyle=K[0];ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(p.x,p.y,p.rx,p.ry,0,0,6.3);ctx.fill();ctx.stroke();
+  ctx.save();ctx.beginPath();ctx.ellipse(p.x,p.y,p.rx-2,p.ry-2,0,0,6.3);ctx.clip();
+  ctx.strokeStyle=K[1];ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(p.x,p.y,p.rx-4,p.ry-4,0,0,6.3);ctx.stroke();   // deeper rim
+  if(p.kind==='ice'){ctx.strokeStyle='rgba(120,170,210,.7)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x-p.rx*.6,p.y-p.ry*.2);ctx.lineTo(p.x-p.rx*.1,p.y+p.ry*.1);ctx.lineTo(p.x+p.rx*.3,p.y-p.ry*.3);ctx.moveTo(p.x-p.rx*.1,p.y+p.ry*.1);ctx.lineTo(p.x+p.rx*.1,p.y+p.ry*.6);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.ellipse(p.x-p.rx*.35,p.y-p.ry*.4,p.rx*.2,p.ry*.08,-.3,0,6.3);ctx.fill()}
+  else{ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.5;for(let i=0;i<5;i++){const ph=(t*.45+i*.2+p.x*.001)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.ellipse(p.x+p.rx*(-.55+i*.28),p.y+p.ry*(((i*7)%5)/5-.4),8+ph*(p.rx*.16),3+ph*(p.ry*.08),0,0,6.3);ctx.stroke()}ctx.globalAlpha=1;
+    if(p.kind==='swamp'){ctx.strokeStyle='rgba(200,240,200,.6)';for(let i=0;i<4;i++){const ph=(t*.7+i*.25)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.arc(p.x+p.rx*(-.5+i*.33),p.y+p.ry*(.3-(i%2)*.5)-ph*10,2+ph*3,0,6.3);ctx.stroke()}ctx.globalAlpha=1}}
+  ctx.restore()}
 function drawHouseFloor(h){const {x,y,w}=h,hh=h.h;ctx.save();ctx.beginPath();ctx.rect(x,y,w,hh);ctx.clip();
   const lines=(col,step)=>{ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
     for(let yy=y+step;yy<y+hh;yy+=step){ctx.moveTo(x,yy);ctx.lineTo(x+w,yy);const off=((yy-y)/step%2)*step*2.7;for(let xx=x+step*1.8+off;xx<x+w;xx+=step*5.4){ctx.moveTo(xx,yy-step);ctx.lineTo(xx,yy)}}
@@ -1502,23 +1616,41 @@ function drawProp(w,t){const x=w.x,y=w.y,ww=w.w,hh=w.h;ctx.lineJoin='round';
     case 'pond':{ctx.fillStyle='#5ec2f0';ctx.strokeStyle='#2b8fc4';ctx.lineWidth=6;rr(x,y,ww,hh,hh/2.2);ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(x-3,y-3,ww+6,hh+6,hh/2.2);ctx.stroke();
       ctx.save();ctx.beginPath();ctx.roundRect(x,y,ww,hh,hh/2.2);ctx.clip();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.5;for(let i=0;i<4;i++){const ph=(t*.5+i*.25)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.ellipse(x+ww*(.2+i*.2),y+hh*(.3+(i%2)*.4),10+ph*30,4+ph*10,0,0,6.3);ctx.stroke()}ctx.restore();break}
     case 'trunk':prop(w,'#8b5a2b',4);break;
-    case 'rock':prop(w,'#a9a3b8',10);ctx.fillStyle='#cfc9dc';rr(x+5,y+4,11,5,3);break}}
+    case 'rock':prop(w,w.c||'#a9a3b8',10);ctx.fillStyle='rgba(255,255,255,.4)';rr(x+5,y+4,11,5,3);break}}
 function drawWalls(inView,t){for(const w of walls){if(!inView(w.x+w.w/2,w.y+w.h/2,w.w+w.h))continue;
   if(w.kind){drawProp(w,t);continue}
   ctx.fillStyle='#f3e6cf';ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.fillRect(w.x,w.y,w.w,w.h);ctx.strokeRect(w.x,w.y,w.w,w.h)}}
-function drawBush(b){ctx.fillStyle='#5aa646';ctx.strokeStyle=INK;ctx.lineWidth=2.5;
+const BUSHC=['#5aa646','#3f7d3b','#c9a85a','#eef5fb','#c9772e','#4c7a5c'];
+function drawBush(b){ctx.fillStyle=BUSHC[b.b||0];ctx.strokeStyle=INK;ctx.lineWidth=2.5;
   for(const [dx,dy,r] of [[-9,2,9],[9,2,9],[0,-5,11]]){ctx.beginPath();ctx.arc(b.x+dx*b.s,b.y+dy*b.s,r*b.s,0,6.3);ctx.fill();ctx.stroke()}
-  ctx.fillStyle='#7ccf62';ctx.beginPath();ctx.arc(b.x-3*b.s,b.y-8*b.s,4*b.s,0,6.3);ctx.fill()}
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc(b.x-3*b.s,b.y-8*b.s,4*b.s,0,6.3);ctx.fill()}
 function drawTree(tr,t){const s=tr.s,sw=Math.sin(t*1.3+tr.x)*1.6,k=tr.kind;ctx.save();ctx.globalAlpha=tr.alpha;ctx.lineJoin='round';
   ctx.fillStyle='rgba(43,33,64,.22)';ctx.beginPath();ctx.ellipse(tr.x,tr.y+8,30*s,9*s,0,0,6.3);ctx.fill();
   ctx.strokeStyle=INK;ctx.lineWidth=4;
   const blob=(c1,c2,r)=>{ctx.fillStyle=c1;ctx.beginPath();ctx.arc(tr.x+sw,tr.y-34*s,r*s,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle=c2;ctx.beginPath();ctx.arc(tr.x-9*s+sw,tr.y-44*s,r*.53*s,0,6.3);ctx.fill()};
-  if(k==='pine'){[['#2f8f5b',0,44],['#38a169',-22,36],['#48b57b',-42,27]].forEach(([c,dy,w])=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(tr.x+sw*(-dy/60),tr.y+dy*s-40*s);
-    ctx.lineTo(tr.x+w*s,tr.y+dy*s+8*s);ctx.lineTo(tr.x-w*s,tr.y+dy*s+8*s);ctx.closePath();ctx.fill();ctx.stroke()})}
+  const layers=(cols,cap)=>{[[cols[0],0,44],[cols[1],-22,36],[cols[2],-42,27]].forEach(([c,dy,w])=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(tr.x+sw*(-dy/60),tr.y+dy*s-40*s);
+    ctx.lineTo(tr.x+w*s,tr.y+dy*s+8*s);ctx.lineTo(tr.x-w*s,tr.y+dy*s+8*s);ctx.closePath();ctx.fill();ctx.stroke();
+    if(cap){ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(tr.x+sw*(-dy/60),tr.y+dy*s-40*s);ctx.lineTo(tr.x+w*.55*s,tr.y+dy*s-40*s+w*.62*s);ctx.quadraticCurveTo(tr.x,tr.y+dy*s-40*s+w*.4*s,tr.x-w*.55*s,tr.y+dy*s-40*s+w*.62*s);ctx.closePath();ctx.fill()}})};
+  if(k==='pine')layers(['#2f8f5b','#38a169','#48b57b'],false);
+  else if(k==='snowpine')layers(['#2f7f66','#38966f','#48a984'],true);
   else if(k==='birch'){ctx.fillStyle='#f3efe6';ctx.fillRect(tr.x-6*s,tr.y-16*s,12*s,24*s);ctx.strokeRect(tr.x-6*s,tr.y-16*s,12*s,24*s);ctx.fillStyle=INK;ctx.fillRect(tr.x-6*s,tr.y-6*s,7*s,3*s);ctx.fillRect(tr.x,tr.y+1*s,6*s,3*s);
     blob('#9bd65c','#b8e57e',33)}
   else if(k==='cherry'){blob('#ff9ec7','#ffc4dd',37);ctx.fillStyle='#fff';for(let i=0;i<5;i++){const ph=(t*.6+i*.37+tr.x*.01)%1;ctx.globalAlpha=tr.alpha*(1-ph);ctx.beginPath();ctx.arc(tr.x+(i-2)*14*s+Math.sin(ph*6+i)*6,tr.y-20*s+ph*40*s,2.5,0,6.3);ctx.fill()}ctx.globalAlpha=tr.alpha}
-  else if(k==='autumn'){blob('#e8782a','#f2a93b',38);ctx.fillStyle='#c0392b';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52],[-4,-16]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}}
+  else if(k==='autumn'){blob('#e8782a','#f2a93b',38);ctx.fillStyle='#c0392b';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52],[-4,-16]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}
+    ctx.fillStyle='#e8782a';for(let i=0;i<3;i++){const ph=(t*.5+i*.33+tr.x*.013)%1;ctx.globalAlpha=tr.alpha*(1-ph);ctx.beginPath();ctx.ellipse(tr.x+(i-1)*20*s+Math.sin(ph*5+i)*8,tr.y-16*s+ph*38*s,4,2.2,ph*6,0,6.3);ctx.fill()}ctx.globalAlpha=tr.alpha}
+  else if(k==='willow'){blob('#5f9c78','#7cb893',36);ctx.strokeStyle='#3e7a58';ctx.lineWidth=3;for(let i=-3;i<=3;i++){const bx=tr.x+i*10*s+sw,sway=Math.sin(t*1.6+i+tr.x)*3;ctx.beginPath();ctx.moveTo(bx,tr.y-30*s);ctx.quadraticCurveTo(bx+sway,tr.y-14*s,bx+sway*1.5,tr.y-2*s+Math.abs(i)*2);ctx.stroke()}}
+  else if(k==='palm'){ctx.strokeStyle=INK;ctx.lineWidth=9*s;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(tr.x,tr.y+4);ctx.quadraticCurveTo(tr.x+12*s,tr.y-30*s,tr.x+4*s+sw,tr.y-58*s);ctx.stroke();
+    ctx.strokeStyle='#a9773f';ctx.lineWidth=5.5*s;ctx.beginPath();ctx.moveTo(tr.x,tr.y+4);ctx.quadraticCurveTo(tr.x+12*s,tr.y-30*s,tr.x+4*s+sw,tr.y-58*s);ctx.stroke();ctx.lineCap='butt';
+    const tx=tr.x+4*s+sw,ty=tr.y-58*s;ctx.lineWidth=3;ctx.strokeStyle=INK;for(let i=0;i<7;i++){const a=i*.9+Math.sin(t*1.5+i)*.06-1.2;ctx.fillStyle=i%2?'#4caf50':'#66c25a';ctx.beginPath();ctx.moveTo(tx,ty);
+      ctx.quadraticCurveTo(tx+Math.cos(a)*24*s,ty+Math.sin(a)*24*s-10*s,tx+Math.cos(a)*44*s,ty+Math.sin(a)*38*s+6*s);ctx.quadraticCurveTo(tx+Math.cos(a)*24*s,ty+Math.sin(a)*24*s+4*s,tx,ty);ctx.fill();ctx.stroke()}
+    ctx.fillStyle='#7a4a2a';ctx.beginPath();ctx.arc(tx-3,ty+4,4,0,6.3);ctx.arc(tx+4,ty+5,4,0,6.3);ctx.fill()}
+  else if(k==='cactus'){ctx.fillStyle='#4f9f4a';const cw=13*s;ctx.beginPath();ctx.roundRect(tr.x-cw/2,tr.y-62*s,cw,68*s,cw/2);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.roundRect(tr.x-cw/2-14*s,tr.y-44*s,10*s,26*s,5*s);ctx.fill();ctx.stroke();ctx.fillRect(tr.x-cw/2-8*s,tr.y-24*s,8*s,6*s);
+    ctx.beginPath();ctx.roundRect(tr.x+cw/2+4*s,tr.y-50*s,10*s,24*s,5*s);ctx.fill();ctx.stroke();ctx.fillRect(tr.x+cw/2,tr.y-30*s,8*s,6*s);
+    ctx.fillStyle='#ff6b8b';ctx.beginPath();ctx.arc(tr.x,tr.y-64*s,4,0,6.3);ctx.fill();ctx.strokeStyle='#2f6b2c';ctx.lineWidth=1.5;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(tr.x,tr.y-52*s+i*14*s);ctx.lineTo(tr.x,tr.y-40*s+i*14*s);ctx.stroke()}}
+  else if(k==='dead'){ctx.strokeStyle=INK;ctx.lineWidth=8*s;ctx.lineCap='round';const br=(x1,y1,x2,y2)=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()};
+    br(tr.x,tr.y+4,tr.x,tr.y-48*s);br(tr.x,tr.y-30*s,tr.x-22*s,tr.y-56*s);br(tr.x,tr.y-38*s,tr.x+20*s,tr.y-62*s);br(tr.x-22*s,tr.y-56*s,tr.x-30*s,tr.y-66*s);
+    ctx.strokeStyle='#7a6248';ctx.lineWidth=4.5*s;br(tr.x,tr.y+4,tr.x,tr.y-48*s);br(tr.x,tr.y-30*s,tr.x-22*s,tr.y-56*s);br(tr.x,tr.y-38*s,tr.x+20*s,tr.y-62*s);br(tr.x-22*s,tr.y-56*s,tr.x-30*s,tr.y-66*s);ctx.lineCap='butt'}
   else{blob('#4caf50','#66c25a',38);ctx.fillStyle='#e8475f';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}}
   ctx.restore()}
 function drawDecor(d,t){const s=d.s||1;ctx.lineJoin='round';ctx.lineWidth=2;ctx.strokeStyle=INK;
@@ -1533,6 +1665,14 @@ function drawDecor(d,t){const s=d.s||1;ctx.lineJoin='round';ctx.lineWidth=2;ctx.
     case 'scarecrow':ctx.strokeStyle='#8b5a2b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(d.x,d.y-26);ctx.lineTo(d.x,d.y+10);ctx.moveTo(d.x-18,d.y-14);ctx.lineTo(d.x+18,d.y-14);ctx.stroke();
       ctx.fillStyle='#f2c98a';ctx.strokeStyle=INK;ctx.lineWidth=2;ctx.beginPath();ctx.arc(d.x,d.y-30,8,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle='#7a4a2a';ctx.fillRect(d.x-11,d.y-40,22,5);ctx.fillRect(d.x-6,d.y-48,12,9);
       ctx.fillStyle='#3d7dd8';ctx.fillRect(d.x-9,d.y-22,18,16);break;
+    case 'leaves':for(let i=0;i<5;i++){ctx.fillStyle=['#e8782a','#c0392b','#f2a93b','#a35a1b','#e8782a'][i];ctx.beginPath();ctx.ellipse(d.x+Math.cos(i*1.3)*9*s,d.y+Math.sin(i*1.3)*4*s,6*s,3*s,i,0,6.3);ctx.fill();ctx.stroke()}break;
+    case 'pumpkin':ctx.fillStyle='#ff8c1a';ctx.beginPath();ctx.ellipse(d.x,d.y,11*s,9*s,0,0,6.3);ctx.fill();ctx.stroke();ctx.strokeStyle='#c96a00';ctx.beginPath();ctx.moveTo(d.x-4*s,d.y-8*s);ctx.quadraticCurveTo(d.x-6*s,d.y,d.x-4*s,d.y+8*s);ctx.moveTo(d.x+4*s,d.y-8*s);ctx.quadraticCurveTo(d.x+6*s,d.y,d.x+4*s,d.y+8*s);ctx.stroke();ctx.fillStyle='#4f9a3f';ctx.fillRect(d.x-1.5,d.y-13*s,3,5*s);break;
+    case 'bones':ctx.fillStyle='#f7f2e4';ctx.beginPath();ctx.roundRect(d.x-14*s,d.y-2*s,28*s,5*s,2.5*s);ctx.fill();ctx.stroke();for(const sg of [-1,1]){ctx.beginPath();ctx.arc(d.x+sg*14*s,d.y-3*s,3.6*s,0,6.3);ctx.arc(d.x+sg*14*s,d.y+5*s,3.6*s,0,6.3);ctx.fill();ctx.stroke()}break;
+    case 'pebbles':ctx.fillStyle='#b8b2a6';for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(d.x+i*8*s,d.y+(i%2)*4*s,5*s,3.4*s,0,0,6.3);ctx.fill();ctx.stroke()}break;
+    case 'snowpile':ctx.fillStyle='#fff';ctx.strokeStyle='#a9c6e6';ctx.beginPath();ctx.ellipse(d.x,d.y,18*s,8*s,0,0,6.3);ctx.fill();ctx.stroke();ctx.beginPath();ctx.ellipse(d.x-8*s,d.y-4*s,10*s,6*s,0,0,6.3);ctx.fill();ctx.stroke();break;
+    case 'snowman':ctx.fillStyle='#fff';ctx.strokeStyle=INK;ctx.beginPath();ctx.arc(d.x,d.y,11*s,0,6.3);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(d.x,d.y-16*s,8*s,0,6.3);ctx.fill();ctx.stroke();
+      ctx.fillStyle=INK;ctx.fillRect(d.x-4*s,d.y-19*s,2.4*s,2.4*s);ctx.fillRect(d.x+2*s,d.y-19*s,2.4*s,2.4*s);ctx.fillStyle='#ff8c1a';ctx.beginPath();ctx.moveTo(d.x,d.y-16*s);ctx.lineTo(d.x+9*s,d.y-14*s);ctx.lineTo(d.x,d.y-13*s);ctx.fill();ctx.fillStyle='#e8475f';ctx.fillRect(d.x-8*s,d.y-9*s,16*s,3*s);break;
+    case 'fern':ctx.strokeStyle='#3f7d3b';ctx.lineWidth=3;for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(d.x,d.y+4);ctx.quadraticCurveTo(d.x+i*7*s,d.y-6*s,d.x+i*11*s,d.y-4*s+Math.abs(i)*3*s);ctx.stroke()}break;
     case 'sign':ctx.fillStyle='#8b5a2b';ctx.fillRect(d.x-3,d.y-6,6,26);ctx.fillStyle='#d9a066';ctx.beginPath();ctx.moveTo(d.x-20,d.y-22);ctx.lineTo(d.x+14,d.y-22);ctx.lineTo(d.x+24,d.y-13);ctx.lineTo(d.x+14,d.y-4);ctx.lineTo(d.x-20,d.y-4);ctx.closePath();ctx.fill();ctx.stroke();break}}
 function drawEmblem(type,cx,cy,t){ctx.save();ctx.translate(cx,cy);ctx.lineJoin='round';ctx.lineWidth=3;ctx.strokeStyle=INK;
   switch(type){
@@ -1620,12 +1760,22 @@ function drawEnt(e,t){
   if(Math.abs(e.vx)>Math.abs(e.vy)){sx*=1+st*.5;sy*=1-st*.15}else{sy*=1+st*.4;sx*=1-st*.2}
   if(e.slideT>0&&e.dashT<=0&&spd>230)sy*=.86;
   const puff=e.state==='eat'?Math.abs(Math.sin(t*20))*.03:0;
-  ctx.fillStyle='rgba(43,33,64,.22)';ctx.beginPath();ctx.ellipse(e.x,e.y+23,17*sc*(1+Math.max(0,-e.sq)*.4),6*sc,0,0,6.3);ctx.fill();
-  const lv=L(e),hid=e.buff.hide>t;drawAura(e,lv,t);
+  if(!e.swim){ctx.fillStyle='rgba(43,33,64,.22)';ctx.beginPath();ctx.ellipse(e.x,e.y+23,17*sc*(1+Math.max(0,-e.sq)*.4),6*sc,0,0,6.3);ctx.fill()}
+  const lv=L(e),hid=e.buff.hide>t;
+  if(e.adv&&!e.isPlayer&&!hid&&(e.state==='move'||e.state==='eat')){   // green = you type fewer words than them, red = more
+    const dd=Math.hypot(e.x-(player?player.x:e.x),e.y-(player?player.y:e.y)),al=clamp((640-dd)/300,0,1),good=e.adv>0,pu=1+Math.sin(t*5)*.06,m=Math.min(3,Math.abs(e.adv));
+    ctx.globalAlpha=al*.9;ctx.fillStyle=good?'rgba(63,208,106,'+(.16+m*.05)+')':'rgba(255,77,106,'+(.16+m*.05)+')';ctx.strokeStyle=good?'#3fd06a':'#ff4d6a';ctx.lineWidth=3+m;
+    ctx.beginPath();ctx.ellipse(e.x,e.y+12,(42+m*3)*pu,(20+m*1.5)*pu,0,0,6.3);ctx.fill();ctx.stroke();ctx.globalAlpha=1}
+  drawAura(e,lv,t);
   for(const g of e.ghosts){ctx.globalAlpha=g.life*1.6;ctx.save();ctx.translate(g.x,g.y+FY);ctx.rotate(g.lean);ctx.scale(1-g.sq*.55,1+g.sq);ctx.drawImage(sprite(e,look,g.dir,0),-W0/2,-69,W0,H0);ctx.restore()}ctx.globalAlpha=1;
   const bob=e.state==='eat'?0:(frame?(e.sprinting?-2.5:-1.5):0);
   if(look.wings)drawWings(e,t);
-  ctx.save();if(hid)ctx.globalAlpha=e.isPlayer?.45:.2;ctx.translate(e.x,e.y+FY+bob);ctx.rotate(e.lean+spin);ctx.scale(sx*sc*(1+puff),sy*sc);ctx.drawImage(spr,-W0/2,-69,W0,H0);ctx.restore();
+  const wob=e.swim?Math.sin(t*5+e.id)*1.6+5:0;   // swimmers sit low in the water
+  if(e.swim){ctx.save();ctx.beginPath();ctx.rect(e.x-90,e.y-140,180,140);ctx.clip()}
+  ctx.save();if(hid)ctx.globalAlpha=e.isPlayer?.45:.2;ctx.translate(e.x,e.y+FY+bob+wob);ctx.rotate(e.lean+spin);ctx.scale(sx*sc*(1+puff),sy*sc);ctx.drawImage(spr,-W0/2,-69,W0,H0);ctx.restore();
+  if(e.swim){ctx.restore();ctx.fillStyle='rgba(94,194,240,.5)';ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;
+    for(let i=0;i<2;i++){const ph=(t*1.4+i*.5)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.ellipse(e.x,e.y+6,20+ph*16,7+ph*6,0,0,6.3);ctx.stroke()}ctx.globalAlpha=1;
+    ctx.beginPath();ctx.ellipse(e.x,e.y+6,21,7,0,0,6.3);ctx.fill()}
   if(e.state==='eat'&&e.eatFood)drawEatFood(e,t);
   if(lv>=450&&!hid){ctx.strokeStyle='rgba(255,224,102,.95)';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(e.x,e.y-60+Math.sin(t*3)*2,16,5,0,0,6.3);ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=1.5;ctx.stroke()}
   if(lv>=600&&!hid){ctx.strokeStyle='#bfe9ff';ctx.lineWidth=2.5;ctx.lineJoin='round';for(let i=0;i<2;i++){if(Math.random()<.45)continue;let a=Math.random()*6.28,x=e.x+Math.cos(a)*30,y=e.y-6+Math.sin(a)*30;ctx.beginPath();ctx.moveTo(x,y);for(let j=0;j<4;j++){a+=rand(-.9,.9);x+=Math.cos(a)*11;y+=Math.sin(a)*11;ctx.lineTo(x,y)}ctx.stroke()}}
@@ -1637,6 +1787,10 @@ function drawEnt(e,t){
 function drawTag(e){const tt=now();const l=L(e),txt='Lv '+l+'  '+e.name;const dx=duel&&(duel.p===e||duel.o===e)?(duel.p===e?-1:1)*(duel.p.x<=duel.o.x?1:-1)*62:0;ctx.font='15px "Lilita One", "Arial Rounded MT Bold", sans-serif';ctx.textAlign='center';
   ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.lineJoin='round';const y=e.y-lookOf(e.lvl).crown*9-58;
   ctx.strokeText(txt,e.x+dx,y);ctx.fillStyle=e.isPlayer?GOLD:'#fff';ctx.fillText(txt,e.x+dx,y);
+  if(e.adv&&!e.isPlayer&&(e.state==='move'||e.state==='eat')){const good=e.adv>0,txt2=(good?'+':'\u2212')+Math.abs(e.adv),tw=ctx.measureText(txt).width;
+    const px=e.x+dx+tw/2+20,al=clamp((640-Math.hypot(e.x-(player?player.x:e.x),e.y-(player?player.y:e.y)))/300,0,1);
+    ctx.save();ctx.globalAlpha=al;ctx.fillStyle=good?'#3fd06a':'#ff4d6a';ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(px-17,y-17,34,22,11);ctx.fill();ctx.stroke();
+    ctx.font='16px "Lilita One", sans-serif';ctx.fillStyle='#fff';ctx.lineWidth=3;ctx.strokeText(txt2,px,y-1);ctx.fillText(txt2,px,y-1);ctx.restore();ctx.font='15px "Lilita One", "Arial Rounded MT Bold", sans-serif'}
   if(e.state==='move'&&Object.values(e.fled).some(v=>v>tt)){ctx.font='15px "Lilita One", sans-serif';ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.strokeText('😰 RUNNING',e.x+dx,y-22);ctx.fillStyle='#ff8fa0';ctx.fillText('😰 RUNNING',e.x+dx,y-22)}
   if(e===king&&e.state!=='duel')drawCrown(e.x+dx,y-24,1.1,tt);
   if(e.state==='duel'&&!e.isPlayer&&!(duel&&duel.o===e)){ctx.font='18px "Lilita One", sans-serif';ctx.strokeText('VS',e.x+dx,y-20);ctx.fillStyle='#ff6b3d';ctx.fillText('VS',e.x+dx,y-20)}
@@ -1648,13 +1802,14 @@ function render(t){
   else if(player&&game==='play'){cam.x+=(player.x-cam.x)*.12;cam.y+=(player.y-cam.y)*.12}
   else if(game==='menu'){cam.x=WORLD/2+Math.cos(t*.05)*500;cam.y=WORLD/2+Math.sin(t*.05)*400}
   const shx=(Math.random()-.5)*shake*2,shy=(Math.random()-.5)*shake*2;
-  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#6fae55';ctx.fillRect(0,0,W,H);
+  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#2b2140';ctx.fillRect(0,0,W,H);   // beyond the border is the dark edge of the world
   ctx.setTransform(DPR*ZZ,0,0,DPR*ZZ,DPR*(W/2-cam.x*ZZ+shx),DPR*(H/2-cam.y*ZZ+shy));ctx.imageSmoothingEnabled=false;
   const v=toWorld(0,0),v2=toWorld(W,H),inView=(x,y,m)=>x>v.x-m&&x<v2.x+m&&y>v.y-m&&y<v2.y+m;
   drawGround(v.x,v.y,v2.x,v2.y);
   for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawHouseFloor(h);
   for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawDoorMats(h,t);
   for(const k of skids){ctx.globalAlpha=clamp(k.life/1.6,0,1)*.35;ctx.fillStyle=INK;ctx.save();ctx.translate(k.x,k.y);ctx.rotate(k.a);ctx.fillRect(-9,-2,18,4);ctx.restore()}ctx.globalAlpha=1;
+  for(const p of ponds)if(inView(p.x,p.y,p.rx+40))drawPond(p,t);
   for(const b of bushes)if(inView(b.x,b.y,30))drawBush(b);
   for(const d of decor)if(inView(d.x,d.y,50))drawDecor(d,t);
   for(const f of foods)if(inView(f.x,f.y,30))drawFood(f.t,f.x,f.y+Math.sin(t*3+f.bob)*2,.9);
