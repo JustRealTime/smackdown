@@ -218,3 +218,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Der erste Spieler, der Play drückt, wird Host: sein Tab startet das Serverspiel in einem Web Worker (derselbe Code wie server/server.js). Weitere Spieler verbinden sich per WebRTC (PeerJS, Bibliothek liegt in tools/peerjs.min.js und wird in index.html eingebettet). Der öffentliche PeerJS-Vermittler hilft nur beim Verbinden.
 - Das Menü fragt den Host per kurzer Verbindung nach den Spielern und zeigt "Name is playing" mit Join. Raumname optional. Fällt der Vermittler aus oder ist man offline, startet Play solo. Der Host bekommt beim Verlassen eine Warnung. Build r26. Der Node-Server bleibt als Option.
+
+## Runde 26: Warm Fingers sichtbar, Perk-Karten nur per Taste, Sound, volle Slots
+
+- Warm Fingers: Vor dem Duell sind die vorgetippten Wörter grün unterstrichen, der Cursor steht am ersten echten Wort und eine Zeile erklärt, wo man anfängt.
+- Perk-Karten nach dem Level-Up reagieren nicht mehr auf die Maus (stören die Steuerung nicht mehr), gewählt wird nur mit 1, 2, 3. Ein bereits voll aufgelevelter Perk wird nie angeboten (auch nicht aus einer alten Auswahl).
+- Sound: maximal 44 gleichzeitige Stimmen, Wiederholungen von Biss/Schluck/Yum/Level-Up werden gedrosselt (schnelles Essen bleibt hörbar), der AudioContext wird bei Bedarf wieder aufgeweckt.
+- Volle Item-Slots: Läuft man über eine Geschenkbox, erscheint "SLOTS FULL!", ein Hinweis und ein Ton. Die Box bleibt liegen. Build r27.
