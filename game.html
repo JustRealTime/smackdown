@@ -106,6 +106,11 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #treeline{margin:0;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.3px;min-height:1.2em}
 #itemslot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:92px;min-height:86px;border:3px dashed var(--muted);border-radius:14px;padding:6px;text-align:center}
 #itemslot.has{border-style:solid;border-color:var(--ink);background:#fff}
+#itemtier{font:800 10px var(--body);letter-spacing:.8px;text-transform:uppercase}
+#itemslot.t1{border-color:#3db5ff}
+#itemslot.t2{border-color:#b06bff;box-shadow:0 0 14px #b06bffaa}
+#itemslot.t3{border-color:#ffc93c;animation:legend 1.4s linear infinite}
+@keyframes legend{0%,100%{box-shadow:0 0 20px #ffc93c}33%{box-shadow:0 0 24px #ff8fc2}66%{box-shadow:0 0 24px #9fdcff}}
 #itemicon{font-size:30px;line-height:1}
 #itemname{font-size:11px;line-height:1.1}
 #itemkey{font-size:10px;color:var(--muted);font-weight:800}
@@ -148,7 +153,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 8px))}75%{transform:translateX(calc(-50% + 8px))}}
 #duel.shake{animation:shake .18s}
 @media (max-width:640px){.pcard{width:140px;padding-bottom:8px}#itemslot{display:none}#kingbar{white-space:normal;text-align:center;width:max-content;max-width:90%}#mini{display:none}#board{display:none}#hint{display:none}.bars{width:140px}}
-@media (prefers-reduced-motion:reduce){#perks.up{animation:none}.pcard{transition:none}#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#dbanner.pop,#dbanner.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
+@media (prefers-reduced-motion:reduce){#itemslot.t3{animation:none}#perks.up{animation:none}.pcard{transition:none}#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#dbanner.pop,#dbanner.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
 </style>
 </head>
 <body>
@@ -170,7 +175,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <p id="next">Next look: shoulder pads at Lv 10</p>
     <p id="treeline"></p>
   </div>
-  <div id="itemslot"><span id="itemicon">–</span><b id="itemname">No item</b><small id="itemkey"><kbd>E</kbd> use</small><small id="buffs"></small></div>
+  <div id="itemslot"><span id="itemicon">–</span><b id="itemname">No item</b><small id="itemtier"></small><small id="itemkey"><kbd>E</kbd> use</small><small id="buffs"></small></div>
 </section>
 
 <div id="statusbar" hidden></div>
@@ -627,7 +632,7 @@ const PERKS=[
   {id:'recycle',tree:'trick',icon:'♻️',name:'Recycler',max:3,d:r=>`${r*20}% chance an item is not used up`},
   {id:'boxbonus',tree:'trick',icon:'🎀',name:'Lucky Boxes',max:3,d:r=>`Gift boxes also give ${r*2} snacks worth of level`},
   {id:'thief',tree:'trick',icon:'🦝',name:'Pickpocket',max:2,d:r=>`${r*50}% to steal the item of someone you beat`},
-  {id:'fortune',tree:'trick',icon:'🍀',name:'Fortune',max:2,d:r=>`Gift boxes roll rarer items (${r} extra roll${r>1?'s':''})`},
+  {id:'fortune',tree:'trick',icon:'🍀',name:'Fortune',max:2,d:r=>`Gift boxes roll rarer items (${r} extra roll${r>1?'s':''}, best one counts)`},
   {id:'fairy',tree:'trick',icon:'🧚',name:'Item Fairy',max:1,cap:true,d:()=>'Every 60s you get a free random item'},
 ];
 const PERK_BY={};PERKS.forEach(p=>PERK_BY[p.id]=p);
@@ -648,27 +653,37 @@ function rollOffer(e){
   while(out.length<3&&trees.length){let r=Math.random()*trees.reduce((s,t)=>s+t.w,0),i=0;for(;i<trees.length-1;i++){r-=trees[i].w;if(r<=0)break}
     const list=byTree[trees.splice(i,1)[0].k],caps=list.filter(p=>p.cap);out.push((caps.length&&Math.random()<.6?pick(caps):pick(list)).id)}
   return out}   // may be fewer than 3 cards (or none) once most perks are maxed
+// every item has a rarity; the strong ones are much harder to find
+const TIERS=[{n:'Common',c:'#c3ccd6',t:'#7d7196'},{n:'Rare',c:'#3db5ff',t:'#1f8fe0'},{n:'Epic',c:'#b06bff',t:'#8a3df0'},{n:'Legendary',c:'#ffc93c',t:'#d99a1a'}];
+const TIER_ODDS=[60,28,9,3], WATER_ODDS=[25,40,25,10];   // percent per gift box; boxes hidden underwater pay out much better
 const ITEMS={
-  magnet:{icon:'🧲',name:'Magnet',dur:7,w:20,d:'Pulls snacks to you'},
-  turbo:{icon:'👟',name:'Turbo Sneakers',dur:7,w:20,d:'Faster and endless stamina'},
-  shield:{icon:'🫧',name:'Bubble Shield',dur:6,w:15,d:'Nobody can duel you'},
-  rush:{icon:'🍬',name:'Sugar Rush',dur:10,w:20,d:'Eat 3x faster, +50% level from snacks'},
-  smoke:{icon:'💨',name:'Smoke Bomb',dur:4,w:12,d:'Bots lose sight of you, dash recharges'},
-  keys:{icon:'🎹',name:'Pro Keyboard',dur:0,w:13,auto:true,d:'Your next duel phrase is 2 words shorter (automatic)'},
-  bomb:{icon:'💣',name:'Snack Bomb',dur:0,w:14,d:'Explodes into a ring of snacks'},
-  freeze:{icon:'🧊',name:'Freeze Ray',dur:2.5,w:10,d:'Freezes everyone close to you'},
-  rocket:{icon:'🚀',name:'Rocket Boots',dur:6,w:10,d:'Unlimited super dashes'},
-  ticket:{icon:'🎟️',name:'Golden Ticket',dur:0,w:8,d:'Instantly worth 5 snacks of level'},
-  radar:{icon:'📡',name:'Radar',dur:12,w:10,d:'See everyone on the minimap'},
-  gkeys:{icon:'🎼',name:'Golden Keyboard',dur:0,w:5,auto:true,d:'Your next duel phrase is half as long (automatic)'},
-  angel:{icon:'🪽',name:'Angel Feather',dur:0,w:5,auto:true,d:'Survive your next lost duel with half your levels (automatic)'},
-  warp:{icon:'⏳',name:'Time Warp',dur:5,w:8,d:'Everybody else moves at half speed'},
-  shock:{icon:'💥',name:'Shockwave',dur:0,w:10,d:'Blasts everyone nearby away from you'}
+  magnet:{icon:'🧲',name:'Magnet',tier:0,dur:7,d:'Pulls snacks to you'},
+  turbo:{icon:'👟',name:'Turbo Sneakers',tier:0,dur:7,d:'Faster and endless stamina'},
+  rush:{icon:'🍬',name:'Sugar Rush',tier:0,dur:10,d:'Eat 3x faster, +50% level from snacks'},
+  smoke:{icon:'💨',name:'Smoke Bomb',tier:0,dur:4,d:'Bots lose sight of you, dash recharges'},
+  bomb:{icon:'💣',name:'Snack Bomb',tier:0,dur:0,d:'Explodes into a ring of snacks'},
+  keys:{icon:'🎹',name:'Pro Keyboard',tier:0,dur:0,auto:true,d:'Your next duel phrase is 2 words shorter (automatic)'},
+  shield:{icon:'🫧',name:'Bubble Shield',tier:1,dur:6,d:'Nobody can duel you'},
+  radar:{icon:'📡',name:'Radar',tier:1,dur:12,d:'See everyone on the minimap'},
+  shock:{icon:'💥',name:'Shockwave',tier:1,dur:0,d:'Blasts everyone nearby away from you'},
+  ticket:{icon:'🎟️',name:'Golden Ticket',tier:1,dur:0,d:'Instantly worth 10 snacks of level'},
+  freeze:{icon:'🧊',name:'Freeze Ray',tier:2,dur:2.5,d:'Freezes everyone close to you'},
+  rocket:{icon:'🚀',name:'Rocket Boots',tier:2,dur:6,d:'Unlimited super dashes'},
+  warp:{icon:'⏳',name:'Time Warp',tier:2,dur:5,d:'Everybody else moves at half speed'},
+  angel:{icon:'🪽',name:'Angel Feather',tier:3,dur:0,auto:true,d:'Survive your next lost duel with half your levels (automatic)'},
+  gkeys:{icon:'🎼',name:'Golden Keyboard',tier:3,dur:0,auto:true,d:'Your next duel phrase is half as long (automatic)'},
+  nova:{icon:'🌟',name:'Supernova',tier:3,dur:2.5,d:'Blasts everyone away, freezes them, and shields you'}
 };
-function rollItem(){let r=Math.random()*Object.values(ITEMS).reduce((s,i)=>s+i.w,0);for(const k in ITEMS){r-=ITEMS[k].w;if(r<=0)return k}return 'magnet'}
+function rollTier(odds){let r=Math.random()*100;for(let i=0;i<4;i++){r-=odds[i];if(r<=0)return i}return 0}
+// luck = extra rolls (perk Fortune): you keep the best tier you rolled
+function rollItem(luck=0,water=false){let tier=0;for(let i=0;i<=luck;i++)tier=Math.max(tier,rollTier(water?WATER_ODDS:TIER_ODDS));
+  return pick(Object.keys(ITEMS).filter(k=>ITEMS[k].tier===tier))}
 
 /* ---------- entities ---------- */
-const NAMES=['Crunchy Carl','Noodle Nina','Taco Tim','Mochi','Big Bao','Pickle Pete','Sushi Sam','Waffle Wendy','Nacho Ned','Pretzel Paula','Donut Dave','Kimchi Kai','Fries Fiona','Burrito Bo','Cheddar Chad','Pho Phil','Gummy Gus','Bagel Bella','Muffin Max','Curry Cleo','Tofu Tom','Ramen Rae','Gyoza Gil','Latte Lou','Chili Chloe','Brownie Bea','Wasabi Will','Pancake Pip','Salsa Sal','Jelly Jo','Hotdog Hank','Boba Bree','Cookie Cam','Ziti Zoe','Falafel Finn','Gelato Gia','Crepe Cody','Lassi Lea','Miso Max','Nougat Nell','Pepper Pat','Quiche Quin','Rice Ray','Scone Sky','Taffy Tia','Udon Uma','Waffle Walt','Yogurt Yas'];
+// bot names are made from two lists, so there are hundreds of them and none is about food
+const NAME_A=['Blaze','Turbo','Ninja','Comet','Rocket','Storm','Echo','Pixel','Velvet','Lucky','Shadow','Thunder','Atlas','Zen','Jazz','Nova','Raven','Sparks','Glitch','Orbit','Cosmo','Frost','Ember','Breeze','Drift','Flash','Hex','Jet','Knox','Laser','Mystic','Neon','Onyx','Phantom','Quartz','Rogue','Sonic','Titan','Ultra','Vortex','Wild','Xeno','Yeti','Zephyr','Arrow','Bolt','Cobalt','Dusk','Falcon','Gale','Hawk','Iron','Jolt','Karma','Lynx','Magma','Nimbus','Omega','Prism','Quest','Radar','Saber','Tango','Umbra','Viper','Whisper','Zigzag','Astro','Bravo','Cipher','Delta','Flint','Glacier','Halo','Indigo','Jungle','Kraken','Lunar','Meteor','Nebula','Oasis','Pilot','Quake','Rift','Solar','Tundra'];
+const NAME_B=['Alex','Bea','Cole','Dana','Eli','Fay','Gus','Hana','Ivo','Jo','Kira','Leo','Mia','Nico','Opal','Pax','Quin','Rae','Sol','Tess','Uma','Vic','Wes','Xia','Yuri','Zed','Ada','Ben','Cleo','Drew','Emi','Finn','Gia','Hugo','Ines','Jax','Kai','Lola','Milo','Nora','Otto','Pia','Remy','Sky','Theo','Una','Vera','Wren','Yara','Zoe','Abe','Bo','Cam','Dex','Eva','Fox','Gil','Hal','Ian','Jade','Kit','Lux','Max','Ned','Orla','Pat','Ravi','Sam','Tia','Ugo','Val'];
+const NAMES=(()=>{const set=new Set();while(set.size<500)set.add(NAME_A[(Math.random()*NAME_A.length)|0]+' '+NAME_B[(Math.random()*NAME_B.length)|0]);return[...set]})();
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
   const e={id:nextId++,perks:{},picksDone:0,item:null,buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0},dashCharges:1,bubbleT:0,eatT:.85,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
@@ -740,6 +755,10 @@ const sfx=(()=>{
     chomp(g=1){if(!ok(g))return;if(g>=1)music.duck(1);noise(.3,{type:'lowpass',f:3200,f2:180,q:.7,v:.7*g});tone(230,.3,{f2:55,v:.7*g});
       if(g>=1)arp([392,523,659,784,1047],.08,{type:'square',v:.1,d:.22,at:.18});else tone(700,.1,{f2:300,v:.15*g,at:.1})},
     lose(){if(!ok(1))return;[[392,.0],[370,.3],[349,.6],[311,.9]].forEach(([f,at],i)=>tone(f,i===3?.7:.28,{f2:f*(i===3?.7:.94),type:'sawtooth',v:.16,at}));noise(.2,{type:'lowpass',f:900,v:.3})},
+    rare(){if(!ok(1))return;arp([659,880,1175],.07,{type:'triangle',v:.26,d:.3});noise(.3,{type:'highpass',f:6000,v:.1,at:.1})},
+    epic(){if(!ok(1))return;music.duck(.8);arp([523,659,784,1047],.07,{type:'triangle',v:.28,d:.35});tone(130,.5,{f2:70,v:.5});arp([1568,2093],.09,{v:.1,d:.4,at:.25});noise(.5,{type:'highpass',f:5000,v:.14,at:.15})},
+    legendary(){if(!ok(1))return;music.duck(2);arp([392,523,659,784,1047,1319,1568],.085,{type:'square',v:.12,d:.45});arp([523,659,784,1047,1319,1568,2093],.085,{type:'triangle',v:.26,d:.6,at:.02});
+      tone(98,1,{f2:49,v:.7});tone(2637,.9,{v:.08,at:.5});noise(.9,{type:'highpass',f:4500,v:.18,at:.3});[1047,1319,1568].forEach(f=>tone(f,1.4,{type:'sine',v:.14,at:.6}))},
     splash(g=1){if(!ok(g))return;noise(.28,{f:2000,f2:500,q:.6,v:.45*g});tone(320,.16,{f2:120,v:.22*g});tone(760,.1,{f2:1300,v:.1*g,at:.05})},
     pickup(){if(!ok(1))return;arp([784,988,1319,1568],.05,{type:'triangle',v:.24,d:.22});noise(.3,{type:'highpass',f:6500,v:.1,at:.1})},
     orb(){if(!ok(1))return;tone(1319,.12,{type:'triangle',v:.25});tone(1760,.22,{v:.2,at:.05})},
@@ -837,7 +856,7 @@ function gainLvl(e,amt){const before=L(e);e.lvl+=amt;if(role==='server'&&e.human
     if(after>before)levelFx(e,before,after);
     if(!offer&&owedPicks(e)>0)showOffer()}}
 
-let toastT=0;function showToast(s){const el=$('toast');el.textContent=s;el.hidden=false;el.style.opacity=1;toastT=2.2;restart(el,'pop')}
+let toastT=0;function showToast(s,col){const el=$('toast');el.textContent=s;el.style.color=col||'#fff';el.hidden=false;el.style.opacity=1;toastT=2.2;restart(el,'pop')}
 
 /* ---------- level-up perks (Hades-style) ---------- */
 let offer=null;
@@ -871,7 +890,7 @@ for(const id of ['perks','hud'])$(id).addEventListener('pointerenter',()=>{overU
 function botThink(b,t){
   const ai=b.ai,lb=L(b);
   if(b.item&&!ITEMS[b.item].auto&&t>ai.itemAt){const m=ai.mode,fight=m==='flee'||m==='chase';   // bots use items too
-    const ok={shield:m==='flee',smoke:m==='flee',turbo:fight,magnet:m==='food',rush:m==='food',bomb:m==='food',freeze:fight,rocket:fight,ticket:true,radar:true,shock:m==='flee'}[b.item];if(ok||t>ai.itemAt+25)useItem(b,t)}
+    const ok={shield:m==='flee',smoke:m==='flee',turbo:fight,magnet:m==='food',rush:m==='food',bomb:m==='food',freeze:fight,rocket:fight,ticket:true,radar:true,shock:m==='flee',nova:m==='flee'}[b.item];if(ok||t>ai.itemAt+25)useItem(b,t)}
   if(ai.hold>0&&ai.target&&ai.target.state!=='eaten'&&ai.target.state!=='duel'&&t>ai.target.protect&&ai.target.buff.hide<=t){ai.hold-=.3}
   else{ai.hold=0;ai.target=null;
     let threat=null,td=1e9,prey=null,ps=0;
@@ -915,13 +934,28 @@ const CRUMBS={burger:['#f2a93b','#7a3e1d','#6ab04c'],apple:['#e8475f','#fff6d5',
 const BOX_OUT=100, BOX_IN=70;
 let boxes=[], orbs=[];
 function spawnBox(inside){const p=spotFor(inside);if(p)boxes.push({x:p.x,y:p.y,bob:Math.random()*6.28,inside})}
+// gift boxes also sink to the bottom of ponds and lakes: you have to swim to find them, and they hold much better loot
+const WATER_BOX=18;
+function spawnWaterBox(){const ok=ponds.filter(p=>p.kind!=='ice');if(!ok.length)return;const p=pick(ok),a=Math.random()*6.28,r=Math.sqrt(Math.random())*.7;
+  boxes.push({x:p.x+Math.cos(a)*p.rx*r,y:p.y+Math.sin(a)*p.ry*r,bob:Math.random()*6.28,inside:false,water:true})}
 for(let i=0;i<BOX_OUT;i++)spawnBox(false);
 for(let i=0;i<BOX_IN;i++)spawnBox(true);
+for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
 function dropOrbs(x,y,total){if(total<3)return;const n=clamp(Math.round(total/12),1,10);
   for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(120,260);orbs.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v:total/n,life:35,bob:Math.random()*6.28})}}
-function giveItem(e,t){let k=rollItem();for(let i=0;i<e.st.fortune;i++){const k2=rollItem();if(ITEMS[k2].w<ITEMS[k].w)k=k2}if(!e.human)while(k==='warp'||k==='freeze')k=rollItem();   // bots keep their hands off the annoying ones
+function giveItem(e,t,water){let k=rollItem(e.st.fortune,water);if(!e.human)while(k==='warp'||k==='freeze')k=rollItem(e.st.fortune,water);   // bots keep their hands off the annoying ones
   e.item=k;e.ai.itemAt=t+rand(2,8);if(e.st.boxbonus)gainXp(e,e.st.boxbonus);
-  if(e.isPlayer){showToast(ITEMS[k].icon+' '+ITEMS[k].name+(k==='keys'?'':' · press E'));sfx.pickup();stars(e.x,e.y-20,6,[GOLD,'#fff','#9b5de5'],170)}}
+  if(e.isPlayer)itemReveal(e,k,water)}
+// opening a box: the better the item, the bigger the show
+function itemReveal(e,k,water){const it=ITEMS[k],T=TIERS[it.tier],n=it.tier;
+  showToast(it.icon+' '+T.n.toUpperCase()+' · '+it.name+(it.auto?'':' · press E'),T.c);
+  stars(e.x,e.y-20,4+n*5,[T.c,'#fff',GOLD],150+n*60);ring(e.x,e.y+16,6,50+n*45,T.c,.45+n*.1);e.sqv+=3+n;
+  if(water)dust(e.x,e.y+10,10,'#bfe9ff',140,4);
+  if(n===0)sfx.pickup();
+  else if(n===1){sfx.rare();ring(e.x,e.y+16,3,36,'#fff',.35)}
+  else if(n===2){sfx.epic();flash();kick=Math.max(kick,.08);shake=Math.max(shake,4);burst(e.x,e.y-16,18,[T.c,'#fff'],260)}
+  else{sfx.legendary();flash();hitstop=.2;shake=Math.max(shake,9);kick=Math.max(kick,.13);floater(e.x,e.y-112,'LEGENDARY!',T.c,true);
+    burst(e.x,e.y-16,36,[T.c,'#fff','#ff8fc2'],340);ring(e.x,e.y+16,4,150,'#fff',.6);ring(e.x,e.y+16,8,110,T.c,.8);stars(e.x,e.y-30,14,[T.c,'#fff'],320)}}
 let timeWarp={until:0,owner:null};
 function useItem(e,t){const k=e.item;if(!k)return;const it=ITEMS[k];
   if(it.auto){if(e.isPlayer)showToast(it.icon+' '+it.name+' works by itself in your next duel');return}
@@ -931,8 +965,12 @@ function useItem(e,t){const k=e.item;if(!k)return;const it=ITEMS[k];
     burst(e.x,e.y,20,['#ff6b3d','#ffc93c','#fff'],260);ring(e.x,e.y+10,10,180,'#ff6b3d',.5)}
   else if(k==='freeze'){for(const o of ents)if(o!==e&&o.state==='move'&&Math.hypot(o.x-e.x,o.y-e.y)<340){o.buff.freeze=t+dur;o.vx=o.vy=0;stars(o.x,o.y-10,4,['#9fdcff','#fff'],120)}
     ring(e.x,e.y+10,10,340,'#9fdcff',.55)}
-  else if(k==='ticket'){gainXp(e,5);stars(e.x,e.y-16,10,[GOLD,'#fff'],220);if(e.isPlayer)floater(e.x,e.y-60,'GOLDEN TICKET!',GOLD,true)}
+  else if(k==='ticket'){gainXp(e,10);stars(e.x,e.y-16,10,[GOLD,'#fff'],220);if(e.isPlayer)floater(e.x,e.y-60,'GOLDEN TICKET!',GOLD,true)}
   else if(k==='warp'){timeWarp={until:t+dur,owner:e};ring(e.x,e.y+10,10,420,'#9b5de5',.7)}
+  else if(k==='nova'){for(const o of ents){if(o===e||o.state==='eaten')continue;const dx=o.x-e.x,dy=o.y-e.y,d=Math.hypot(dx,dy);
+      if(d<520&&d>1){o.vx+=dx/d*1100;o.vy+=dy/d*1100;o.slideT=.6;o.sqv-=5;if(o.state==='move')o.buff.freeze=t+dur}}
+    e.buff.shield=t+4;e.protect=Math.max(e.protect,t+4);ring(e.x,e.y+10,10,520,'#fff',.7);ring(e.x,e.y+10,6,380,GOLD,.6);ring(e.x,e.y+10,4,240,'#b06bff',.5);dust(e.x,e.y+20,24,'#fff6d5',300,8);
+    if(e.isPlayer){shake=Math.max(shake,12);kick=Math.max(kick,.15)}}
   else if(k==='shock'){for(const o of ents){if(o===e||o.state==='eaten')continue;const dx=o.x-e.x,dy=o.y-e.y,d=Math.hypot(dx,dy);
       if(d<400&&d>1){o.vx+=dx/d*950;o.vy+=dy/d*950;o.slideT=.5;o.sqv-=4}}
     ring(e.x,e.y+10,10,400,'#fff',.5);ring(e.x,e.y+10,6,280,GOLD,.45);dust(e.x,e.y+20,16,'#e9dcc0',260,7);if(e.isPlayer){shake=Math.max(shake,8);kick=Math.max(kick,.12)}}
@@ -1009,9 +1047,9 @@ function stepEnt(e,dt,t){
     const magnet=bf.magnet>t,vr=Math.max(st.vac,magnet?420:0),gr=st.nose?380:magnet?280:0;
     const pull=(o,r,sp)=>{const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);if(d<r&&d>1){const k=Math.min(d,sp*dt)/d;o.x+=dx*k;o.y+=dy*k}};
     if(vr>0)for(const f of foods)pull(f,vr,magnet?540:400);
-    if(gr>0){for(const b of boxes)pull(b,gr,420);for(const o of orbs)pull(o,gr,420)}
+    if(gr>0){for(const b of boxes)if(!b.water)pull(b,gr,420);for(const o of orbs)pull(o,gr,420)}
     for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];
-      if((e.human||!e.item)&&Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14){boxes.splice(i,1);giveItem(e,t);break}}
+      if((e.human||!e.item)&&Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14){boxes.splice(i,1);giveItem(e,t,b.water);if(b.water&&e.isPlayer)sfx.splash(1);break}}
     for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];
       if(Math.abs(o.x-e.x)<e.r+16&&Math.abs(o.y-e.y)<e.r+16){orbs.splice(i,1);const lb=e.lvl;gainXp(e,o.v*st.orbx);e.sqv+=2.5;stars(o.x,o.y,3,[GOLD,'#fff'],120);if(e.isPlayer){sfx.orb();floater(e.x,e.y-56,'+'+(e.lvl-lb).toFixed(1)+' LV',GOLD)}}}
     const fi=Math.floor(e.x/FGC),fj=Math.floor(e.y/FGC);   // only look at the snacks in the neighbouring grid cells
@@ -1133,11 +1171,12 @@ function updateDuel(dt,t){
   if(duel.oProg>=duel.oLen)endTypingDuel(false);}
 
 /* ---------- update ---------- */
-let fgT=0,stockT=0,stockOut=0,stockIn=0,boxOut=0,boxIn=0,boardT=0,kingT=0,king=null,respawnLvl=1,overUI=false;
+let fgT=0,stockT=0,stockOut=0,stockIn=0,boxOut=0,boxIn=0,boxWater=0,boardT=0,kingT=0,king=null,respawnLvl=1,overUI=false;
 function update(dt,t){
-  stockT-=dt;if(stockT<=0){stockT=.25;stockOut=foods.reduce((n,f)=>n+(f.inside?0:1),0);stockIn=foods.length-stockOut;boxOut=boxes.reduce((n,b)=>n+(b.inside?0:1),0);boxIn=boxes.length-boxOut}
+  stockT-=dt;if(stockT<=0){stockT=.25;stockOut=foods.reduce((n,f)=>n+(f.inside?0:1),0);stockIn=foods.length-stockOut;boxWater=boxes.reduce((n,b)=>n+(b.water?1:0),0);boxOut=boxes.reduce((n,b)=>n+(b.inside||b.water?0:1),0);boxIn=boxes.length-boxOut-boxWater}
   if(boxOut<BOX_OUT&&Math.random()<dt*.5){spawnBox(false);boxOut++}
   if(boxIn<BOX_IN&&Math.random()<dt*.5){spawnBox(true);boxIn++}
+  if(boxWater<WATER_BOX&&Math.random()<dt*.1){spawnWaterBox();boxWater++}
   for(const o of orbs){o.x+=o.vx*dt;o.y+=o.vy*dt;o.vx*=.92;o.vy*=.92;o.life-=dt}orbs=orbs.filter(o=>o.life>0);
   kingT-=dt;if(kingT<=0){kingT=.25;let best=null;for(const e of ents)if(e.state!=='eaten'&&(!best||e.lvl>best.lvl))best=e;
     const nk=best&&L(best)>=8?best:null;
@@ -1192,7 +1231,7 @@ function updateHud(t){const p=player,l=L(p),st=p.st,dcd=DASH_CD*st.dashCd;
   $('dstxt').textContent=p.dashCharges>0?'DASH READY'+(st.charges>1?' x'+p.dashCharges:''):'DASH '+p.dashCd.toFixed(1)+'s';
   const nx=UNLOCKS.find(([lv])=>lv>l);$('next').textContent=(nx?'Next look: '+nx[1]+' at Lv '+nx[0]:'Every look unlocked.')+' · '+Math.ceil(1/(snackGain(p.lvl)*st.xp))+' snacks per level';
   $('treeline').textContent=treeLine();
-  const it=p.item?ITEMS[p.item]:null,slot=$('itemslot');slot.classList.toggle('has',!!it);
+  const it=p.item?ITEMS[p.item]:null,slot=$('itemslot');slot.className=it?'has t'+it.tier:'';$('itemtier').textContent=it?TIERS[it.tier].n:'';$('itemtier').style.color=it?TIERS[it.tier].t:'';
   $('itemicon').textContent=it?it.icon:'–';$('itemname').textContent=it?it.name:'No item';$('itemname').title=it?it.d:'Pick up gift boxes to get items';
   $('itemkey').hidden=!it||!!it.auto;
   $('buffs').textContent=Object.keys(p.buff).filter(k=>p.buff[k]>t).map(k=>ITEMS[k].icon+Math.ceil(p.buff[k]-t)+'s').join(' ');
@@ -1218,7 +1257,7 @@ musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur(
 const mctx=$('mini').getContext('2d');
 function drawMini(){const c=300,k=c/WORLD;if(miniSeed!==WORLD_SEED)makeMiniBg();mctx.drawImage(miniBg,0,0);
   for(const h of houses){mctx.fillStyle=h.roof;mctx.fillRect(h.x*k,h.y*k,Math.max(6,h.w*k),Math.max(6,h.h*k))}
-  mctx.fillStyle='#9b5de5';for(const b of boxes)if(!b.inside)mctx.fillRect(b.x*k-2,b.y*k-2,4,4);
+  mctx.fillStyle='#9b5de5';for(const b of boxes)if(!b.inside&&!b.water)mctx.fillRect(b.x*k-2,b.y*k-2,4,4);
   const v0=toWorld(0,0),v1=toWorld(W,H);mctx.strokeStyle='rgba(43,33,64,.55)';mctx.lineWidth=2;mctx.strokeRect(v0.x*k,v0.y*k,(v1.x-v0.x)*k,(v1.y-v0.y)*k);
   if(player.buff.radar>now()){mctx.fillStyle='#e8475f';const rl=role==='client'?radarList:ents.filter(e=>e!==player&&e.state!=='eaten').map(e=>[e.x,e.y]);for(const [rx,ry] of rl){mctx.beginPath();mctx.arc(rx*k,ry*k,4,0,6.3);mctx.fill()}}
   const kk=role==='client'?(kingPos&&kingPos.id!==myId?kingPos:null):(king&&king!==player?king:null);
@@ -1318,7 +1357,7 @@ function srvSnapshot(h,t){
   for(const e of ents){if(Math.abs(e.x-me.x)>R||Math.abs(e.y-me.y)>R)continue;known.add(e.id);m.e.push(srvRec(e,t,!h.known.has(e.id),me))}
   h.known=known;
   for(const f of foods)if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2)m.f.push([f.x|0,f.y|0,FOODS.indexOf(f.t)]);
-  for(const b of boxes)if(Math.abs(b.x-me.x)<R2&&Math.abs(b.y-me.y)<R2)m.b.push([b.x|0,b.y|0]);
+  for(const b of boxes)if(Math.abs(b.x-me.x)<R2&&Math.abs(b.y-me.y)<R2)m.b.push([b.x|0,b.y|0,b.water?1:0]);
   for(const o of orbs)if(Math.abs(o.x-me.x)<R2&&Math.abs(o.y-me.y)<R2)m.o.push([o.x|0,o.y|0,Math.round(o.v)]);
   const me2={lvl:+me.lvl.toFixed(3),sta:Math.round(me.stamina),dc:me.dashCharges,dcd:+me.dashCd.toFixed(2),it:me.item,pd:me.picksDone};
   if(h.perksDirty){me2.perks=me.perks;h.perksDirty=false}
@@ -1385,7 +1424,7 @@ function netLost(){
 function resetSoloWorld(){
   WORLD_SEED=(Math.random()*1e9)|0;buildWorld(WORLD_SEED);ents=[];player=null;king=null;foods=[];boxes=[];orbs=[];parts=[];floaters=[];skids=[];botDuels=[];
   for(let i=0;i<FOOD_OUT;i++)spawnFood(false);for(let i=0;i<FOOD_IN;i++)spawnFood(true);
-  for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);
+  for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
   {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}}
 function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,shorts:f.shorts,
   perks:{},picksDone:0,item:null,buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0},dashCharges:1,dashCd:0,eatT:.85,stamina:100,
@@ -1406,7 +1445,7 @@ function applySnap(m){
   for(const e of ents)e.isPlayer=e.id===myId;
   player=cl.get(myId)||null;
   foods=m.f.map(a=>({x:a[0],y:a[1],t:FOODS[a[2]]||'apple',bob:(a[0]*.013+a[1]*.007)%6.28,inside:false}));
-  boxes=m.b.map(a=>({x:a[0],y:a[1],bob:(a[0]*.011)%6.28,inside:false}));
+  boxes=m.b.map(a=>({x:a[0],y:a[1],bob:(a[0]*.011)%6.28,inside:false,water:!!a[2]}));
   orbs=m.o.map(a=>({x:a[0],y:a[1],v:a[2],life:30,bob:(a[0]*.01)%6.28}));
   radarList=m.rad||[];
   king=m.k?cl.get(m.k.id)||null:null;kingPos=m.k||null;
@@ -1417,7 +1456,7 @@ function applySnap(m){
   if(isKing&&!wasKing){showToast('You are the KING! Everyone hunts you');sfx.king()}else if(!isKing&&wasKing&&player)showToast('You lost the crown');
   wasKing=isKing}
 function applyMe(p,me,t){
-  if(me.it&&me.it!==p.item){const it=ITEMS[me.it];showToast(it.icon+' '+it.name+(it.auto?'':' · press E'));sfx.pickup()}
+  if(me.it&&me.it!==p.item)itemReveal(p,me.it,false)
   const before=p._pl;p.lvl=me.lvl;p.stamina=me.sta;p.dashCharges=me.dc;p.dashCd=me.dcd;p.item=me.it;p.picksDone=me.pd;
   if(me.perks){p.perks=me.perks;calcStats(p)}
   const after=L(p);stats.top=Math.max(stats.top,after);
@@ -1739,7 +1778,13 @@ function drawWings(e,t){const fl=Math.sin(t*6)*.28;ctx.save();ctx.translate(e.x,
 function drawCrown(x,y,s,t){ctx.save();ctx.translate(x,y+Math.sin(t*3)*2);ctx.scale(s,s);ctx.fillStyle=GOLD;ctx.strokeStyle=INK;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.beginPath();
   ctx.moveTo(-12,6);ctx.lineTo(-14,-8);ctx.lineTo(-6,-1);ctx.lineTo(0,-11);ctx.lineTo(6,-1);ctx.lineTo(14,-8);ctx.lineTo(12,6);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle='#e8475f';ctx.beginPath();ctx.arc(0,0,2.6,0,6.3);ctx.fill();ctx.restore()}
-function drawBox(b,t){const y=b.y+Math.sin(t*3+b.bob)*3,pu=1+Math.sin(t*4+b.bob)*.08;
+function drawBox(b,t){
+  if(b.water){const y=b.y+Math.sin(t*1.6+b.bob)*3;ctx.save();ctx.globalAlpha=.5;ctx.translate(b.x,y);ctx.lineWidth=2.5;ctx.strokeStyle='#1f6f9e';ctx.lineJoin='round';   // seen through the water
+    ctx.fillStyle='#7b6fd6';rr(-13,-8,26,20,4);ctx.fillStyle='#9a90e8';rr(-15,-13,30,8,3);ctx.fillStyle='#e8d36a';ctx.fillRect(-3,-13,6,25);ctx.restore();
+    ctx.fillStyle='rgba(94,194,240,.38)';ctx.beginPath();ctx.ellipse(b.x,y,22,17,0,0,6.3);ctx.fill();   // water above it
+    ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2;for(let i=0;i<3;i++){const ph=(t*.8+i*.33+b.bob)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.arc(b.x+Math.sin(ph*6+i)*7+(i-1)*8,y-6-ph*26,2+ph*2,0,6.3);ctx.stroke()}ctx.globalAlpha=1;
+    const gl=(Math.sin(t*3+b.bob)+1)/2;ctx.fillStyle='rgba(255,255,255,'+(.3+gl*.6)+')';ctx.beginPath();ctx.moveTo(b.x+9,y-14);ctx.lineTo(b.x+11,y-9);ctx.lineTo(b.x+16,y-7);ctx.lineTo(b.x+11,y-5);ctx.lineTo(b.x+9,y);ctx.lineTo(b.x+7,y-5);ctx.lineTo(b.x+2,y-7);ctx.lineTo(b.x+7,y-9);ctx.closePath();ctx.fill();return}
+  const y=b.y+Math.sin(t*3+b.bob)*3,pu=1+Math.sin(t*4+b.bob)*.08;
   ctx.fillStyle='rgba(255,210,63,'+(.22+Math.sin(t*4+b.bob)*.08)+')';ctx.beginPath();ctx.ellipse(b.x,b.y+10,24*pu,10*pu,0,0,6.3);ctx.fill();
   ctx.save();ctx.translate(b.x,y);ctx.lineWidth=2.5;ctx.strokeStyle=INK;ctx.lineJoin='round';
   ctx.fillStyle='#9b5de5';rr(-13,-8,26,20,4);ctx.fillStyle='#b98af0';rr(-15,-13,30,8,3);

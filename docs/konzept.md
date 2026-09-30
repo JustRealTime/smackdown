@@ -131,3 +131,11 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
   - **Swamp:** grün-grauer Boden, Trauerweiden und tote Bäume, trübe Teiche mit Blasen, Schilf.
 - **Mehr Baumarten:** Palme, Kaktus, Schnee-Kiefer, Trauerweide, toter Baum (zusätzlich Birke, Kirsche, Herbst, Kiefer, Laubbaum).
 - **Schneller:** Kollisionen und die Snack-Suche laufen über ein Raster statt über alle Objekte, der Boden wird in 512-px-Blöcken einmal gemalt und nur kopiert. Ein Spielschritt mit 100 Bots braucht etwa 3 ms statt 32 ms.
+
+## Runde 12: Namen, Seltenheit, Unterwasser-Kisten
+
+- **Bot-Namen:** Ein generierter Pool aus 500 Namen (Adjektiv/Wort + Vorname), nichts mit Essen. Die alten Snack-Namen sind ersetzt.
+- **Seltenheit:** Jedes Item hat eine Stufe: Common, Rare, Epic, Legendary. Drop-Chancen 60 / 28 / 9 / 3 %. Die starken Items (Nova, Time Warp usw.) liegen in den hohen Stufen und sind dadurch wirklich selten. Fortune würfelt mehrfach und behält die beste Stufe.
+- **Effekt pro Stufe:** eigener Toast in der Stufenfarbe, eigener Sound (rare / epic / legendary), Farbrahmen im Item-Slot, Legendary leuchtet pulsierend.
+- **Neues Item Nova:** Druckwelle, die Gegner wegstößt. Golden Ticket gibt jetzt 10 Snacks.
+- **Unterwasser-Kisten:** 18 Geschenkkisten liegen am Grund der Teiche (nicht im Eis). Sie sind nur schwach sichtbar (Blasen, Glitzern), man muss hinschwimmen. Quote 25 / 40 / 25 / 10 %, also deutlich bessere Beute. Respawn langsam, Minimap zeigt sie nicht.
