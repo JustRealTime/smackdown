@@ -139,3 +139,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - **Effekt pro Stufe:** eigener Toast in der Stufenfarbe, eigener Sound (rare / epic / legendary), Farbrahmen im Item-Slot, Legendary leuchtet pulsierend.
 - **Neues Item Nova:** Druckwelle, die Gegner wegstößt. Golden Ticket gibt jetzt 10 Snacks.
 - **Unterwasser-Kisten:** 18 Geschenkkisten liegen am Grund der Teiche (nicht im Eis). Sie sind nur schwach sichtbar (Blasen, Glitzern), man muss hinschwimmen. Quote 25 / 40 / 25 / 10 %, also deutlich bessere Beute. Respawn langsam, Minimap zeigt sie nicht.
+
+## Runde 13: Siege fühlen sich größer an, Türen ohne Pfeile
+
+- Ein Duellsieg bringt jetzt etwa die Hälfte der XP des Verlierers (vorher ein Viertel), Deckel 15 Level statt 8, Mindestgewinn 4 Snacks, Königsbonus 20 %.
+- Die großen Pfeile auf den Türmatten sind weg. Matte und Türpfosten bleiben als Markierung.

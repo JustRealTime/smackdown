@@ -1076,10 +1076,10 @@ function startDuel(a,b,t){a.state='duel';b.state='duel';a.vx=a.vy=b.vx=b.vy=0;
   if(a.isPlayer||b.isPlayer){const p=a.isPlayer?a:b,o=a.isPlayer?b:a;openTypingDuel(p,o,a.isPlayer?aCaught:bCaught,a.isPlayer?bCaught:aCaught,a.isPlayer?ka:kb,a.isPlayer?kb:ka)}
   else{const la=a.lvl+2,lb=b.lvl+2;let pa=.5-clamp((la-lb)*.006,-.2,.2)+(aCaught?.12:0)-(bCaught?.12:0)+(ka?.1:0)-(kb?.1:0);botDuels.push({a,b,end:t+rand(1.8,3),pa:clamp(pa,.15,.85)})}}
 function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=.6;
-  // you never get everything: a winner takes about a quarter of what the loser collected (less for much weaker victims) and
-  // one win is capped at 8 levels of your own; another 20% drops as orbs, the rest is gone
-  const Ll=L(l),Lw=L(w),xpL=xpOf(l.lvl),frac=.25*clamp(Ll/Math.max(1,Lw)*2,.3,1),cap=lvlCost(w.lvl)*8;
-  const slain=l===king,bonus=slain?Math.min(cap,xpL*.12)*w.st.kingx:0,xpGain=Math.max(2,Math.min(cap,xpL*frac*w.st.plunder))+bonus;   // even a beginner is worth at least 2 snacks
+  // you never get everything: a winner takes about half of what the loser collected (less for much weaker victims) and
+  // one win is capped at 15 levels of your own; another 20% drops as orbs, the rest is gone
+  const Ll=L(l),Lw=L(w),xpL=xpOf(l.lvl),frac=.5*clamp(Ll/Math.max(1,Lw)*2,.4,1),cap=lvlCost(w.lvl)*15;
+  const slain=l===king,bonus=slain?Math.min(cap,xpL*.2)*w.st.kingx:0,xpGain=Math.max(4,Math.min(cap,xpL*frac*w.st.plunder))+bonus;   // even a beginner is worth at least 2 snacks
   dropOrbs(l.x,l.y,xpL*.2);
   const gained=()=>{const b=w.lvl;gainXp(w,xpGain);return w.lvl-b};
   if(l.item==='angel'){   // Angel Feather: you lose the duel but not your life
@@ -1749,7 +1749,7 @@ function drawRoof(h){if(h.alpha<.02)return;ctx.save();ctx.globalAlpha=h.alpha;co
     const cx=x+w/2,cy=y+hh*.32;ctx.fillStyle='#fffdf7';ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(cx-42,cy-28,84,56,14);ctx.fill();ctx.stroke();
     drawEmblem(h.type,cx,cy,0)}
   ctx.restore()}
-// yellow welcome mats with bouncing arrows show where you can walk in
+// yellow welcome mats with door posts show where you can walk in
 function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4,pu=.5+Math.sin(t*3+h.x)*.5;
   for(const side of h.doors){const v=side==='n'?[0,-1]:side==='s'?[0,1]:side==='w'?[-1,0]:[1,0],
       px=side==='n'||side==='s'?cx:side==='w'?h.x:h.x+h.w,py=side==='w'||side==='e'?cy:side==='n'?h.y:h.y+h.h,
@@ -1758,8 +1758,6 @@ function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4,pu=
     ctx.fillStyle='rgba(255,224,102,'+(.16+pu*.14)+')';ctx.beginPath();ctx.ellipse(0,0,(horiz?76:50)+pu*6,(horiz?50:76)+pu*6,0,0,6.3);ctx.fill();   // soft glow
     ctx.fillStyle='#ffd23f';ctx.strokeStyle=INK;ctx.lineWidth=3;
     ctx.beginPath();ctx.roundRect(horiz?-DOOR_G/2:-24,horiz?-24:-DOOR_G/2,horiz?DOOR_G:48,horiz?48:DOOR_G,10);ctx.fill();ctx.stroke();
-    ctx.rotate(Math.atan2(-v[1],-v[0]));ctx.translate(b-4,0);ctx.strokeStyle=INK;ctx.lineWidth=5.5;ctx.lineCap='round';ctx.lineJoin='round';
-    for(let i=-1;i<=1;i+=1){ctx.beginPath();ctx.moveTo(i*11-5,-10);ctx.lineTo(i*11+3,0);ctx.lineTo(i*11-5,10);ctx.stroke()}
     ctx.restore();
     // door posts on both sides of the gap
     ctx.fillStyle='#8b5a2b';ctx.strokeStyle=INK;ctx.lineWidth=2.5;
