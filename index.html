@@ -603,6 +603,8 @@ const sfx=(()=>{
   }})();
 
 /* ---------- input ---------- */
+// browsers may pause audio until the page gets a click or key press, so wake it up on any of them
+for(const ev of ['pointerdown','keydown'])addEventListener(ev,()=>sfx.init(),{passive:true});
 const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
 addEventListener('blur',()=>{shift=false});
