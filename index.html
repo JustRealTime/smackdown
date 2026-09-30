@@ -87,14 +87,15 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #words .cur{box-shadow:-2px 0 0 var(--tomato);animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{box-shadow:-2px 0 0 transparent}}
 .dfoot{display:flex;justify-content:space-between;gap:12px;font-weight:800;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-#count{position:fixed;left:50%;top:22%;transform:translate(-50%,-50%);font:96px var(--display);color:var(--gold);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;text-shadow:0 7px 0 var(--ink);pointer-events:none}
+#count{position:fixed;left:50%;top:28%;transform:translate(-50%,-50%);font:96px var(--display);color:var(--gold);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;text-shadow:0 7px 0 var(--ink);pointer-events:none}
 #toast{position:fixed;left:50%;top:18%;transform:translate(-50%,-50%);font:clamp(30px,5vw,48px) var(--display);color:#fff;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:0 5px 0 var(--ink);pointer-events:none;white-space:nowrap;transition:opacity .4s}
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .stat{border:2px solid var(--ink);border-radius:12px;padding:8px 10px;background:#fff}
 .stat b{display:block;font:26px var(--display);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
 #mute{position:fixed;left:16px;top:calc(56px + env(safe-area-inset-top,0px));font:800 12px var(--body);padding:5px 10px;border-radius:99px;box-shadow:0 3px 0 var(--ink);cursor:pointer;z-index:5}
-#mute:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+#musicbtn{position:fixed;left:16px;top:calc(92px + env(safe-area-inset-top,0px));font:800 12px var(--body);padding:5px 10px;border-radius:99px;box-shadow:0 3px 0 var(--ink);cursor:pointer;z-index:5}
+#mute:focus-visible,#musicbtn:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 #mini{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:150px;height:150px;padding:0;overflow:hidden}
 #rank{font-size:11px;letter-spacing:.5px;color:var(--tomato);margin-top:2px}
 #treeline{margin:0;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.3px;min-height:1.2em}
@@ -122,6 +123,9 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 .pcard em{font-style:normal;font-weight:800;font-size:11px;color:var(--tc);filter:brightness(.75)}
 .pcard .pd{font-weight:700;line-height:1.25}
 .pcard.cap{background:linear-gradient(#fff6d5,var(--panel))}
+#dbanner{position:fixed;left:50%;top:11%;transform:translate(-50%,-50%);max-width:min(92%,900px);padding:10px 22px;text-align:center;font:clamp(16px,2.3vw,24px) var(--display);letter-spacing:.5px;color:#fff;border:4px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--ink);text-shadow:0 3px 0 var(--ink);pointer-events:none}
+#dbanner.good{background:#3fb950}#dbanner.bad{background:var(--bad)}
+#dbanner.pop{animation:pop .38s cubic-bezier(.2,1.4,.4,1)}
 #flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
 #flash.go{animation:flash .35s ease-out}
 @keyframes flash{0%{opacity:.85}100%{opacity:0}}
@@ -136,7 +140,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 8px))}75%{transform:translateX(calc(-50% + 8px))}}
 #duel.shake{animation:shake .18s}
 @media (max-width:640px){.pcard{width:140px;padding-bottom:8px}#itemslot{display:none}#kingbar{white-space:normal;text-align:center;width:max-content;max-width:90%}#mini{display:none}#board{display:none}#hint{display:none}.bars{width:140px}}
-@media (prefers-reduced-motion:reduce){#perks.up{animation:none}.pcard{transition:none}#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
+@media (prefers-reduced-motion:reduce){#perks.up{animation:none}.pcard{transition:none}#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#dbanner.pop,#dbanner.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
 </style>
 </head>
 <body>
@@ -145,6 +149,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <div id="flash"></div>
 <div id="minilogo" hidden>Snackdown</div>
 <button id="mute" class="panel" type="button" aria-label="Toggle sound">Sound on</button>
+<button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <canvas id="mini" class="panel" width="300" height="300" hidden></canvas>
 <div id="hint" class="panel" hidden><kbd>Shift</kbd> sprint · <kbd>Space</kbd> dash · yellow mats are doors · touch to duel</div>
 
@@ -208,6 +213,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
   <div id="words"></div>
   <div class="dfoot"><span id="dWpm">0 WPM</span><span>Type the phrase exactly. Backspace fixes mistakes.</span></div>
 </section>
+<div id="dbanner" hidden></div>
 <div id="count" hidden></div>
 <div id="toast" hidden></div>
 
@@ -470,29 +476,41 @@ function sprite(e,look,dir,frame){
 /* ---------- rank titles, perk trees & items ---------- */
 const RANKS=[[1,'Rookie'],[10,'Bronze'],[25,'Silver'],[40,'Gold'],[60,'Platinum'],[80,'Diamond'],[100,'Legend'],[150,'Mythic'],[200,'Immortal'],[300,'Godlike']];
 const rankOf=l=>{let r=RANKS[0][1];for(const [lv,n] of RANKS)if(l>=lv)r=n;return r};
-const TREES={feast:{name:'Feast',col:'#ff6b3d',icon:'🍔'},sprint:{name:'Sprint',col:'#3db5ff',icon:'👟'},typist:{name:'Typist',col:'#9b5de5',icon:'⌨️'},guard:{name:'Guard',col:'#2ec4b6',icon:'🛡️'}};
+const TREES={feast:{name:'Feast',col:'#ff6b3d',icon:'🍔'},sprint:{name:'Sprint',col:'#3db5ff',icon:'👟'},typist:{name:'Typist',col:'#9b5de5',icon:'⌨️'},guard:{name:'Guard',col:'#2ec4b6',icon:'🛡️'},trick:{name:'Trick',col:'#f2a93b',icon:'🎁'}};
 // cap: legendary perk, only offered after 4 points in its tree
 const PERKS=[
   {id:'gourmet',tree:'feast',icon:'🥪',name:'Gourmet',max:5,d:r=>`+${r*20}% level from snacks`},
   {id:'quickbite',tree:'feast',icon:'😋',name:'Quick Bite',max:3,d:r=>`Eating is ${r*20}% faster`},
   {id:'vacuum',tree:'feast',icon:'🌀',name:'Snack Vacuum',max:3,d:r=>`Snacks within ${r*70}px fly to you`},
   {id:'jackpot',tree:'feast',icon:'🎰',name:'Jackpot',max:3,d:r=>`${r*8}% of snacks give triple`},
+  {id:'combo',tree:'feast',icon:'🔥',name:'Snack Combo',max:3,d:r=>`Snacks eaten within 4s of each other stack +${r*10}% (up to 5x)`},
+  {id:'orbhunter',tree:'feast',icon:'🔮',name:'Orb Hunter',max:3,d:r=>`Orbs are worth ${r*30}% more`},
   {id:'nose',tree:'feast',icon:'🐽',name:'Treasure Nose',max:1,cap:true,d:()=>'Gift boxes and orbs fly to you from far away'},
   {id:'swift',tree:'sprint',icon:'💨',name:'Swift Feet',max:5,d:r=>`+${r*6}% move speed`},
   {id:'dashcd',tree:'sprint',icon:'⚡',name:'Quick Dash',max:3,d:r=>`Dash recharges ${r*15}% faster`},
   {id:'lungs',tree:'sprint',icon:'🫁',name:'Big Lungs',max:3,d:r=>`+${r*30}% stamina`},
   {id:'slide',tree:'sprint',icon:'🛷',name:'Ice Slide',max:3,d:r=>`Slide lasts ${r*40}% longer`},
+  {id:'sprintboost',tree:'sprint',icon:'🏃',name:'Sprinter',max:3,d:r=>`Sprint is ${r*8}% faster`},
+  {id:'longdash',tree:'sprint',icon:'🚀',name:'Long Dash',max:3,d:r=>`Dash goes ${r*12}% farther`},
+  {id:'regen',tree:'sprint',icon:'🔋',name:'Second Wind',max:3,d:r=>`Stamina refills ${r*40}% faster`},
   {id:'double',tree:'sprint',icon:'✌️',name:'Double Dash',max:1,cap:true,d:()=>'Two dash charges'},
   {id:'short',tree:'typist',icon:'✂️',name:'Short Phrases',max:2,d:r=>`Your phrase is ${r} word${r>1?'s':''} shorter`},
   {id:'forgive',tree:'typist',icon:'🩹',name:'Autocorrect',max:3,d:r=>`First ${r} typo${r>1?'s':''} per duel ignored`},
   {id:'head',tree:'typist',icon:'🐢',name:'Head Start',max:3,d:r=>`Opponent starts ${(r*.5).toFixed(1)}s late`},
   {id:'plunder',tree:'typist',icon:'💰',name:'Plunder',max:3,d:r=>`+${r*15}% levels from duel wins`},
+  {id:'curse',tree:'typist',icon:'😈',name:'Curse',max:2,d:r=>`Your opponent's phrase is ${r} word${r>1?'s':''} longer`},
+  {id:'underdog',tree:'typist',icon:'🐕',name:'Underdog',max:2,d:r=>`Against a higher level your phrase is ${r} word${r>1?'s':''} shorter`},
+  {id:'bounty',tree:'typist',icon:'🎯',name:'King Hunter',max:2,d:r=>`+${r*50}% bounty for beating the King`},
   {id:'flow',tree:'typist',icon:'🌊',name:'Flow State',max:1,cap:true,d:()=>'20 correct letters in a row slow your opponent'},
   {id:'afterwin',tree:'guard',icon:'🧱',name:'Victory Shield',max:3,d:r=>`+${(r*1.5).toFixed(1)}s protection after a win`},
   {id:'slippery',tree:'guard',icon:'🐟',name:'Slippery',max:2,d:r=>`Being caught running helps them ${r} word${r>1?'s':''} less`},
   {id:'laststand',tree:'guard',icon:'🪦',name:'Last Stand',max:3,d:r=>`Keep ${r*15}% of your levels when eaten`},
   {id:'snackguard',tree:'guard',icon:'🥷',name:'Snack Guard',max:2,d:r=>`${(r*.5).toFixed(1)}s protected when you start eating`},
   {id:'bubble',tree:'guard',icon:'🫧',name:'Iron Bubble',max:1,cap:true,d:()=>'Every 45s you get a free Bubble Shield'},
+  {id:'itemdur',tree:'trick',icon:'⏳',name:'Long Lasting',max:3,d:r=>`Item effects last ${r*25}% longer`},
+  {id:'recycle',tree:'trick',icon:'♻️',name:'Recycler',max:3,d:r=>`${r*20}% chance an item is not used up`},
+  {id:'boxbonus',tree:'trick',icon:'🎀',name:'Lucky Boxes',max:3,d:r=>`Gift boxes also give +${(r*.4).toFixed(1)} level`},
+  {id:'fairy',tree:'trick',icon:'🧚',name:'Item Fairy',max:1,cap:true,d:()=>'Every 60s you get a free random item'},
   {id:'mastery',tree:null,icon:'⭐',name:'Mastery',max:999,d:r=>'+2% level from snacks and +1% speed'}
 ];
 const PERK_BY={};PERKS.forEach(p=>PERK_BY[p.id]=p);
@@ -502,7 +520,9 @@ function calcStats(e){const r=id=>perkR(e,id),m=r('mastery');
   e.st={xp:1+r('gourmet')*.2+m*.02,eatT:Math.max(.35,1-r('quickbite')*.2),vac:r('vacuum')*70,jackpot:r('jackpot')*.08,nose:!!r('nose'),
     speed:1+r('swift')*.06+m*.01,dashCd:Math.max(.4,1-r('dashcd')*.15),staMax:100*(1+r('lungs')*.3),slide:1+r('slide')*.4,charges:r('double')?2:1,
     short:r('short'),forgive:r('forgive'),head:r('head')*.5,plunder:1+r('plunder')*.15,flow:!!r('flow'),
-    afterwin:r('afterwin')*1.5,slippery:r('slippery'),keep:r('laststand')*.15,snackGuard:r('snackguard')*.5,bubble:!!r('bubble')}}
+    afterwin:r('afterwin')*1.5,slippery:r('slippery'),keep:r('laststand')*.15,snackGuard:r('snackguard')*.5,bubble:!!r('bubble'),
+    combo:r('combo')*.1,orbx:1+r('orbhunter')*.3,sprintx:1.55+r('sprintboost')*.08,dashv:1+r('longdash')*.12,regen:1+r('regen')*.4,
+    curse:r('curse'),underdog:r('underdog'),kingx:1+r('bounty')*.5,itemx:1+r('itemdur')*.25,recycle:r('recycle')*.2,boxbonus:r('boxbonus')*.4,fairy:!!r('fairy')}}
 const owedPicks=e=>(L(e)>=2?Math.floor((L(e)-2)/3)+1:0)-e.picksDone;   // a pick at Lv 2, then every 3 levels
 function rollOffer(e){
   const byTree={};for(const p of PERKS)if(p.tree&&perkR(e,p.id)<p.max&&(!p.cap||treePts(e,p.tree)>=4))(byTree[p.tree]=byTree[p.tree]||[]).push(p);
@@ -526,7 +546,7 @@ function rollItem(){let r=Math.random()*Object.values(ITEMS).reduce((s,i)=>s+i.w
 const NAMES=['Crunchy Carl','Noodle Nina','Taco Tim','Mochi','Big Bao','Pickle Pete','Sushi Sam','Waffle Wendy','Nacho Ned','Pretzel Paula','Donut Dave','Kimchi Kai','Fries Fiona','Burrito Bo','Cheddar Chad','Pho Phil','Gummy Gus','Bagel Bella','Muffin Max','Curry Cleo','Tofu Tom','Ramen Rae','Gyoza Gil','Latte Lou','Chili Chloe','Brownie Bea','Wasabi Will','Pancake Pip','Salsa Sal','Jelly Jo','Hotdog Hank','Boba Bree','Cookie Cam','Ziti Zoe','Falafel Finn','Gelato Gia','Crepe Cody','Lassi Lea','Miso Max','Nougat Nell','Pepper Pat','Quiche Quin','Rice Ray','Scone Sky','Taffy Tia','Udon Uma','Waffle Walt','Yogurt Yas'];
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
-  const e={id:nextId++,perks:{},picksDone:0,item:null,buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0},dashCharges:1,bubbleT:0,eatT:.85,name,lvl,isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
+  const e={id:nextId++,perks:{},picksDone:0,item:null,buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0},dashCharges:1,bubbleT:0,eatT:.85,chain:0,lastEat:-99,name,lvl,isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
     dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+3,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
     skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
@@ -580,31 +600,64 @@ const sfx=(()=>{
     click(){if(!ok(1))return;tone(600,.07,{f2:900,type:'triangle',v:.25})},
     start(){if(!ok(1))return;arp([392,523,659,784],.07,{type:'triangle',v:.28,d:.25});noise(.25,{type:'highpass',f:5000,v:.08,at:.2})},
     boop(g=1){if(!ok(g))return;tone(420,.09,{f2:700,type:'sine',v:.25*g})},
-    bite(n,g=1){if(!ok(g))return;noise(.07,{f:2200,f2:900,q:1.5,v:.55*g});tone(180,.07,{f2:70,type:'square',v:.16*g});tone(340+n*70,.06,{type:'triangle',v:.12*g,at:.01})},
+    bite(n,g=1){if(!ok(g))return;const b=330+n*80;tone(b,.09,{f2:b*1.7,type:'triangle',v:.24*g});tone(b*1.5,.08,{f2:b*2.5,v:.13*g,at:.05});tone(150,.06,{f2:100,v:.12*g})},
     sip(n,g=1){if(!ok(g))return;const b=500+Math.random()*300;tone(b,.09,{f2:b*2,v:.22*g});tone(b*1.3,.08,{f2:b*2.4,v:.14*g,at:.06})},
     yum(g=1){if(!ok(g))return;tone(784,.14,{type:'triangle',v:.28*g});tone(1175,.28,{type:'triangle',v:.28*g,at:.07});tone(2349,.2,{v:.06*g,at:.07})},
-    levelup(){if(!ok(1))return;arp([523,659,784,1047,1319],.075,{type:'triangle',v:.3,d:.3});arp([1047,1319,1568,2093],.075,{v:.08,d:.4,at:0});noise(.5,{type:'highpass',f:6000,v:.1,at:.25})},
+    levelup(){if(!ok(1))return;music.duck(.9);arp([523,659,784,1047,1319],.075,{type:'triangle',v:.3,d:.3});arp([1047,1319,1568,2093],.075,{v:.08,d:.4,at:0});noise(.5,{type:'highpass',f:6000,v:.1,at:.25})},
     dash(g=1){if(!ok(g))return;noise(.22,{f:500,f2:3600,q:.8,v:.5*g});tone(320,.16,{f2:110,type:'sine',v:.35*g});noise(.5,{type:'lowpass',f:1400,f2:250,v:.16*g,at:.1})},
     door(){if(!ok(1))return;tone(880,.35,{v:.16});tone(659,.55,{v:.16,at:.2})},
-    clash(){if(!ok(1))return;tone(170,.4,{f2:38,v:.8});noise(.14,{type:'highpass',f:2500,v:.5});tone(1046,.14,{f2:523,type:'square',v:.12});tone(1568,.2,{v:.1,at:.04})},
+    clash(){if(!ok(1))return;music.duck(.7);tone(170,.4,{f2:38,v:.8});noise(.14,{type:'highpass',f:2500,v:.5});tone(1046,.14,{f2:523,type:'square',v:.12});tone(1568,.2,{v:.1,at:.04})},
     tick(n){if(!ok(1))return;if(n>0)tone(660,.12,{type:'triangle',v:.3});else{[784,988,1175].forEach(f=>tone(f,.4,{type:'triangle',v:.22}));noise(.2,{type:'highpass',f:3500,v:.15})}},
     key(streak){if(!ok(1))return;const f=SCALE[streak%SCALE.length];
       tone(f,.09,{type:'triangle',v:.2});noise(.025,{f:3200,q:2,v:.12})},
     err(){if(!ok(1))return;tone(150,.18,{f2:80,type:'square',v:.22});noise(.12,{type:'lowpass',f:600,v:.25})},
-    chomp(g=1){if(!ok(g))return;noise(.3,{type:'lowpass',f:3200,f2:180,q:.7,v:.7*g});tone(230,.3,{f2:55,v:.7*g});
+    chomp(g=1){if(!ok(g))return;if(g>=1)music.duck(1);noise(.3,{type:'lowpass',f:3200,f2:180,q:.7,v:.7*g});tone(230,.3,{f2:55,v:.7*g});
       if(g>=1)arp([392,523,659,784,1047],.08,{type:'square',v:.1,d:.22,at:.18});else tone(700,.1,{f2:300,v:.15*g,at:.1})},
     lose(){if(!ok(1))return;[[392,.0],[370,.3],[349,.6],[311,.9]].forEach(([f,at],i)=>tone(f,i===3?.7:.28,{f2:f*(i===3?.7:.94),type:'sawtooth',v:.16,at}));noise(.2,{type:'lowpass',f:900,v:.3})},
     pickup(){if(!ok(1))return;arp([784,988,1319,1568],.05,{type:'triangle',v:.24,d:.22});noise(.3,{type:'highpass',f:6500,v:.1,at:.1})},
     orb(){if(!ok(1))return;tone(1319,.12,{type:'triangle',v:.25});tone(1760,.22,{v:.2,at:.05})},
     cards(){if(!ok(1))return;noise(.3,{f:400,f2:3000,q:.8,v:.25});tone(392,.3,{f2:784,type:'triangle',v:.2});tone(1047,.25,{v:.1,at:.18})},
-    perk(){if(!ok(1))return;[523,659,784].forEach(f=>tone(f,.5,{type:'triangle',v:.2}));arp([1047,1319,1568,2093],.06,{v:.12,d:.3,at:.1});noise(.4,{type:'highpass',f:5000,v:.12,at:.1});tone(130,.3,{f2:60,v:.4})},
+    perk(){if(!ok(1))return;music.duck(.7);[523,659,784].forEach(f=>tone(f,.5,{type:'triangle',v:.2}));arp([1047,1319,1568,2093],.06,{v:.12,d:.3,at:.1});noise(.4,{type:'highpass',f:5000,v:.12,at:.1});tone(130,.3,{f2:60,v:.4})},
     item(){if(!ok(1))return;tone(260,.25,{f2:1400,type:'sawtooth',v:.14});noise(.3,{type:'highpass',f:4000,v:.15,at:.05});tone(1568,.25,{v:.12,at:.15})},
-    king(){if(!ok(1))return;arp([392,392,392,523,659,784],.1,{type:'square',v:.1,d:.3});tone(196,.7,{type:'triangle',v:.3});noise(.5,{type:'highpass',f:5000,v:.1,at:.3})}
+    king(){if(!ok(1))return;music.duck(1.6);arp([392,392,392,523,659,784],.1,{type:'square',v:.1,d:.3});tone(196,.7,{type:'triangle',v:.3});noise(.5,{type:'highpass',f:5000,v:.1,at:.3})}
   }})();
+
+/* ---------- background music (files live in the music folder) ---------- */
+const music=(()=>{
+  // [file, measured loudness in dB]: every track is scaled to the same perceived level
+  const TRACKS={chill:['music/chill.mp3',-20.6],happy:['music/happy.mp3',-20.4],artilerja:['music/artilerja.mp3',-24],africa:['music/africa.mp3',-11.4],omegalul:['music/omegalul.mp3',-11.2]};
+  const MODES={menu:['chill'],play:['happy','artilerja'],king:['africa'],duel:['omegalul']};   // which songs fit which moment
+  const MASTER=.8;
+  let on=true,unlocked=false,mode='',cur=null,duckT=0,idx={},dead={};
+  try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
+  const el={};
+  const get=k=>{if(el[k])return el[k];const a=new Audio(TRACKS[k][0]);a.preload='auto';a.volume=0;a._v=0;a._t=0;
+    a.addEventListener('error',()=>{dead[k]=true});a.addEventListener('ended',()=>{if(cur===k&&(mode==='play'))next()});
+    return el[k]=a};
+  const level=k=>Math.min(1,MASTER*Math.pow(10,(-24-TRACKS[k][1])/20));
+  function pickTrack(m){const list=MODES[m].filter(k=>!dead[k]);if(!list.length)return null;
+    if(m==='play'){idx.play=((idx.play??-1)+1)%list.length;return list[idx.play]}return list[0]}
+  let lastPlay=null;
+  function startTrack(k,fromStart){const a=get(k);if(fromStart||mode==='duel'||a.ended)a.currentTime=0;a.loop=mode!=='play';cur=k;if(mode==='play')lastPlay=k;if(unlocked&&on)a.play().catch(()=>{})}
+  function next(){const k=pickTrack('play');if(k)startTrack(k,true)}
+  return{
+    get on(){return on},
+    unlock(){if(unlocked)return;unlocked=true;this.mode(mode||'menu',true)},
+    mode(m,force){if(m===mode&&!force)return;mode=m;
+      const k=m==='play'&&lastPlay&&!dead[lastPlay]&&!force?lastPlay:pickTrack(m);   // after a duel, carry on with the song that was playing
+      if(k)startTrack(k,false)},
+    toggle(){on=!on;try{localStorage.setItem('snackdown-music',on?'1':'0')}catch(_){}if(on&&unlocked&&cur)get(cur).play().catch(()=>{});return on},
+    duck(sec){duckT=Math.max(duckT,sec)},
+    tick(dt){duckT=Math.max(0,duckT-dt);
+      for(const k in el){const a=el[k],want=on&&k===cur&&unlocked?level(k)*(duckT>0?.4:1):0;
+        a._v+=(want-a._v)*Math.min(1,dt*(want>a._v?2.5:4));if(a._v<.004&&want===0){a._v=0;if(!a.paused)a.pause()}
+        a.volume=clamp(a._v,0,1)}}
+  }})();
+setInterval(()=>music.tick(.05),50);
 
 /* ---------- input ---------- */
 // browsers may pause audio until the page gets a click or key press, so wake it up on any of them
-for(const ev of ['pointerdown','keydown'])addEventListener(ev,()=>sfx.init(),{passive:true});
+for(const ev of ['pointerdown','keydown'])addEventListener(ev,()=>{sfx.init();music.unlock()},{passive:true});
 const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
 addEventListener('blur',()=>{shift=false});
@@ -719,12 +772,13 @@ for(let i=0;i<BOX_OUT;i++)spawnBox(false);
 for(let i=0;i<BOX_IN;i++)spawnBox(true);
 function dropOrbs(x,y,total){if(total<.6)return;const n=clamp(Math.round(total/2),1,10);
   for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(120,260);orbs.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v:total/n,life:35,bob:Math.random()*6.28})}}
-function giveItem(e,t){const k=rollItem();e.item=k;e.ai.itemAt=t+rand(2,8);
+function giveItem(e,t){const k=rollItem();e.item=k;e.ai.itemAt=t+rand(2,8);if(e.st.boxbonus)gainLvl(e,e.st.boxbonus);
   if(e.isPlayer){showToast(ITEMS[k].icon+' '+ITEMS[k].name+(k==='keys'?'':' · press E'));sfx.pickup();stars(e.x,e.y-20,6,[GOLD,'#fff','#9b5de5'],170)}}
 function useItem(e,t){const k=e.item;if(!k)return;
   if(k==='keys'){if(e.isPlayer)showToast('Pro Keyboard works by itself in your next duel');return}
-  const it=ITEMS[k];e.buff[k]=t+it.dur;e.item=null;
-  if(k==='shield')e.protect=Math.max(e.protect,t+it.dur);
+  const it=ITEMS[k];e.buff[k]=t+it.dur*e.st.itemx;
+  if(Math.random()<e.st.recycle){if(e.isPlayer)floater(e.x,e.y-74,'RECYCLED!','#9fdcff')}else e.item=null;
+  if(k==='shield')e.protect=Math.max(e.protect,t+it.dur*e.st.itemx);
   if(k==='smoke'){e.dashCharges=e.st.charges;e.dashCd=0;dust(e.x,e.y+10,18,'#d9d4e8',110,9)}
   ring(e.x,e.y+18,8,70,'#9b5de5',.45);stars(e.x,e.y-16,6,['#fff','#9b5de5',GOLD],160);e.sqv+=4;
   if(e.isPlayer){sfx.item();flash()}}
@@ -734,6 +788,7 @@ function stepEnt(e,dt,t){
   if(e.dashCd<=0&&e.dashCharges<st.charges){e.dashCharges++;if(e.dashCharges<st.charges)e.dashCd=DASH_CD*st.dashCd}
   e.sqv+=(-90*e.sq-11*e.sqv)*dt;e.sq=clamp(e.sq+e.sqv*dt,-.42,.42);   // squash & stretch spring
   if(st.bubble&&e.state!=='eaten'){e.bubbleT+=dt;if(e.bubbleT>=45&&!e.item){e.bubbleT=0;e.item='shield';if(e.isPlayer){showToast('Iron Bubble ready · press E');sfx.pickup()}}}
+  if(st.fairy&&e.state!=='eaten'){e.fairyT=(e.fairyT||0)+dt;if(e.fairyT>=60&&!e.item){e.fairyT=0;giveItem(e,t);if(e.isPlayer)sfx.pickup()}}
   if(L(e)>=150&&e.state!=='eaten'&&Math.random()<dt*30)parts.push({k:'sq',x:e.x+rand(-10,10),y:e.y+18,vx:rand(-15,15),vy:-rand(40,90),life:.5,max:.5,c:pick(['#ff6b3d','#ffc93c','#e8475f']),s:rand(4,7)});
   if(bf.rush>t&&Math.random()<dt*14)parts.push({k:'star',x:e.x+rand(-16,16),y:e.y-rand(0,30),vx:0,vy:-30,life:.5,max:.5,c:'#ff8fc2',s:rand(4,7),rot:Math.random()*3});
   let tl=0;
@@ -746,6 +801,7 @@ function stepEnt(e,dt,t){
     if(e.eatFood==='soda')tl=-side*.13*Math.min(1,p/.25);
     if(e.stateT<=0){e.state='move';e.bites=0;
       let gn=snackGain(e.lvl)*st.xp*(bf.rush>t?1.5:1);const jp=Math.random()<st.jackpot;if(jp)gn*=3;
+      e.chain=t-e.lastEat<4?Math.min(5,e.chain+1):0;e.lastEat=t;if(st.combo&&e.chain){gn*=1+st.combo*e.chain;if(e.isPlayer)floater(e.x-22,e.y-84,'COMBO x'+(e.chain+1),'#ff8fc2')}
       gainLvl(e,gn);e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
       if(e.isPlayer){stats.snacks++;floater(e.x,e.y-60,'+'+(gn*100).toFixed(gn<.1?1:0)+'%',GOLD);floater(e.x+18,e.y-84,jp?'JACKPOT!':pick(['YUM!','NOM!','TASTY!']),jp?GOLD:'#fff',jp)}}}
   else if(e.state==='duel'){e.vx=0;e.vy=0;if(Math.random()<dt*2.5)e.sqv+=Math.random()<.5?-1.6:1.6}
@@ -754,12 +810,12 @@ function stepEnt(e,dt,t){
     const w=e.want,turbo=bf.turbo>t;
     let sp=BASE*w.f*st.speed*(1-Math.min(.15,L(e)/1000))*(turbo?1.4:1);   // bigger levels are a little slower
     const spr=w.sprint&&(e.stamina>1||turbo)&&w.f>.2;
-    if(spr){sp*=1.55;if(!turbo)e.stamina=Math.max(0,e.stamina-38*dt)}else e.stamina=Math.min(st.staMax,e.stamina+(w.f<.2?30:18)*dt);
+    if(spr){sp*=st.sprintx;if(!turbo)e.stamina=Math.max(0,e.stamina-38*dt)}else e.stamina=Math.min(st.staMax,e.stamina+(w.f<.2?30:18)*dt*st.regen);
     e.sprinting=spr;
     if(w.dash&&e.dashCharges>0){let dx=w.ux,dy=w.uy;
       if(!dx&&!dy){dx=e.dir==='left'?-1:e.dir==='right'?1:0;dy=e.dir==='up'?-1:e.dir==='down'?1:0}
       e.dashCharges--;if(e.dashCd<=0)e.dashCd=DASH_CD*st.dashCd;
-      e.dashT=.17;e.slideT=.6*st.slide;e.vx=dx*780;e.vy=dy*780;
+      e.dashT=.17;e.slideT=.6*st.slide;e.vx=dx*780*st.dashv;e.vy=dy*780*st.dashv;
       e.sq=-.3;e.sqv=10;sfx.dash(vol(e));   // crouch, then spring into a stretch
       dust(e.x,e.y+22,10,'#e9dcc0',170,5);ring(e.x,e.y+22,6,52,'#fff',.35);
       if(e.isPlayer){kick=Math.max(kick,.09);shake=Math.max(shake,3)}}
@@ -790,7 +846,7 @@ function stepEnt(e,dt,t){
     for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];
       if((e.isPlayer||!e.item)&&Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14){boxes.splice(i,1);giveItem(e,t);break}}
     for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];
-      if(Math.abs(o.x-e.x)<e.r+16&&Math.abs(o.y-e.y)<e.r+16){orbs.splice(i,1);gainLvl(e,o.v);e.sqv+=2.5;stars(o.x,o.y,3,[GOLD,'#fff'],120);if(e.isPlayer){sfx.orb();floater(e.x,e.y-56,'+'+o.v.toFixed(1)+' LV',GOLD)}}}
+      if(Math.abs(o.x-e.x)<e.r+16&&Math.abs(o.y-e.y)<e.r+16){orbs.splice(i,1);gainLvl(e,o.v*st.orbx);e.sqv+=2.5;stars(o.x,o.y,3,[GOLD,'#fff'],120);if(e.isPlayer){sfx.orb();floater(e.x,e.y-56,'+'+o.v.toFixed(1)+' LV',GOLD)}}}
     for(let i=0;i<foods.length;i++){const f=foods[i];
       if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){foods.splice(i,1);e.state='eat';
         e.eatT=EAT_T*st.eatT*(bf.rush>t?.35:1);e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
@@ -812,7 +868,7 @@ function startDuel(a,b,t){a.state='duel';b.state='duel';a.vx=a.vy=b.vx=b.vy=0;
 function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=.6;
   // you do not get everything: about half goes to the winner, some of the rest drops as orbs anyone can grab
   const Ll=L(l),Lw=L(w),frac=.5*clamp(Ll/Math.max(1,Lw)*2,.3,1),base=Math.max(1,Math.round(Ll*frac));
-  const slain=l===king,bonus=slain?Math.ceil(Ll*.25)+3:0,gained=Math.max(1,Math.round(base*w.st.plunder))+bonus;
+  const slain=l===king,bonus=slain?Math.round((Math.ceil(Ll*.25)+3)*w.st.kingx):0,gained=Math.max(1,Math.round(base*w.st.plunder))+bonus;
   dropOrbs(l.x,l.y,Math.max(0,Ll-base)*.6);
   if(l.isPlayer)respawnLvl=Math.max(1,Math.floor(Ll*l.st.keep));
   if(slain){floater(w.x,w.y-128,'KING SLAIN!',GOLD,true);if(w.isPlayer||l.isPlayer)sfx.king()}
@@ -823,12 +879,12 @@ function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=
   if(w.isPlayer||l.isPlayer){hitstop=.22;shake=Math.max(shake,9);kick=Math.max(kick,.14);flash();w.isPlayer?sfx.chomp():sfx.lose()}else sfx.chomp(vol(w)*.7)
   gainLvl(w,gained);
   if(l.isPlayer){deadT=1}}
-function sentenceWords(me,op,caught,kb){const adv=Math.min(2,Math.floor(Math.max(0,L(me)-L(op))/6)),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,key=kb?2:0;
-  return{n:Math.max(2,6-adv-chase-perk-key),adv,chase,perk,key}}
+function sentenceWords(me,op,caught,kb){const adv=Math.min(2,Math.floor(Math.max(0,L(me)-L(op))/6)),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,key=kb?2:0,curse=op.st.curse,under=L(op)>L(me)?me.st.underdog:0;
+  return{n:Math.max(2,6-adv-chase-perk-key-under+curse),adv,chase,perk,key,curse,under}}
 function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   const ps=sentenceWords(p,o,pCaught,pKb),os=sentenceWords(o,p,oCaught,oKb);
   const text=pickSentence(ps.n),otext=pickSentence(os.n);
-  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(28+o.skill+L(o)*.25+rand(-3,3),18,100),phase:'count',countT:2.4,start:0,oStep:0,lastN:'',streak:0,forgive:p.st.forgive,delay:p.st.head,flow:p.st.flow,run:0};
+  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(28+o.skill+L(o)*.25+rand(-3,3),18,100),phase:'count',countT:5.6,start:0,oStep:0,lastN:'',streak:0,forgive:p.st.forgive,delay:p.st.head,flow:p.st.flow,run:0};
   $('dMe').textContent=p.name+' · Lv '+L(p);$('dOp').textContent=o.name+' · Lv '+L(o);
   const chips=[];
   if(ps.chase)chips.push(['good','You caught them: '+ps.chase+' fewer words']);
@@ -836,6 +892,9 @@ function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   if(ps.adv)chips.push(['good','Level edge: '+ps.adv+' fewer words']);
   if(os.adv)chips.push(['badc','Their level edge: '+os.adv+' fewer words']);
   if(ps.perk)chips.push(['good','Short Phrases: '+ps.perk+' fewer words']);
+  if(ps.under)chips.push(['good','Underdog: '+ps.under+' fewer word'+(ps.under>1?'s':'')]);
+  if(os.curse)chips.push(['badc','Their Curse: '+os.curse+' more word'+(os.curse>1?'s':'')+' for them']);
+  if(ps.curse)chips.push(['good','Curse: '+ps.curse+' more word'+(ps.curse>1?'s':'')+' for them']);
   if(ps.key)chips.push(['good','Pro Keyboard: 2 fewer words']);
   if(os.key)chips.push(['badc','Their Pro Keyboard: 2 fewer words']);
   if(p.st.head)chips.push(['good','Head Start: they start '+p.st.head.toFixed(1)+'s late']);
@@ -843,7 +902,11 @@ function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   chips.push(['','Your phrase: '+text.split(' ').length+' words'],['','Theirs: '+otext.split(' ').length+' words']);
   $('chips').innerHTML=chips.map(([c,s],i)=>'<span class="chip '+c+'" style="animation-delay:'+(.25+i*.07)+'s">'+s+'</span>').join('');
   $('dMeBar').style.width='0%';$('dOpBar').style.width='0%';$('dWpm').textContent='0 WPM';
-  perksEl.hidden=true;renderTyping();$('duel').hidden=false;restart($('duel'),'in');$('hud').hidden=true;$('count').hidden=false;$('count').textContent='3';restart($('count'),'pop');duel.lastN='3';shift=false;}
+  perksEl.hidden=true;renderTyping();$('duel').hidden=false;restart($('duel'),'in');$('hud').hidden=true;$('count').hidden=false;$('count').textContent='READY?';restart($('count'),'pop');duel.lastN='READY?';shift=false;
+  const bn=$('dbanner');
+  if(pCaught||oCaught){bn.hidden=false;bn.className=pCaught?'good':'bad';
+    bn.textContent=pCaught?(ps.chase?'GOTCHA! You caught them running: '+ps.chase+' fewer words for you':'You caught them, but they are Slippery: no bonus'):(os.chase?'CAUGHT RUNNING! '+o.name+' gets '+os.chase+' fewer words':'You ran and got caught, but Slippery saved you');restart(bn,'pop')}
+  else bn.hidden=true;}
 const esc=c=>c==='<'?'&lt;':c==='>'?'&gt;':c==='&'?'&amp;':c;
 function renderTyping(){const {text,typed}=duel;let html='<span class="w">';
   for(let i=0;i<text.length;i++){const c=text[i];let cls='';
@@ -870,13 +933,14 @@ function handleTyping(e){
 function liveWpm(t){if(!duel||duel.phase!=='type')return 0;let ok=0;for(let i=0;i<duel.typed.length;i++)if(duel.typed[i]===duel.text[i])ok++;else break;
   const m=Math.max(.05,(t-duel.start)/60);return Math.round(ok/5/m)}
 function endTypingDuel(win){const t=now(),w=liveWpm(t);stats.best=Math.max(stats.best,win?w:0);
-  const {p,o}=duel;duel=null;$('duel').hidden=true;$('hud').hidden=!win;$('count').hidden=true;
+  const {p,o}=duel;duel=null;$('dbanner').hidden=true;$('duel').hidden=true;$('hud').hidden=!win;$('count').hidden=true;
   if(win){stats.won++;finishDuel(p,o,t);showToast('Chomp! '+w+' WPM')}else{finishDuel(o,p,t);showToast(o.name+' was faster')}
   if(win)showOffer()}
 function updateDuel(dt,t){
-  if(duel.phase==='count'){duel.countT-=dt;const n=Math.ceil(duel.countT/.8),lab=n>0?String(n):'TYPE!';
-    if(lab!==duel.lastN){duel.lastN=lab;$('count').textContent=lab;restart($('count'),'pop');sfx.tick(n);
-      const mx=(duel.p.x+duel.o.x)/2,my=(duel.p.y+duel.o.y)/2;ring(mx,my,6,n>0?60:110,n>0?'#fff':GOLD,.4);duel.p.sqv-=2;duel.o.sqv-=2;if(n<=0){shake=Math.max(shake,5);stars(mx,my-20,8,[GOLD,'#fff'],240)}}
+  if(duel.phase==='count'){duel.countT-=dt;const prep=duel.countT>2.4,n=prep?-1:Math.ceil(duel.countT/.8),lab=prep?'READY?':n>0?String(n):'TYPE!';
+    if(lab!==duel.lastN){duel.lastN=lab;$('count').textContent=lab;restart($('count'),'pop');
+      if(!prep){sfx.tick(n);$('dbanner').hidden=true;
+        const mx=(duel.p.x+duel.o.x)/2,my=(duel.p.y+duel.o.y)/2;ring(mx,my,6,n>0?60:110,n>0?'#fff':GOLD,.4);duel.p.sqv-=2;duel.o.sqv-=2;if(n<=0){shake=Math.max(shake,5);stars(mx,my-20,8,[GOLD,'#fff'],240)}}}
     if(duel.countT<=0){duel.phase='type';duel.start=t;renderTyping();setTimeout(()=>{if(duel)$('count').hidden=true},450)}return}
   duel.delay-=dt;   // Head Start: the opponent begins typing late
   const slow=duel.flow&&duel.streak>=20?.7:1;
@@ -921,6 +985,7 @@ function update(dt,t){
   for(const h of houses){const inside=player&&game==='play'&&houseAt(player.x,player.y)===h;h.alpha+=((inside?0:1)-h.alpha)*Math.min(1,dt*8)}
   if(toastT>0){toastT-=dt;if(toastT<=0)$('toast').style.opacity=0;if(toastT<-.5)$('toast').hidden=true}
   if(player&&game==='play'){const ih=houseAt(player.x,player.y);if(ih&&ih!==player.inHouse)sfx.door();player.inHouse=ih;updateHud(t);drawMini()}
+  music.mode(game!=='play'?'menu':duel?'duel':king===player&&player?'king':'play');
   boardT-=dt;if(boardT<=0&&game==='play'){boardT=.5;updateBoard()}}
 function showDeath(){game='dead';
   $('deadby').textContent='Eaten by '+(player.eater?player.eater.name:'someone')+'. '+(respawnLvl>1?'Last Stand: you will restart at level '+respawnLvl+'.':'Snack, dash and duel your way back up.');
@@ -949,6 +1014,9 @@ const esc2=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&q
 const muteBtn=$('mute');
 const showMute=()=>{muteBtn.textContent=sfx.muted?'Sound off':'Sound on'};showMute();
 muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(!sfx.muted)sfx.click()});
+const musicBtn=$('musicbtn');
+const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
+musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
 const mctx=$('mini').getContext('2d');
 function drawMini(){const c=300,k=c/WORLD;mctx.fillStyle='#8bcf66';mctx.fillRect(0,0,c,c);
   for(const h of houses){mctx.fillStyle=h.roof;mctx.fillRect(h.x*k,h.y*k,Math.max(6,h.w*k),Math.max(6,h.h*k))}
@@ -1103,6 +1171,7 @@ function drawEnt(e,t){
 function drawTag(e){const tt=now();const l=L(e),txt='Lv '+l+'  '+e.name;const dx=duel&&(duel.p===e||duel.o===e)?(duel.p===e?-1:1)*(duel.p.x<=duel.o.x?1:-1)*62:0;ctx.font='15px "Lilita One", "Arial Rounded MT Bold", sans-serif';ctx.textAlign='center';
   ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.lineJoin='round';const y=e.y-lookOf(e.lvl).crown*9-58;
   ctx.strokeText(txt,e.x+dx,y);ctx.fillStyle=e.isPlayer?GOLD:'#fff';ctx.fillText(txt,e.x+dx,y);
+  if(e.state==='move'&&Object.values(e.fled).some(v=>v>tt)){ctx.font='15px "Lilita One", sans-serif';ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.strokeText('😰 RUNNING',e.x+dx,y-22);ctx.fillStyle='#ff8fa0';ctx.fillText('😰 RUNNING',e.x+dx,y-22)}
   if(e===king&&e.state!=='duel')drawCrown(e.x+dx,y-24,1.1,tt);
   if(e.state==='duel'&&!e.isPlayer&&!(duel&&duel.o===e)){ctx.font='18px "Lilita One", sans-serif';ctx.strokeText('VS',e.x+dx,y-20);ctx.fillStyle='#ff6b3d';ctx.fillText('VS',e.x+dx,y-20)}
   if(e.state==='duel'&&duel&&(duel.o===e||duel.p===e)){ctx.font='16px "Lilita One", sans-serif';ctx.strokeText('TYPING…',e.x+dx,y-20);ctx.fillStyle=GOLD;ctx.fillText('TYPING…',e.x+dx,y-20)}}
