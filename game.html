@@ -260,32 +260,43 @@ function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b
 const WORDS=('able about above absent accept access across action active actor adapt adult advice affect after again agent agree ahead alarm album alert alien alive allow alone along alpha always amazing anchor ancient angle animal answer anyone appear arena argue armor around arrive arrow artist ashes aside asleep aspect assist atlas attack attic august author autumn avenue awake award aware axis baby back badge balance ball bamboo banner barrel base basket battle beach beam bear beast beauty bell below bench beyond bicycle bird black blade blank blast blaze blend blind block blood bloom blue board boat bold bolt bone bonus book boost border born boss bottle bottom bounce brain brake branch brave break breath brick bridge brief bright bring broad broken bronze brook brother brown brush bubble bucket build bulb bunch burn burst bush button cabin cable calm camel camera camp canal candle canyon cape captain carbon card careful cargo carpet carry cart case castle catch cause cave ceiling center chain chair chalk champion chance change chaos chapter charge chart chase cheer chess chest chief child chill chimney chin choice choose circle circus city civil claim clap class clean clear clever cliff climb clock close cloth cloud clown club coach coast cobra code coin cold collar color comet common compass copper coral corner cosmic couch could count court cover crack craft crane crash crazy creek crew cricket crisp cross crowd crown crystal cube curve cycle daily dance danger dark dash dawn dazzle dead deal dear debate deck deep deer defend delay delta desert design desk detail device dial diamond diary dice digital dinosaur direct dirt disco dive dizzy doctor dodge dog doll dolphin domain door double dove down dozen draft dragon drama draw dream dress drift drill drive drone drop drum dry duck dune dust duty dwarf eager eagle early earth easel east easy echo edge editor eight elbow elder electric elephant elite empire empty enemy energy engine enjoy enter entry envelope equal error escape essay even event every evil exact example exit expert extra eyes fable face fact fade fair fairy faith fake fall false family fancy fantasy farm fast fate father fault feather fence ferry festival fever field fierce fight film final finger fire firm first fish five flag flame flash flat fleet flight flint float flock flood floor flower fluffy flute flying focus fog fold folk follow foot force forest forge forget forward fossil found four fox frame freedom fresh friend frog front frost frozen fuel full funny future galaxy gallery game garage garden gate gather gear gem general genius gentle ghost giant gift giraffe glass glide globe glory glove glow goal goat gold golf good gorilla grab grace grade grand graph grass gravity great green grid grip ground group grow guard guess guest guide guitar habit hair half hall hammer hand happy harbor hard harmony harp hat hawk head heart heat heavy hedge height helmet help hero hidden high hill hint history hobby hockey hold hole holiday home honest hood hope horizon horn horse hotel hour house human humble hunt hurry hybrid ice icon idea igloo image impact inch index indigo injury ink inner insect inside iron island issue ivory jacket jaguar jar jazz jet jewel job join joke journey joy judge juggle jump jungle junior just kayak keen keep kernel key kick kid kind king kiss kite kitten knee knife knight knock knot know label ladder lake lamp land lantern laser last late laugh launch lava law lazy leader leaf learn leather left legend lens leopard lesson letter level liberty library light lily limit line lion liquid list little lively lizard local lock lodge logic lonely long loop lord loud love low lucky lumber lunar lynx machine magic magnet main major maker mammal map maple marble march marine mark market marsh mask master match matrix maze meadow medal medium melody member memory mental mercy mesh metal meteor method middle might mile mind mine mirror mission mist model modern moment monkey monster month moon moral morning moss moth motor mountain mouse move movie much music mystery myth nail name narrow nation native nature navy near neat neck needle neon nerve nest net never new next nice night ninja noble noise noon north nose note novel now number nurse oak oasis object ocean odd offer office often oil old omega once one online open opera orbit orchid order organ origin other otter outer oval over owl owner oxygen pace pack paddle page pain paint pair palace palm panda panel paper parade parent park parrot party pass past patch path pattern pause peace peak pearl pedal pencil penguin people perfect period pet phantom phone photo piano pick picture piece pigeon pilot pine pink pipe pirate pitch place plain plan planet plant plastic plate play plaza plot plug plus pocket poem point polar pole pond pony pool poor portal pose post pot power prairie press pride prince print prism prize proof proud pulse pump punch pupil puppy pure purple puzzle pyramid quake quality quantum quarter queen quest quick quiet quilt quiz rabbit race radar radio rail rain raise rally ranch range rapid rare raven ray reach ready real realm reason rebel record red reef relax relay reload remote repair reply rescue rest return reward rhythm ribbon rich ride ridge right ring ripple rise risk river road roar robot rock rocket roll roof room root rope rose rough round route royal ruby rule run rush rust sacred saddle safe sail saint sample sand satellite savage scale scarf scene school science scissors score scout screen script sea season secret seed select sense serve seven shadow shake shape share shark sharp shed sheep shelf shell shield shift shine ship shirt shock shoe shoot shop shore short shoulder shout show shrine side sight sign silent silk silver simple sing single sister six size skate sketch skill skin sky slam sleep slice slide slim slope slow small smart smile smoke smooth snake sniper snow soft solar soldier solid solo song sonic sound south space spark speak speed spell spider spin spirit split sport spot spring spy squad square stable staff stage stair stamp stand star start state statue steady steel steep stem step stick still stone stop storm story strange stream street stretch strike string strong studio study style submit summer sun super supply surf surge swamp swan sweep swift swim swing sword symbol system table tackle tail tale talent talk tall tank tape target task team tech temple ten tent terra thank theme theory thick thin thing think third thorn thought thread three thrill throne thumb thunder ticket tide tiger tight timber time tiny tip tired title today together token tomorrow tone tool tooth top torch total touch tough tour tower town toy trace track trade trail train travel tree trend triangle tribe trick trip troop truck true trumpet trust truth tube tunnel turbo turn turtle twelve twin twist two umbrella uncle under union unit unity upper urban use usual valley value vapor vast vault vector velvet venture verse vessel victory video view village vine violet violin virtual vision visit vital voice volcano volume vote voyage wagon waist wait wake walk wall wander war warm warrior wash watch water wave wax way weak wealth weather web wedge week weight welcome west whale wheel whisper white whole wide wild will wind window wing winter wire wise wish witch wizard wolf wonder wood wool word work world worry worth wrap wrist write yacht yard year yellow yes yield young youth zebra zero zigzag zip zone zoom').split(' ');
 function makePhrase(n){const out=[];while(out.length<n){const w=pick(WORDS);if(w!==out[out.length-1])out.push(w)}return out.join(' ')}
 
-/* ---------- world: buildings, furniture & nature ---------- */
-const houses=[], walls=[], trees=[], bushes=[], WT=16;
+/* ---------- world: buildings, furniture, props & nature ---------- */
+const houses=[], walls=[], trees=[], bushes=[], decor=[], doorZones=[], WT=16;
 const BTYPES={
   home:{w:[340,420],h:[260,320],roofs:['#e8475f','#3d7dd8','#9b5de5','#f28c28'],floor:'wood',food:1},
   diner:{w:[470,540],h:[300,350],roofs:['#e8475f'],floor:'checker',food:2.4},
   bakery:{w:[380,440],h:[270,320],roofs:['#ff8fc2'],floor:'tile',food:2},
   gym:{w:[440,500],h:[300,350],roofs:['#3d7dd8'],floor:'mat',food:.8},
-  shed:{w:[230,270],h:[190,220],roofs:['#2a9d8f'],floor:'dark',food:.7}
+  shed:{w:[230,270],h:[190,220],roofs:['#2a9d8f'],floor:'dark',food:.7},
+  arcade:{w:[420,480],h:[290,330],roofs:['#8a4fe0'],floor:'neon',food:1.2},
+  barn:{w:[480,560],h:[320,380],roofs:['#b5462b'],floor:'hay',food:.9},
+  library:{w:[420,480],h:[280,320],roofs:['#2a7f9b'],floor:'carpet',food:.6},
+  greenhouse:{w:[400,460],h:[280,320],roofs:['#8fd9a8'],floor:'greentile',food:1.5},
+  cafe:{w:[330,380],h:[250,280],roofs:['#c96a3d'],floor:'cafe',food:2}
 };
 const PLANS={
   home:[['bed','lt',84,58],['sofa','rt',92,44],['plant','lb',30,30],['table','rb',56,56]],
   diner:[['booth','lt',86,54],['booth','rt',86,54],['counter','lb',120,38],['counter','rb',120,38]],
   bakery:[['oven','lt',72,52],['shelf','rt',96,28],['counter','lb',110,38],['crates','rb',46,46]],
   gym:[['weights','lt',90,34],['weights','rt',90,34],['bench','lb',76,34],['bench','rb',76,34]],
-  shed:[['crates','lt',40,40],['crates','rb',40,40]]
+  shed:[['crates','lt',40,40],['crates','rb',40,40]],
+  arcade:[['arcade','lt',52,54],['arcade','rt',52,54],['arcade','lb',52,54],['arcade','rb',52,54]],
+  barn:[['haybale','lt',80,48],['haybale','rt',80,48],['barrel','lb',34,34],['crates','rb',46,46]],
+  library:[['bookshelf','lt',100,30],['bookshelf','rt',100,30],['table','lb',56,56],['sofa','rb',92,44]],
+  greenhouse:[['planter','lt',90,40],['planter','rt',90,40],['planter','lb',90,40],['plant','rb',30,30]],
+  cafe:[['booth','lt',80,52],['counter','rt',90,38],['table','lb',52,52],['plant','rb',30,30]]
 };
 function makeBuildings(){
   // 6x6 grid of cells, 30 of them get a building, the rest stay open ground
-  const order=[];const add=(t,n)=>{for(let i=0;i<n;i++)order.push(t)};add('home',12);add('diner',5);add('bakery',4);add('gym',4);add('shed',5);
+  const order=[];const add=(t,n)=>{for(let i=0;i<n;i++)order.push(t)};
+  add('home',6);add('diner',3);add('bakery',3);add('gym',3);add('shed',2);add('arcade',3);add('barn',3);add('library',3);add('greenhouse',2);add('cafe',2);
   const cells=[];for(let i=0;i<36;i++)cells.push(i);
   for(let i=cells.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[cells[i],cells[j]]=[cells[j],cells[i]]}
   order.forEach((type,n)=>{
     const c=cells[n],B=BTYPES[type],cx=600+(c%6)*1200+rand(-140,140),cy=600+((c/6)|0)*1200+rand(-140,140);
     const w=rand(B.w[0],B.w[1])|0,h=rand(B.h[0],B.h[1])|0,x=Math.round(cx-w/2),y=Math.round(cy-h/2);
     const sides=['n','e','s','w'];for(let i=3;i>0;i--){const j=(Math.random()*(i+1))|0;[sides[i],sides[j]]=[sides[j],sides[i]]}
-    const doors=sides.slice(0,type==='shed'?2:3);   // several entrances, marked with mats outside
+    const doors=sides.slice(0,type==='shed'||type==='cafe'?2:3);   // several entrances, marked with mats outside
     const hs={x,y,w,h,doors,type,floor:B.floor,roof:pick(B.roofs),food:B.food,alpha:1};
     houses.push(hs);
     const G=110,add=(x,y,w,h)=>walls.push({x,y,w,h});
@@ -298,22 +309,59 @@ function makeBuildings(){
     // furniture sits in the corners so the doorways stay clear
     const m=WT+8,ix=x+m,iy=y+m,ix2=x+w-m,iy2=y+h-m;
     for(const [kind,cc,fw,fh] of PLANS[type])walls.push({x:cc[0]==='l'?ix:ix2-fw,y:cc[1]==='t'?iy:iy2-fh,w:fw,h:fh,kind});
+    // keep the ground in front of every door free of trees and props
+    const mx=x+w/2,my=y+h/2;
+    for(const d of doors)doorZones.push(d==='n'?{x:mx-80,y:y-170,w:160,h:170}:d==='s'?{x:mx-80,y:y+h,w:160,h:170}:d==='w'?{x:x-170,y:my-80,w:170,h:160}:{x:x+w,y:my-80,w:170,h:160});
   });
 }
+const nearHouse=(x,y,m)=>houses.some(h=>x>h.x-m&&x<h.x+h.w+m&&y>h.y-m&&y<h.y+h.h+m)||doorZones.some(z=>x>z.x-m*.6&&x<z.x+z.w+m*.6&&y>z.y-m*.6&&y<z.y+z.h+m*.6);
+const nearWall=(x,y,m)=>walls.some(w=>x>w.x-m&&x<w.x+w.w+m&&y>w.y-m&&y<w.y+w.h+m);
+/* props come in little scenes: a camp, a market, a pond, a fenced field, a park, a well */
+function scatterProps(){
+  const used=[];
+  const free=(x,y,r)=>!nearHouse(x,y,r+30)&&!used.some(u=>Math.hypot(u.x-x,u.y-y)<u.r+r)&&!nearWall(x,y,r);
+  const find=r=>{for(let i=0;i<300;i++){const x=rand(r+90,WORLD-r-90),y=rand(r+90,WORLD-r-90);if(free(x,y,r)){used.push({x,y,r});return{x,y}}}return null};
+  const solid=(kind,x,y,w,h)=>walls.push({x:x-w/2,y:y-h/2,w,h,kind});
+  const dec=(kind,x,y,s=1,c)=>decor.push({kind,x,y,s,c});
+  for(let n=0;n<6;n++){const p=find(180);if(!p)continue;   // camp
+    solid('campfire',p.x,p.y,30,30);for(let i=0;i<3;i++){const a=i*2.09+rand(-.3,.3);solid('tent',p.x+Math.cos(a)*88,p.y+Math.sin(a)*88,66,56)}
+    solid('log',p.x-46,p.y+50,58,18);solid('log',p.x+48,p.y-52,58,18);dec('mushroom',p.x+rand(-120,120),p.y+rand(-120,120))}
+  for(let n=0;n<5;n++){const p=find(260);if(!p)continue;   // market
+    for(let i=-1;i<=1;i++)solid('stall',p.x+i*140,p.y,100,46);
+    solid('barrel',p.x-190,p.y+40,30,30);solid('barrel',p.x+190,p.y+40,30,30);solid('crates',p.x+66,p.y+70,40,40);dec('flowerbed',p.x,p.y+90,1.2)}
+  for(let n=0;n<6;n++){const p=find(240);if(!p)continue;   // pond
+    solid('pond',p.x,p.y,300,180);solid('parkbench',p.x-70,p.y+118,56,22);solid('parkbench',p.x+70,p.y+118,56,22);
+    for(let i=0;i<10;i++)dec('reed',p.x+rand(-160,160),p.y+(Math.random()<.5?-104:104)+rand(-6,6),rand(.8,1.2));
+    for(let i=0;i<4;i++)dec('lily',p.x+rand(-110,110),p.y+rand(-60,60),rand(.8,1.3))}
+  for(let n=0;n<5;n++){const p=find(260);if(!p)continue;   // fenced field with a gap in the south fence
+    const W2=300,H2=200,x0=p.x-W2/2,y0=p.y-H2/2;
+    solid('fence',p.x,y0,W2,14);solid('fence',x0,p.y,14,H2);solid('fence',x0+W2,p.y,14,H2);
+    solid('fence',x0+55,y0+H2,110,14);solid('fence',x0+W2-55,y0+H2,110,14);   // gap in the middle
+    for(let i=0;i<4;i++)solid('haybale',x0+70+i*52,y0+55,44,32);
+    for(let r=0;r<3;r++)for(let i=0;i<5;i++)dec('crop',x0+60+i*45,y0+120+r*20,1);
+    dec('scarecrow',p.x,p.y+40,1)}
+  for(let n=0;n<6;n++){const p=find(200);if(!p)continue;   // little park
+    solid('well',p.x,p.y,44,44);solid('parkbench',p.x-90,p.y+34,58,22);solid('parkbench',p.x+90,p.y+34,58,22);
+    solid('lamp',p.x-90,p.y-50,14,14);solid('lamp',p.x+90,p.y-50,14,14);
+    for(let i=0;i<5;i++)dec('flowerbed',p.x+rand(-130,130),p.y+rand(60,110),rand(.8,1.2),pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff']))}
+  for(let n=0;n<10;n++){const p=find(60);if(!p)continue;solid(pick(['well','barrel','stump']),p.x,p.y,34,34);if(Math.random()<.6)solid('lamp',p.x+40,p.y-20,14,14)}
+  for(let n=0;n<8;n++){const p=find(40);if(p)dec('sign',p.x,p.y,1)}
+}
 function scatterNature(){
-  const near=(x,y,m)=>houses.some(h=>x>h.x-m&&x<h.x+h.w+m&&y>h.y-m&&y<h.y+h.h+m);
-  for(let i=0;i<2500&&trees.length<420;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60);
-    if(near(x,y,80)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<120))continue;
-    trees.push({x,y,s:rand(.85,1.2),pine:Math.random()<.3,alpha:1});walls.push({x:x-9,y:y-6,w:18,h:14,kind:'trunk'})}
-  for(let i=0,n=0;i<600&&n<130;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
-    if(near(x,y,50)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<70))continue;
-    n++;walls.push({x:x-16,y:y-11,w:32,h:22,kind:'rock'})}
-  for(let i=0;i<330;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!near(x,y,30))bushes.push({x,y,s:rand(.7,1.2)})}
+  const kinds=['round','round','round','round','pine','pine','pine','birch','cherry','autumn','autumn'];
+  for(let i=0;i<3500&&trees.length<440;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60);
+    if(nearHouse(x,y,80)||nearWall(x,y,60)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<120))continue;
+    trees.push({x,y,s:rand(.85,1.2),kind:pick(kinds),alpha:1});walls.push({x:x-9,y:y-6,w:18,h:14,kind:'trunk'})}
+  for(let i=0,n=0;i<800&&n<150;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
+    if(nearHouse(x,y,50)||nearWall(x,y,40)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<70))continue;
+    n++;if(Math.random()<.25)walls.push({x:x-24,y:y-10,w:48,h:20,kind:'log'});else walls.push({x:x-16,y:y-11,w:32,h:22,kind:'rock'})}
+  for(let i=0;i<420;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!nearHouse(x,y,30)&&!nearWall(x,y,20))bushes.push({x,y,s:rand(.7,1.2)})}
+  for(let i=0;i<260;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40);if(!nearHouse(x,y,30)&&!nearWall(x,y,20))decor.push({kind:pick(['flowerbed','flowerbed','mushroom']),x,y,s:rand(.8,1.2),c:pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff'])})}
 }
 // the world is built from a seed so every player on a server gets exactly the same map
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function buildWorld(seed){const real=Math.random;Math.random=mulberry32(seed);
-  try{houses.length=0;walls.length=0;trees.length=0;bushes.length=0;makeBuildings();scatterNature()}finally{Math.random=real}}
+  try{houses.length=0;walls.length=0;trees.length=0;bushes.length=0;decor.length=0;doorZones.length=0;makeBuildings();scatterProps();scatterNature()}finally{Math.random=real}}
 let WORLD_SEED=(Math.random()*1e9)|0;buildWorld(WORLD_SEED);
 const houseAt=(x,y)=>houses.find(h=>x>h.x&&x<h.x+h.w&&y>h.y&&y<h.y+h.h);
 function freeSpot(m){for(let i=0;i<60;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60);
@@ -898,10 +946,11 @@ function stepEnt(e,dt,t){
   if(e.sprinting&&s>240&&Math.random()<dt*22){const a=Math.atan2(e.vy,e.vx);streak(e.x-Math.cos(a)*16+rand(-6,6),e.y+rand(-4,14),a,rand(14,26),'rgba(255,255,255,.8)')}
   if(s>20){e.dir=Math.abs(e.vx)>Math.abs(e.vy)?(e.vx>0?'right':'left'):(e.vy>0?'down':'up');e.walk+=s*dt/28*(e.sprinting?1.25:1)}else e.walk=0;
   const sti=Math.floor(e.walk);if(sti!==e.lastStep){e.lastStep=sti;if(e.sprinting||e.dashT>0)dust(e.x,e.y+22,2,'#e9dcc0',45,3.5)}
-  // running away while someone is close marks you as "fled" from them
+  // running away marks you as "fled" from someone, but only if that someone is really coming after you:
+  // you must move away from them AND they must move toward you (dashing past a slow target does not count)
   if(e.state==='move'&&(e.sprinting||e.dashT>0||s>300)){
     for(const o of ents){if(o===e||o.state!=='move')continue;const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);
-      if(d<420&&d>1&&(e.vx*dx+e.vy*dy)/d>80)e.fled[o.id]=t+5}}
+      if(d<420&&d>1&&(e.vx*dx+e.vy*dy)/d>80&&(o.vx*dx+o.vy*dy)/d>60)e.fled[o.id]=t+3}}
   if(e.state==='move'){
     const magnet=bf.magnet>t,vr=Math.max(st.vac,magnet?420:0),gr=st.nose?380:magnet?280:0;
     const pull=(o,r,sp)=>{const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);if(d<r&&d>1){const k=Math.min(d,sp*dt)/d;o.x+=dx*k;o.y+=dy*k}};
@@ -952,12 +1001,15 @@ function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=
   floater(w.x,w.y-104,'CHOMP!','#fff',true);const gl=gained();floater(w.x,w.y-80,'+'+(gl>=10?gl.toFixed(0):gl.toFixed(1))+' LV',GOLD,true);
   if(w.isPlayer||l.isPlayer){hitstop=.22;shake=Math.max(shake,9);kick=Math.max(kick,.14);flash();w.isPlayer?sfx.chomp():sfx.lose()}else sfx.chomp(vol(w)*.7)
   if(l.isPlayer){deadT=1}}
-// the higher your level, the longer your phrase: newcomers type 3 words, kings type up to 20
-function sentenceWords(me,op,caught,kb){const base=clamp(3+Math.floor(L(me)/10),3,20),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
+// both sides of a duel: nobody types less than half of what the other side types
+function duelWords(a,b,aC,bC,ka,kb){const ps=sentenceWords(a,b,aC,ka),os=sentenceWords(b,a,bC,kb),floor=Math.ceil(Math.max(ps.n,os.n)/2);
+  ps.n=Math.max(ps.n,floor);os.n=Math.max(os.n,floor);return[ps,os]}
+// the higher your level, the longer your phrase: newcomers type 3 words, +1 per 12 levels, up to 20
+function sentenceWords(me,op,caught,kb){const base=clamp(3+Math.floor(L(me)/12),3,20),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
     under=L(op)>L(me)?me.st.underdog:0,curse=op.st.curse,key=kb==='gkeys'?Math.floor(base/2):kb?2:0;
   return{n:clamp(base-chase-perk-under+curse-key,2,26),base,chase,perk,key,curse,under}}
 function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
-  const ps=sentenceWords(p,o,pCaught,pKb),os=sentenceWords(o,p,oCaught,oKb);
+  const [ps,os]=duelWords(p,o,pCaught,oCaught,pKb,oKb);
   const text=makePhrase(ps.n),otext=makePhrase(os.n);
   duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(32+o.skill+L(o)*.1+rand(-3,3),18,100),phase:'count',countT:5.6,start:0,oStep:0,lastN:'READY?',streak:0,forgive:p.st.forgive,warm:p.st.warm,delay:p.st.head,flow:p.st.flow,run:0};
   presentDuel(p,o,ps,os,text,duelBanner(pCaught,oCaught,ps,os,o.name))}
@@ -1031,7 +1083,7 @@ function update(dt,t){
     if(nk!==king){if(player&&nk===player){showToast('You are the KING! Everyone hunts you');sfx.king()}else if(player&&king===player&&game==='play')showToast('You lost the crown');king=nk}}
   if(foods.filter(f=>!f.inside).length<FOOD_OUT&&Math.random()<dt*8)spawnFood(false);
   if(foods.filter(f=>f.inside).length<FOOD_IN&&Math.random()<dt*2)spawnFood(true);
-  if(player&&player.state==='move'&&game==='play'){
+  if(player&&(player.state==='move'||player.state==='eat')&&game==='play'){
     const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);
     player.want=d>6&&!overUI?{ux:dx/d,uy:dy/d,f:clamp((d-6)/110,0,1),sprint:shift,dash:dashPressed}:{ux:0,uy:0,f:0,sprint:false,dash:dashPressed}}
   dashPressed=false;
@@ -1157,7 +1209,7 @@ function duelBanner(pCaught,oCaught,ps,os,oName){
   else{const d=os.n-ps.n;cls=d>0?'good':d<0?'bad':'neutral';main=d>0?'YOU HAVE THE EDGE':d<0?'THEY HAVE THE EDGE':'EVEN FIGHT';sub=counts}
   return{main,sub,cls}}
 function srvStartDuel(a,b,aC,bC,ka,kb,t){
-  const ps=sentenceWords(a,b,aC,ka),os=sentenceWords(b,a,bC,kb),ta=makePhrase(ps.n),tb=makePhrase(os.n);
+  const [ps,os]=duelWords(a,b,aC,bC,ka,kb),ta=makePhrase(ps.n),tb=makePhrase(os.n);
   const sd={a,b,ta,tb,pa:0,pb:0,sa:0,sb:0,da:false,db:false,phase:'count',countT:5.6,start:0,born:t,pt:0,done:false,
     wa:clamp(32+a.skill+L(a)*.1+rand(-3,3),18,100),wb:clamp(32+b.skill+L(b)*.1+rand(-3,3),18,100),dla:b.human?b.st.head:0,dlb:a.human?a.st.head:0};   // Head Start delays a bot opponent
   a.sd=b.sd=sd;sds.push(sd);
@@ -1220,7 +1272,7 @@ function srvStep(dt){
   if(tickN%SNAP_EVERY===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={join:srvJoin,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now})};
+if(role==='server')globalThis.__sim={join:srvJoin,leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
@@ -1402,6 +1454,13 @@ function drawHouseFloor(h){const {x,y,w}=h,hh=h.h;ctx.save();ctx.beginPath();ctx
     case 'mat':ctx.fillStyle='#3d5a80';ctx.fillRect(x,y,w,hh);ctx.fillStyle='#4a6a96';
       for(let xx=x;xx<x+w;xx+=64)ctx.fillRect(xx,y,32,hh);
       ctx.fillStyle='#e8475f';ctx.globalAlpha=.8;ctx.fillRect(cx-90,cy-60,180,120);ctx.globalAlpha=1;ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.strokeRect(cx-90,cy-60,180,120);break;
+    case 'neon':ctx.fillStyle='#241a4a';ctx.fillRect(x,y,w,hh);ctx.fillStyle='#2f2260';for(let i=0;i*40<w;i++)for(let j=0;j*40<hh;j++)if((i+j)%2)ctx.fillRect(x+i*40,y+j*40,40,40);
+      ctx.strokeStyle='rgba(61,220,255,.55)';ctx.lineWidth=2;for(let i=0;i*80<w;i++){ctx.beginPath();ctx.moveTo(x+i*80,y);ctx.lineTo(x+i*80,y+hh);ctx.stroke()}ctx.strokeStyle='rgba(255,79,154,.5)';for(let j=0;j*80<hh;j++){ctx.beginPath();ctx.moveTo(x,y+j*80);ctx.lineTo(x+w,y+j*80);ctx.stroke()}break;
+    case 'hay':ctx.fillStyle='#e6c46a';ctx.fillRect(x,y,w,hh);ctx.strokeStyle='#c99a3c';ctx.lineWidth=2;ctx.beginPath();for(let yy=y+9;yy<y+hh;yy+=14){for(let xx=x+((yy/14|0)%2)*17;xx<x+w;xx+=34){ctx.moveTo(xx,yy);ctx.lineTo(xx+12,yy-5)}}ctx.stroke();break;
+    case 'carpet':ctx.fillStyle='#7a2f3f';ctx.fillRect(x,y,w,hh);ctx.fillStyle='#8d3a4d';ctx.fillRect(x+30,y+30,w-60,hh-60);ctx.strokeStyle='#e0b84a';ctx.lineWidth=4;ctx.strokeRect(x+18,y+18,w-36,hh-36);
+      ctx.fillStyle='#e0b84a';for(let xx=x+60;xx<x+w-40;xx+=44){ctx.beginPath();ctx.moveTo(xx,cy);ctx.lineTo(xx+12,cy-12);ctx.lineTo(xx+24,cy);ctx.lineTo(xx+12,cy+12);ctx.closePath();ctx.fill()}break;
+    case 'greentile':ctx.fillStyle='#d8f3dc';ctx.fillRect(x,y,w,hh);ctx.fillStyle='#b7e4c7';for(let i=0;i*40<w;i++)for(let j=0;j*40<hh;j++)if((i+j)%2)ctx.fillRect(x+i*40,y+j*40,40,40);break;
+    case 'cafe':ctx.fillStyle='#f1dfc2';ctx.fillRect(x,y,w,hh);ctx.fillStyle='#c79a6b';for(let i=0;i*30<w;i++)for(let j=0;j*30<hh;j++)if((i+j)%2)ctx.fillRect(x+i*30,y+j*30,30,30);break;
     default:ctx.fillStyle='#b98a5a';ctx.fillRect(x,y,w,hh);lines('#9f7548',18)}
   ctx.restore()}
 function prop(w,fill,r=6){ctx.fillStyle=fill;ctx.strokeStyle=INK;ctx.lineWidth=3;rr(w.x,w.y,w.w,w.h,r)}
@@ -1419,6 +1478,29 @@ function drawProp(w,t){const x=w.x,y=w.y,ww=w.w,hh=w.h;ctx.lineJoin='round';
     case 'crates':prop(w,'#b07d45',3);ctx.beginPath();ctx.moveTo(x+3,y+3);ctx.lineTo(x+ww-3,y+hh-3);ctx.moveTo(x+ww-3,y+3);ctx.lineTo(x+3,y+hh-3);ctx.stroke();break;
     case 'weights':prop(w,'#4b4f66',5);ctx.fillStyle='#c3ccd6';for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(x+16+i*29,y+hh/2,9,0,6.3);ctx.fill();ctx.stroke()}break;
     case 'bench':prop(w,'#4b4f66',5);ctx.fillStyle='#e8475f';rr(x+5,y+6,ww-10,hh-12,5);break;
+    case 'arcade':{prop(w,'#3a3550',6);const hu=(t*80+x)%360;ctx.fillStyle='hsl('+hu+',90%,60%)';rr(x+6,y+5,ww-12,hh*.42,3);ctx.fillStyle='#e8475f';ctx.beginPath();ctx.arc(x+ww*.3,y+hh*.72,4,0,6.3);ctx.fill();ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.arc(x+ww*.65,y+hh*.72,4,0,6.3);ctx.fill();break}
+    case 'bookshelf':{prop(w,'#7a4a2a',3);const cols=['#e8475f','#3d7dd8','#ffd23f','#2ec4b6','#9b5de5','#ff8fc2'];for(let i=0;i<(ww-8)/9;i++){ctx.fillStyle=cols[(i*7+((x/9)|0))%cols.length];ctx.fillRect(x+4+i*9,y+4,7,hh-8)}break}
+    case 'planter':{prop(w,'#a86b3c',4);for(let i=0;i<4;i++){ctx.fillStyle=i%2?'#4caf50':'#66c25a';ctx.beginPath();ctx.arc(x+14+i*(ww-28)/3,y+hh/2,10,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle=['#ff6b8b','#ffd23f','#fff','#9b5de5'][i];ctx.beginPath();ctx.arc(x+14+i*(ww-28)/3,y+hh/2-2,3,0,6.3);ctx.fill()}break}
+    case 'barrel':{ctx.fillStyle='#9b6a3c';ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/2,0,6.3);ctx.fill();ctx.stroke();ctx.strokeStyle='#5a3a1c';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/2-5,0,6.3);ctx.stroke();ctx.beginPath();ctx.moveTo(x+4,y+hh/2);ctx.lineTo(x+ww-4,y+hh/2);ctx.stroke();break}
+    case 'haybale':{prop(w,'#e8c65a',6);ctx.strokeStyle='#b58a1f';ctx.lineWidth=2;for(let i=8;i<ww-4;i+=12){ctx.beginPath();ctx.moveTo(x+i,y+3);ctx.lineTo(x+i,y+hh-3);ctx.stroke()}break}
+    case 'campfire':{ctx.fillStyle='#8e99a6';ctx.strokeStyle=INK;ctx.lineWidth=2.5;for(let i=0;i<8;i++){const a=i*.785;ctx.beginPath();ctx.arc(x+ww/2+Math.cos(a)*13,y+hh/2+Math.sin(a)*13,5,0,6.3);ctx.fill();ctx.stroke()}
+      const fl=Math.sin(t*14+x)*2;ctx.fillStyle='#ff6b3d';ctx.beginPath();ctx.moveTo(x+ww/2-8,y+hh/2+6);ctx.quadraticCurveTo(x+ww/2-6,y+hh/2-8,x+ww/2+fl,y+hh/2-18);ctx.quadraticCurveTo(x+ww/2+8,y+hh/2-6,x+ww/2+8,y+hh/2+6);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.moveTo(x+ww/2-4,y+hh/2+6);ctx.quadraticCurveTo(x+ww/2-2,y+hh/2-2,x+ww/2+fl*.6,y+hh/2-9);ctx.quadraticCurveTo(x+ww/2+5,y+hh/2,x+ww/2+4,y+hh/2+6);ctx.closePath();ctx.fill();break}
+    case 'tent':{const col=['#e8475f','#3d7dd8','#f28c28','#2ec4b6','#9b5de5'][((x/7)|0)%5];ctx.fillStyle=col;ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+ww/2,y);ctx.lineTo(x+ww,y+hh);ctx.lineTo(x,y+hh);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.fillStyle='rgba(43,33,64,.35)';ctx.beginPath();ctx.moveTo(x+ww/2,y+hh*.35);ctx.lineTo(x+ww*.68,y+hh);ctx.lineTo(x+ww*.32,y+hh);ctx.closePath();ctx.fill();break}
+    case 'log':{prop(w,'#8b5a2b',hh/2);ctx.strokeStyle='#5a3a1c';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(x+10,y+hh*.35);ctx.lineTo(x+ww-10,y+hh*.35);ctx.moveTo(x+10,y+hh*.7);ctx.lineTo(x+ww-10,y+hh*.7);ctx.stroke();ctx.fillStyle='#d9a066';ctx.beginPath();ctx.ellipse(x+hh/2,y+hh/2,hh/3,hh/2-2,0,0,6.3);ctx.fill();break}
+    case 'stall':{prop(w,'#c99258',5);const n=Math.floor(ww/16);for(let i=0;i<n;i++){ctx.fillStyle=i%2?'#fff':'#e8475f';ctx.fillRect(x+i*ww/n,y,ww/n,hh*.5)}ctx.strokeStyle=INK;ctx.lineWidth=2.5;ctx.strokeRect(x,y,ww,hh*.5);
+      ['#ff6b3d','#ffd23f','#6ab04c','#e8475f','#3db5ff'].forEach((c,i)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(x+14+i*(ww-28)/4,y+hh*.78,4.5,0,6.3);ctx.fill()});break}
+    case 'fence':{ctx.fillStyle='#b07d45';ctx.strokeStyle=INK;ctx.lineWidth=2.5;ctx.fillRect(x,y+hh*.3,ww,hh*.4);ctx.strokeRect(x,y+hh*.3,ww,hh*.4);const horiz=ww>=hh;
+      for(let i=0;i<(horiz?ww:hh);i+=26){ctx.fillStyle='#8b5a2b';if(horiz){ctx.fillRect(x+i,y-1,6,hh+2);ctx.strokeRect(x+i,y-1,6,hh+2)}else{ctx.fillRect(x-1,y+i,ww+2,6);ctx.strokeRect(x-1,y+i,ww+2,6)}}break}
+    case 'lamp':{const g=ctx.createRadialGradient(x+ww/2,y+hh/2,2,x+ww/2,y+hh/2,42);g.addColorStop(0,'rgba(255,224,102,.55)');g.addColorStop(1,'rgba(255,224,102,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,42,0,6.3);ctx.fill();
+      ctx.fillStyle='#3a3550';ctx.strokeStyle=INK;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,7,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle='#ffe066';ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,4,0,6.3);ctx.fill();break}
+    case 'parkbench':{prop(w,'#8b5a2b',4);ctx.strokeStyle='#5a3a1c';ctx.lineWidth=2;for(let i=1;i<3;i++){ctx.beginPath();ctx.moveTo(x+4,y+hh*i/3);ctx.lineTo(x+ww-4,y+hh*i/3);ctx.stroke()}break}
+    case 'well':{ctx.fillStyle='#a9a3b8';ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/2,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle='#2b8fc4';ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/2-8,0,6.3);ctx.fill();ctx.stroke();
+      ctx.strokeStyle='#8b5a2b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x+2,y+hh/2);ctx.lineTo(x+ww-2,y+hh/2);ctx.stroke();break}
+    case 'stump':{ctx.fillStyle='#8b5a2b';ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/2,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle='#d9a066';ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/2-5,0,6.3);ctx.fill();ctx.strokeStyle='#8b5a2b';ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(x+ww/2,y+hh/2,ww/4,0,6.3);ctx.stroke();break}
+    case 'pond':{ctx.fillStyle='#5ec2f0';ctx.strokeStyle='#2b8fc4';ctx.lineWidth=6;rr(x,y,ww,hh,hh/2.2);ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(x-3,y-3,ww+6,hh+6,hh/2.2);ctx.stroke();
+      ctx.save();ctx.beginPath();ctx.roundRect(x,y,ww,hh,hh/2.2);ctx.clip();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.5;for(let i=0;i<4;i++){const ph=(t*.5+i*.25)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.ellipse(x+ww*(.2+i*.2),y+hh*(.3+(i%2)*.4),10+ph*30,4+ph*10,0,0,6.3);ctx.stroke()}ctx.restore();break}
     case 'trunk':prop(w,'#8b5a2b',4);break;
     case 'rock':prop(w,'#a9a3b8',10);ctx.fillStyle='#cfc9dc';rr(x+5,y+4,11,5,3);break}}
 function drawWalls(inView,t){for(const w of walls){if(!inView(w.x+w.w/2,w.y+w.h/2,w.w+w.h))continue;
@@ -1427,14 +1509,42 @@ function drawWalls(inView,t){for(const w of walls){if(!inView(w.x+w.w/2,w.y+w.h/
 function drawBush(b){ctx.fillStyle='#5aa646';ctx.strokeStyle=INK;ctx.lineWidth=2.5;
   for(const [dx,dy,r] of [[-9,2,9],[9,2,9],[0,-5,11]]){ctx.beginPath();ctx.arc(b.x+dx*b.s,b.y+dy*b.s,r*b.s,0,6.3);ctx.fill();ctx.stroke()}
   ctx.fillStyle='#7ccf62';ctx.beginPath();ctx.arc(b.x-3*b.s,b.y-8*b.s,4*b.s,0,6.3);ctx.fill()}
-function drawTree(tr,t){const s=tr.s,sw=Math.sin(t*1.3+tr.x)*1.6;ctx.save();ctx.globalAlpha=tr.alpha;ctx.lineJoin='round';
+function drawTree(tr,t){const s=tr.s,sw=Math.sin(t*1.3+tr.x)*1.6,k=tr.kind;ctx.save();ctx.globalAlpha=tr.alpha;ctx.lineJoin='round';
   ctx.fillStyle='rgba(43,33,64,.22)';ctx.beginPath();ctx.ellipse(tr.x,tr.y+8,30*s,9*s,0,0,6.3);ctx.fill();
   ctx.strokeStyle=INK;ctx.lineWidth=4;
-  if(tr.pine){[['#2f8f5b',0,44],['#38a169',-22,36],['#48b57b',-42,27]].forEach(([c,dy,w])=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(tr.x+sw*(-dy/60),tr.y+dy*s-40*s);
+  const blob=(c1,c2,r)=>{ctx.fillStyle=c1;ctx.beginPath();ctx.arc(tr.x+sw,tr.y-34*s,r*s,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle=c2;ctx.beginPath();ctx.arc(tr.x-9*s+sw,tr.y-44*s,r*.53*s,0,6.3);ctx.fill()};
+  if(k==='pine'){[['#2f8f5b',0,44],['#38a169',-22,36],['#48b57b',-42,27]].forEach(([c,dy,w])=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(tr.x+sw*(-dy/60),tr.y+dy*s-40*s);
     ctx.lineTo(tr.x+w*s,tr.y+dy*s+8*s);ctx.lineTo(tr.x-w*s,tr.y+dy*s+8*s);ctx.closePath();ctx.fill();ctx.stroke()})}
-  else{ctx.fillStyle='#4caf50';ctx.beginPath();ctx.arc(tr.x+sw,tr.y-34*s,38*s,0,6.3);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#66c25a';ctx.beginPath();ctx.arc(tr.x-9*s+sw,tr.y-44*s,20*s,0,6.3);ctx.fill();
-    ctx.fillStyle='#e8475f';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}}
+  else if(k==='birch'){ctx.fillStyle='#f3efe6';ctx.fillRect(tr.x-6*s,tr.y-16*s,12*s,24*s);ctx.strokeRect(tr.x-6*s,tr.y-16*s,12*s,24*s);ctx.fillStyle=INK;ctx.fillRect(tr.x-6*s,tr.y-6*s,7*s,3*s);ctx.fillRect(tr.x,tr.y+1*s,6*s,3*s);
+    blob('#9bd65c','#b8e57e',33)}
+  else if(k==='cherry'){blob('#ff9ec7','#ffc4dd',37);ctx.fillStyle='#fff';for(let i=0;i<5;i++){const ph=(t*.6+i*.37+tr.x*.01)%1;ctx.globalAlpha=tr.alpha*(1-ph);ctx.beginPath();ctx.arc(tr.x+(i-2)*14*s+Math.sin(ph*6+i)*6,tr.y-20*s+ph*40*s,2.5,0,6.3);ctx.fill()}ctx.globalAlpha=tr.alpha}
+  else if(k==='autumn'){blob('#e8782a','#f2a93b',38);ctx.fillStyle='#c0392b';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52],[-4,-16]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}}
+  else{blob('#4caf50','#66c25a',38);ctx.fillStyle='#e8475f';for(const [dx,dy] of [[14,-22],[-18,-30],[6,-52]]){ctx.beginPath();ctx.arc(tr.x+dx*s+sw,tr.y+dy*s,3.5,0,6.3);ctx.fill()}}
+  ctx.restore()}
+function drawDecor(d,t){const s=d.s||1;ctx.lineJoin='round';ctx.lineWidth=2;ctx.strokeStyle=INK;
+  switch(d.kind){
+    case 'flowerbed':{ctx.fillStyle='#7ac35c';ctx.beginPath();ctx.ellipse(d.x,d.y+3,16*s,8*s,0,0,6.3);ctx.fill();
+      for(let i=0;i<5;i++){const a=i*1.26+d.x,fx=d.x+Math.cos(a)*10*s,fy=d.y+Math.sin(a)*4*s;ctx.fillStyle=d.c||['#ff6b8b','#ffd23f','#fff','#9b5de5','#3db5ff'][i%5];ctx.beginPath();ctx.arc(fx,fy,3.4*s,0,6.3);ctx.fill();ctx.stroke()}break}
+    case 'mushroom':ctx.fillStyle='#f3efe6';ctx.fillRect(d.x-2*s,d.y,4*s,7*s);ctx.fillStyle='#e8475f';ctx.beginPath();ctx.arc(d.x,d.y,8*s,Math.PI,0);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(d.x-4*s,d.y-4*s,2.5*s,2.5*s);ctx.fillRect(d.x+2*s,d.y-5*s,2.5*s,2.5*s);break;
+    case 'reed':{const sw=Math.sin(t*2+d.x)*2;ctx.strokeStyle='#4f9a3f';ctx.lineWidth=2.5;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(d.x+i*4,d.y+8);ctx.lineTo(d.x+i*5+sw,d.y-14*s);ctx.stroke()}
+      ctx.fillStyle='#8b5a2b';ctx.fillRect(d.x-1+sw,d.y-20*s,4,10*s);break}
+    case 'lily':ctx.fillStyle='#4caf50';ctx.beginPath();ctx.ellipse(d.x,d.y,11*s,7*s,0,0.3,6.0);ctx.fill();ctx.stroke();ctx.fillStyle='#ff9ec7';ctx.beginPath();ctx.arc(d.x+2,d.y-1,3.2*s,0,6.3);ctx.fill();break;
+    case 'crop':ctx.fillStyle='#6ab04c';ctx.beginPath();ctx.moveTo(d.x-6,d.y+4);ctx.lineTo(d.x,d.y-8);ctx.lineTo(d.x+6,d.y+4);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff8c1a';ctx.beginPath();ctx.arc(d.x,d.y+5,3,0,6.3);ctx.fill();break;
+    case 'scarecrow':ctx.strokeStyle='#8b5a2b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(d.x,d.y-26);ctx.lineTo(d.x,d.y+10);ctx.moveTo(d.x-18,d.y-14);ctx.lineTo(d.x+18,d.y-14);ctx.stroke();
+      ctx.fillStyle='#f2c98a';ctx.strokeStyle=INK;ctx.lineWidth=2;ctx.beginPath();ctx.arc(d.x,d.y-30,8,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle='#7a4a2a';ctx.fillRect(d.x-11,d.y-40,22,5);ctx.fillRect(d.x-6,d.y-48,12,9);
+      ctx.fillStyle='#3d7dd8';ctx.fillRect(d.x-9,d.y-22,18,16);break;
+    case 'sign':ctx.fillStyle='#8b5a2b';ctx.fillRect(d.x-3,d.y-6,6,26);ctx.fillStyle='#d9a066';ctx.beginPath();ctx.moveTo(d.x-20,d.y-22);ctx.lineTo(d.x+14,d.y-22);ctx.lineTo(d.x+24,d.y-13);ctx.lineTo(d.x+14,d.y-4);ctx.lineTo(d.x-20,d.y-4);ctx.closePath();ctx.fill();ctx.stroke();break}}
+function drawEmblem(type,cx,cy,t){ctx.save();ctx.translate(cx,cy);ctx.lineJoin='round';ctx.lineWidth=3;ctx.strokeStyle=INK;
+  switch(type){
+    case 'diner':ctx.restore();drawFood('burger',cx,cy,1.5);return;
+    case 'bakery':ctx.restore();drawFood('donut',cx,cy,1.5);return;
+    case 'gym':ctx.fillStyle='#4b4f66';rr(-22,-4,44,8,2);rr(-28,-14,10,28,3);rr(18,-14,10,28,3);break;
+    case 'arcade':ctx.fillStyle='#3a3550';ctx.beginPath();ctx.ellipse(0,12,18,7,0,0,6.3);ctx.fill();ctx.stroke();ctx.fillRect(-3,-10,6,22);ctx.strokeRect(-3,-10,6,22);ctx.fillStyle='#e8475f';ctx.beginPath();ctx.arc(0,-14,10,0,6.3);ctx.fill();ctx.stroke();break;
+    case 'barn':ctx.fillStyle='#e8c65a';rr(-24,-14,48,28,6);ctx.strokeStyle='#b58a1f';ctx.lineWidth=2;for(let i=-16;i<=16;i+=8){ctx.beginPath();ctx.moveTo(i,-12);ctx.lineTo(i,12);ctx.stroke()}break;
+    case 'library':ctx.fillStyle='#fff';rr(-26,-14,25,28,4);rr(1,-14,25,28,4);ctx.strokeStyle='#2a7f9b';ctx.lineWidth=2;for(let i=-6;i<=6;i+=6){ctx.beginPath();ctx.moveTo(-22,i);ctx.lineTo(-6,i);ctx.moveTo(6,i);ctx.lineTo(22,i);ctx.stroke()}break;
+    case 'greenhouse':ctx.fillStyle='#4caf50';ctx.beginPath();ctx.ellipse(0,0,24,13,-.6,0,6.3);ctx.fill();ctx.stroke();ctx.strokeStyle='#e8f7d8';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(-18,10);ctx.lineTo(18,-10);ctx.stroke();break;
+    case 'cafe':ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,2,15,0,6.3);ctx.fill();ctx.stroke();ctx.fillStyle='#6b3f1d';ctx.beginPath();ctx.arc(0,2,10,0,6.3);ctx.fill();
+      ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.beginPath();ctx.arc(19,2,6,-1.4,1.4);ctx.stroke();ctx.strokeStyle='rgba(43,33,64,.5)';ctx.lineWidth=2.5;for(let i=-1;i<=1;i+=2){ctx.beginPath();ctx.moveTo(i*5,-16);ctx.quadraticCurveTo(i*5+4,-22,i*5,-28);ctx.stroke()}break}
   ctx.restore()}
 const DOOR_G=110;
 function roofPath(h,o,d){const x=h.x-o,y=h.y-o,w=h.w+2*o,hh=h.h+2*o,cx=h.x+h.w/2,cy=h.y+h.h/2,g=DOOR_G/2,D=h.doors;
@@ -1458,19 +1568,23 @@ function drawRoof(h){if(h.alpha<.02)return;ctx.save();ctx.globalAlpha=h.alpha;co
   if(h.type==='home'){ctx.fillStyle='#f3e6cf';ctx.fillRect(x+w*.72,y+hh*.18,34,30);ctx.strokeRect(x+w*.72,y+hh*.18,34,30)}
   else if(h.type!=='shed'){   // sign on the roof so you know what is inside
     const cx=x+w/2,cy=y+hh*.32;ctx.fillStyle='#fffdf7';ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(cx-42,cy-28,84,56,14);ctx.fill();ctx.stroke();
-    if(h.type==='gym'){ctx.save();ctx.translate(cx,cy);ctx.fillStyle='#4b4f66';ctx.lineWidth=3;rr(-22,-4,44,8,2);rr(-28,-14,10,28,3);rr(18,-14,10,28,3);ctx.restore()}
-    else drawFood(h.type==='diner'?'burger':'donut',cx,cy,1.5)}
+    drawEmblem(h.type,cx,cy,0)}
   ctx.restore()}
 // yellow welcome mats with bouncing arrows show where you can walk in
-function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4;
+function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4,pu=.5+Math.sin(t*3+h.x)*.5;
   for(const side of h.doors){const v=side==='n'?[0,-1]:side==='s'?[0,1]:side==='w'?[-1,0]:[1,0],
       px=side==='n'||side==='s'?cx:side==='w'?h.x:h.x+h.w,py=side==='w'||side==='e'?cy:side==='n'?h.y:h.y+h.h,
-      mx=px+v[0]*40,my=py+v[1]*40,horiz=v[1]!==0;
-    ctx.save();ctx.translate(mx,my);ctx.fillStyle='#ffd23f';ctx.strokeStyle=INK;ctx.lineWidth=3;
-    ctx.beginPath();ctx.roundRect(horiz?-DOOR_G/2:-22,horiz?-22:-DOOR_G/2,horiz?DOOR_G:44,horiz?44:DOOR_G,10);ctx.fill();ctx.stroke();
-    ctx.rotate(Math.atan2(-v[1],-v[0]));ctx.translate(b-4,0);ctx.strokeStyle=INK;ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
-    for(let i=-1;i<=1;i+=1){ctx.beginPath();ctx.moveTo(i*11-5,-9);ctx.lineTo(i*11+3,0);ctx.lineTo(i*11-5,9);ctx.stroke()}
-    ctx.restore()}}
+      mx=px+v[0]*42,my=py+v[1]*42,horiz=v[1]!==0;
+    ctx.save();ctx.translate(mx,my);
+    ctx.fillStyle='rgba(255,224,102,'+(.16+pu*.14)+')';ctx.beginPath();ctx.ellipse(0,0,(horiz?76:50)+pu*6,(horiz?50:76)+pu*6,0,0,6.3);ctx.fill();   // soft glow
+    ctx.fillStyle='#ffd23f';ctx.strokeStyle=INK;ctx.lineWidth=3;
+    ctx.beginPath();ctx.roundRect(horiz?-DOOR_G/2:-24,horiz?-24:-DOOR_G/2,horiz?DOOR_G:48,horiz?48:DOOR_G,10);ctx.fill();ctx.stroke();
+    ctx.rotate(Math.atan2(-v[1],-v[0]));ctx.translate(b-4,0);ctx.strokeStyle=INK;ctx.lineWidth=5.5;ctx.lineCap='round';ctx.lineJoin='round';
+    for(let i=-1;i<=1;i+=1){ctx.beginPath();ctx.moveTo(i*11-5,-10);ctx.lineTo(i*11+3,0);ctx.lineTo(i*11-5,10);ctx.stroke()}
+    ctx.restore();
+    // door posts on both sides of the gap
+    ctx.fillStyle='#8b5a2b';ctx.strokeStyle=INK;ctx.lineWidth=2.5;
+    for(const sg of [-1,1]){const qx=px+(horiz?sg*(DOOR_G/2):0),qy=py+(horiz?0:sg*(DOOR_G/2));ctx.beginPath();ctx.roundRect(qx-6,qy-6,12,12,3);ctx.fill();ctx.stroke()}}}
 function drawAura(e,l,t){const tier=l>=300?5:l>=200?4:l>=150?3:l>=125?2:l>=100?1:0;if(!tier)return;
   ctx.fillStyle=tier===5?'hsla('+((t*90)%360|0)+',90%,60%,.42)':['','rgba(255,201,60,.35)','rgba(61,181,255,.4)','rgba(255,107,61,.4)','rgba(155,93,229,.45)'][tier];
   ctx.beginPath();ctx.arc(e.x,e.y,38+Math.sin(t*4)*4+tier*2,0,6.3);ctx.fill();
@@ -1542,6 +1656,7 @@ function render(t){
   for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawDoorMats(h,t);
   for(const k of skids){ctx.globalAlpha=clamp(k.life/1.6,0,1)*.35;ctx.fillStyle=INK;ctx.save();ctx.translate(k.x,k.y);ctx.rotate(k.a);ctx.fillRect(-9,-2,18,4);ctx.restore()}ctx.globalAlpha=1;
   for(const b of bushes)if(inView(b.x,b.y,30))drawBush(b);
+  for(const d of decor)if(inView(d.x,d.y,50))drawDecor(d,t);
   for(const f of foods)if(inView(f.x,f.y,30))drawFood(f.t,f.x,f.y+Math.sin(t*3+f.bob)*2,.9);
   for(const b of boxes)if(inView(b.x,b.y,40))drawBox(b,t);
   for(const o of orbs)if(inView(o.x,o.y,40))drawOrb(o,t);
