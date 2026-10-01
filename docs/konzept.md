@@ -348,3 +348,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Hintergrund von `html` und theme-color/Manifest sind jetzt das Gras-Grün statt Weiß/Dunkellila.
 - Bekannt, nicht änderbar: iOS 26 legt am oberen/unteren Rand von Web-Apps einen Unschärfe-Effekt über den Inhalt; der Spielinhalt bleibt aber sichtbar. Figur sitzt durch die größere Fläche etwas tiefer als die Mitte des sichtbaren Bereichs.
 - BUILD r46. Nur in der Emulation geprüft (dort ist lvh = innerHeight, es ändert sich nichts), echtes iPhone steht aus.
+
+## Runde 47 - Vollbild am iPhone: Diagnose
+- r46 (nur `100lvh`-Messung) hat am iPhone nichts geändert: im Browser endet das Bild über der Leiste, in der Home-Bildschirm-App bleibt unten ein ca. 60 px hoher Streifen. Die Fix-Logik wählt jetzt die größte von drei Höhen (innerHeight, 100lvh-Probe, im App-Modus die Bildschirmhöhe).
+- Da ich kein iPhone habe: Settings -> Details zeigt am Handy zusätzlich `inner / lvh / screen / canvas / app / safe / visual` (auch im Bug-Report unter Screen). Der Nutzer schickt einen Screenshot davon, daraus lässt sich der echte Fehler ablesen.
+- Vermutung (ungeprüft): Das Layout-Viewport der App ist ca. 60 px kürzer als der Bildschirm; was außerhalb liegt, kann die Seite eventuell gar nicht bemalen.
+- BUILD r47.
