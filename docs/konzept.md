@@ -231,3 +231,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Play: Läuft schon ein Spiel (im Menü gelistet), tritt man direkt bei. Sonst startet das Spiel sofort als Host (kein Warten auf "Looking for a game"), der Raumname wird im Hintergrund beim Vermittler angemeldet und bei Netzproblemen erneut versucht.
 - Die Spielschleife läuft jetzt auch bei Fehlern weiter (nächster Frame wird zuerst geplant, Update und Render sind abgesichert, ungültige Kamerawerte werden zurückgesetzt). Ein roter Hinweis zeigt die Fehlermeldung, statt dass der Bildschirm einfach dunkel bleibt.
 - Versions-Check: Der Host sendet seine Build-Nummer; wer eine andere Version hat, bekommt eine klare Meldung statt eines kaputten Spiels. Build r28.
+
+## Runde 28: Fairness-Balancing
+
+- Beide Spieler bekommen immer gleich viele Wörter. Länge = 3 + (Durchschnittslevel / 12) + (Levelunterschied / 10), max. 20. Je mehr auf dem Spiel steht (hohe Level, großer Abstand), desto länger. Vorteile entstehen nur durch Items, Perks und Weglaufen.
+- Bot-Tippgeschwindigkeit wächst langsamer mit dem Level (max. +14 WPM).
+- Legendäre Items deutlich seltener (Kiste 1 %, Unterwasser 6 %); weniger Kisten. Neu bewertet: Sugar Rush Rare, Radar Common, Time Warp 4 s, Golden Keyboard ca. 30 %.
+- docs/release-plan.md: Rechtliches und Plan für Release, Werbung, Mikrotransaktionen, Steam. Build r29.

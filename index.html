@@ -295,7 +295,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small" style="opacity:.6">Build r28</p>
+    <p class="small" style="opacity:.6">Build r29</p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -306,7 +306,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
     <p class="small">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
-    <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Higher level means a shorter phrase. Run away and get caught, and your opponent gets a shorter one too.</p>
+    <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Both players type the same number of words: the more is at stake (high levels or a big level gap), the longer the phrase. Run away and get caught, and your opponent gets a shorter one.</p>
     <p class="warn" id="touchwarn" hidden>This prototype needs a keyboard. Please play on a PC for now.</p>
   </form>
 </div>
@@ -890,17 +890,17 @@ function rollOffer(e){
   return out}   // may be fewer than 3 cards (or none) once most perks are maxed
 // every item has a rarity; the strong ones are much harder to find
 const TIERS=[{n:'Common',c:'#c3ccd6',t:'#7d7196'},{n:'Rare',c:'#3db5ff',t:'#1f8fe0'},{n:'Epic',c:'#b06bff',t:'#8a3df0'},{n:'Legendary',c:'#ffc93c',t:'#d99a1a'}];
-const TIER_ODDS=[62,28,8,2], WATER_ODDS=[28,40,24,8];   // percent per gift box; boxes hidden underwater pay out much better
+const TIER_ODDS=[66,26,7,1], WATER_ODDS=[34,40,20,6];   // percent per gift box; boxes hidden underwater pay out much better
 const ITEMS={
   magnet:{icon:'🧲',name:'Magnet',tier:0,dur:7,d:'Pulls snacks to you'},
   turbo:{icon:'👟',name:'Turbo Sneakers',tier:0,dur:7,d:'Faster and endless stamina'},
-  rush:{icon:'🍬',name:'Sugar Rush',tier:0,dur:10,d:'Eat 3x faster, +50% level from snacks'},
+  rush:{icon:'🍬',name:'Sugar Rush',tier:1,dur:10,d:'Eat 3x faster, +50% level from snacks'},
   smoke:{icon:'💨',name:'Smoke Bomb',tier:0,dur:4,d:'Bots lose sight of you, dash recharges'},
   bomb:{icon:'💣',name:'Snack Bomb',tier:0,dur:0,d:'Explodes into a ring of snacks'},
   energy:{icon:'🥤',name:'Energy Drink',tier:0,dur:0,d:'Refills stamina and recharges your dash'},
   apple:{icon:'🍏',name:'Golden Apple',tier:0,dur:0,d:'Instantly worth 4 snacks of level'},
   shield:{icon:'🫧',name:'Bubble Shield',tier:1,dur:6,d:'Nobody can duel you'},
-  radar:{icon:'📡',name:'Radar',tier:1,dur:12,d:'See everyone on the minimap'},
+  radar:{icon:'📡',name:'Radar',tier:0,dur:12,d:'See everyone on the minimap'},
   shock:{icon:'💥',name:'Shockwave',tier:1,dur:0,d:'Blasts everyone nearby away from you'},
   ticket:{icon:'🎟️',name:'Golden Ticket',tier:1,dur:0,d:'Instantly worth 10 snacks of level'},
   clover:{icon:'🍀',name:'Lucky Clover',tier:1,dur:0,d:'Your next 3 gift boxes roll rarer items'},
@@ -910,9 +910,9 @@ const ITEMS={
   sticky:{icon:'🧤',name:'Sticky Gloves',tier:2,dur:0,d:'Steals an item from the nearest player'},
   teleport:{icon:'🌀',name:'Teleport Orb',tier:2,dur:0,d:'Jump to a far away spot of the map'},
   rocket:{icon:'🚀',name:'Rocket Boots',tier:2,dur:6,d:'Unlimited super dashes'},
-  warp:{icon:'⏳',name:'Time Warp',tier:2,dur:5,d:'Everybody else moves at half speed'},
+  warp:{icon:'⏳',name:'Time Warp',tier:2,dur:4,d:'Everybody else moves at half speed'},
   angel:{icon:'🪽',name:'Angel Feather',tier:3,dur:0,auto:true,d:'Survive your next lost duel with half your levels (automatic)'},
-  gkeys:{icon:'🎼',name:'Golden Keyboard',tier:3,dur:0,auto:true,d:'Your next duel phrase is about a third shorter (automatic)'},
+  gkeys:{icon:'🎼',name:'Golden Keyboard',tier:3,dur:0,auto:true,d:'Your next duel phrase is about 30% shorter (automatic)'},
   nova:{icon:'🌟',name:'Supernova',tier:3,dur:2.5,d:'Blasts everyone away, freezes them, and shields you'},
   crystal:{icon:'💎',name:'Level Crystal',tier:3,dur:0,d:'Instantly worth 3 levels'},
   blackhole:{icon:'🕳️',name:'Black Hole',tier:3,dur:6,d:'Sucks in snacks, gift boxes and orbs from far away'}
@@ -1128,7 +1128,7 @@ function buildGuide(tab){
   else{
     h+='<p class="gnote">Items and perks come in four rarities. Each step is about three times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
-      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Higher level means longer phrases, and being caught running helps your opponent.</p></div>'}
+      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Both sides get the same phrase length, longer when more is at stake. Items, perks and being caught running change the numbers.</p></div>'}
   $('gbody').innerHTML=h}
 /* ---------- customize: a Terraria style character editor ---------- */
 let LOOK=null;
@@ -1434,7 +1434,7 @@ const vol=e=>e.isPlayer?1:player?clamp(1-Math.hypot(e.x-player.x,e.y-player.y)/6
 const EAT_T=.6;
 const CRUMBS={burger:['#f2a93b','#7a3e1d','#6ab04c'],apple:['#e8475f','#fff6d5','#6ab04c'],pizza:['#ffd23f','#d98e3a','#e8475f'],donut:['#ff8fc2','#e0a860','#fff'],soda:['#9fdcff','#fff','#3db5ff']};
 /* gift boxes (items) and level orbs (dropped when someone is eaten) */
-const BOX_OUT=200, BOX_IN=140;
+const BOX_OUT=170, BOX_IN=120;
 let boxes=[], orbs=[];
 function spawnBox(inside){const p=spotFor(inside);if(p)boxes.push({x:p.x,y:p.y,bob:Math.random()*6.28,inside})}
 // gift boxes also sink to the bottom of ponds and lakes: you have to swim to find them, and they hold much better loot
@@ -1655,14 +1655,15 @@ const keyItemOf=e=>e.items.indexOf('gkeys')>=0?'gkeys':e.items.indexOf('keys')>=
 function advOf(a,b,t){const [ps,os]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.id]||0)>t,keyItemOf(a),keyItemOf(b));
   const free=(me,op)=>me.st.warm+(me.st.head-op.st.head)/1.5+(me.st.flow?.5:0)-(op.st.flow?.5:0)+(me.st.forgive-op.st.forgive)*.3;
   return Math.round((os.n-free(b,a))-(ps.n-free(a,b)))}
-// the higher your level, the longer your phrase: newcomers type 3 words, +1 per 12 levels, up to 20
-function sentenceWords(me,op,caught,kb){const base=clamp(3+Math.floor(L(me)/12),3,20),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
-    under=L(op)>L(me)?me.st.underdog:0,curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*.35)):kb?1:0;
+// both players always get the same base length: the more is at stake (high levels, big level gap) the longer it is. Only items, perks and running away change it.
+const stakeWords=(a,b)=>clamp(3+Math.floor((L(a)+L(b))/24)+Math.floor(Math.abs(L(a)-L(b))/10),3,20);
+function sentenceWords(me,op,caught,kb){const base=stakeWords(me,op),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
+    under=L(op)>L(me)?me.st.underdog:0,curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*.3)):kb?1:0;
   return{n:clamp(base-chase-perk-under+curse-key,2,26),base,chase,perk,key,curse,under}}
 function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   const [ps,os]=duelWords(p,o,pCaught,oCaught,pKb,oKb);
   const text=makePhrase(ps.n),otext=makePhrase(os.n);
-  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(32+o.skill+L(o)*.1+rand(-3,3),18,100),phase:'count',countT:5.6,start:0,oStep:0,lastN:'READY?',streak:0,forgive:p.st.forgive,warm:p.st.warm,delay:p.st.head,flow:p.st.flow,run:0};
+  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(32+o.skill+Math.min(L(o)*.06,14)+rand(-3,3),18,100),phase:'count',countT:5.6,start:0,oStep:0,lastN:'READY?',streak:0,forgive:p.st.forgive,warm:p.st.warm,delay:p.st.head,flow:p.st.flow,run:0};
   presentDuel(p,o,ps,os,text,duelBanner(pCaught,oCaught,ps,os,o.name))}
 function presentDuel(p,o,ps,os,text,banner){
   $('dMe').innerHTML=esc2(p.name)+' <small>Lv '+L(p)+' · '+ps.n+' words</small>';$('dOp').innerHTML=esc2(o.name)+' <small>Lv '+L(o)+' · '+os.n+' words</small>';
