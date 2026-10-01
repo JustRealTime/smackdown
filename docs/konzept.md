@@ -419,3 +419,27 @@ Wunsch: gleiche Items sollen sich stapeln (2x Sugar Rush = doppelte Wirkung), di
 - Datei-Fälle: ohne Datei, gültige Überschreibung (Karte 6000, 50 Bots, Box 10/10/10/70), Tippfehler plus falscher Typ (5 Hinweise, eingebaute Werte), Syntaxfehler (1 Hinweis). Mehrspieler mit lokalem Broker: Host + Beitretender mit gleichen Einstellungen verbinden sich, einer mit geänderter Box-Chance wird abgewiesen. Node-Server: Datei geladen, `/config.js` ausgeliefert, WebSocket-Beitritt, derselbe Hash wie im Browser. Guide-Tabs ohne undefined/NaN, Perk-Karten, Pick per Taste 1.
 - NICHT getestet: wie sich die neuen Werte spielen (Balance), echte Handys und Firefox/Safari, das Bearbeiten auf GitHub samt Cloudflare-Deploy (aus der Sandbox nicht erreichbar), schwache Geräte mit 240 Bots.
 - BUILD r51.
+
+## Runde 52 - Viel mehr Auswahl im Figuren-Editor
+Wunsch: Der Editor ist langweilig, vor allem Oberteil, Hose und Accessoire. Viel mehr davon, die Farben passen.
+
+**Neu**
+- Oberteile: 31 statt 5 (u. a. Hoodie, Jacke, Tanktop, Pulli, Polo, Anzug mit Krawatte, Trikot mit Nummer, Baseball-Shirt, Herz, Stern, Totenkopf, Blitz, Burger, Camo, Tiger, Regenbogen, Schürze, Bauchfrei, Weste, Karo, Zickzack, Batik, Brusttasche, Kimono, Farbverlauf, Skelett). Je nach Stil kurze, lange oder keine Ärmel.
+- Hosen: 21 Stile statt nur "Shorts an/aus" (Jeans, Cargo, Trainingshose, Caprihose, zerrissen, Rock, langer Rock, Kilt, Tutu, Latzhose, weit, gestreift, Camo, Anzughose, Pyjama, Schlaghose, Badehose, Flicken, Gürtel).
+- Das eine Accessoire ist jetzt auf drei Plätze aufgeteilt, jeder mit eigener Farbe:
+  - **Hut** (40): die alten plus Zylinder, Cowboyhut, Wikingerhelm, Blume, Schleife, Propellermütze, Weihnachtsmütze, Partyhut, Fuchs- und Bärenohren, Froschmütze, Einhorn, Pflänzchen, Baskenmütze, Fes, Diadem, Sombrero, Kapuze, Pilz, Ninja-Band, Bandana, Doktorhut, Geweih, Ohrenschützer, verkehrte Kappe, Fahrradhelm.
+  - **Gesicht** (20): Sonnenbrille und Maske (vorher Accessoire), Brille, Monokel, Schutzbrille, Augenklappe, Schnurrbart, Vollbart (in Haarfarbe), Sommersprossen, Clownsnase, Kriegsbemalung, Vampirzähne, Sternbrille, Cyber-Visier, Schnorchel, Herzaugen, müde Augen, Monobraue, Pflaster.
+  - **Extra** (19): Schal, Krawatte, Fliege, Kette, Medaille, Glöckchen-Halsband, Blumenkette, Rucksack, Umhängetasche, Jetpack, Gitarre, Schwert auf dem Rücken, Schwanz, Luftballon, Lolli, Zauberstab, Haustier-Schleim, Haustier-Küken (hüpfen beim Laufen).
+- Editor: acht Zeilen (Haare, Haut, Oberteil, Hose, Schuhe, Hut, Gesicht, Extra), jede mit Pfeilen und einer Auswahlliste (bei 40 Hüten sonst zu viel Klicken) plus Zähler "3/40", darunter die Farben. Teile, die ihre Farbe nicht nutzen (z. B. Heiligenschein, Schnurrbart), blenden die Farbfelder halb aus.
+- Bots ziehen ebenfalls aus allen Listen, "nichts" kommt bei Gesicht und Extra öfter vor, damit nicht jeder vollbehängt herumläuft.
+- Alte gespeicherte Looks werden umgewandelt: Shorts an -> Hose "shorts", Accessoire Sonnenbrille/Maske -> Gesicht. Der Server prüft alle neuen Felder (`cleanLook`), unbekannte Werte werden verworfen.
+
+**Bewusst nicht geändert:** Die Brustpanzerung ab Level 25 verdeckt weiterhin das Oberteil, Helm (50) und Krone (100) verdecken den Hut. Gesicht und Extras bleiben sichtbar. Ob Oberteil/Hut auch mit Rüstung sichtbar bleiben sollen, entscheidet Ali.
+
+**Getestet** (Chromium headless, Node)
+- Alle Teile in drei Richtungen als Übersichtsbild gezeichnet und angesehen; danach Zylinder höher, Brille als zwei Rahmen, Pflaster und Stift sichtbarer gemacht.
+- Editor: Pfeile, Auswahlliste, Farbfeld, Speichern; Ansicht am Desktop und in Handybreite (390 px). Alter Look (Sonnenbrille als Accessoire, Shorts an) wird richtig umgewandelt.
+- Solo-Start: Spielerfigur trägt den Look, 226 Bots mit allen 31/21/40/20/19 Varianten, keine Fehler.
+- Node-Server: `cleanLook` mit gültigen, ungültigen, alten und kaputten Daten; Beitritt per WebSocket aus dem Browser, der Client bekommt die neuen Felder und zeichnet sie.
+- NICHT getestet: Mehrspieler über PeerJS (nutzt dieselben Funktionen wie der Node-Server, aber nicht extra geprüft), echte Handys, Firefox/Safari. Wie die Teile im Spiel bei 150 % Zoom wirken, nur auf Screenshots gesehen.
+- BUILD r52.
