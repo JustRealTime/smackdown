@@ -19,6 +19,7 @@ const os = require('os');
 const PORT = +process.argv[2] || +process.env.PORT || 8080;
 const ROOT = path.join(__dirname, '..');
 const GAME = path.join(ROOT, 'game.html');
+const CFG_FILE = process.env.SNACK_CONFIG || path.join(ROOT, 'site', 'config.js');   // the game settings, the same file the website uses
 const PAGE = process.env.SNACK_PAGE || (fs.existsSync(path.join(ROOT, 'index.html')) ? path.join(ROOT, 'index.html') : GAME);
 
 /* ---------- load the game code into a sandbox with a fake browser ---------- */
@@ -49,6 +50,11 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+if (fs.existsSync(CFG_FILE)) {
+  try { vm.runInContext(fs.readFileSync(CFG_FILE, 'utf8'), sandbox, { filename: 'config.js' }); }
+  catch (e) { console.error('config.js has a mistake: ' + e.message + '\nFix the file (or delete it to use the built-in settings) and start again.'); process.exit(1); }
+  console.log('settings: ' + CFG_FILE);
+}
 vm.runInContext(code, sandbox, { filename: 'game.js' });
 const sim = sandbox.__sim;
 if (!sim) throw new Error('game.html did not expose the server API');
@@ -112,6 +118,9 @@ const server = http.createServer((req, res) => {
   } else if (url.startsWith('/music/') && /^[\w.\-]+$/.test(url.slice(7))) {
     const f = path.join(ROOT, 'music', url.slice(7));
     if (fs.existsSync(f)) { res.writeHead(200, { 'Content-Type': 'audio/mpeg' }); fs.createReadStream(f).pipe(res); } else { res.writeHead(404); res.end(); }
+  } else if (url === '/config.js' && fs.existsSync(CFG_FILE)) {   // browsers that connect get the very same settings
+    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' });
+    fs.createReadStream(CFG_FILE).pipe(res);
   } else if (url === '/status') {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' });
     res.end(JSON.stringify(Object.assign(sim.count(), { players: sim.players() })));

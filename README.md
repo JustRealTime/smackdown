@@ -30,9 +30,13 @@ Ablauf, Testaufgaben und Fragen stehen in [docs/spieltest.md](docs/spieltest.md)
 
 ## Stand
 
-Prototyp v3: Solo oder mit Freunden gegen 100 Bots auf einer großen Karte (9600 x 9600) mit 6 Biomen und Minimap, 30 betretbare Gebäude mit je mehreren markierten Eingängen in 10 Typen (Haus, Diner, Bäckerei, Fitnessstudio, Schuppen, Arcade, Scheune, Bibliothek, Gewächshaus, Café), Zeltlager, Märkte, schwimmbare Teiche, Felder und Parks, zufällig gemischte Charaktere, Level-Looks bis Level 1500, kurze Tippduelle mit Animationen, Sprint, Dash mit Slide und Essanimation mit Bissen. Es gibt keine Level-Grenze: Perk-Bäume bei Level-Ups, Items, einen König mit Kopfgeld und Level-Orbs. Effekte sind erzeugt, die Hintergrundmusik steckt in `index.html`. Oben links lassen sich Sound und Musik einzeln abschalten. Multiplayer im lokalen Netz gibt es (siehe oben).
+Solo oder mit Freunden gegen bis zu 240 Bots auf einer Karte von 10000 x 10000 (einstellbar) mit 9 Biomen und Minimap, rund 50 betretbare Gebäude mit je mehreren markierten Eingängen in 16 Typen (Haus, Diner, Bäckerei, Fitnessstudio, Schuppen, Arcade, Scheune, Bibliothek, Gewächshaus, Café, Pizzeria, Schule, Klinik, Kino, Werkstatt, Eisdiele), 57 Snack-Arten, 24 Items, 38 Perks, Zeltlager, Märkte, schwimmbare Teiche, Felder und Parks, zufällig gemischte Charaktere, Level-Looks bis Level 1500, kurze Tippduelle mit Animationen, Sprint, Dash mit Slide und Essanimation mit Bissen. Es gibt keine Level-Grenze: Perk-Bäume bei Level-Ups, Items, einen König mit Kopfgeld und Level-Orbs. Effekte sind erzeugt, die Hintergrundmusik steckt in `index.html`. Oben links lassen sich Sound und Musik einzeln abschalten. Multiplayer im lokalen Netz gibt es (siehe oben).
 
 Die Spielidee und alle bisherigen Entscheidungen stehen in [docs/konzept.md](docs/konzept.md).
+
+## Einstellungen ändern
+
+Alle Zahlen des Spiels (Kartengröße, Anzahl Bots, wie viel herumliegt, Seltenheit, Items, Perks, Snacks, Level, Duelle, ...) stehen als Klartext in [site/config.js](site/config.js). Zahl ändern, speichern, Spiel neu laden; gebaut werden muss nichts. Auf GitHub geht das direkt im Browser (Stift-Symbol), nach etwa einer Minute gilt es auf der Webseite. Die Anleitung steht in [docs/konfiguration.md](docs/konfiguration.md).
 
 ## Entwickeln
 

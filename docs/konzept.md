@@ -386,3 +386,36 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Fix: das Essgeräusch-Nachziehen aus r49 (`_ep`) löste bei jedem normalen Snack doppelt aus; jetzt wird `_ep` bei jedem Zustandswechsel zurückgesetzt.
 - Getestet: alle 57 Sprites auf der Kontaktkarte, Spielstart solo, Online-Host + Beitritt (57 Arten beim Beitretenden), Essen von goldenem Burger (+2,3 Level auf Lv 5, Rush), Phoenix-Ei (Stamina, Dash, Rush), Trüffel (Item), Guide (57 Zeilen, Mobil-Layout). NICHT getestet: wie es sich spielt (Balance der Seltenheiten), Gehör der Sounds.
 - BUILD r50.
+
+## Runde 51 - Einstellungsdatei, Items stapeln, kleinere Karte, mehr Bots, Seltenes seltener
+Wunsch: gleiche Items sollen sich stapeln (2x Sugar Rush = doppelte Wirkung), die Karte ist zu groß und es gibt zu wenige Spieler, alles Seltene soll seltener sein, und alle Stellschrauben sollen an einem Ort im Klartext stehen.
+
+**Einstellungsdatei `site/config.js`**
+- Eine Datei mit allen Zahlen, ausführlich kommentiert (englisch, Erklärung auf Deutsch in `docs/konfiguration.md`): Karte (Größe, Gebäude je Typ, Deko-Orte, Bäume), Spieler/Bots, Spawn-Raten, Seltenheit, Level/XP, Bewegung, Duell, Quests, Kamera, Netzwerk, alle 24 Items, 38 Perks, 57 Snacks (je Seltenheitsstufe, Gewicht, Werte, Biome/Läden, Effekt).
+- Ändern ohne Build: Der Ordner `site/` ist der Webroot (Cloudflare), also liegt die Datei live unter `/config.js` und `index.html` lädt sie beim Start. Auf GitHub editieren, committen, nach ca. 1 Minute gilt es. In `index.html` steckt zusätzlich eine Kopie vom letzten Build (Rückfall, `window.TYPEBITE_DEFAULTS`); eine `config.js` neben der heruntergeladenen `index.html` überschreibt sie. Der Node-Server (`server/server.js`) liest dieselbe Datei (`SNACK_CONFIG=pfad` für eine andere) und liefert sie unter `/config.js` aus; der Host-Worker bekommt die zusammengeführten Einstellungen eingebaut.
+- Schutz: unbekannte Namen, falsche Typen und Syntaxfehler zeigen eine orange Leiste (`#cfgbar`), die eingebaute Zahl gilt dann weiter. Mehrspieler: `CFGID` (Hash über alle Einstellungen) steht im `welcome`; wer andere Einstellungen hat, kommt nicht rein ("different game settings"), wie bei einer anderen Version. Bug-Report und `diag()` zeigen den Hash.
+- Gewichte (0 = kommt nie vor), `tier` verschiebt ein Ding in eine andere Seltenheit. Seltenheits-Listen sind Gewichte, werden normiert. Zählwerte (`world`, `spawn`) gelten für eine Karte mit 13600 und werden mit `(size/13600)^2` umgerechnet (`world.scaleCounts`).
+- Nicht in der Datei: Texte, Namen, Icons, Aussehen; Freischaltlevel der Looks; Rang-Titel; Musik; Tasten. Neue Items/Perks/Snacks brauchen weiter Code.
+
+**Items stapeln**
+- `stack:'strength'`: jede Benutzung hat einen eigenen Timer, der Effekt wächst mit der Zahl der laufenden Kopien (bis `maxStacks`): Sugar Rush (x5; pro Kopie Essen 1/0,35 mal schneller und +50 % XP), Magnet (x4; Radius und Tempo), Turbo (x3; +40 % Tempo je Kopie), Rocket Boots (x3), Black Hole (x2). `stack:'time'`: die Zeit wird addiert, höchstens `maxStacks` (3) mal die Dauer: Rauchbombe, Bubble Shield, Radar, Gummiband, Freeze Ray, Time Warp. Clover addiert seine Boxen. `items.stacking:false` schaltet alles ab.
+- HUD zeigt "🍬×2 10s", beim Benutzen steht "Sugar Rush ×2" über der Figur, Guide nennt "stacks: stronger/longer".
+- Nebenbei gefunden: die Rauchbombe hat bei Bots nie gewirkt (gesetzt wurde `buff.smoke`, abgefragt `buff.hide`). Jetzt einheitlich `smoke`.
+
+**Neue Standardwerte (meine Vorschläge, Balance ist ungespielt)**
+- Karte 10000 statt 13600 (54 % der Fläche), Bots 240 statt 160, Bot-Nachwuchs 2 pro Sekunde (vorher 0,8).
+- Seltenheit (Common/Rare/Epic/Legendary): Geschenkbox 75/19,5/5/0,5 (vorher 66/26/7/1), Unterwasserbox 42/38/16,5/3,5 (34/40/20/6), Perk-Karten 62/26/9/3 (55/30/11/4), Snacks 86,5/11/2,3/0,2 (80/16/3,5/0,5).
+- Snack-Nachwuchs 16 außen und 4 innen pro Sekunde (vorher 8 und 2), siehe Messung.
+
+**Messung (Node-Sim, 1 Spieler, 300-420 s, wichtig fürs Verständnis der Zahlen)**
+- Die Bots fressen die Snacks viel schneller, als sie nachkommen: im alten Spiel fällt der Vorrat von 5085 auf rund 330 und bleibt dort (ca. 1,9 Snacks je Mio. Einheiten², Bots im Mittel Lv 9-10, 90 %-Marke Lv 30). Der Vorrat `snacksOutside` ist also nur der Anfang, die Nachwuchs-Rate bestimmt, wie viel liegt.
+- Neue Karte mit unveränderter Rate (8/2): rund 180 Snacks = 1,8 je Mio.²; Bot-Level wie vorher. Mit 16/4 und Bot-Nachwuchs 2: rund 240 Snacks = 2,4 je Mio.², etwa 165 Bots am Leben (Bots 240 ist nur das Maximum, sie fressen sich gegenseitig; 0,8 ergibt ca. 115, 4 ergibt ca. 220), Bot-Level Median 9,5, 90 %-Marke 25. Spielerdichte damit etwa das Dreifache von vorher (1,65 statt 0,54 je Mio.²).
+- Server-Schritt mit 240 Bots im Host-Worker: 6,4 ms (Cloud-Rechner, kein Handy).
+- Geschenkboxen werden nicht leergefressen (außen 70-90 von 92, innen ~45 von 65, Wasser ~18 von 19); Bots tragen im Mittel 0,3-0,4 Items.
+
+**Getestet** (Headless-Chromium, Node)
+- Spielstart solo (Desktop und Touch-Emulation) mit dem gebauten `index.html`, keine Fehler. Stapel-Zahlen: XP-Faktor 1,5 / 2,0 / 2,5 bei 1 / 2 / 3 Rush, Essdauer 0,21 / 0,105 / 0,07 s, zwei Rush per Taste Q und W = ×2, Schild 12 s bei zwei, Deckel 18 s, Magnet-Deckel 4, Magnet-Radius wächst mit den Kopien.
+- Seltenheit mit 200 000 Würfen gemessen: Geschenkbox 75,1/19,4/5,0/0,49, Wasser 42,1/38,0/16,5/3,5, Snacks 86,6/10,9/2,3/0,21. Die Perk-Karten beim ersten Pick sind anders (62/33/5/0), weil es nur 2 epische Perks gibt und legendäre erst ab 4 Punkten im Baum erscheinen; dann wird eine Stufe tiefer gezogen (so war es schon vorher).
+- Datei-Fälle: ohne Datei, gültige Überschreibung (Karte 6000, 50 Bots, Box 10/10/10/70), Tippfehler plus falscher Typ (5 Hinweise, eingebaute Werte), Syntaxfehler (1 Hinweis). Mehrspieler mit lokalem Broker: Host + Beitretender mit gleichen Einstellungen verbinden sich, einer mit geänderter Box-Chance wird abgewiesen. Node-Server: Datei geladen, `/config.js` ausgeliefert, WebSocket-Beitritt, derselbe Hash wie im Browser. Guide-Tabs ohne undefined/NaN, Perk-Karten, Pick per Taste 1.
+- NICHT getestet: wie sich die neuen Werte spielen (Balance), echte Handys und Firefox/Safari, das Bearbeiten auf GitHub samt Cloudflare-Deploy (aus der Sandbox nicht erreichbar), schwache Geräte mit 240 Bots.
+- BUILD r51.

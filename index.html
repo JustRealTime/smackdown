@@ -79,6 +79,7 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 
 #zoomtag{position:fixed;left:50%;bottom:calc(200px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:6px 16px;font:18px var(--display);transition:opacity .4s;pointer-events:none;z-index:5}
 #errbar{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);max-width:min(92%,760px);padding:8px 14px;border-radius:12px;background:#ff4d6a;color:#fff;font:800 13px var(--body);border:3px solid var(--ink);z-index:40;text-align:center}
+#cfgbar{position:fixed;left:0;right:0;top:0;z-index:60;background:#ff9f1c;color:#2b2140;font:800 13px var(--body);padding:6px 12px;text-align:center;cursor:pointer}
 #errbar button{margin-left:6px;font:800 12px var(--body);color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:2px 8px;cursor:pointer}
 #bugrep{z-index:50}
 #bpanel{width:min(600px,100%);max-height:100%;overflow:auto;gap:12px}
@@ -420,12 +421,12 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r50</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r51</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
       <dt><kbd>Space</kbd> <kbd>Click</kbd></dt><dd>Dash and slide, the fastest move</dd>
-      <dt><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> …</dt><dd>Use the item in that slot (3 slots, more at Lv 12, 30, 60, 100: R T Z U)</dd>
+      <dt><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> …</dt><dd>Use the item in that slot (more slots unlock with your level: R T Z U)</dd>
       <dt><kbd>Wheel</kbd> <kbd>+</kbd> <kbd>-</kbd></dt><dd>Zoom the camera (0 resets)</dd>
       <dt><kbd>Esc</kbd></dt><dd>Back to this menu</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
@@ -533,6 +534,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 <div id="toast" hidden></div>
 <div id="zoomtag" class="panel" hidden></div>
 <div id="errbar" hidden></div>
+<div id="cfgbar" hidden></div>
 <div id="bugrep" class="overlay" hidden>
   <div class="panel card" id="bpanel">
     <h2>Report a problem</h2>
@@ -554,6 +556,379 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     isUnifiedPlanSupported:${this.isUnifiedPlanSupported()}`}constructor(){this.isIOS="undefined"!=typeof navigator&&["iPad","iPhone","iPod"].includes(navigator.platform),this.supportedBrowsers=["firefox","chrome","safari"],this.minFirefoxVersion=59,this.minChromeVersion=72,this.minSafariVersion=605}},el=e=>!e||/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(e),eh=()=>Math.random().toString(36).slice(2),eu={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:["turn:eu-0.turn.peerjs.com:3478","turn:us-0.turn.peerjs.com:3478"],username:"peerjs",credential:"peerjsp"}],sdpSemantics:"unified-plan"},ef=new class extends n{noop(){}blobToArrayBuffer(e,t){let n=new FileReader;return n.onload=function(e){e.target&&t(e.target.result)},n.readAsArrayBuffer(e),n}binaryStringToArrayBuffer(e){let t=new Uint8Array(e.length);for(let n=0;n<e.length;n++)t[n]=255&e.charCodeAt(n);return t.buffer}isSecure(){return"https:"===location.protocol}constructor(...e){super(...e),this.CLOUD_HOST="0.peerjs.com",this.CLOUD_PORT=443,this.chunkedBrowsers={Chrome:1,chrome:1},this.defaultConfig=eu,this.browser=ed.getBrowser(),this.browserVersion=ed.getVersion(),this.pack=s,this.unpack=i,this.supports=function(){let e,t={browser:ed.isBrowserSupported(),webRTC:ed.isWebRTCSupported(),audioVideo:!1,data:!1,binaryBlob:!1,reliable:!1};if(!t.webRTC)return t;try{let n;e=new RTCPeerConnection(eu),t.audioVideo=!0;try{n=e.createDataChannel("_PEERJSTEST",{ordered:!0}),t.data=!0,t.reliable=!!n.ordered;try{n.binaryType="blob",t.binaryBlob=!ed.isIOS}catch(e){}}catch(e){}finally{n&&n.close()}}catch(e){}finally{e&&e.close()}return t}(),this.validateId=el,this.randomToken=eh}};"use strict";var em=new class{get logLevel(){return this._logLevel}set logLevel(e){this._logLevel=e}log(...e){this._logLevel>=3&&this._print(3,...e)}warn(...e){this._logLevel>=2&&this._print(2,...e)}error(...e){this._logLevel>=1&&this._print(1,...e)}setLogFunction(e){this._print=e}_print(e,...t){let n=["PeerJS: ",...t];for(let e in n)n[e]instanceof Error&&(n[e]="("+n[e].name+") "+n[e].message);e>=3?console.log(...n):e>=2?console.warn("WARNING",...n):e>=1&&console.error("ERROR",...n)}constructor(){this._logLevel=0}},e_={},eg=Object.prototype.hasOwnProperty,ey="~";function eC(){}function ev(e,t,n){this.fn=e,this.context=t,this.once=n||!1}function eb(e,t,n,r,i){if("function"!=typeof n)throw TypeError("The listener must be a function");var s=new ev(n,r||e,i),o=ey?ey+t:t;return e._events[o]?e._events[o].fn?e._events[o]=[e._events[o],s]:e._events[o].push(s):(e._events[o]=s,e._eventsCount++),e}function eT(e,t){0==--e._eventsCount?e._events=new eC:delete e._events[t]}function eS(){this._events=new eC,this._eventsCount=0}Object.create&&(eC.prototype=Object.create(null),new eC().__proto__||(ey=!1)),eS.prototype.eventNames=function(){var e,t,n=[];if(0===this._eventsCount)return n;for(t in e=this._events)eg.call(e,t)&&n.push(ey?t.slice(1):t);return Object.getOwnPropertySymbols?n.concat(Object.getOwnPropertySymbols(e)):n},eS.prototype.listeners=function(e){var t=ey?ey+e:e,n=this._events[t];if(!n)return[];if(n.fn)return[n.fn];for(var r=0,i=n.length,s=Array(i);r<i;r++)s[r]=n[r].fn;return s},eS.prototype.listenerCount=function(e){var t=ey?ey+e:e,n=this._events[t];return n?n.fn?1:n.length:0},eS.prototype.emit=function(e,t,n,r,i,s){var o=ey?ey+e:e;if(!this._events[o])return!1;var a,c,p=this._events[o],d=arguments.length;if(p.fn){switch(p.once&&this.removeListener(e,p.fn,void 0,!0),d){case 1:return p.fn.call(p.context),!0;case 2:return p.fn.call(p.context,t),!0;case 3:return p.fn.call(p.context,t,n),!0;case 4:return p.fn.call(p.context,t,n,r),!0;case 5:return p.fn.call(p.context,t,n,r,i),!0;case 6:return p.fn.call(p.context,t,n,r,i,s),!0}for(c=1,a=Array(d-1);c<d;c++)a[c-1]=arguments[c];p.fn.apply(p.context,a)}else{var l,h=p.length;for(c=0;c<h;c++)switch(p[c].once&&this.removeListener(e,p[c].fn,void 0,!0),d){case 1:p[c].fn.call(p[c].context);break;case 2:p[c].fn.call(p[c].context,t);break;case 3:p[c].fn.call(p[c].context,t,n);break;case 4:p[c].fn.call(p[c].context,t,n,r);break;default:if(!a)for(l=1,a=Array(d-1);l<d;l++)a[l-1]=arguments[l];p[c].fn.apply(p[c].context,a)}}return!0},eS.prototype.on=function(e,t,n){return eb(this,e,t,n,!1)},eS.prototype.once=function(e,t,n){return eb(this,e,t,n,!0)},eS.prototype.removeListener=function(e,t,n,r){var i=ey?ey+e:e;if(!this._events[i])return this;if(!t)return eT(this,i),this;var s=this._events[i];if(s.fn)s.fn!==t||r&&!s.once||n&&s.context!==n||eT(this,i);else{for(var o=0,a=[],c=s.length;o<c;o++)(s[o].fn!==t||r&&!s[o].once||n&&s[o].context!==n)&&a.push(s[o]);a.length?this._events[i]=1===a.length?a[0]:a:eT(this,i)}return this},eS.prototype.removeAllListeners=function(e){var t;return e?(t=ey?ey+e:e,this._events[t]&&eT(this,t)):(this._events=new eC,this._eventsCount=0),this},eS.prototype.off=eS.prototype.removeListener,eS.prototype.addListener=eS.prototype.on,eS.prefixed=ey,eS.EventEmitter=eS,e_=eS;var ek=function(e){return e.Data="data",e.Media="media",e}({}),eR=function(e){return e.BrowserIncompatible="browser-incompatible",e.Disconnected="disconnected",e.InvalidID="invalid-id",e.InvalidKey="invalid-key",e.Network="network",e.PeerUnavailable="peer-unavailable",e.SslUnavailable="ssl-unavailable",e.ServerError="server-error",e.SocketError="socket-error",e.SocketClosed="socket-closed",e.UnavailableID="unavailable-id",e.WebRTC="webrtc",e}({}),eP=function(e){return e.NegotiationFailed="negotiation-failed",e.ConnectionClosed="connection-closed",e}({}),ew=function(e){return e.NotOpenYet="not-open-yet",e.MessageToBig="message-too-big",e}({}),eE=function(e){return e.Binary="binary",e.BinaryUTF8="binary-utf8",e.JSON="json",e.None="raw",e}({}),ex=function(e){return e.Message="message",e.Disconnected="disconnected",e.Error="error",e.Close="close",e}({}),eD=function(e){return e.Heartbeat="HEARTBEAT",e.Candidate="CANDIDATE",e.Offer="OFFER",e.Answer="ANSWER",e.Open="OPEN",e.Error="ERROR",e.IdTaken="ID-TAKEN",e.InvalidKey="INVALID-KEY",e.Leave="LEAVE",e.Expire="EXPIRE",e}({});let eI="1.5.5";class eM extends e_.EventEmitter{start(e,t){this._id=e;let n=`${this._baseUrl}&id=${e}&token=${t}`;!this._socket&&this._disconnected&&(this._socket=new WebSocket(n+"&version="+eI),this._disconnected=!1,this._socket.onmessage=e=>{let t;try{t=JSON.parse(e.data),em.log("Server message received:",t)}catch(t){em.log("Invalid server message",e.data);return}this.emit(ex.Message,t)},this._socket.onclose=e=>{this._disconnected||(em.log("Socket closed.",e),this._cleanup(),this._disconnected=!0,this.emit(ex.Disconnected))},this._socket.onopen=()=>{this._disconnected||(this._sendQueuedMessages(),em.log("Socket open"),this._scheduleHeartbeat())})}_scheduleHeartbeat(){this._wsPingTimer=setTimeout(()=>{this._sendHeartbeat()},this.pingInterval)}_sendHeartbeat(){if(!this._wsOpen())return void em.log("Cannot send heartbeat, because socket closed");let e=JSON.stringify({type:eD.Heartbeat});this._socket.send(e),this._scheduleHeartbeat()}_wsOpen(){return!!this._socket&&1===this._socket.readyState}_sendQueuedMessages(){let e=[...this._messagesQueue];for(let t of(this._messagesQueue=[],e))this.send(t)}send(e){if(this._disconnected)return;if(!this._id)return void this._messagesQueue.push(e);if(!e.type)return void this.emit(ex.Error,"Invalid message");if(!this._wsOpen())return;let t=JSON.stringify(e);this._socket.send(t)}close(){this._disconnected||(this._cleanup(),this._disconnected=!0)}_cleanup(){this._socket&&(this._socket.onopen=this._socket.onmessage=this._socket.onclose=null,this._socket.close(),this._socket=void 0),clearTimeout(this._wsPingTimer)}constructor(e,t,n,r,i,s=5e3){super(),this.pingInterval=s,this._disconnected=!0,this._messagesQueue=[],this._baseUrl=(e?"wss://":"ws://")+t+":"+n+r+"peerjs?key="+i}}class eO{startConnection(e){let t=this._startPeerConnection();if(this.connection.peerConnection=t,this.connection.type===ek.Media&&e._stream&&this._addTracksToConnection(e._stream,t),e.originator){let n=this.connection,r={ordered:!!e.reliable},i=t.createDataChannel(n.label,r);n._initializeDataChannel(i),this._makeOffer()}else this.handleSDP("OFFER",e.sdp)}_startPeerConnection(){em.log("Creating RTCPeerConnection.");let e=new RTCPeerConnection(this.connection.provider.options.config);return this._setupListeners(e),e}_setupListeners(e){let t=this.connection.peer,n=this.connection.connectionId,r=this.connection.type,i=this.connection.provider;em.log("Listening for ICE candidates."),e.onicecandidate=e=>{e.candidate&&e.candidate.candidate&&(em.log(`Received ICE candidates for ${t}:`,e.candidate),i.socket.send({type:eD.Candidate,payload:{candidate:e.candidate,type:r,connectionId:n},dst:t}))},e.oniceconnectionstatechange=()=>{switch(e.iceConnectionState){case"failed":em.log("iceConnectionState is failed, closing connections to "+t),this.connection.emitError(eP.NegotiationFailed,"Negotiation of connection to "+t+" failed."),this.connection.close();break;case"closed":em.log("iceConnectionState is closed, closing connections to "+t),this.connection.emitError(eP.ConnectionClosed,"Connection to "+t+" closed."),this.connection.close();break;case"disconnected":em.log("iceConnectionState changed to disconnected on the connection with "+t);break;case"completed":e.onicecandidate=()=>{}}this.connection.emit("iceStateChanged",e.iceConnectionState)},em.log("Listening for data channel"),e.ondatachannel=e=>{em.log("Received data channel");let r=e.channel;i.getConnection(t,n)._initializeDataChannel(r)},em.log("Listening for remote stream"),e.ontrack=e=>{em.log("Received remote stream");let r=e.streams[0],s=i.getConnection(t,n);s.type===ek.Media&&this._addStreamToMediaConnection(r,s)}}cleanup(){em.log("Cleaning up PeerConnection to "+this.connection.peer);let e=this.connection.peerConnection;if(!e)return;this.connection.peerConnection=null,e.onicecandidate=e.oniceconnectionstatechange=e.ondatachannel=e.ontrack=()=>{};let t="closed"!==e.signalingState,n=!1,r=this.connection.dataChannel;r&&(n=!!r.readyState&&"closed"!==r.readyState),(t||n)&&e.close()}async _makeOffer(){let e=this.connection.peerConnection,t=this.connection.provider;try{let n=await e.createOffer(this.connection.options.constraints);em.log("Created offer."),this.connection.options.sdpTransform&&"function"==typeof this.connection.options.sdpTransform&&(n.sdp=this.connection.options.sdpTransform(n.sdp)||n.sdp);try{await e.setLocalDescription(n),em.log("Set localDescription:",n,`for:${this.connection.peer}`);let r={sdp:n,type:this.connection.type,connectionId:this.connection.connectionId,metadata:this.connection.metadata};if(this.connection.type===ek.Data){let e=this.connection;r={...r,label:e.label,reliable:e.reliable,serialization:e.serialization}}t.socket.send({type:eD.Offer,payload:r,dst:this.connection.peer})}catch(e){"OperationError: Failed to set local offer sdp: Called in wrong state: kHaveRemoteOffer"!=e&&(t.emitError(eR.WebRTC,e),em.log("Failed to setLocalDescription, ",e))}}catch(e){t.emitError(eR.WebRTC,e),em.log("Failed to createOffer, ",e)}}async _makeAnswer(){let e=this.connection.peerConnection,t=this.connection.provider;try{let n=await e.createAnswer();em.log("Created answer."),this.connection.options.sdpTransform&&"function"==typeof this.connection.options.sdpTransform&&(n.sdp=this.connection.options.sdpTransform(n.sdp)||n.sdp);try{await e.setLocalDescription(n),em.log("Set localDescription:",n,`for:${this.connection.peer}`),t.socket.send({type:eD.Answer,payload:{sdp:n,type:this.connection.type,connectionId:this.connection.connectionId},dst:this.connection.peer})}catch(e){t.emitError(eR.WebRTC,e),em.log("Failed to setLocalDescription, ",e)}}catch(e){t.emitError(eR.WebRTC,e),em.log("Failed to create answer, ",e)}}async handleSDP(e,t){t=new RTCSessionDescription(t);let n=this.connection.peerConnection,r=this.connection.provider;em.log("Setting remote description",t);try{await n.setRemoteDescription(t),em.log(`Set remoteDescription:${e} for:${this.connection.peer}`),"OFFER"===e&&await this._makeAnswer()}catch(e){r.emitError(eR.WebRTC,e),em.log("Failed to setRemoteDescription, ",e)}}async handleCandidate(e){em.log("handleCandidate:",e);try{await this.connection.peerConnection.addIceCandidate(e),em.log(`Added ICE candidate for:${this.connection.peer}`)}catch(e){this.connection.provider.emitError(eR.WebRTC,e),em.log("Failed to handleCandidate, ",e)}}_addTracksToConnection(e,t){if(em.log(`add tracks from stream ${e.id} to peer connection`),!t.addTrack)return em.error("Your browser does't support RTCPeerConnection#addTrack. Ignored.");e.getTracks().forEach(n=>{t.addTrack(n,e)})}_addStreamToMediaConnection(e,t){em.log(`add stream ${e.id} to media connection ${t.connectionId}`),t.addStream(e)}constructor(e){this.connection=e}}class eL extends e_.EventEmitter{emitError(e,t){em.error("Error:",t),this.emit("error",new eA(`${e}`,t))}}class eA extends Error{constructor(e,t){"string"==typeof t?super(t):(super(),Object.assign(this,t)),this.type=e}}class ej extends eL{get open(){return this._open}constructor(e,t,n){super(),this.peer=e,this.provider=t,this.options=n,this._open=!1,this.metadata=n.metadata}}class eB extends ej{get type(){return ek.Media}get localStream(){return this._localStream}get remoteStream(){return this._remoteStream}_initializeDataChannel(e){this.dataChannel=e,this.dataChannel.onopen=()=>{em.log(`DC#${this.connectionId} dc connection success`),this.emit("willCloseOnRemote")},this.dataChannel.onclose=()=>{em.log(`DC#${this.connectionId} dc closed for:`,this.peer),this.close()}}addStream(e){em.log("Receiving stream",e),this._remoteStream=e,super.emit("stream",e)}handleMessage(e){let t=e.type,n=e.payload;switch(e.type){case eD.Answer:this._negotiator.handleSDP(t,n.sdp),this._open=!0;break;case eD.Candidate:this._negotiator.handleCandidate(n.candidate);break;default:em.warn(`Unrecognized message type:${t} from peer:${this.peer}`)}}answer(e,t={}){if(this._localStream)return void em.warn("Local stream already exists on this MediaConnection. Are you answering a call twice?");for(let n of(this._localStream=e,t&&t.sdpTransform&&(this.options.sdpTransform=t.sdpTransform),this._negotiator.startConnection({...this.options._payload,_stream:e}),this.provider._getMessages(this.connectionId)))this.handleMessage(n);this._open=!0}close(){this._negotiator&&(this._negotiator.cleanup(),this._negotiator=null),this._localStream=null,this._remoteStream=null,this.provider&&(this.provider._removeConnection(this),this.provider=null),this.options&&this.options._stream&&(this.options._stream=null),this.open&&(this._open=!1,super.emit("close"))}constructor(e,t,n){super(e,t,n),this._localStream=this.options._stream,this.connectionId=this.options.connectionId||eB.ID_PREFIX+ef.randomToken(),this._negotiator=new eO(this),this._localStream&&this._negotiator.startConnection({_stream:this._localStream,originator:!0})}}eB.ID_PREFIX="mc_";class eU{_buildRequest(e){let t=this._options.secure?"https":"http",{host:n,port:r,path:i,key:s}=this._options,o=new URL(`${t}://${n}:${r}${i}${s}/${e}`);return o.searchParams.set("ts",`${Date.now()}${Math.random()}`),o.searchParams.set("version",eI),fetch(o.href,{referrerPolicy:this._options.referrerPolicy})}async retrieveId(){try{let e=await this._buildRequest("id");if(200!==e.status)throw Error(`Error. Status:${e.status}`);return e.text()}catch(t){em.error("Error retrieving ID",t);let e="";throw"/"===this._options.path&&this._options.host!==ef.CLOUD_HOST&&(e=" If you passed in a `path` to your self-hosted PeerServer, you'll also need to pass in that same path when creating a new Peer."),Error("Could not get an ID from the server."+e)}}async listAllPeers(){try{let e=await this._buildRequest("peers");if(200!==e.status){if(401===e.status){let e="";throw e=this._options.host===ef.CLOUD_HOST?"It looks like you're using the cloud server. You can email team@peerjs.com to enable peer listing for your API key.":"You need to enable `allow_discovery` on your self-hosted PeerServer to use this feature.",Error("It doesn't look like you have permission to list peers IDs. "+e)}throw Error(`Error. Status:${e.status}`)}return e.json()}catch(e){throw em.error("Error retrieving list peers",e),Error("Could not get list peers from the server."+e)}}constructor(e){this._options=e}}class eF extends ej{get type(){return ek.Data}_initializeDataChannel(e){this.dataChannel=e,this.dataChannel.onopen=()=>{em.log(`DC#${this.connectionId} dc connection success`),this._open=!0,this.emit("open")},this.dataChannel.onmessage=e=>{em.log(`DC#${this.connectionId} dc onmessage:`,e.data)},this.dataChannel.onclose=()=>{em.log(`DC#${this.connectionId} dc closed for:`,this.peer),this.close()}}close(e){if(e?.flush)return void this.send({__peerData:{type:"close"}});this._negotiator&&(this._negotiator.cleanup(),this._negotiator=null),this.provider&&(this.provider._removeConnection(this),this.provider=null),this.dataChannel&&(this.dataChannel.onopen=null,this.dataChannel.onmessage=null,this.dataChannel.onclose=null,this.dataChannel=null),this.open&&(this._open=!1,super.emit("close"))}send(e,t=!1){return this.open?this._send(e,t):void this.emitError(ew.NotOpenYet,"Connection is not open. You should listen for the `open` event before sending messages.")}async handleMessage(e){let t=e.payload;switch(e.type){case eD.Answer:await this._negotiator.handleSDP(e.type,t.sdp);break;case eD.Candidate:await this._negotiator.handleCandidate(t.candidate);break;default:em.warn("Unrecognized message type:",e.type,"from peer:",this.peer)}}constructor(e,t,n){super(e,t,n),this.connectionId=this.options.connectionId||eF.ID_PREFIX+eh(),this.label=this.options.label||this.connectionId,this.reliable=!!this.options.reliable,this._negotiator=new eO(this),this._negotiator.startConnection(this.options._payload||{originator:!0,reliable:this.reliable})}}eF.ID_PREFIX="dc_",eF.MAX_BUFFERED_AMOUNT=8388608;class eN extends eF{get bufferSize(){return this._bufferSize}_initializeDataChannel(e){super._initializeDataChannel(e),this.dataChannel.binaryType="arraybuffer",this.dataChannel.addEventListener("message",e=>this._handleDataMessage(e))}_bufferedSend(e){(this._buffering||!this._trySend(e))&&(this._buffer.push(e),this._bufferSize=this._buffer.length)}_trySend(e){if(!this.open)return!1;if(this.dataChannel.bufferedAmount>eF.MAX_BUFFERED_AMOUNT)return this._buffering=!0,setTimeout(()=>{this._buffering=!1,this._tryBuffer()},50),!1;try{this.dataChannel.send(e)}catch(e){return em.error(`DC#:${this.connectionId} Error when sending:`,e),this._buffering=!0,this.close(),!1}return!0}_tryBuffer(){if(!this.open||0===this._buffer.length)return;let e=this._buffer[0];this._trySend(e)&&(this._buffer.shift(),this._bufferSize=this._buffer.length,this._tryBuffer())}close(e){if(e?.flush)return void this.send({__peerData:{type:"close"}});this._buffer=[],this._bufferSize=0,super.close()}constructor(...e){super(...e),this._buffer=[],this._bufferSize=0,this._buffering=!1}}class ez extends eN{close(e){super.close(e),this._chunkedData={}}_handleDataMessage({data:e}){let t=i(e),n=t.__peerData;if(n)return"close"===n.type?void this.close():void this._handleChunk(t);this.emit("data",t)}_handleChunk(e){let t=e.__peerData,n=this._chunkedData[t]||{data:[],count:0,total:e.total};if(n.data[e.n]=new Uint8Array(e.data),n.count++,this._chunkedData[t]=n,n.total===n.count){delete this._chunkedData[t];let e=function(e){let t=0;for(let n of e)t+=n.byteLength;let n=new Uint8Array(t),r=0;for(let t of e)n.set(t,r),r+=t.byteLength;return n}(n.data);this._handleDataMessage({data:e})}}_send(e,t){let n=s(e);return n instanceof Promise?this._send_blob(n):!t&&n.byteLength>this.chunker.chunkedMTU?void this._sendChunks(n):void this._bufferedSend(n)}async _send_blob(e){let t=await e;if(t.byteLength>this.chunker.chunkedMTU)return void this._sendChunks(t);this._bufferedSend(t)}_sendChunks(e){let t=this.chunker.chunk(e);for(let e of(em.log(`DC#${this.connectionId} Try to send ${t.length} chunks...`),t))this.send(e,!0)}constructor(e,t,r){super(e,t,r),this.chunker=new n,this.serialization=eE.Binary,this._chunkedData={}}}class e$ extends eN{_handleDataMessage({data:e}){super.emit("data",e)}_send(e,t){this._bufferedSend(e)}constructor(...e){super(...e),this.serialization=eE.None}}class eV extends eN{_handleDataMessage({data:e}){let t=this.parse(this.decoder.decode(e)),n=t.__peerData;if(n&&"close"===n.type)return void this.close();this.emit("data",t)}_send(e,t){let n=this.encoder.encode(this.stringify(e));if(n.byteLength>=ef.chunkedMTU)return void this.emitError(ew.MessageToBig,"Message too big for JSON channel");this._bufferedSend(n)}constructor(...e){super(...e),this.serialization=eE.JSON,this.encoder=new TextEncoder,this.decoder=new TextDecoder,this.stringify=JSON.stringify,this.parse=JSON.parse}}class eG extends eL{get id(){return this._id}get options(){return this._options}get open(){return this._open}get socket(){return this._socket}get connections(){let e=Object.create(null);for(let[t,n]of this._connections)e[t]=n;return e}get destroyed(){return this._destroyed}get disconnected(){return this._disconnected}_createServerConnection(){let e=new eM(this._options.secure,this._options.host,this._options.port,this._options.path,this._options.key,this._options.pingInterval);return e.on(ex.Message,e=>{this._handleMessage(e)}),e.on(ex.Error,e=>{this._abort(eR.SocketError,e)}),e.on(ex.Disconnected,()=>{this.disconnected||(this.emitError(eR.Network,"Lost connection to server."),this.disconnect())}),e.on(ex.Close,()=>{this.disconnected||this._abort(eR.SocketClosed,"Underlying socket is already closed.")}),e}_initialize(e){this._id=e,this.socket.start(e,this._options.token)}_handleMessage(e){let t=e.type,n=e.payload,r=e.src;switch(t){case eD.Open:this._lastServerId=this.id,this._open=!0,this.emit("open",this.id);break;case eD.Error:this._abort(eR.ServerError,n.msg);break;case eD.IdTaken:this._abort(eR.UnavailableID,`ID "${this.id}" is taken`);break;case eD.InvalidKey:this._abort(eR.InvalidKey,`API KEY "${this._options.key}" is invalid`);break;case eD.Leave:em.log(`Received leave message from ${r}`),this._cleanupPeer(r),this._connections.delete(r);break;case eD.Expire:this.emitError(eR.PeerUnavailable,`Could not connect to peer ${r}`);break;case eD.Offer:{let e=n.connectionId,t=this.getConnection(r,e);if(t&&(t.close(),em.warn(`Offer received for existing Connection ID:${e}`)),n.type===ek.Media){let i=new eB(r,this,{connectionId:e,_payload:n,metadata:n.metadata});t=i,this._addConnection(r,t),this.emit("call",i)}else{if(n.type!==ek.Data)return void em.warn(`Received malformed connection type:${n.type}`);let i=new this._serializers[n.serialization](r,this,{connectionId:e,_payload:n,metadata:n.metadata,label:n.label,serialization:n.serialization,reliable:n.reliable});t=i,this._addConnection(r,t),this.emit("connection",i)}for(let n of this._getMessages(e))t.handleMessage(n);break}default:{if(!n)return void em.warn(`You received a malformed message from ${r} of type ${t}`);let i=n.connectionId,s=this.getConnection(r,i);s&&s.peerConnection?s.handleMessage(e):i?this._storeMessage(i,e):em.warn("You received an unrecognized message:",e)}}}_storeMessage(e,t){this._lostMessages.has(e)||this._lostMessages.set(e,[]),this._lostMessages.get(e).push(t)}_getMessages(e){let t=this._lostMessages.get(e);return t?(this._lostMessages.delete(e),t):[]}connect(e,t={}){if(t={serialization:"default",...t},this.disconnected){em.warn("You cannot connect to a new Peer because you called .disconnect() on this Peer and ended your connection with the server. You can create a new Peer to reconnect, or call reconnect on this peer if you believe its ID to still be available."),this.emitError(eR.Disconnected,"Cannot connect to new Peer after disconnecting from server.");return}let n=new this._serializers[t.serialization](e,this,t);return this._addConnection(e,n),n}call(e,t,n={}){if(this.disconnected){em.warn("You cannot connect to a new Peer because you called .disconnect() on this Peer and ended your connection with the server. You can create a new Peer to reconnect."),this.emitError(eR.Disconnected,"Cannot connect to new Peer after disconnecting from server.");return}if(!t)return void em.error("To call a peer, you must provide a stream from your browser's `getUserMedia`.");let r=new eB(e,this,{...n,_stream:t});return this._addConnection(e,r),r}_addConnection(e,t){em.log(`add connection ${t.type}:${t.connectionId} to peerId:${e}`),this._connections.has(e)||this._connections.set(e,[]),this._connections.get(e).push(t)}_removeConnection(e){let t=this._connections.get(e.peer);if(t){let n=t.indexOf(e);-1!==n&&t.splice(n,1)}this._lostMessages.delete(e.connectionId)}getConnection(e,t){let n=this._connections.get(e);if(!n)return null;for(let e of n)if(e.connectionId===t)return e;return null}_delayedAbort(e,t){setTimeout(()=>{this._abort(e,t)},0)}_abort(e,t){em.error("Aborting!"),this.emitError(e,t),this._lastServerId?this.disconnect():this.destroy()}destroy(){this.destroyed||(em.log(`Destroy peer with ID:${this.id}`),this.disconnect(),this._cleanup(),this._destroyed=!0,this.emit("close"))}_cleanup(){for(let e of this._connections.keys())this._cleanupPeer(e),this._connections.delete(e);this.socket.removeAllListeners()}_cleanupPeer(e){let t=this._connections.get(e);if(t)for(let e of t)e.close()}disconnect(){if(this.disconnected)return;let e=this.id;em.log(`Disconnect peer with ID:${e}`),this._disconnected=!0,this._open=!1,this.socket.close(),this._lastServerId=e,this._id=null,this.emit("disconnected",e)}reconnect(){if(this.disconnected&&!this.destroyed)em.log(`Attempting reconnection to server with ID ${this._lastServerId}`),this._disconnected=!1,this._initialize(this._lastServerId);else if(this.destroyed)throw Error("This peer cannot reconnect to the server. It has already been destroyed.");else if(this.disconnected||this.open)throw Error(`Peer ${this.id} cannot reconnect because it is not disconnected from the server!`);else em.error("In a hurry? We're still trying to make the initial connection!")}listAllPeers(e=e=>{}){this._api.listAllPeers().then(t=>e(t)).catch(e=>this._abort(eR.ServerError,e))}constructor(e,t){let n;if(super(),this._serializers={raw:e$,json:eV,binary:ez,"binary-utf8":ez,default:ez},this._id=null,this._lastServerId=null,this._destroyed=!1,this._disconnected=!1,this._open=!1,this._connections=new Map,this._lostMessages=new Map,e&&e.constructor==Object?t=e:e&&(n=e.toString()),t={debug:0,host:ef.CLOUD_HOST,port:ef.CLOUD_PORT,path:"/",key:eG.DEFAULT_KEY,token:ef.randomToken(),config:ef.defaultConfig,referrerPolicy:"strict-origin-when-cross-origin",serializers:{},...t},this._options=t,this._serializers={...this._serializers,...this.options.serializers},"/"===this._options.host&&(this._options.host=window.location.hostname),this._options.path&&("/"!==this._options.path[0]&&(this._options.path="/"+this._options.path),"/"!==this._options.path[this._options.path.length-1]&&(this._options.path+="/")),void 0===this._options.secure&&this._options.host!==ef.CLOUD_HOST?this._options.secure=ef.isSecure():this._options.host==ef.CLOUD_HOST&&(this._options.secure=!0),this._options.logFunction&&em.setLogFunction(this._options.logFunction),em.logLevel=this._options.debug||0,this._api=new eU(t),this._socket=this._createServerConnection(),!ef.supports.audioVideo&&!ef.supports.data)return void this._delayedAbort(eR.BrowserIncompatible,"The current browser does not support WebRTC");if(n&&!ef.validateId(n))return void this._delayedAbort(eR.InvalidID,`ID "${n}" is invalid`);n?this._initialize(n):this._api.retrieveId().then(e=>this._initialize(e)).catch(e=>this._abort(eR.ServerError,e))}}eG.DEFAULT_KEY="peerjs",window.peerjs={Peer:eG,util:ef},window.Peer=eG})();
 
 </script>
+<script>addEventListener('error',function(e){if(/config\.js/.test(e.filename||''))window.__cfgErr=(e.message||'error')+(e.lineno?' (line '+e.lineno+')':'')});/* =============================================================================================
+   TYPEBITE SETTINGS  -  the ONE file where the whole game is tuned
+   ---------------------------------------------------------------------------------------------
+   Change a number, save the file, reload the game. Nothing has to be built.
+
+   * On the website: open this file on GitHub (site/config.js), click the pencil, change a number,
+     press "Commit changes". About a minute later typebite.io uses the new numbers.
+   * On your own PC: put your edited copy of config.js next to index.html.
+   * Everybody in one multiplayer game must have the same settings. If they differ, joining says
+     "different game settings".
+   * A mistake shows up as an orange bar at the top of the game (and the built-in value is used
+     for that one setting). Keep the commas at the end of the lines and do not delete the brackets.
+   * Lists with four numbers like [75, 19.5, 5, 0.5] are weights for Common, Rare, Epic and
+     Legendary. They do not have to add up to 100, the game works out the percentages itself.
+   * The game ships with a copy of these numbers inside index.html. This file only overrides it.
+   * Explanations in German: docs/konfiguration.md
+   ============================================================================================= */
+window.TYPEBITE_DEFAULTS = {
+
+
+/* =============================================================================================
+   1. THE MAP
+   ============================================================================================= */
+world: {
+  size: 10000,           // width and height of the map in game units. A player walks about 175 units per second.
+  scaleCounts: true,     // true: all counts in "world" and "spawn" are written for a 13600 map and get multiplied by (size/13600)^2,
+                         //       so a smaller map keeps the same density. false: the counts are used exactly as written.
+  regions: 36,           // how many biome patches (meadow, forest, desert, snow, ...) a 13600 map has. Fewer = bigger patches.
+  buildings: {           // how many of each building. The map has room for about (size/1236)^2 buildings.
+    home: 26, diner: 6, bakery: 6, gym: 6, shed: 5, arcade: 6, barn: 6, library: 5,
+    greenhouse: 5, cafe: 5, pizzeria: 4, school: 3, clinic: 3, cinema: 3, workshop: 3, icecream: 3,
+  },
+  scenes: {              // little decorated places (they only add walls to bump into and things to look at)
+    camps: 20, markets: 14, ponds: 28, fields: 14, parks: 18, wells: 32, signs: 24, ruins: 10, graveyards: 7, plazas: 9,
+  },
+  nature: { trees: 1700, rocks: 560, bushes: 1800, decor: 1120 },   // plants and small decoration
+},
+
+
+/* =============================================================================================
+   2. PLAYERS AND BOTS
+   ============================================================================================= */
+players: {
+  bots: 240,                         // the most computer players there can be. More bots = busier map (and a slower game on weak PCs)
+  botRespawn: 2,                     // eaten bots are replaced at about this many per second. Bots eat each other, so the map is never completely full:
+                                     // 0.8 = about 115 bots around, 2 = about 165, 4 = about 220 (with bots: 240)
+  botLevels: [[70, 1, 5], [23, 5, 12], [7, 12, 22]],   // level of a new bot: [chance in %, lowest level, highest level]
+  botSkill: [-8, 14],                // typing speed of bots: this many words per minute more or less than the base (see duel.botWpm)
+  botAggression: [0.25, 0.9],        // each bot gets a random value in this range: how often it hunts someone weaker
+  botBravery: [0, 1],                // each bot gets a random value: above 0.75 it never runs away
+  botItems: 1,                       // how many items a bot can carry at the same time
+  maxPerGame: 12,                    // human players in one game that a browser hosts
+  gamesPerRoom: 8,                   // games with the same room name that can run at the same time
+  spawnProtection: 3,                // seconds nobody can duel a new player or bot
+  onlineSpawnProtection: 4,          // the same for human players in a multiplayer game
+},
+
+
+/* =============================================================================================
+   3. HOW MUCH LIES AROUND (spawn rates)
+   ============================================================================================= */
+spawn: {
+  snacksOutside: 4000,       // snacks lying outside when the game starts (and the number the game tries to keep)
+  snacksInside: 1100,        // snacks inside buildings
+  snackRefillOutside: 16,    // new snacks per second while there are fewer than the number above.
+  snackRefillInside: 4,      // With many bots they eat faster than this, so these two numbers decide how many snacks lie around
+  boxesOutside: 170,         // gift boxes (items) lying outside
+  boxesInside: 120,          // gift boxes inside buildings
+  boxesUnderwater: 36,       // boxes at the bottom of ponds. You have to swim for them, and they hold better items
+  boxRefillOutside: 0.5,     // new boxes per second
+  boxRefillInside: 0.5,
+  boxRefillUnderwater: 0.1,
+  homeBiomeBoost: 5,         // a snack is this much more likely in the biome it comes from (0 = no preference)
+  homeShopBoost: 7,          // ... and inside the shops it comes from
+},
+
+
+/* =============================================================================================
+   4. RARITY  -  how often the good stuff shows up   (Common, Rare, Epic, Legendary)
+   ============================================================================================= */
+rarity: {
+  giftBox: [75, 19.5, 5, 0.5],          // which item a normal gift box holds
+  underwaterBox: [42, 38, 16.5, 3.5],   // boxes from the bottom of a pond
+  perkCards: [62, 26, 9, 3],            // rarity of the three perk cards you pick from at a level-up
+  snacks: [86.5, 11, 2.3, 0.2],         // which snack spawns on the ground
+},
+
+
+/* =============================================================================================
+   5. LEVELS AND XP
+   ============================================================================================= */
+levels: {
+  costBase: 5,               // level L costs   costBase * (1 + costGrowth * (L-1))   xp. Level 1 = 5, level 50 = 41, level 100 = 79
+  costGrowth: 0.15,
+  snackValue: 1.7,           // an average snack gives this much xp (so eating pays off)
+  eatTime: 0.6,              // seconds it takes to eat an average snack (you are slow and easy to catch while eating)
+  firstPerkLevel: 2,         // the first perk pick
+  perkEvery: 4,              // then one pick every this many levels
+  capstoneNeedsPoints: 4,    // legendary perks appear only after this many perk points in their tree
+  itemSlotLevels: [0, 0, 0, 12, 30, 60, 100],   // the level you need for item slot 1, 2, 3, ... (keys Q W E R T Z U). 7 slots at most
+  kingMinLevel: 8,           // the highest level becomes King (and everybody hunts them) only from this level on
+},
+
+
+/* =============================================================================================
+   6. MOVEMENT
+   ============================================================================================= */
+movement: {
+  speed: 175,                // walking speed in units per second
+  sprintBoost: 1.55,         // sprinting is this many times faster
+  staminaMax: 100,
+  sprintDrain: 38,           // stamina used per second of sprinting
+  regenResting: 30,          // stamina back per second when standing still
+  regenMoving: 18,           // ... when walking
+  dashCooldown: 2.2,         // seconds until the next dash charge
+  dashSpeed: 780,            // speed during a dash
+  dashTime: 0.17,            // how long the dash lasts
+  slideTime: 0.6,            // slide after a dash
+  swimSpeed: 0.55,           // speed factor in water
+  eatingSpeed: 0.35,         // speed factor while eating
+  slowdownPerLevel: 0.001,   // high levels are a little slower: this much per level ...
+  slowdownMax: 0.15,         // ... but never more than this
+},
+
+
+/* =============================================================================================
+   7. DUELS (typing fights)
+   ============================================================================================= */
+duel: {
+  countdown: 5.6,            // seconds from the first touch until you can type
+  // how many words each side starts with:  baseWords + (level A + level B)/levelSumDivisor + level gap/gapDivisor
+  baseWords: 3, levelSumDivisor: 24, gapDivisor: 10, minWords: 3, maxWords: 20,
+  // the LOWER level player types fewer words: one word per gapLevelsPerWord levels of difference, from a gap of gapFrom
+  gapFrom: 4, gapLevelsPerWord: 9, gapMaxShare: 0.3,
+  caughtWords: 2,            // words fewer for the one who caught somebody running away
+  keyboardWords: 1,          // Pro Keyboard: words fewer
+  shortestPhrase: 2, longestPhrase: 26,   // after everything is added up
+  // what the winner gets from the loser
+  winnerShare: 0.5,          // share of everything the loser collected
+  weakVictimFloor: 0.4,      // beating someone much weaker pays at least this share of the above (0.4 = 40%)
+  winCap: 15,                // one win never gives more than this many of the winner's own levels
+  minWinXp: 4,               // even a beginner is worth this much xp
+  orbShare: 0.2,             // share of the loser's xp that drops as orbs for everybody
+  kingBonusShare: 0.2,       // extra for beating the King
+  orbLife: 35,               // seconds an orb stays on the ground
+  winnerProtection: 2.5,     // seconds the winner cannot be dueled
+  fleeMemory: 3,             // seconds somebody counts as "caught running" after running away
+  touchDistance: 34,         // how close two players must be for a duel
+  timeout: 90,               // a duel nobody finishes ends after this many seconds
+  // typing speed of a bot in a duel with you:  botWpm + skill + level * botWpmPerLevel (at most +botWpmMaxLevelBonus)
+  botWpm: 32, botWpmPerLevel: 0.1, botWpmMaxLevelBonus: 14, botWpmMin: 18, botWpmMax: 100,
+  botVsBot: [1.8, 3],        // how long a duel between two bots lasts (seconds)
+  botVsBotLevelEdge: 0.006,  // win chance per level of difference ...
+  botVsBotMaxEdge: 0.2,      // ... but never more than this
+  caughtEdge: 0.12,          // win chance bonus for catching somebody
+  keyboardEdge: 0.1,         // win chance bonus for a keyboard item
+},
+
+
+/* =============================================================================================
+   8. QUESTS (time-limited jobs, they pay bonus levels)
+   ============================================================================================= */
+quests: {
+  firstDelay: [90, 150],     // seconds until the first quest [lowest, highest]
+  nextDelay: [150, 210],     // seconds until the next quest
+  snackChance: 0.55,         // chance that a quest is "eat N snacks of one kind"
+  boxChance: 0.30,           // chance for "open N gift boxes". What is left over is "find a box underwater"
+  snack: { count: [3, 5], time: [80, 110], rewardBase: 1.2, rewardPerItem: 0.2 },    // reward = this many times the cost of your current level
+  box:   { count: [2, 3], time: [100, 130], rewardBase: 1.6, rewardPerItem: 0.4 },
+  water: { time: [110, 140], reward: 3 },
+},
+
+
+/* =============================================================================================
+   9. CAMERA
+   ============================================================================================= */
+camera: {
+  startZoom: 1.5,            // 1.5 = 150% (the biggest view-in at the start)
+  maxZoom: 2.5,              // how far you can zoom in
+  minZoomLowLevel: 1.5,      // how far you can zoom out at level 1 ...
+  minZoomHighLevel: 0.8,     // ... and at the level below. Zooming out unlocks step by step with your level
+  highLevel: 60,
+},
+
+
+/* =============================================================================================
+   10. NETWORK (multiplayer)
+   ============================================================================================= */
+network: {
+  viewRadius: 1250,          // players further away than this (in units) are not sent to you
+  dataRadius: 1150,          // snacks, boxes and orbs further away than this are not sent
+  updatesPerSecond: 20,      // how often the host sends the world (the game itself runs at 60). Lower = less data
+},
+
+
+/* =============================================================================================
+   11. ITEMS (gift box items)
+       tier:       0 Common, 1 Rare, 2 Epic, 3 Legendary (moves the item to another rarity)
+       weight:     how likely it is among the items of its rarity. 1 = normal, 2 = twice as likely, 0 = never
+       duration:   seconds the effect lasts
+       stack:      what happens when you use it again while it still runs:
+                   'strength' = the effect gets stronger (2 Sugar Rushes = double Sugar Rush), every use has its own timer
+                   'time'     = the time is added on top
+       maxStacks:  the most copies that stack: for a 'strength' item that many effects run together,
+                   for a 'time' item the time can grow to this many times the duration
+   ============================================================================================= */
+items: {
+  stacking: true,            // false: using an item again just restarts its timer, nothing stacks
+  list: {
+    magnet:    { tier: 0, weight: 1, duration: 7,  stack: 'strength', maxStacks: 4, radius: 420, speed: 540, boxRadius: 280, boxSpeed: 420 },   // pulls snacks (radius) and boxes/orbs (boxRadius)
+    turbo:     { tier: 0, weight: 1, duration: 7,  stack: 'strength', maxStacks: 3, speedBonus: 0.4 },                                          // +40% speed per stack, endless stamina
+    rush:      { tier: 1, weight: 1, duration: 10, stack: 'strength', maxStacks: 5, eatTime: 0.35, xpBonus: 0.5 },                              // per stack: eating 1/eatTime times faster, +50% xp from snacks
+    smoke:     { tier: 0, weight: 1, duration: 4,  stack: 'time', maxStacks: 3 },                                                               // bots lose sight of you
+    bomb:      { tier: 0, weight: 1, snacks: 16, minRadius: 70, maxRadius: 170 },                                                               // a ring of snacks
+    energy:    { tier: 0, weight: 1 },                                                                                                          // refills stamina and dash
+    apple:     { tier: 0, weight: 1, xp: 4 },                                                                                                   // instant xp (in snacks)
+    shield:    { tier: 1, weight: 1, duration: 6,  stack: 'time', maxStacks: 3 },                                                               // nobody can duel you
+    radar:     { tier: 0, weight: 1, duration: 12, stack: 'time', maxStacks: 3 },                                                               // everybody on the minimap
+    shock:     { tier: 1, weight: 1, radius: 400, force: 950 },                                                                                 // blasts everybody away
+    ticket:    { tier: 1, weight: 1, xp: 10 },                                                                                                  // instant xp (in snacks)
+    clover:    { tier: 1, weight: 1, boxes: 3, extraRolls: 2 },                                                                                 // the next boxes roll rarer items: this many boxes, this many extra rolls each (adds up)
+    rubber:    { tier: 1, weight: 1, duration: 6,  stack: 'time', maxStacks: 3 },                                                               // dash without cooldown
+    freeze:    { tier: 2, weight: 1, duration: 2.5, stack: 'time', maxStacks: 3, radius: 340 },                                                 // freezes everybody close
+    keys:      { tier: 2, weight: 1, words: 1 },                                                                                                // next duel: this many words fewer (automatic)
+    sticky:    { tier: 2, weight: 1, radius: 420 },                                                                                             // steals an item
+    teleport:  { tier: 2, weight: 1, minDistance: 1600 },                                                                                       // jump at least this far
+    rocket:    { tier: 2, weight: 1, duration: 6,  stack: 'strength', maxStacks: 3, dashBoost: 0.35 },                                          // +35% dash speed per stack, dash without limit
+    warp:      { tier: 2, weight: 1, duration: 4,  stack: 'time', maxStacks: 3, slowdown: 0.45 },                                               // everybody else moves at this speed factor
+    angel:     { tier: 3, weight: 1, keepShare: 0.5 },                                                                                          // survive a lost duel with this share of your levels (automatic)
+    gkeys:     { tier: 3, weight: 1, share: 0.3 },                                                                                              // next duel: this share fewer words (automatic)
+    nova:      { tier: 3, weight: 1, duration: 2.5, radius: 520, force: 1100, shieldTime: 4 },                                                  // blast + freeze (duration) + shield for you
+    crystal:   { tier: 3, weight: 1, levels: 3 },                                                                                               // instant levels
+    blackhole: { tier: 3, weight: 1, duration: 6,  stack: 'strength', maxStacks: 2, radius: 1000, speed: 900, boxRadius: 800, boxSpeed: 800 },  // sucks in everything
+  },
+},
+
+
+/* =============================================================================================
+   12. PERKS (picked at level-ups)
+       tier:      0 Common, 1 Rare, 2 Epic, 3 Legendary (legendary perks need 'capstoneNeedsPoints' points in their tree)
+       weight:    how likely it is among the perks of its rarity and tree (0 = never offered)
+       max:       how many times you can pick it (ranks)
+       perRank:   what ONE rank gives (the meaning is in the comment of each line)
+   ============================================================================================= */
+perks: {
+  list: {
+    // --- Feast ---
+    gourmet:     { tier: 0, weight: 1, max: 5, perRank: 0.20 },                       // +20% level from snacks per rank
+    quickbite:   { tier: 1, weight: 1, max: 3, perRank: 0.20, floor: 0.35 },          // eating 20% faster per rank (never below 35% of the normal time)
+    vacuum:      { tier: 1, weight: 1, max: 3, perRank: 70, speed: 400 },             // snacks within 70 units fly to you
+    jackpot:     { tier: 1, weight: 1, max: 3, perRank: 0.08, multiplier: 3 },        // 8% of snacks give triple per rank
+    combo:       { tier: 1, weight: 1, max: 3, perRank: 0.10, window: 4, maxChain: 5 },// snacks within 4 s stack +10% per rank (up to a chain of 5)
+    orbhunter:   { tier: 0, weight: 1, max: 3, perRank: 0.30 },                       // orbs worth 30% more per rank
+    cozy:        { tier: 0, weight: 1, max: 3, perRank: 0.25 },                       // +25% level for snacks eaten inside buildings
+    nose:        { tier: 3, weight: 1, max: 1, radius: 380, speed: 420 },             // gift boxes and orbs fly to you from this far
+    // --- Sprint ---
+    swift:       { tier: 0, weight: 1, max: 5, perRank: 0.06 },                       // +6% speed
+    dashcd:      { tier: 1, weight: 1, max: 3, perRank: 0.15, floor: 0.4 },           // dash recharges 15% faster (never below 40% of the time)
+    lungs:       { tier: 0, weight: 1, max: 3, perRank: 0.30 },                       // +30% stamina
+    slide:       { tier: 1, weight: 1, max: 3, perRank: 0.40 },                       // slide lasts 40% longer
+    sprintboost: { tier: 0, weight: 1, max: 3, perRank: 0.08 },                       // sprint 0.08 faster (added to movement.sprintBoost)
+    longdash:    { tier: 1, weight: 1, max: 3, perRank: 0.12 },                       // dash goes 12% farther
+    regen:       { tier: 0, weight: 1, max: 3, perRank: 0.40 },                       // stamina refills 40% faster
+    adrenaline:  { tier: 2, weight: 1, max: 2, turbo: 3 },                            // after a duel win: dash + stamina refill; at rank 2 also this many seconds of turbo
+    phase:       { tier: 3, weight: 1, max: 1 },                                      // nobody can duel you while you dash
+    double:      { tier: 3, weight: 1, max: 1, charges: 2 },                          // dash charges
+    // --- Typist ---
+    short:       { tier: 0, weight: 1, max: 2, perRank: 1 },                          // your phrase is 1 word shorter
+    forgive:     { tier: 1, weight: 1, max: 3, perRank: 1 },                          // first typos per duel are ignored
+    head:        { tier: 1, weight: 1, max: 3, perRank: 0.5 },                        // opponent starts 0.5 s late
+    plunder:     { tier: 1, weight: 1, max: 3, perRank: 0.15 },                       // +15% levels from duel wins
+    curse:       { tier: 2, weight: 1, max: 2, perRank: 1 },                          // opponent's phrase is 1 word longer
+    underdog:    { tier: 1, weight: 1, max: 2, perRank: 1 },                          // against a higher level: phrase 1 word shorter
+    bounty:      { tier: 0, weight: 1, max: 2, perRank: 0.5 },                        // +50% bounty for beating the King
+    warm:        { tier: 0, weight: 1, max: 2, perRank: 1 },                          // first word(s) already typed
+    flow:        { tier: 3, weight: 1, max: 1, streak: 20, slowdown: 0.7 },           // after 20 correct letters in a row the opponent types at 70% speed
+    // --- Guard ---
+    afterwin:    { tier: 0, weight: 1, max: 3, perRank: 1.5 },                        // seconds of protection after a win
+    slippery:    { tier: 0, weight: 1, max: 2, perRank: 1 },                          // being caught running helps them 1 word less
+    laststand:   { tier: 1, weight: 1, max: 3, perRank: 0.15 },                       // keep 15% of your levels when eaten
+    snackguard:  { tier: 0, weight: 1, max: 2, perRank: 0.5 },                        // seconds of protection when you start eating
+    bubble:      { tier: 3, weight: 1, max: 1, every: 45 },                           // a free Bubble Shield every 45 s
+    // --- Trick ---
+    itemdur:     { tier: 0, weight: 1, max: 3, perRank: 0.25 },                       // item effects last 25% longer
+    recycle:     { tier: 1, weight: 1, max: 3, perRank: 0.20 },                       // chance an item is not used up
+    boxbonus:    { tier: 0, weight: 1, max: 3, perRank: 2 },                          // gift boxes also give this many snacks worth of level
+    thief:       { tier: 1, weight: 1, max: 2, perRank: 0.5 },                        // chance to steal the item of someone you beat
+    fortune:     { tier: 1, weight: 1, max: 2, perRank: 1 },                          // extra rolls for gift boxes (the best one counts)
+    fairy:       { tier: 3, weight: 1, max: 1, every: 60 },                           // a free random item every 60 s
+  },
+},
+
+
+/* =============================================================================================
+   13. SNACKS (the food on the ground). 57 kinds.
+       tier:     0 Common, 1 Rare, 2 Epic, 3 Legendary
+       weight:   how likely among the snacks of its rarity (0 = never spawns)
+       xp:       how many average snacks it is worth (the game balances all values so that the AVERAGE snack stays 1.0)
+       time:     eating time compared to an average snack (bigger food takes longer, and you are easy prey while you chew)
+       biomes:   where it grows more often. Letters: m meadow, f forest, d desert, s snow, a autumn, w swamp, j jungle, v volcano, c candy
+       shops:    which buildings it appears in more often
+       effect:   bonus when eaten, separated by commas:  sta (refill stamina), dash (recharge dash), item (a gift),
+                 rush:5 / turbo:6 / shield:5 / magnet:8 / radar:10  (effect for this many seconds)
+   ============================================================================================= */
+snacks: {
+  list: {
+    // --- Common ---
+    burger:     { tier: 0, weight: 1, xp: 0.95, time: 1.0,  biomes: '',   shops: 'diner arcade',        effect: '' },
+    apple:      { tier: 0, weight: 1, xp: 0.7,  time: 0.8,  biomes: 'ma', shops: 'barn greenhouse',     effect: '' },
+    soda:       { tier: 0, weight: 1, xp: 0.8,  time: 0.8,  biomes: '',   shops: 'diner arcade cinema', effect: '' },
+    pizza:      { tier: 0, weight: 1, xp: 1.05, time: 1.0,  biomes: '',   shops: 'pizzeria diner',      effect: '' },
+    donut:      { tier: 0, weight: 1, xp: 0.85, time: 0.9,  biomes: 'c',  shops: 'bakery',              effect: '' },
+    fries:      { tier: 0, weight: 1, xp: 0.75, time: 0.85, biomes: '',   shops: 'diner arcade cinema', effect: '' },
+    hotdog:     { tier: 0, weight: 1, xp: 0.95, time: 1.0,  biomes: 'a',  shops: 'diner cinema',        effect: '' },
+    cookie:     { tier: 0, weight: 1, xp: 0.6,  time: 0.7,  biomes: 'c',  shops: 'bakery cafe',         effect: '' },
+    banana:     { tier: 0, weight: 1, xp: 0.7,  time: 0.8,  biomes: 'j',  shops: '',                    effect: '' },
+    cupcake:    { tier: 0, weight: 1, xp: 0.85, time: 0.9,  biomes: 'c',  shops: 'bakery cafe',         effect: '' },
+    taco:       { tier: 0, weight: 1, xp: 1.0,  time: 1.0,  biomes: 'd',  shops: '',                    effect: '' },
+    popcorn:    { tier: 0, weight: 1, xp: 0.55, time: 0.8,  biomes: '',   shops: 'cinema arcade',       effect: '' },
+    pretzel:    { tier: 0, weight: 1, xp: 0.7,  time: 0.85, biomes: 'a',  shops: 'bakery cafe',         effect: '' },
+    watermelon: { tier: 0, weight: 1, xp: 0.8,  time: 0.9,  biomes: 'd',  shops: '',                    effect: '' },
+    carrot:     { tier: 0, weight: 1, xp: 0.5,  time: 0.7,  biomes: 'm',  shops: 'barn greenhouse',     effect: '' },
+    cheese:     { tier: 0, weight: 1, xp: 0.65, time: 0.8,  biomes: 'm',  shops: 'barn',                effect: '' },
+    egg:        { tier: 0, weight: 1, xp: 0.75, time: 0.85, biomes: 'mw', shops: 'barn diner cafe',     effect: '' },
+    toast:      { tier: 0, weight: 1, xp: 0.6,  time: 0.8,  biomes: '',   shops: 'cafe home bakery',    effect: '' },
+    icecream:   { tier: 0, weight: 1, xp: 0.8,  time: 0.9,  biomes: 'sc', shops: 'icecream',            effect: '' },
+    grapes:     { tier: 0, weight: 1, xp: 0.65, time: 0.8,  biomes: 'a',  shops: 'greenhouse',          effect: '' },
+    cherries:   { tier: 0, weight: 1, xp: 0.55, time: 0.7,  biomes: 'm',  shops: '',                    effect: '' },
+    corn:       { tier: 0, weight: 1, xp: 0.7,  time: 0.9,  biomes: 'ma', shops: 'barn greenhouse',     effect: '' },
+    milk:       { tier: 0, weight: 1, xp: 0.55, time: 0.7,  biomes: 'm',  shops: 'barn cafe',           effect: '' },
+    lollipop:   { tier: 0, weight: 1, xp: 0.6,  time: 0.8,  biomes: 'c',  shops: 'icecream',            effect: '' },
+    sushi:      { tier: 0, weight: 1, xp: 1.1,  time: 1.0,  biomes: 'w',  shops: '',                    effect: '' },
+    pancakes:   { tier: 0, weight: 1, xp: 0.95, time: 1.1,  biomes: 'a',  shops: 'cafe diner',          effect: '' },
+    bagel:      { tier: 0, weight: 1, xp: 0.75, time: 0.9,  biomes: '',   shops: 'bakery cafe',         effect: '' },
+    orange:     { tier: 0, weight: 1, xp: 0.65, time: 0.8,  biomes: 'dj', shops: 'greenhouse',          effect: '' },
+    // --- Rare ---
+    cake:       { tier: 1, weight: 1, xp: 1.7,  time: 1.2,  biomes: 'c',  shops: 'bakery cafe',         effect: '' },
+    ramen:      { tier: 1, weight: 1, xp: 2.1,  time: 1.35, biomes: 's',  shops: 'cafe',                effect: '' },
+    steak:      { tier: 1, weight: 1, xp: 2.5,  time: 1.4,  biomes: 'v',  shops: 'diner',               effect: '' },
+    croissant:  { tier: 1, weight: 1, xp: 1.5,  time: 1.1,  biomes: 'm',  shops: 'bakery cafe',         effect: '' },
+    pineapple:  { tier: 1, weight: 1, xp: 1.9,  time: 1.25, biomes: 'j',  shops: '',                    effect: '' },
+    avocado:    { tier: 1, weight: 1, xp: 1.6,  time: 1.1,  biomes: 'j',  shops: 'greenhouse',          effect: '' },
+    chocolate:  { tier: 1, weight: 1, xp: 1.7,  time: 1.1,  biomes: 'c',  shops: 'cafe arcade',         effect: '' },
+    honey:      { tier: 1, weight: 1, xp: 2.0,  time: 1.2,  biomes: 'f',  shops: '',                    effect: '' },
+    bubbletea:  { tier: 1, weight: 1, xp: 1.8,  time: 1.1,  biomes: 'c',  shops: 'cafe icecream',       effect: '' },
+    curry:      { tier: 1, weight: 1, xp: 2.3,  time: 1.35, biomes: 'dv', shops: 'diner',               effect: '' },
+    dumplings:  { tier: 1, weight: 1, xp: 2.0,  time: 1.2,  biomes: 's',  shops: 'cafe',                effect: '' },
+    waffle:     { tier: 1, weight: 1, xp: 1.8,  time: 1.2,  biomes: 'a',  shops: 'cafe diner',          effect: '' },
+    coconut:    { tier: 1, weight: 1, xp: 1.9,  time: 1.2,  biomes: 'jd', shops: 'icecream',            effect: '' },
+    mango:      { tier: 1, weight: 1, xp: 1.8,  time: 1.15, biomes: 'j',  shops: 'greenhouse',          effect: '' },
+    lobster:    { tier: 1, weight: 1, xp: 2.8,  time: 1.45, biomes: 'w',  shops: '',                    effect: '' },
+    // --- Epic ---
+    bdaycake:   { tier: 2, weight: 1, xp: 3.8,  time: 1.5,  biomes: 'c',  shops: 'bakery',              effect: 'rush:5' },
+    bento:      { tier: 2, weight: 1, xp: 4.4,  time: 1.6,  biomes: 'sw', shops: 'cafe',                effect: 'sta' },
+    chicken:    { tier: 2, weight: 1, xp: 4.0,  time: 1.5,  biomes: 'v',  shops: 'diner',               effect: 'turbo:6' },
+    shavedice:  { tier: 2, weight: 1, xp: 3.4,  time: 1.3,  biomes: 's',  shops: 'icecream',            effect: 'dash' },
+    truffle:    { tier: 2, weight: 1, xp: 4.8,  time: 1.4,  biomes: 'f',  shops: '',                    effect: 'item' },
+    dragonfruit:{ tier: 2, weight: 1, xp: 3.9,  time: 1.4,  biomes: 'j',  shops: 'greenhouse',          effect: 'magnet:8' },
+    fondue:     { tier: 2, weight: 1, xp: 4.2,  time: 1.6,  biomes: 's',  shops: 'diner',               effect: 'shield:5' },
+    dango:      { tier: 2, weight: 1, xp: 3.5,  time: 1.3,  biomes: 'c',  shops: 'icecream',            effect: 'sta,dash' },
+    juice:      { tier: 2, weight: 1, xp: 3.3,  time: 1.0,  biomes: '',   shops: 'cafe cinema',         effect: 'radar:10' },
+    // --- Legendary ---
+    goldburger:   { tier: 3, weight: 1, xp: 11, time: 1.8, biomes: 'v', shops: 'diner',   effect: 'rush:10' },
+    diamonddonut: { tier: 3, weight: 1, xp: 13, time: 1.7, biomes: 'c', shops: 'bakery',  effect: 'shield:6,dash' },
+    rainbowcake:  { tier: 3, weight: 1, xp: 15, time: 1.9, biomes: 'c', shops: 'bakery',  effect: 'turbo:8,sta' },
+    phoenixegg:   { tier: 3, weight: 1, xp: 18, time: 2.0, biomes: 'v', shops: '',        effect: 'rush:8,sta,dash' },
+    mooncake:     { tier: 3, weight: 1, xp: 22, time: 2.2, biomes: '',  shops: 'cafe',    effect: 'magnet:10,radar:10,shield:5' },
+  },
+},
+
+};
+</script>
+<script src="config.js"></script>
 <script>
 (()=>{
 'use strict';
@@ -561,7 +936,26 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r50';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+/* ---------- settings: every tunable number lives in config.js (see docs/konfiguration.md) ----------
+   TYPEBITE_DEFAULTS is a copy of the file that tools/build.py puts into index.html, TYPEBITE_CONFIG is the file next to the page.
+   A missing or wrong value falls back to the built-in one and is reported in CFGW (orange bar at the top). */
+const CFGW=[];
+const CFG=(()=>{
+  const D=window.TYPEBITE_DEFAULTS,U=window.TYPEBITE_CONFIG,isO=v=>v&&typeof v==='object'&&!Array.isArray(v);
+  if(window.__cfgErr)CFGW.push('the file has a mistake: '+window.__cfgErr);
+  const merge=(d,u,p)=>{const o={};
+    for(const k in d){const dv=d[k],has=isO(u)&&k in u,uv=has?u[k]:undefined;
+      if(!has)o[k]=dv;
+      else if(isO(dv))o[k]=isO(uv)?merge(dv,uv,p+k+'.'):(CFGW.push(p+k+' must be a block { ... }'),dv);
+      else if(Array.isArray(dv))o[k]=Array.isArray(uv)&&uv.length&&uv.every(x=>typeof x===typeof dv[0])?uv:(CFGW.push(p+k+' must be a list like '+JSON.stringify(dv)),dv);
+      else if(typeof uv===typeof dv&&(typeof dv!=='number'||isFinite(uv)))o[k]=uv;
+      else{CFGW.push(p+k+' must be a '+typeof dv+', not '+JSON.stringify(uv));o[k]=dv}}
+    if(isO(u))for(const k in u)if(!(k in d))CFGW.push('unknown setting '+p+k);
+    return o};
+  return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
+const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
+if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
+const BUILD='r51';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -573,7 +967,7 @@ if(role!=='server'){
   const bt=$('buildtag');if(bt)bt.textContent='Build '+BUILD}
 const cv=$('game');
 let ctx=cv.getContext('2d');
-let W=0,H=0,DPR=1,Z=1,ZU=1.5,ZZ=1,shake=0,kick=0,dz=0,hitstop=0;
+let W=0,H=0,DPR=1,Z=1,ZU=CFG.camera.startZoom,ZZ=1,shake=0,kick=0,dz=0,hitstop=0;
 const restart=(el,cls)=>{el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)};
 const flash=()=>restart($('flash'),'go');
 let QS=1;   // quality scale: lowered automatically when the frame rate stays low
@@ -591,7 +985,10 @@ function resize(){DPR=Math.max(.5,Math.min(2,window.devicePixelRatio||1)*QS);W=i
 addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,250));setTimeout(resize,400);resize();
 
 const INK='#2b2140', GOLD='#ffc93c', CAPE='#d62839', SHOE='#3a2a22';
-const WORLD=13600, BASE=175, DASH_CD=2.2, RAD=18;
+const WORLD=Math.round(Math.max(2500,Math.min(60000,CFG.world.size))), BASE=CFG.movement.speed, DASH_CD=CFG.movement.dashCooldown, RAD=18;
+const LV=CFG.levels, MV=CFG.movement, DU=CFG.duel, QU=CFG.quests, STK=CFG.items, PK=CFG.perks.list, pc=x=>Math.round(x*100);   // short names for settings blocks; pc(0.2) = 20
+const AREA=CFG.world.scaleCounts?(WORLD/13600)**2:1, sc=n=>n>0?Math.max(1,Math.round(n*AREA)):0;   // counts in the settings are written for a 13600 map
+const oddsOf=a=>{const w=a.map(v=>Math.max(0,+v||0)),t=w.reduce((x,y)=>x+y,0);return t>0?w.map(v=>v/t*100):[100,0,0,0]};   // any four weights become percentages
 const rand=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[(Math.random()*a.length)|0];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -619,12 +1016,13 @@ const BIOME=[
   {n:'volcano',a:[78,68,78],b:[70,61,71]},
   {n:'candy',a:[253,207,226],b:[247,194,217]}];
 const B_MEADOW=0,B_FOREST=1,B_DESERT=2,B_SNOW=3,B_AUTUMN=4,B_SWAMP=5,B_JUNGLE=6,B_VOLCANO=7,B_CANDY=8, NB=BIOME.length;
-const bcent=[], TAU=300, _bw=new Float32Array(9), _bd=new Float32Array(64);
+const REGIONS=Math.min(60,Math.max(NB,Math.round(sc(CFG.world.regions)/NB)*NB));   // biome patches, a multiple of the number of biomes so every biome appears
+const bcent=[], TAU=300, _bw=new Float32Array(9), _bd=new Float32Array(REGIONS+4);
 let bseed=1;
 function hash2(i,j,s){let h=(i*374761393+j*668265263+s*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295}
 function vnoise(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),
   a=hash2(i,j,s),b=hash2(i+1,j,s),c=hash2(i,j+1,s),d=hash2(i+1,j+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
-function makeBiomes(){bcent.length=0;bseed=(Math.random()*1e6)|0;const order=[];for(let i=0;i<36;i++)order.push(i%NB);
+function makeBiomes(){bcent.length=0;bseed=(Math.random()*1e6)|0;const order=[];for(let i=0;i<REGIONS;i++)order.push(i%NB);
   for(let i=order.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[order[i],order[j]]=[order[j],order[i]]}
   for(const b of order){let best=null,bd=-1;   // best-candidate sampling keeps the regions evenly spread
     for(let k=0;k<40;k++){const x=rand(300,WORLD-300),y=rand(300,WORLD-300);let dm=bcent.length?1e9:0;for(const c of bcent)dm=Math.min(dm,Math.hypot(c.x-x,c.y-y));if(dm>bd){bd=dm;best={x,y,b}}}
@@ -676,14 +1074,14 @@ const PLANS={
   icecream:[['counter','lt',110,38],['booth','rt',80,52],['table','lb',52,52],['plant','rb',30,30]]
 };
 function makeBuildings(){
-  // 11x11 grid of cells, about 95 of them get a building, the rest stay open ground
-  const order=[];const add=(t,n)=>{for(let i=0;i<n;i++)order.push(t)};
-  add('home',26);add('diner',6);add('bakery',6);add('gym',6);add('shed',5);add('arcade',6);add('barn',6);add('library',5);add('greenhouse',5);add('cafe',5);
-  add('pizzeria',4);add('school',3);add('clinic',3);add('cinema',3);add('workshop',3);add('icecream',3);
-  const CELL=WORLD/11,cells=[];for(let i=0;i<121;i++)cells.push(i);
+  // a grid of cells (about 1236 units each), most of them get a building, the rest stay open ground
+  const order=[];
+  const GR=Math.max(3,Math.round(WORLD/1236)),CELL=WORLD/GR,cells=[];for(let i=0;i<GR*GR;i++)cells.push(i);   // a grid of cells, each building gets its own cell
+  {const cnt={};let want=0;for(const t in BTYPES){cnt[t]=sc(+CFG.world.buildings[t]||0);want+=cnt[t]}
+   const k=want>cells.length?cells.length/want:1;for(const t in BTYPES)for(let i=0,n=Math.round(cnt[t]*k);i<n;i++)order.push(t)}
   for(let i=cells.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[cells[i],cells[j]]=[cells[j],cells[i]]}
   order.forEach((type,n)=>{
-    const c=cells[n],B=BTYPES[type],cx=CELL/2+(c%11)*CELL+rand(-140,140),cy=CELL/2+((c/11)|0)*CELL+rand(-140,140);
+    const c=cells[n],B=BTYPES[type],cx=CELL/2+(c%GR)*CELL+rand(-140,140),cy=CELL/2+((c/GR)|0)*CELL+rand(-140,140);
     const w=rand(B.w[0],B.w[1])|0,h=rand(B.h[0],B.h[1])|0,x=Math.round(cx-w/2),y=Math.round(cy-h/2);
     const sides=['n','e','s','w'];for(let i=3;i>0;i--){const j=(Math.random()*(i+1))|0;[sides[i],sides[j]]=[sides[j],sides[i]]}
     const doors=sides.slice(0,type==='shed'||type==='cafe'?2:3);   // several entrances, marked with mats outside
@@ -714,14 +1112,14 @@ function scatterProps(){
   const find=(r,allowed)=>{for(let i=0;i<500;i++){const x=rand(r+90,WORLD-r-90),y=rand(r+90,WORLD-r-90);if((!allowed||allowed.includes(biomeAt(x,y)))&&free(x,y,r)){used.push({x,y,r});return{x,y}}}return null};
   const solid=(kind,x,y,w,h,c)=>walls.push({x:x-w/2,y:y-h/2,w,h,kind,c});
   const dec=(kind,x,y,s=1,c)=>decor.push({kind,x,y,s,c});
-  const ALL=[0,1,2,3,4,5,6,7,8];
-  for(let n=0;n<20;n++){const p=find(180,ALL);if(!p)continue;   // camp
+  const ALL=[0,1,2,3,4,5,6,7,8],NS=CFG.world.scenes;
+  for(let n=0;n<sc(NS.camps);n++){const p=find(180,ALL);if(!p)continue;   // camp
     solid('campfire',p.x,p.y,30,30);for(let i=0;i<3;i++){const a=i*2.09+rand(-.3,.3);solid('tent',p.x+Math.cos(a)*88,p.y+Math.sin(a)*88,66,56)}
     solid('log',p.x-46,p.y+50,58,18);solid('log',p.x+48,p.y-52,58,18);dec('mushroom',p.x+rand(-120,120),p.y+rand(-120,120))}
-  for(let n=0;n<14;n++){const p=find(260,[B_MEADOW,B_DESERT,B_AUTUMN,B_CANDY,B_JUNGLE]);if(!p)continue;   // market
+  for(let n=0;n<sc(NS.markets);n++){const p=find(260,[B_MEADOW,B_DESERT,B_AUTUMN,B_CANDY,B_JUNGLE]);if(!p)continue;   // market
     for(let i=-1;i<=1;i++)solid('stall',p.x+i*140,p.y,100,46);
     solid('barrel',p.x-190,p.y+40,30,30);solid('barrel',p.x+190,p.y+40,30,30);solid('crates',p.x+66,p.y+70,40,40);dec('flowerbed',p.x,p.y+90,1.2)}
-  for(let n=0;n<28;n++){   // ponds and lakes you can swim in (frozen in the snow, an oasis in the desert, murky in the swamp)
+  for(let n=0;n<sc(NS.ponds);n++){   // ponds and lakes you can swim in (frozen in the snow, an oasis in the desert, murky in the swamp)
     const big=Math.random()<.3,r=big?400:250,p=find(r,[B_MEADOW,B_FOREST,B_DESERT,B_SNOW,B_AUTUMN,B_SWAMP,B_SWAMP,B_JUNGLE,B_CANDY]);if(!p)continue;
     const b=biomeAt(p.x,p.y),kind=b===B_SNOW?'ice':b===B_DESERT?'oasis':b===B_SWAMP?'swamp':b===B_CANDY?'syrup':'water',rx=big?rand(280,340):rand(140,180),ry=rx*rand(.55,.7);
     ponds.push({x:p.x,y:p.y,rx,ry,kind});
@@ -729,42 +1127,43 @@ function scatterProps(){
     if(kind!=='ice')for(let i=0;i<14;i++){const a=rand(0,6.28);dec('reed',p.x+Math.cos(a)*(rx+8),p.y+Math.sin(a)*(ry+8),rand(.8,1.2))}
     if(kind==='oasis')for(let i=0;i<5;i++){const a=i*1.26+rand(-.2,.2),tx=p.x+Math.cos(a)*(rx+50),ty=p.y+Math.sin(a)*(ry+50);trees.push({x:tx,y:ty,s:rand(.9,1.15),kind:'palm',alpha:1});walls.push({x:tx-9,y:ty-6,w:18,h:14,kind:'trunk'})}
     if(kind==='water'||kind==='swamp'||kind==='syrup')for(let i=0;i<(big?9:4);i++)dec('lily',p.x+rand(-rx*.7,rx*.7),p.y+rand(-ry*.6,ry*.6),rand(.8,1.3))}
-  for(let n=0;n<14;n++){const p=find(260,[B_MEADOW,B_AUTUMN,B_JUNGLE]);if(!p)continue;   // fenced field with a gap in the south fence
+  for(let n=0;n<sc(NS.fields);n++){const p=find(260,[B_MEADOW,B_AUTUMN,B_JUNGLE]);if(!p)continue;   // fenced field with a gap in the south fence
     const W2=300,H2=200,x0=p.x-W2/2,y0=p.y-H2/2;
     solid('fence',p.x,y0,W2,14);solid('fence',x0,p.y,14,H2);solid('fence',x0+W2,p.y,14,H2);
     solid('fence',x0+55,y0+H2,110,14);solid('fence',x0+W2-55,y0+H2,110,14);   // gap in the middle
     for(let i=0;i<4;i++)solid('haybale',x0+70+i*52,y0+55,44,32);
     for(let r=0;r<3;r++)for(let i=0;i<5;i++)dec('crop',x0+60+i*45,y0+120+r*20,1);
     dec('scarecrow',p.x,p.y+40,1)}
-  for(let n=0;n<18;n++){const p=find(200,[B_MEADOW,B_AUTUMN,B_FOREST,B_CANDY]);if(!p)continue;   // little park
+  for(let n=0;n<sc(NS.parks);n++){const p=find(200,[B_MEADOW,B_AUTUMN,B_FOREST,B_CANDY]);if(!p)continue;   // little park
     solid('well',p.x,p.y,44,44);solid('parkbench',p.x-90,p.y+34,58,22);solid('parkbench',p.x+90,p.y+34,58,22);
     solid('lamp',p.x-90,p.y-50,14,14);solid('lamp',p.x+90,p.y-50,14,14);
     for(let i=0;i<5;i++)dec('flowerbed',p.x+rand(-130,130),p.y+rand(60,110),rand(.8,1.2),pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff']))}
-  for(let n=0;n<32;n++){const p=find(60,ALL);if(!p)continue;solid(pick(['well','barrel','stump']),p.x,p.y,34,34);if(Math.random()<.6)solid('lamp',p.x+40,p.y-20,14,14)}
-  for(let n=0;n<24;n++){const p=find(40,ALL);if(p)dec('sign',p.x,p.y,1)}
-  for(let n=0;n<10;n++){const p=find(170,[B_DESERT,B_VOLCANO,B_MEADOW,B_JUNGLE]);if(!p)continue;   // old ruins: a ring of pillars around a statue
+  for(let n=0;n<sc(NS.wells);n++){const p=find(60,ALL);if(!p)continue;solid(pick(['well','barrel','stump']),p.x,p.y,34,34);if(Math.random()<.6)solid('lamp',p.x+40,p.y-20,14,14)}
+  for(let n=0;n<sc(NS.signs);n++){const p=find(40,ALL);if(p)dec('sign',p.x,p.y,1)}
+  for(let n=0;n<sc(NS.ruins);n++){const p=find(170,[B_DESERT,B_VOLCANO,B_MEADOW,B_JUNGLE]);if(!p)continue;   // old ruins: a ring of pillars around a statue
     solid('statue',p.x,p.y,40,40);for(let i=0;i<6;i++){const a=i*1.047+rand(-.1,.1);solid('pillar',p.x+Math.cos(a)*105,p.y+Math.sin(a)*105,30,30)}}
-  for(let n=0;n<7;n++){const p=find(190,[B_SWAMP,B_VOLCANO,B_AUTUMN]);if(!p)continue;   // graveyard behind a low fence
+  for(let n=0;n<sc(NS.graveyards);n++){const p=find(190,[B_SWAMP,B_VOLCANO,B_AUTUMN]);if(!p)continue;   // graveyard behind a low fence
     for(let r=0;r<2;r++)for(let i=0;i<4;i++)solid('gravestone',p.x-90+i*60,p.y-25+r*70,26,26);
     solid('fence',p.x,p.y-70,250,14);solid('fence',p.x-125,p.y,14,140);solid('fence',p.x+125,p.y,14,140);dec('bones',p.x+rand(-60,60),p.y+105)}
-  for(let n=0;n<9;n++){const p=find(170,[B_MEADOW,B_CANDY,B_AUTUMN,B_FOREST]);if(!p)continue;   // plaza with a fountain
+  for(let n=0;n<sc(NS.plazas);n++){const p=find(170,[B_MEADOW,B_CANDY,B_AUTUMN,B_FOREST]);if(!p)continue;   // plaza with a fountain
     solid('fountain',p.x,p.y,64,64);solid('parkbench',p.x-110,p.y,22,56);solid('parkbench',p.x+110,p.y,22,56);solid('lamp',p.x-70,p.y-90,14,14);solid('lamp',p.x+70,p.y-90,14,14);
     for(let i=0;i<4;i++)dec('flowerbed',p.x-120+i*80,p.y+100,rand(.9,1.2),pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff']))}
 }
 function scatterNature(){
   const TD=[.55,1,.1,.5,.8,.45,.95,.22,.55];   // how thickly trees grow in each biome
   const KINDS=[['round','round','birch','cherry','birch','pine'],['pine','pine','pine','round','round','birch'],['palm','cactus','cactus','dead','palm','cactus'],['snowpine','snowpine','snowpine','snowpine','dead','snowpine'],['autumn','autumn','autumn','birch','round','autumn'],['willow','willow','dead','willow','round','dead'],['jungle','jungle','jungle','palm','jungle','birch'],['ash','ash','dead','ash','ash','dead'],['lolli','lolli','shroom','cherry','lolli','shroom']];
-  for(let i=0;i<19000&&trees.length<1700;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60),b=biomeAt(x,y);
+  const NAT=CFG.world.nature,tn=sc(NAT.trees),rn=sc(NAT.rocks),bn=sc(NAT.bushes),dn=sc(NAT.decor);
+  for(let i=0;i<tn*11.2&&trees.length<tn;i++){const x=rand(90,WORLD-90),y=rand(110,WORLD-60),b=biomeAt(x,y);
     if(Math.random()>TD[b]||nearHouse(x,y,80)||nearWall(x,y,60)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<(b===B_FOREST||b===B_JUNGLE?95:120)))continue;
     trees.push({x,y,s:rand(.85,1.2),kind:pick(KINDS[b]),alpha:1,b});walls.push({x:x-9,y:y-6,w:18,h:14,kind:'trunk'})}
   const ROCKC=['#a9a3b8','#8a8f9c','#d6a86a','#dde7f2','#a58a6a','#8a9a8e','#6f8f6a','#4a4350','#e8b7d4'];
-  for(let i=0,n=0;i<3400&&n<560;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60),b=biomeAt(x,y);
+  for(let i=0,n=0;i<rn*6.1&&n<rn;i++){const x=rand(60,WORLD-60),y=rand(60,WORLD-60),b=biomeAt(x,y);
     if(nearHouse(x,y,50)||nearWall(x,y,40)||trees.some(t=>Math.hypot(t.x-x,t.y-y)<70))continue;
     n++;if(Math.random()<.22)walls.push({x:x-24,y:y-10,w:48,h:20,kind:'log'});else walls.push({x:x-16,y:y-11,w:32,h:22,kind:'rock',c:ROCKC[b]})}
   const BD=[1,1,.55,.6,.9,.9,.95,.4,.8];
-  for(let i=0;i<1800;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40),b=biomeAt(x,y);if(Math.random()<BD[b]&&!nearHouse(x,y,30)&&!nearWall(x,y,20))bushes.push({x,y,s:rand(.7,1.2),b})}
+  for(let i=0;i<bn;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40),b=biomeAt(x,y);if(Math.random()<BD[b]&&!nearHouse(x,y,30)&&!nearWall(x,y,20))bushes.push({x,y,s:rand(.7,1.2),b})}
   const DK=[['flowerbed','flowerbed','flowerbed','mushroom'],['mushroom','fern','fern','mushroom','flowerbed'],['bones','pebbles','pebbles','bones'],['snowpile','snowpile','snowman','pebbles'],['leaves','leaves','pumpkin','leaves','mushroom'],['reed','mushroom','fern','lily'],['fern','fern','mushroom','flowerbed','orchid'],['ember','ember','bones','pebbles','ember'],['sprinkle','flowerbed','sprinkle','mushroom']];
-  for(let i=0;i<1120;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40),b=biomeAt(x,y);if(!nearHouse(x,y,30)&&!nearWall(x,y,20)&&!waterAt(x,y)){const kind=pick(DK[b]);if(kind==='lily')continue;decor.push({kind,x,y,s:rand(.8,1.2),c:pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff'])})}}
+  for(let i=0;i<dn;i++){const x=rand(40,WORLD-40),y=rand(40,WORLD-40),b=biomeAt(x,y);if(!nearHouse(x,y,30)&&!nearWall(x,y,20)&&!waterAt(x,y)){const kind=pick(DK[b]);if(kind==='lily')continue;decor.push({kind,x,y,s:rand(.8,1.2),c:pick(['#ff6b8b','#ffd23f','#9b5de5','#fff','#3db5ff'])})}}
 }
 // the world is built from a seed so every player on a server gets exactly the same map
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -793,80 +1192,84 @@ function collide(e){const r=e.r,i0=Math.floor((e.x-r)/WGC),i1=Math.floor((e.x+r)
   e.x=clamp(e.x,r,WORLD-r);e.y=clamp(e.y,r,WORLD-r);}
 
 /* ---------- food ---------- */
-const FOOD_OUT=4000, FOOD_IN=1100;
+const FOOD_OUT=sc(CFG.spawn.snacksOutside), FOOD_IN=sc(CFG.spawn.snacksInside);
 /* ---------- food: 57 kinds in four rarities. Each one looks different, feeds differently, and the better ones have an effect ---------- */
-const FOOD_ODDS=[80,16,3.5,.5], BIOME_KEYS='mfdsawjvc';   // share of all snacks per rarity; biome letters: meadow forest desert snow autumn swamp jungle volcano candy
+const FOOD_ODDS=oddsOf(CFG.rarity.snacks), BIOME_KEYS='mfdsawjvc';   // share of all snacks per rarity; biome letters: meadow forest desert snow autumn swamp jungle volcano candy
 // id, name, icon, rarity, nutrition (before balancing), eating time, home biomes, home shops, crumb colours, effects, text, drink?, plural
-const FOOD_SRC=[
- ['burger','Burger','🍔',0,.95,1,'','diner arcade','f2a93b 7a3e1d 6ab04c','','Stacked high and juicy.'],
- ['apple','Apple','🍎',0,.7,.8,'ma','barn greenhouse','e8475f fff6d5 6ab04c','','Crisp and sweet. Quick to eat.'],
- ['soda','Soda','🥤',0,.8,.8,'','diner arcade cinema','9fdcff fff 3db5ff','','Fizzy! Gulped down in no time.',1],
- ['pizza','Pizza','🍕',0,1.05,1,'','pizzeria diner','ffd23f d98e3a e8475f','','A cheesy slice. Really filling.'],
- ['donut','Donut','🍩',0,.85,.9,'c','bakery','ff8fc2 e0a860 fff','','Pink icing with sprinkles.'],
- ['fries','Fries','🍟',0,.75,.85,'','diner arcade cinema','ffd23f e8475f fff6d5','','Hot, salty and crispy.',0,'fries'],
- ['hotdog','Hot Dog','🌭',0,.95,1,'a','diner cinema','f2c27b c4553b ffd23f','','Sausage with a mustard zigzag.',0,'hot dogs'],
- ['cookie','Cookie','🍪',0,.6,.7,'c','bakery cafe','d8a25e 5a3320 fff6d5','','Crunchy, with chocolate chips.'],
- ['banana','Banana','🍌',0,.7,.8,'j','','ffe14d e0b800 7a5a2a','','Mind the peel!'],
- ['cupcake','Cupcake','🧁',0,.85,.9,'c','bakery cafe','ff8fc2 5a8dee fff','','A tiny cake with a cherry on top.'],
- ['taco','Taco','🌮',0,1,1,'d','','f2c14e 6ab04c e8475f','','Crunchy shell, loaded with filling.'],
- ['popcorn','Popcorn','🍿',0,.55,.8,'','cinema arcade','fff6d5 ffd23f e8475f','','Light and fluffy. Not very filling.',0,'popcorn boxes'],
- ['pretzel','Pretzel','🥨',0,.7,.85,'a','bakery cafe','b8692a fff d98e3a','','A salty twist.'],
- ['watermelon','Watermelon','🍉',0,.8,.9,'d','','ee4a5a 3f9b3a 2b2140','','A juicy summer slice.',0,'melon slices'],
- ['carrot','Carrot','🥕',0,.5,.7,'m','barn greenhouse','ff8a1f 6ab04c d2610a','','Healthy, but not very filling.'],
- ['cheese','Cheese','🧀',0,.65,.8,'m','barn','ffd23f f2c230 e0a81a','','Smells strong and has holes.',0,'cheese wedges'],
- ['egg','Fried Egg','🍳',0,.75,.85,'mw','barn diner cafe','fffdf5 ffb300 fff6d5','','Sunny side up.',0,'fried eggs'],
- ['toast','Toast','🍞',0,.6,.8,'','cafe home bakery','c9812e ffe2a8 e8b866','','Golden brown and crunchy.',0,'toasts'],
- ['icecream','Ice Cream','🍦',0,.8,.9,'sc','icecream','ff8fc2 fff1c9 e0a860','','Two scoops. Eat it before it melts.',0,'ice creams'],
- ['grapes','Grapes','🍇',0,.65,.8,'a','greenhouse','8e44ad b06bff 6ab04c','','A small sweet bunch.',0,'grape bunches'],
- ['cherries','Cherries','🍒',0,.55,.7,'m','','d62839 e8475f 6ab04c','','A sweet little pair.',0,'cherries'],
- ['corn','Corn','🌽',0,.7,.9,'ma','barn greenhouse','ffd23f e8b800 6ab04c','','A whole cob.',0,'corn cobs'],
- ['milk','Milk','🥛',0,.55,.7,'m','barn cafe','fff fff 3db5ff','','Cold and creamy.',1,'milk cartons'],
- ['lollipop','Lollipop','🍭',0,.6,.8,'c','icecream','ff6fa5 fff ffd23f','','A swirl of sugar.'],
- ['sushi','Sushi','🍣',0,1.1,1,'w','','ff7a59 fffdf5 233c2e','','Salmon on rice. Surprisingly filling.',0,'sushi'],
- ['pancakes','Pancakes','🥞',0,.95,1.1,'a','cafe diner','f4c070 e0a860 a8431b','','A fluffy stack with syrup.',0,'pancake stacks'],
- ['bagel','Bagel','🥯',0,.75,.9,'','bakery cafe','e8b66f fff6d5 b87f3a','','Chewy, with sesame seeds.'],
- ['orange','Orange','🍊',0,.65,.8,'dj','greenhouse','ff9f1c e08400 6ab04c','','Peel it and enjoy.'],
- ['cake','Strawberry Cake','🍰',1,1.7,1.2,'c','bakery cafe','f7b4c8 fff6ea e8475f','','Soft and creamy. A slice of heaven.',0,'cake slices'],
- ['ramen','Ramen','🍜',1,2.1,1.35,'s','cafe','ffe08a fffdf5 e8475f','','A hot bowl with an egg on top.',0,'ramen bowls'],
- ['steak','Steak','🥩',1,2.5,1.4,'v','diner','b5482c e0694a fffdf5','','Thick, juicy and heavy.',0,'steaks'],
- ['croissant','Croissant','🥐',1,1.5,1.1,'m','bakery cafe','e6a24a f2b95b b87f3a','','Buttery and flaky.'],
- ['pineapple','Pineapple','🍍',1,1.9,1.25,'j','','f7b733 4c9a3c e08400','','Spiky outside, sweet inside.'],
- ['avocado','Avocado','🥑',1,1.6,1.1,'j','greenhouse','3d6b2e c8e07a 8a5a2b','','Creamy green goodness.'],
- ['chocolate','Chocolate Bar','🍫',1,1.7,1.1,'c','cafe arcade','6b3a1e 4a2412 c3ccd6','','Dark, sweet and smooth.'],
- ['honey','Honey Jar','🍯',1,2,1.2,'f','','f2a921 ffc933 8b5a2b','','Golden honey. A bee wants it too.',0,'honey jars'],
- ['bubbletea','Bubble Tea','🧋',1,1.8,1.1,'c','cafe icecream','f3d9b1 3a2216 ff8fc2','','Chewy pearls and a fat straw.',1,'bubble teas'],
- ['curry','Curry','🍛',1,2.3,1.35,'dv','diner','c97a1d fffdf5 4c9a3c','','Spicy sauce on a hill of rice.',0,'curries'],
- ['dumplings','Dumplings','🥟',1,2,1.2,'s','cafe','fffdf5 f2c27b c4553b','','Steamed and neatly pleated.',0,'dumplings'],
- ['waffle','Waffle','🧇',1,1.8,1.2,'a','cafe diner','e0a24a b8761f ffe98a','','Crispy grid, melting butter.',0,'waffles'],
- ['coconut','Coconut','🥥',1,1.9,1.2,'jd','icecream','7a4b25 fffdf5 5a3318','','Drink it straight from the shell.',1,'coconuts'],
- ['mango','Mango','🥭',1,1.8,1.15,'j','greenhouse','ffb02e ff5a36 4c9a3c','','Sweet, juicy and sticky.'],
- ['lobster','Lobster','🦞',1,2.8,1.45,'w','','e8475f d62839 fffdf5','','Fancy and heavy. Takes a while to crack.',0,'lobsters'],
- ['bdaycake','Birthday Cake','🎂',2,3.8,1.5,'c','bakery','ff8fc2 fff6ea 5aa8ff','rush:5','Candles lit! Starts a Sugar Rush.',0,'birthday cakes'],
- ['bento','Bento Box','🍱',2,4.4,1.6,'sw','cafe','fffdf5 ff7a59 6ab04c','sta','A whole lunch box. Refills your stamina.',0,'bento boxes'],
- ['chicken','Roast Chicken','🍗',2,4,1.5,'v','diner','c97a2b e8a44a fffdf5','turbo:6','Golden and crispy. Makes you fast.',0,'drumsticks'],
- ['shavedice','Shaved Ice','🍧',2,3.4,1.3,'s','icecream','ff8fc2 ffd23f 3db5ff','dash','Rainbow syrup on ice. Recharges your dash.',0,'shaved ices'],
- ['truffle','Golden Truffle','🍄',2,4.8,1.4,'f','','3b2a22 5a4333 ffd23f','item','Earthy, flecked with gold. Brings a gift.',0,'truffles'],
- ['dragonfruit','Dragon Fruit','🐉',2,3.9,1.4,'j','greenhouse','e0357f fff 4c9a3c','magnet:8','Spiky and pink. Pulls snacks to you.',0,'dragon fruits'],
- ['fondue','Fondue','🫕',2,4.2,1.6,'s','diner','ffd23f e8475f f2c27b','shield:5','Melted cheese and bread. Cosy and safe.',0,'fondues'],
- ['dango','Dango','🍡',2,3.5,1.3,'c','icecream','ff9ecb fffdf5 9be5a8','sta,dash','Three chewy rice balls on a stick.',0,'dango sticks'],
- ['juice','Sparkling Juice','🧃',2,3.3,1,'','cafe cinema','ffb347 fff ff8fc2','radar:10','Fizzy and fancy. Shows everyone on the map.',1,'sparkling juices'],
- ['goldburger','Golden Burger','🥇',3,11,1.8,'v','diner','ffd54a b8860b fff6d5','rush:10','Pure gold between two buns. Worth the hunt.',0,'golden burgers'],
- ['diamonddonut','Diamond Donut','💎',3,13,1.7,'c','bakery','8ee9ff fff 3db5ff','shield:6,dash','It sparkles like ice.',0,'diamond donuts'],
- ['rainbowcake','Rainbow Cake','🌈',3,15,1.9,'c','bakery','ff4f4f ffd23f 3db5ff','turbo:8,sta','Every colour at once.',0,'rainbow cakes'],
- ['phoenixegg','Phoenix Egg','🔥',3,18,2,'v','','ff7a1a ffd23f ff4d00','rush:8,sta,dash','Warm to the touch. It glows.',0,'phoenix eggs'],
- ['mooncake','Moon Cake','🥮',3,22,2.2,'','cafe','d49a4a fff3b0 3b3a7a','magnet:10,radar:10,shield:5','Baked under a full moon.',0,'moon cakes']];
-const FOOD={}, FOODS=[], FOOD_T=[[],[],[],[]];
-FOOD_SRC.forEach((a,i)=>{const [id,name,icon,tier,xp,et,bm,sh,cr,fx,text,drink,pl]=a;
-  const f={id,name,icon,tier,raw:xp,xp,et,bm:[...bm].reduce((m,c)=>m|1<<BIOME_KEYS.indexOf(c),0),sh,cr:cr.split(' ').map(c=>'#'+c),fx:fx?fx.split(','):[],text,drink:!!drink,
+const FOOD_SRC=[   // id, name, icon, crumb colours, text, drink?, plural. The numbers (rarity, nutrition, eating time, where it grows, bonus) are in the settings
+ ['burger','Burger','🍔','f2a93b 7a3e1d 6ab04c','Stacked high and juicy.'],
+ ['apple','Apple','🍎','e8475f fff6d5 6ab04c','Crisp and sweet. Quick to eat.'],
+ ['soda','Soda','🥤','9fdcff fff 3db5ff','Fizzy! Gulped down in no time.',1],
+ ['pizza','Pizza','🍕','ffd23f d98e3a e8475f','A cheesy slice. Really filling.'],
+ ['donut','Donut','🍩','ff8fc2 e0a860 fff','Pink icing with sprinkles.'],
+ ['fries','Fries','🍟','ffd23f e8475f fff6d5','Hot, salty and crispy.',0,'fries'],
+ ['hotdog','Hot Dog','🌭','f2c27b c4553b ffd23f','Sausage with a mustard zigzag.',0,'hot dogs'],
+ ['cookie','Cookie','🍪','d8a25e 5a3320 fff6d5','Crunchy, with chocolate chips.'],
+ ['banana','Banana','🍌','ffe14d e0b800 7a5a2a','Mind the peel!'],
+ ['cupcake','Cupcake','🧁','ff8fc2 5a8dee fff','A tiny cake with a cherry on top.'],
+ ['taco','Taco','🌮','f2c14e 6ab04c e8475f','Crunchy shell, loaded with filling.'],
+ ['popcorn','Popcorn','🍿','fff6d5 ffd23f e8475f','Light and fluffy. Not very filling.',0,'popcorn boxes'],
+ ['pretzel','Pretzel','🥨','b8692a fff d98e3a','A salty twist.'],
+ ['watermelon','Watermelon','🍉','ee4a5a 3f9b3a 2b2140','A juicy summer slice.',0,'melon slices'],
+ ['carrot','Carrot','🥕','ff8a1f 6ab04c d2610a','Healthy, but not very filling.'],
+ ['cheese','Cheese','🧀','ffd23f f2c230 e0a81a','Smells strong and has holes.',0,'cheese wedges'],
+ ['egg','Fried Egg','🍳','fffdf5 ffb300 fff6d5','Sunny side up.',0,'fried eggs'],
+ ['toast','Toast','🍞','c9812e ffe2a8 e8b866','Golden brown and crunchy.',0,'toasts'],
+ ['icecream','Ice Cream','🍦','ff8fc2 fff1c9 e0a860','Two scoops. Eat it before it melts.',0,'ice creams'],
+ ['grapes','Grapes','🍇','8e44ad b06bff 6ab04c','A small sweet bunch.',0,'grape bunches'],
+ ['cherries','Cherries','🍒','d62839 e8475f 6ab04c','A sweet little pair.',0,'cherries'],
+ ['corn','Corn','🌽','ffd23f e8b800 6ab04c','A whole cob.',0,'corn cobs'],
+ ['milk','Milk','🥛','fff fff 3db5ff','Cold and creamy.',1,'milk cartons'],
+ ['lollipop','Lollipop','🍭','ff6fa5 fff ffd23f','A swirl of sugar.'],
+ ['sushi','Sushi','🍣','ff7a59 fffdf5 233c2e','Salmon on rice. Surprisingly filling.',0,'sushi'],
+ ['pancakes','Pancakes','🥞','f4c070 e0a860 a8431b','A fluffy stack with syrup.',0,'pancake stacks'],
+ ['bagel','Bagel','🥯','e8b66f fff6d5 b87f3a','Chewy, with sesame seeds.'],
+ ['orange','Orange','🍊','ff9f1c e08400 6ab04c','Peel it and enjoy.'],
+ ['cake','Strawberry Cake','🍰','f7b4c8 fff6ea e8475f','Soft and creamy. A slice of heaven.',0,'cake slices'],
+ ['ramen','Ramen','🍜','ffe08a fffdf5 e8475f','A hot bowl with an egg on top.',0,'ramen bowls'],
+ ['steak','Steak','🥩','b5482c e0694a fffdf5','Thick, juicy and heavy.',0,'steaks'],
+ ['croissant','Croissant','🥐','e6a24a f2b95b b87f3a','Buttery and flaky.'],
+ ['pineapple','Pineapple','🍍','f7b733 4c9a3c e08400','Spiky outside, sweet inside.'],
+ ['avocado','Avocado','🥑','3d6b2e c8e07a 8a5a2b','Creamy green goodness.'],
+ ['chocolate','Chocolate Bar','🍫','6b3a1e 4a2412 c3ccd6','Dark, sweet and smooth.'],
+ ['honey','Honey Jar','🍯','f2a921 ffc933 8b5a2b','Golden honey. A bee wants it too.',0,'honey jars'],
+ ['bubbletea','Bubble Tea','🧋','f3d9b1 3a2216 ff8fc2','Chewy pearls and a fat straw.',1,'bubble teas'],
+ ['curry','Curry','🍛','c97a1d fffdf5 4c9a3c','Spicy sauce on a hill of rice.',0,'curries'],
+ ['dumplings','Dumplings','🥟','fffdf5 f2c27b c4553b','Steamed and neatly pleated.',0,'dumplings'],
+ ['waffle','Waffle','🧇','e0a24a b8761f ffe98a','Crispy grid, melting butter.',0,'waffles'],
+ ['coconut','Coconut','🥥','7a4b25 fffdf5 5a3318','Drink it straight from the shell.',1,'coconuts'],
+ ['mango','Mango','🥭','ffb02e ff5a36 4c9a3c','Sweet, juicy and sticky.'],
+ ['lobster','Lobster','🦞','e8475f d62839 fffdf5','Fancy and heavy. Takes a while to crack.',0,'lobsters'],
+ ['bdaycake','Birthday Cake','🎂','ff8fc2 fff6ea 5aa8ff','Candles lit! Starts a Sugar Rush.',0,'birthday cakes'],
+ ['bento','Bento Box','🍱','fffdf5 ff7a59 6ab04c','A whole lunch box. Refills your stamina.',0,'bento boxes'],
+ ['chicken','Roast Chicken','🍗','c97a2b e8a44a fffdf5','Golden and crispy. Makes you fast.',0,'drumsticks'],
+ ['shavedice','Shaved Ice','🍧','ff8fc2 ffd23f 3db5ff','Rainbow syrup on ice. Recharges your dash.',0,'shaved ices'],
+ ['truffle','Golden Truffle','🍄','3b2a22 5a4333 ffd23f','Earthy, flecked with gold. Brings a gift.',0,'truffles'],
+ ['dragonfruit','Dragon Fruit','🐉','e0357f fff 4c9a3c','Spiky and pink. Pulls snacks to you.',0,'dragon fruits'],
+ ['fondue','Fondue','🫕','ffd23f e8475f f2c27b','Melted cheese and bread. Cosy and safe.',0,'fondues'],
+ ['dango','Dango','🍡','ff9ecb fffdf5 9be5a8','Three chewy rice balls on a stick.',0,'dango sticks'],
+ ['juice','Sparkling Juice','🧃','ffb347 fff ff8fc2','Fizzy and fancy. Shows everyone on the map.',1,'sparkling juices'],
+ ['goldburger','Golden Burger','🥇','ffd54a b8860b fff6d5','Pure gold between two buns. Worth the hunt.',0,'golden burgers'],
+ ['diamonddonut','Diamond Donut','💎','8ee9ff fff 3db5ff','It sparkles like ice.',0,'diamond donuts'],
+ ['rainbowcake','Rainbow Cake','🌈','ff4f4f ffd23f 3db5ff','Every colour at once.',0,'rainbow cakes'],
+ ['phoenixegg','Phoenix Egg','🔥','ff7a1a ffd23f ff4d00','Warm to the touch. It glows.',0,'phoenix eggs'],
+ ['mooncake','Moon Cake','🥮','d49a4a fff3b0 3b3a7a','Baked under a full moon.',0,'moon cakes']];
+
+const FOOD={}, FOODS=[], FOOD_T=[[],[],[],[]], FX_KEYS=['sta','dash','item','rush','turbo','shield','magnet','radar'];
+FOOD_SRC.forEach((a,i)=>{const [id,name,icon,cr,text,drink,pl]=a,c=CFG.snacks.list[id],tier=clamp(Math.round(+c.tier||0),0,3);
+  const f={id,name,icon,tier,w:Math.max(0,+c.weight),raw:Math.max(.01,+c.xp||1),xp:1,et:Math.max(.1,+c.time||1),bm:[...String(c.biomes||'')].reduce((m,ch)=>BIOME_KEYS.indexOf(ch)>=0?m|1<<BIOME_KEYS.indexOf(ch):m,0),sh:String(c.shops||''),
+    cr:cr.split(' ').map(x=>'#'+x),fx:String(c.effect||'').split(',').map(x=>x.trim()).filter(x=>FX_KEYS.includes(x.split(':')[0])),text,drink:!!drink,
     pl:pl||(/(ch|sh|s|x)$/.test(name)?name+'es':name+'s').toLowerCase(),i};
   FOOD[id]=f;FOODS.push(id);FOOD_T[tier].push(f)});
-{let E=0;for(let t=0;t<4;t++)E+=FOOD_ODDS[t]/100*FOOD_T[t].reduce((s,f)=>s+f.raw,0)/FOOD_T[t].length;   // balance: an average snack is worth exactly what it was before there were 57 kinds
- for(const id of FOODS)FOOD[id].xp=FOOD[id].raw/E}
-// pick a kind: rarity first, then the home biome / shop makes a kind about 6x more likely
+{let E=0,sh=0;for(let t=0;t<4;t++){const l=FOOD_T[t].filter(f=>f.w>0);if(l.length){E+=FOOD_ODDS[t]*l.reduce((a,f)=>a+f.raw*f.w,0)/l.reduce((a,f)=>a+f.w,0);sh+=FOOD_ODDS[t]}}   // balance: whatever values you set, an average snack is worth exactly 1.0
+ E=sh>0?E/sh:1;for(const id of FOODS)FOOD[id].xp=FOOD[id].raw/E}
+// pick a kind: rarity first, then the home biome / shop makes a kind more likely
 function rollFood(bi,shop,maxT){let r=Math.random()*100,t=0;for(;t<3;t++){r-=FOOD_ODDS[t];if(r<0)break}
   if(maxT!==undefined&&t>maxT)t=maxT;
-  const list=FOOD_T[t],w=list.map(f=>1+(bi>=0&&f.bm&(1<<bi)?5:0)+(shop&&f.sh.indexOf(shop)>=0?7:0));
-  r=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<list.length;i++){r-=w[i];if(r<=0)return list[i].id}return list[0].id}
+  let list=FOOD_T[t].filter(f=>f.w>0);for(let tt=t-1;tt>=0&&!list.length;tt--)list=FOOD_T[tt].filter(f=>f.w>0);
+  if(!list.length)list=FOODS.map(id=>FOOD[id]).filter(f=>f.w>0);if(!list.length)list=[FOOD.apple];
+  const w=list.map(f=>f.w*(1+(bi>=0&&f.bm&(1<<bi)?CFG.spawn.homeBiomeBoost:0)+(shop&&f.sh.indexOf(shop)>=0?CFG.spawn.homeShopBoost:0)));
+  r=Math.random()*w.reduce((a,b)=>a+b,0);for(let k=0;k<list.length;k++){r-=w[k];if(r<=0)return list[k].id}return list[0].id}
 let foods=[];
 function spotFor(inside){
   if(!inside)return freeSpot(24);
@@ -1059,7 +1462,7 @@ function foodFx(e,fd,t){for(const x of fd.fx){const [k,v]=x.split(':'),d=(+v||0)
   if(k==='sta')e.stamina=st0(e);
   else if(k==='dash'){e.dashCharges=e.st.charges;e.dashCd=0}
   else if(k==='item'){if(itemRoom(e))giveItem(e,t)}
-  else{e.buff[k]=Math.max(e.buff[k]||0,t+d);if(k==='shield')e.protect=Math.max(e.protect,t+d)}}}
+  else{addBuff(e,k,d,t);if(k==='shield')e.protect=Math.max(e.protect,e.buff.shield)}}}
 // the show for a rare snack: rings and stars for everybody to see, name and sound for the player
 function foodPop(e,fd){if(fd.tier<1)return;const T=TIERS[fd.tier];
   if(fd.tier>=2){ring(e.x,e.y+18,8,90+fd.tier*25,T.c,.6);stars(e.x,e.y-16,6+fd.tier*3,[T.c,'#fff',GOLD],200+fd.tier*40)}
@@ -1238,104 +1641,119 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
 const RANKS=[[1,'Rookie'],[10,'Bronze'],[25,'Silver'],[40,'Gold'],[60,'Platinum'],[80,'Diamond'],[100,'Legend'],[150,'Mythic'],[200,'Immortal'],[300,'Godlike'],[400,'Celestial'],[600,'Cosmic'],[800,'Eternal'],[1000,'Transcendent'],[1500,'Omnipotent']];
 const rankOf=l=>{let r=RANKS[0][1];for(const [lv,n] of RANKS)if(l>=lv)r=n;return r};
 const TREES={feast:{name:'Feast',col:'#ff6b3d',icon:'🍔'},sprint:{name:'Sprint',col:'#3db5ff',icon:'👟'},typist:{name:'Typist',col:'#9b5de5',icon:'⌨️'},guard:{name:'Guard',col:'#2ec4b6',icon:'🛡️'},trick:{name:'Trick',col:'#f2a93b',icon:'🎁'}};
-// cap: legendary perk, only offered after 4 points in its tree
-const PERKS=[
-  {id:'gourmet',tree:'feast',icon:'🥪',name:'Gourmet',max:5,d:r=>`+${r*20}% level from snacks`},
-  {id:'quickbite',tree:'feast',icon:'😋',name:'Quick Bite',max:3,d:r=>`Eating is ${r*20}% faster`},
-  {id:'vacuum',tree:'feast',icon:'🌀',name:'Snack Vacuum',max:3,d:r=>`Snacks within ${r*70}px fly to you`},
-  {id:'jackpot',tree:'feast',icon:'🎰',name:'Jackpot',max:3,d:r=>`${r*8}% of snacks give triple`},
-  {id:'combo',tree:'feast',icon:'🔥',name:'Snack Combo',max:3,d:r=>`Snacks eaten within 4s of each other stack +${r*10}% (up to 5x)`},
-  {id:'orbhunter',tree:'feast',icon:'🔮',name:'Orb Hunter',max:3,d:r=>`Orbs are worth ${r*30}% more`},
-  {id:'cozy',tree:'feast',icon:'🛋️',name:'Cozy Eater',max:3,d:r=>`Snacks eaten inside buildings give +${r*25}% level`},
-  {id:'nose',tree:'feast',icon:'🐽',name:'Treasure Nose',max:1,cap:true,d:()=>'Gift boxes and orbs fly to you from far away'},
-  {id:'swift',tree:'sprint',icon:'💨',name:'Swift Feet',max:5,d:r=>`+${r*6}% move speed`},
-  {id:'dashcd',tree:'sprint',icon:'⚡',name:'Quick Dash',max:3,d:r=>`Dash recharges ${r*15}% faster`},
-  {id:'lungs',tree:'sprint',icon:'🫁',name:'Big Lungs',max:3,d:r=>`+${r*30}% stamina`},
-  {id:'slide',tree:'sprint',icon:'🛷',name:'Ice Slide',max:3,d:r=>`Slide lasts ${r*40}% longer`},
-  {id:'sprintboost',tree:'sprint',icon:'🏃',name:'Sprinter',max:3,d:r=>`Sprint is ${r*8}% faster`},
-  {id:'longdash',tree:'sprint',icon:'🚀',name:'Long Dash',max:3,d:r=>`Dash goes ${r*12}% farther`},
-  {id:'regen',tree:'sprint',icon:'🔋',name:'Second Wind',max:3,d:r=>`Stamina refills ${r*40}% faster`},
-  {id:'adrenaline',tree:'sprint',icon:'💉',name:'Adrenaline',max:2,d:r=>r>1?'After a duel win: dash and stamina refill and 3s of turbo':'After a duel win: dash and stamina refill'},
-  {id:'phase',tree:'sprint',icon:'👻',name:'Phase Dash',max:1,cap:true,d:()=>'Nobody can duel you while you dash'},
-  {id:'double',tree:'sprint',icon:'✌️',name:'Double Dash',max:1,cap:true,d:()=>'Two dash charges'},
-  {id:'short',tree:'typist',icon:'✂️',name:'Short Phrases',max:2,d:r=>`Your phrase is ${r} word${r>1?'s':''} shorter`},
-  {id:'forgive',tree:'typist',icon:'🩹',name:'Autocorrect',max:3,d:r=>`First ${r} typo${r>1?'s':''} per duel ignored`},
-  {id:'head',tree:'typist',icon:'🐢',name:'Head Start',max:3,d:r=>`Opponent starts ${(r*.5).toFixed(1)}s late`},
-  {id:'plunder',tree:'typist',icon:'💰',name:'Plunder',max:3,d:r=>`+${r*15}% levels from duel wins`},
-  {id:'curse',tree:'typist',icon:'😈',name:'Curse',max:2,d:r=>`Your opponent's phrase is ${r} word${r>1?'s':''} longer`},
-  {id:'underdog',tree:'typist',icon:'🐕',name:'Underdog',max:2,d:r=>`Against a higher level your phrase is ${r} word${r>1?'s':''} shorter`},
-  {id:'bounty',tree:'typist',icon:'🎯',name:'King Hunter',max:2,d:r=>`+${r*50}% bounty for beating the King`},
-  {id:'warm',tree:'typist',icon:'🔥',name:'Warm Fingers',max:2,d:r=>`Your first ${r} word${r>1?'s are':' is'} already typed`},
-  {id:'flow',tree:'typist',icon:'🌊',name:'Flow State',max:1,cap:true,d:()=>'20 correct letters in a row slow your opponent'},
-  {id:'afterwin',tree:'guard',icon:'🧱',name:'Victory Shield',max:3,d:r=>`+${(r*1.5).toFixed(1)}s protection after a win`},
-  {id:'slippery',tree:'guard',icon:'🐟',name:'Slippery',max:2,d:r=>`Being caught running helps them ${r} word${r>1?'s':''} less`},
-  {id:'laststand',tree:'guard',icon:'🪦',name:'Last Stand',max:3,d:r=>`Keep ${r*15}% of your levels when eaten`},
-  {id:'snackguard',tree:'guard',icon:'🥷',name:'Snack Guard',max:2,d:r=>`${(r*.5).toFixed(1)}s protected when you start eating`},
-  {id:'bubble',tree:'guard',icon:'🫧',name:'Iron Bubble',max:1,cap:true,d:()=>'Every 45s you get a free Bubble Shield'},
-  {id:'itemdur',tree:'trick',icon:'⏳',name:'Long Lasting',max:3,d:r=>`Item effects last ${r*25}% longer`},
-  {id:'recycle',tree:'trick',icon:'♻️',name:'Recycler',max:3,d:r=>`${r*20}% chance an item is not used up`},
-  {id:'boxbonus',tree:'trick',icon:'🎀',name:'Lucky Boxes',max:3,d:r=>`Gift boxes also give ${r*2} snacks worth of level`},
-  {id:'thief',tree:'trick',icon:'🦝',name:'Pickpocket',max:2,d:r=>`${r*50}% to steal the item of someone you beat`},
-  {id:'fortune',tree:'trick',icon:'🍀',name:'Fortune',max:2,d:r=>`Gift boxes roll rarer items (${r} extra roll${r>1?'s':''}, best one counts)`},
-  {id:'fairy',tree:'trick',icon:'🧚',name:'Item Fairy',max:1,cap:true,d:()=>'Every 60s you get a free random item'},
+// the text of every perk; its numbers (rarity, ranks, strength per rank) come from the settings. Legendary perks are only offered after a few points in their tree
+const s1=n=>n>1?'s':'', f1=x=>(Math.round(x*10)/10).toFixed(1);
+const PERK_DEF=[
+  {id:'gourmet',tree:'feast',icon:'🥪',name:'Gourmet',d:(r,c)=>`+${pc(r*c.perRank)}% level from snacks`},
+  {id:'quickbite',tree:'feast',icon:'😋',name:'Quick Bite',d:(r,c)=>`Eating is ${pc(r*c.perRank)}% faster`},
+  {id:'vacuum',tree:'feast',icon:'🌀',name:'Snack Vacuum',d:(r,c)=>`Snacks within ${Math.round(r*c.perRank)}px fly to you`},
+  {id:'jackpot',tree:'feast',icon:'🎰',name:'Jackpot',d:(r,c)=>`${pc(r*c.perRank)}% of snacks give ${c.multiplier===3?'triple':c.multiplier===2?'double':c.multiplier+'x'}`},
+  {id:'combo',tree:'feast',icon:'🔥',name:'Snack Combo',d:(r,c)=>`Snacks eaten within ${c.window}s of each other stack +${pc(r*c.perRank)}% (up to ${c.maxChain}x)`},
+  {id:'orbhunter',tree:'feast',icon:'🔮',name:'Orb Hunter',d:(r,c)=>`Orbs are worth ${pc(r*c.perRank)}% more`},
+  {id:'cozy',tree:'feast',icon:'🛋️',name:'Cozy Eater',d:(r,c)=>`Snacks eaten inside buildings give +${pc(r*c.perRank)}% level`},
+  {id:'nose',tree:'feast',icon:'🐽',name:'Treasure Nose',d:()=>'Gift boxes and orbs fly to you from far away'},
+  {id:'swift',tree:'sprint',icon:'💨',name:'Swift Feet',d:(r,c)=>`+${pc(r*c.perRank)}% move speed`},
+  {id:'dashcd',tree:'sprint',icon:'⚡',name:'Quick Dash',d:(r,c)=>`Dash recharges ${pc(r*c.perRank)}% faster`},
+  {id:'lungs',tree:'sprint',icon:'🫁',name:'Big Lungs',d:(r,c)=>`+${pc(r*c.perRank)}% stamina`},
+  {id:'slide',tree:'sprint',icon:'🛷',name:'Ice Slide',d:(r,c)=>`Slide lasts ${pc(r*c.perRank)}% longer`},
+  {id:'sprintboost',tree:'sprint',icon:'🏃',name:'Sprinter',d:(r,c)=>`Sprint is ${pc(r*c.perRank)}% faster`},
+  {id:'longdash',tree:'sprint',icon:'🚀',name:'Long Dash',d:(r,c)=>`Dash goes ${pc(r*c.perRank)}% farther`},
+  {id:'regen',tree:'sprint',icon:'🔋',name:'Second Wind',d:(r,c)=>`Stamina refills ${pc(r*c.perRank)}% faster`},
+  {id:'adrenaline',tree:'sprint',icon:'💉',name:'Adrenaline',d:(r,c)=>r>1?`After a duel win: dash and stamina refill and ${c.turbo}s of turbo`:'After a duel win: dash and stamina refill'},
+  {id:'phase',tree:'sprint',icon:'👻',name:'Phase Dash',d:()=>'Nobody can duel you while you dash'},
+  {id:'double',tree:'sprint',icon:'✌️',name:'Double Dash',d:(r,c)=>c.charges===2?'Two dash charges':c.charges+' dash charges'},
+  {id:'short',tree:'typist',icon:'✂️',name:'Short Phrases',d:(r,c)=>{const n=Math.round(r*c.perRank);return `Your phrase is ${n} word${s1(n)} shorter`}},
+  {id:'forgive',tree:'typist',icon:'🩹',name:'Autocorrect',d:(r,c)=>{const n=Math.round(r*c.perRank);return `First ${n} typo${s1(n)} per duel ignored`}},
+  {id:'head',tree:'typist',icon:'🐢',name:'Head Start',d:(r,c)=>`Opponent starts ${f1(r*c.perRank)}s late`},
+  {id:'plunder',tree:'typist',icon:'💰',name:'Plunder',d:(r,c)=>`+${pc(r*c.perRank)}% levels from duel wins`},
+  {id:'curse',tree:'typist',icon:'😈',name:'Curse',d:(r,c)=>{const n=Math.round(r*c.perRank);return `Your opponent's phrase is ${n} word${s1(n)} longer`}},
+  {id:'underdog',tree:'typist',icon:'🐕',name:'Underdog',d:(r,c)=>{const n=Math.round(r*c.perRank);return `Against a higher level your phrase is ${n} word${s1(n)} shorter`}},
+  {id:'bounty',tree:'typist',icon:'🎯',name:'King Hunter',d:(r,c)=>`+${pc(r*c.perRank)}% bounty for beating the King`},
+  {id:'warm',tree:'typist',icon:'🔥',name:'Warm Fingers',d:(r,c)=>{const n=Math.round(r*c.perRank);return `Your first ${n} word${n>1?'s are':' is'} already typed`}},
+  {id:'flow',tree:'typist',icon:'🌊',name:'Flow State',d:(r,c)=>`${c.streak} correct letters in a row slow your opponent`},
+  {id:'afterwin',tree:'guard',icon:'🧱',name:'Victory Shield',d:(r,c)=>`+${f1(r*c.perRank)}s protection after a win`},
+  {id:'slippery',tree:'guard',icon:'🐟',name:'Slippery',d:(r,c)=>{const n=Math.round(r*c.perRank);return `Being caught running helps them ${n} word${s1(n)} less`}},
+  {id:'laststand',tree:'guard',icon:'🪦',name:'Last Stand',d:(r,c)=>`Keep ${pc(r*c.perRank)}% of your levels when eaten`},
+  {id:'snackguard',tree:'guard',icon:'🥷',name:'Snack Guard',d:(r,c)=>`${f1(r*c.perRank)}s protected when you start eating`},
+  {id:'bubble',tree:'guard',icon:'🫧',name:'Iron Bubble',d:(r,c)=>`Every ${c.every}s you get a free Bubble Shield`},
+  {id:'itemdur',tree:'trick',icon:'⏳',name:'Long Lasting',d:(r,c)=>`Item effects last ${pc(r*c.perRank)}% longer`},
+  {id:'recycle',tree:'trick',icon:'♻️',name:'Recycler',d:(r,c)=>`${pc(r*c.perRank)}% chance an item is not used up`},
+  {id:'boxbonus',tree:'trick',icon:'🎀',name:'Lucky Boxes',d:(r,c)=>`Gift boxes also give ${Math.round(r*c.perRank*10)/10} snacks worth of level`},
+  {id:'thief',tree:'trick',icon:'🦝',name:'Pickpocket',d:(r,c)=>`${pc(r*c.perRank)}% to steal the item of someone you beat`},
+  {id:'fortune',tree:'trick',icon:'🍀',name:'Fortune',d:(r,c)=>{const n=Math.round(r*c.perRank);return `Gift boxes roll rarer items (${n} extra roll${s1(n)}, best one counts)`}},
+  {id:'fairy',tree:'trick',icon:'🧚',name:'Item Fairy',d:(r,c)=>`Every ${c.every}s you get a free random item`},
 ];
-// perks have a rarity just like items: the capstones are legendary, the strong ones epic or rare
-const PERK_RARE=['quickbite','vacuum','jackpot','combo','dashcd','slide','longdash','forgive','head','plunder','underdog','laststand','recycle','thief','fortune'], PERK_EPIC=['adrenaline','curse'];
-const PERK_ODDS=[55,30,11,4];
-const PERK_BY={};PERKS.forEach(p=>{PERK_BY[p.id]=p;p.tier=p.cap?3:PERK_EPIC.includes(p.id)?2:PERK_RARE.includes(p.id)?1:0});
+const PERKS=PERK_DEF.map(D=>{const c=PK[D.id],tier=clamp(Math.round(+c.tier||0),0,3);
+  return{id:D.id,tree:D.tree,icon:D.icon,name:D.name,max:clamp(Math.round(+c.max||1),1,9),tier,cap:tier===3,w:Math.max(0,+c.weight),c,d:r=>D.d(r,c)}});
+const PERK_ODDS=oddsOf(CFG.rarity.perkCards);
+const PERK_BY={};PERKS.forEach(p=>{PERK_BY[p.id]=p});
 const perkR=(e,id)=>e.perks[id]||0;
 const treePts=(e,tree)=>PERKS.reduce((n,p)=>n+(p.tree===tree?perkR(e,p.id):0),0);
-function calcStats(e){const r=id=>perkR(e,id),m=0;
-  e.st={xp:1+r('gourmet')*.2+m*.02,eatT:Math.max(.35,1-r('quickbite')*.2),vac:r('vacuum')*70,jackpot:r('jackpot')*.08,nose:!!r('nose'),
-    speed:1+r('swift')*.06+m*.01,dashCd:Math.max(.4,1-r('dashcd')*.15),staMax:100*(1+r('lungs')*.3),slide:1+r('slide')*.4,charges:r('double')?2:1,
-    short:r('short'),forgive:r('forgive'),head:r('head')*.5,plunder:1+r('plunder')*.15,flow:!!r('flow'),
-    afterwin:r('afterwin')*1.5,slippery:r('slippery'),keep:r('laststand')*.15,snackGuard:r('snackguard')*.5,bubble:!!r('bubble'),
-    combo:r('combo')*.1,orbx:1+r('orbhunter')*.3,sprintx:1.55+r('sprintboost')*.08,dashv:1+r('longdash')*.12,regen:1+r('regen')*.4,
-    curse:r('curse'),underdog:r('underdog'),kingx:1+r('bounty')*.5,itemx:1+r('itemdur')*.25,recycle:r('recycle')*.2,boxbonus:r('boxbonus')*2,fairy:!!r('fairy'),cozy:r('cozy')*.25,phase:!!r('phase'),adren:r('adrenaline'),warm:r('warm'),thief:r('thief')*.5,fortune:r('fortune')}}
-const owedPicks=e=>(L(e)>=2?Math.floor((L(e)-2)/4)+1:0)-e.picksDone;   // a pick at Lv 2, then every 4 levels
+function calcStats(e){const r=id=>perkR(e,id),P=PK,n=(id)=>Math.round(r(id)*P[id].perRank);
+  e.st={xp:1+r('gourmet')*P.gourmet.perRank,eatT:Math.max(P.quickbite.floor,1-r('quickbite')*P.quickbite.perRank),vac:r('vacuum')*P.vacuum.perRank,jackpot:r('jackpot')*P.jackpot.perRank,nose:!!r('nose'),
+    speed:1+r('swift')*P.swift.perRank,dashCd:Math.max(P.dashcd.floor,1-r('dashcd')*P.dashcd.perRank),staMax:MV.staminaMax*(1+r('lungs')*P.lungs.perRank),slide:1+r('slide')*P.slide.perRank,charges:r('double')?Math.max(1,Math.round(P.double.charges)):1,
+    short:n('short'),forgive:n('forgive'),head:r('head')*P.head.perRank,plunder:1+r('plunder')*P.plunder.perRank,flow:!!r('flow'),
+    afterwin:r('afterwin')*P.afterwin.perRank,slippery:n('slippery'),keep:r('laststand')*P.laststand.perRank,snackGuard:r('snackguard')*P.snackguard.perRank,bubble:!!r('bubble'),
+    combo:r('combo')*P.combo.perRank,orbx:1+r('orbhunter')*P.orbhunter.perRank,sprintx:MV.sprintBoost+r('sprintboost')*P.sprintboost.perRank,dashv:1+r('longdash')*P.longdash.perRank,regen:1+r('regen')*P.regen.perRank,
+    curse:n('curse'),underdog:n('underdog'),kingx:1+r('bounty')*P.bounty.perRank,itemx:1+r('itemdur')*P.itemdur.perRank,recycle:r('recycle')*P.recycle.perRank,boxbonus:r('boxbonus')*P.boxbonus.perRank,fairy:!!r('fairy'),cozy:r('cozy')*P.cozy.perRank,phase:!!r('phase'),adren:r('adrenaline'),warm:n('warm'),thief:r('thief')*P.thief.perRank,fortune:n('fortune')}}
+const owedPicks=e=>(L(e)>=LV.firstPerkLevel?Math.floor((L(e)-LV.firstPerkLevel)/Math.max(1,LV.perkEvery))+1:0)-e.picksDone;   // a pick at the first level, then every few levels
 function rollOffer(e){
-  const byTree={};for(const p of PERKS)if(p.tree&&perkR(e,p.id)<p.max&&(!p.cap||treePts(e,p.tree)>=4))(byTree[p.tree]=byTree[p.tree]||[]).push(p);
+  const byTree={};for(const p of PERKS)if(p.tree&&p.w>0&&perkR(e,p.id)<p.max&&(!p.cap||treePts(e,p.tree)>=LV.capstoneNeedsPoints))(byTree[p.tree]=byTree[p.tree]||[]).push(p);
   const trees=Object.keys(byTree).map(k=>({k,w:1+treePts(e,k)*.6}));   // the more you invest in a tree, the more of it you see
   const out=[];
   while(out.length<3&&trees.length){let r=Math.random()*trees.reduce((s,t)=>s+t.w,0),i=0;for(;i<trees.length-1;i++){r-=trees[i].w;if(r<=0)break}
     const list=byTree[trees.splice(i,1)[0].k];let tr=rollTier(PERK_ODDS),cand=[];
     while(tr>=0&&!(cand=list.filter(p=>p.tier===tr)).length)tr--;   // nothing of that rarity left in this tree: fall back to a lower one
     if(!cand.length)cand=list;
-    out.push(pick(cand).id)}
+    cand=cand.filter(p=>p.w>0);if(!cand.length)continue;   // weight 0 = never offered
+    let wr=Math.random()*cand.reduce((a,p)=>a+p.w,0),pk=cand[0];for(const p of cand){wr-=p.w;if(wr<=0){pk=p;break}}
+    out.push(pk.id)}
   return out}   // may be fewer than 3 cards (or none) once most perks are maxed
 // every item has a rarity; the strong ones are much harder to find
 const TIERS=[{n:'Common',c:'#c3ccd6',t:'#7d7196'},{n:'Rare',c:'#3db5ff',t:'#1f8fe0'},{n:'Epic',c:'#b06bff',t:'#8a3df0'},{n:'Legendary',c:'#ffc93c',t:'#d99a1a'}];
-const TIER_ODDS=[66,26,7,1], WATER_ODDS=[34,40,20,6];   // percent per gift box; boxes hidden underwater pay out much better
-const ITEMS={
-  magnet:{icon:'🧲',name:'Magnet',tier:0,dur:7,d:'Pulls snacks to you'},
-  turbo:{icon:'👟',name:'Turbo Sneakers',tier:0,dur:7,d:'Faster and endless stamina'},
-  rush:{icon:'🍬',name:'Sugar Rush',tier:1,dur:10,d:'Eat 3x faster, +50% level from snacks'},
-  smoke:{icon:'💨',name:'Smoke Bomb',tier:0,dur:4,d:'Bots lose sight of you, dash recharges'},
-  bomb:{icon:'💣',name:'Snack Bomb',tier:0,dur:0,d:'Explodes into a ring of snacks'},
-  energy:{icon:'🥤',name:'Energy Drink',tier:0,dur:0,d:'Refills stamina and recharges your dash'},
-  apple:{icon:'🍏',name:'Golden Apple',tier:0,dur:0,d:'Instantly worth 4 snacks of level'},
-  shield:{icon:'🫧',name:'Bubble Shield',tier:1,dur:6,d:'Nobody can duel you'},
-  radar:{icon:'📡',name:'Radar',tier:0,dur:12,d:'See everyone on the minimap'},
-  shock:{icon:'💥',name:'Shockwave',tier:1,dur:0,d:'Blasts everyone nearby away from you'},
-  ticket:{icon:'🎟️',name:'Golden Ticket',tier:1,dur:0,d:'Instantly worth 10 snacks of level'},
-  clover:{icon:'🍀',name:'Lucky Clover',tier:1,dur:0,d:'Your next 3 gift boxes roll rarer items'},
-  rubber:{icon:'🪀',name:'Rubber Band',tier:1,dur:6,d:'Dash with no cooldown'},
-  freeze:{icon:'🧊',name:'Freeze Ray',tier:2,dur:2.5,d:'Freezes everyone close to you'},
-  keys:{icon:'🎹',name:'Pro Keyboard',tier:2,dur:0,auto:true,d:'Your next duel phrase is 1 word shorter (automatic)'},
-  sticky:{icon:'🧤',name:'Sticky Gloves',tier:2,dur:0,d:'Steals an item from the nearest player'},
-  teleport:{icon:'🌀',name:'Teleport Orb',tier:2,dur:0,d:'Jump to a far away spot of the map'},
-  rocket:{icon:'🚀',name:'Rocket Boots',tier:2,dur:6,d:'Unlimited super dashes'},
-  warp:{icon:'⏳',name:'Time Warp',tier:2,dur:4,d:'Everybody else moves at half speed'},
-  angel:{icon:'🪽',name:'Angel Feather',tier:3,dur:0,auto:true,d:'Survive your next lost duel with half your levels (automatic)'},
-  gkeys:{icon:'🎼',name:'Golden Keyboard',tier:3,dur:0,auto:true,d:'Your next duel phrase is about 30% shorter (automatic)'},
-  nova:{icon:'🌟',name:'Supernova',tier:3,dur:2.5,d:'Blasts everyone away, freezes them, and shields you'},
-  crystal:{icon:'💎',name:'Level Crystal',tier:3,dur:0,d:'Instantly worth 3 levels'},
-  blackhole:{icon:'🕳️',name:'Black Hole',tier:3,dur:6,d:'Sucks in snacks, gift boxes and orbs from far away'}
+const TIER_ODDS=oddsOf(CFG.rarity.giftBox), WATER_ODDS=oddsOf(CFG.rarity.underwaterBox);   // percent per gift box; boxes hidden underwater pay out much better
+const ITEM_DEF={   // look, name and text of every item; the numbers (rarity, time, strength) come from the settings
+  magnet:{icon:'🧲',name:'Magnet',d:c=>'Pulls snacks to you'},
+  turbo:{icon:'👟',name:'Turbo Sneakers',d:c=>'Faster and endless stamina'},
+  rush:{icon:'🍬',name:'Sugar Rush',d:c=>'Eat '+Math.round(1/c.eatTime)+'x faster, +'+pc(c.xpBonus)+'% level from snacks'},
+  smoke:{icon:'💨',name:'Smoke Bomb',d:c=>'Bots lose sight of you, dash recharges'},
+  bomb:{icon:'💣',name:'Snack Bomb',d:c=>'Explodes into a ring of snacks'},
+  energy:{icon:'🥤',name:'Energy Drink',d:c=>'Refills stamina and recharges your dash'},
+  apple:{icon:'🍏',name:'Golden Apple',d:c=>'Instantly worth '+c.xp+' snacks of level'},
+  shield:{icon:'🫧',name:'Bubble Shield',d:c=>'Nobody can duel you'},
+  radar:{icon:'📡',name:'Radar',d:c=>'See everyone on the minimap'},
+  shock:{icon:'💥',name:'Shockwave',d:c=>'Blasts everyone nearby away from you'},
+  ticket:{icon:'🎟️',name:'Golden Ticket',d:c=>'Instantly worth '+c.xp+' snacks of level'},
+  clover:{icon:'🍀',name:'Lucky Clover',d:c=>'Your next '+c.boxes+' gift boxes roll rarer items'},
+  rubber:{icon:'🪀',name:'Rubber Band',d:c=>'Dash with no cooldown'},
+  freeze:{icon:'🧊',name:'Freeze Ray',d:c=>'Freezes everyone close to you'},
+  keys:{icon:'🎹',name:'Pro Keyboard',auto:true,d:c=>'Your next duel phrase is '+c.words+' word'+(c.words>1?'s':'')+' shorter (automatic)'},
+  sticky:{icon:'🧤',name:'Sticky Gloves',d:c=>'Steals an item from the nearest player'},
+  teleport:{icon:'🌀',name:'Teleport Orb',d:c=>'Jump to a far away spot of the map'},
+  rocket:{icon:'🚀',name:'Rocket Boots',d:c=>'Unlimited super dashes'},
+  warp:{icon:'⏳',name:'Time Warp',d:c=>'Everybody else moves at '+(Math.abs(c.slowdown-.5)<.06?'half':pc(c.slowdown)+'%')+' speed'},
+  angel:{icon:'🪽',name:'Angel Feather',auto:true,d:c=>'Survive your next lost duel with '+(c.keepShare===.5?'half':pc(c.keepShare)+'%')+' of your levels (automatic)'},
+  gkeys:{icon:'🎼',name:'Golden Keyboard',auto:true,d:c=>'Your next duel phrase is about '+pc(c.share)+'% shorter (automatic)'},
+  nova:{icon:'🌟',name:'Supernova',d:c=>'Blasts everyone away, freezes them, and shields you'},
+  crystal:{icon:'💎',name:'Level Crystal',d:c=>'Instantly worth '+c.levels+' levels'},
+  blackhole:{icon:'🕳️',name:'Black Hole',d:c=>'Sucks in snacks, gift boxes and orbs from far away'}
 };
+const ITEMS={};
+for(const k in ITEM_DEF){const D=ITEM_DEF[k],c=STK.list[k];
+  ITEMS[k]={icon:D.icon,name:D.name,auto:!!D.auto,tier:clamp(Math.round(+c.tier||0),0,3),w:Math.max(0,+c.weight),dur:+c.duration||0,p:c,d:D.d(c)}}
+// timed effects can stack: 'strength' = every use gets its own timer and the effect is stronger per running copy, 'time' = the time is added on top
+function addBuff(e,k,dur,t){const c=ITEMS[k].p,mode=STK.stacking?c.stack:'',cap=Math.max(1,Math.round(+c.maxStacks||5));
+  if(mode==='strength'){const a=((e.stk=e.stk||{})[k]||[]).filter(x=>x>t);a.push(t+dur);a.sort((x,y)=>x-y);while(a.length>cap)a.shift();e.stk[k]=a;e.buff[k]=a[a.length-1];return a.length}
+  if(mode==='time'){e.buff[k]=Math.min(Math.max(e.buff[k]||0,t)+dur,t+dur*cap);return 1}
+  e.buff[k]=t+dur;if(e.stk)delete e.stk[k];return 1}
+function stackN(e,k,t){const a=e.stk&&e.stk[k];if(a){let n=0;for(const x of a)if(x>t)n++;return Math.max(n,e.buff[k]>t?1:0)}return e.buff[k]>t?(e.bn&&e.bn[k]||1):0}   // how many copies of an effect run right now
 function rollTier(odds){let r=Math.random()*100;for(let i=0;i<4;i++){r-=odds[i];if(r<=0)return i}return 0}
 // luck = extra rolls (perk Fortune): you keep the best tier you rolled
 function rollItem(luck=0,water=false){let tier=0;for(let i=0;i<=luck;i++)tier=Math.max(tier,rollTier(water?WATER_ODDS:TIER_ODDS));
-  return pick(Object.keys(ITEMS).filter(k=>ITEMS[k].tier===tier))}
+  const all=Object.keys(ITEMS).filter(k=>ITEMS[k].w>0);let list=all.filter(k=>ITEMS[k].tier===tier);
+  for(let tt=tier-1;tt>=0&&!list.length;tt--)list=all.filter(k=>ITEMS[k].tier===tt);   // nothing of that rarity left: use a lower one
+  if(!list.length)list=all.length?all:Object.keys(ITEMS);
+  let r=Math.random()*list.reduce((a,k)=>a+Math.max(.0001,ITEMS[k].w),0);for(const k of list){r-=Math.max(.0001,ITEMS[k].w);if(r<=0)return k}return list[0]}
 
 /* ---------- entities ---------- */
 // bot names are made from two lists, so there are hundreds of them and none is about food
@@ -1351,19 +1769,20 @@ function cleanLook(l){if(!l||typeof l!=='object')return null;const o={};
 const randomLook=()=>({skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),shoes:pick(SHOECOLS),acol:pick(ACOLS),hs:pick(HS_ALL),acc:pick(ACC_ALL),sty:pick(STY_ALL),shorts:Math.random()<.3});
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
-  const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
-    dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+3,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
-    skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,shoes:pick(SHOECOLS),
+  const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,smoke:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
+    dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+CFG.players.spawnProtection,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
+    skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(CFG.players.botSkill[0],CFG.players.botSkill[1]),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,shoes:pick(SHOECOLS),
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
-    ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(.25,.9),brave:rand(0,1),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0,itemAt:0}};
+    ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(CFG.players.botAggression[0],CFG.players.botAggression[1]),brave:rand(CFG.players.botBravery[0],CFG.players.botBravery[1]),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0,itemAt:0}};
   calcStats(e);return e}
-function botLevel(){const r=Math.random();return r<.7?rand(1,5):r<.93?rand(5,12):rand(12,22)}
+function botLevel(){const bl=CFG.players.botLevels,tot=bl.reduce((a,b)=>a+(+b[0]||0),0);let r=Math.random()*tot;   // [chance, lowest, highest] per group
+  for(const b of bl){r-=+b[0]||0;if(r<=0)return rand(+b[1]||1,Math.max(+b[1]||1,+b[2]||1))}return 1}
 function spawnBot(t){const used=new Set(ents.map(e=>e.name.replace(/ \(BOT\)$/,'')));const free=NAMES.filter(n=>!used.has(n));
   let nm=free.length?pick(free):pick(NAMES)+' '+(2+((Math.random()*8)|0));   // more bots than names: add a number
   const e=makeEnt(nm+' (BOT)',botLevel(),false,t);
   if(player){for(let i=0;i<10&&Math.hypot(e.x-player.x,e.y-player.y)<700;i++){const p=freeSpot(40);e.x=p.x;e.y=p.y}}
   ents.push(e);return e}
-const BOTS=160;
+const BOTS=Math.max(0,Math.min(1500,Math.round(CFG.players.bots)));
 {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}
 
 /* ---------- fx ---------- */
@@ -1577,10 +1996,10 @@ for(const el of document.querySelectorAll('.islot'))el.addEventListener('click',
 let cam={x:WORLD/2,y:WORLD/2};
 // zoom with the mouse wheel or + / - (0 resets); the badge shows the number so it is easy to report a favourite value
 // you start zoomed in at 150% and unlock zooming out with levels (down to 80% at Lv 60); zooming in is always allowed
-const ZOOM_MAX=2.5, zoomMin=()=>TOUCH?.8:clamp(Math.ceil((1.5-.7*((player?L(player):1)-1)/59)*20-1e-6)/20,.8,1.5);
+const CAM=CFG.camera, ZOOM_MAX=CAM.maxZoom, zoomMin=()=>TOUCH?Math.min(.8,CAM.minZoomHighLevel):clamp(Math.ceil((CAM.minZoomLowLevel-(CAM.minZoomLowLevel-CAM.minZoomHighLevel)*((player?L(player):1)-1)/Math.max(1,CAM.highLevel-1))*20-1e-6)/20,CAM.minZoomHighLevel,CAM.minZoomLowLevel);
 let lastZMin=1.5;
 if(TOUCH)ZU=1;
-try{const z=+localStorage.getItem('snackdown-zoom');if(z>=.8&&z<=ZOOM_MAX)ZU=z}catch(_){}
+try{const z=+localStorage.getItem('snackdown-zoom');if(z>=CAM.minZoomHighLevel&&z<=ZOOM_MAX)ZU=z}catch(_){}
 let zoomTagT=0;
 function setZoom(v,quiet){const mn=zoomMin();ZU=clamp(Math.round(v*100)/100,mn,ZOOM_MAX);resize();try{localStorage.setItem('snackdown-zoom',ZU)}catch(_){}
   const el=$('zoomtag');if(quiet===true)return;el.textContent='Zoom '+Math.round(ZU*100)+'%'+(ZU<=mn+.001&&mn>.8?' · level up to zoom out more':'');el.hidden=false;el.style.opacity=1;clearTimeout(zoomTagT);zoomTagT=setTimeout(()=>{el.style.opacity=0},1600)}
@@ -1608,29 +2027,31 @@ function startGame(){
 }
 /* ---------- guide: every item and perk explained ---------- */
 let guideTree='feast';
+const fp=v=>(Math.round(v*10)/10)+'%';   // 74.99999 -> 75%
 function buildGuide(tab){
   const row=(icon,name,tier,text,extra)=>'<div class="grow" style="--rc:'+TIERS[tier].c+'"><span class="gi">'+icon+'</span><b><i title="'+TIERS[tier].n+'"></i>'+name+'</b><p>'+text+'</p><small>'+(extra||'')+'</small></div>';
   let h='';
   if(tab==='items'){
-    h+='<p class="gnote">You start with 3 item slots (<kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>). More unlock at Lv '+SLOT_LV.slice(3).join(', ')+' with the keys <kbd>R</kbd> <kbd>T</kbd> <kbd>Z</kbd> <kbd>U</kbd>. Better items are much rarer.</p>';
-    for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+TIER_ODDS[t]+'% per box · '+WATER_ODDS[t]+'% underwater</small></h3><div class="glist">';
-      for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier===t)h+=row(it.icon,it.name,t,it.d,it.auto?'automatic':it.dur?it.dur+'s':'instant')}
+    const fs=Math.max(1,SLOT_LV.filter(v=>v<=1).length),kb=a=>a.map(k=>'<kbd>'+k+'</kbd>').join(' ');
+    h+='<p class="gnote">You start with '+fs+' item slot'+s1(fs)+' ('+kb(SLOT_KEYS.slice(0,fs))+').'+(SLOT_LV.length>fs?' More unlock at Lv '+SLOT_LV.slice(fs).join(', ')+' with the keys '+kb(SLOT_KEYS.slice(fs,SLOT_LV.length))+'.':'')+' Better items are much rarer.'+(STK.stacking?' Using an item again while it still runs <b>stacks</b> it.':'')+'</p>';
+    for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+fp(TIER_ODDS[t])+' per box · '+fp(WATER_ODDS[t])+' underwater</small></h3><div class="glist">';
+      for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier===t)h+=row(it.icon,it.name,t,it.d,it.auto?'automatic':it.dur?it.dur+'s'+(STK.stacking&&it.p.stack==='strength'?' · stacks: stronger':STK.stacking&&it.p.stack==='time'?' · stacks: longer':''):'instant')}
       h+='</div></div>'}}
   else if(tab==='foods'){
     const pretty={icecream:'ice cream shops',home:'homes',bakery:'bakeries',cafe:'cafes'},where=f=>{const bs=BIOME.filter((b,i)=>f.bm&(1<<i)).map(b=>b.n),sh=f.sh?f.sh.split(' ').map(x=>pretty[x]||x+'s'):[];
       return 'Outside: '+(bs.length?bs.join(', '):'anywhere')+'.'+(sh.length?' Inside: '+sh.join(', ')+'.':'')};
     h+='<p class="gnote">'+FOODS.length+' kinds of snacks lie around the map and in buildings. Each one feeds you differently: <b>worth</b> says how many average snacks it counts for. Bigger food takes longer to eat, and you are easy prey while you chew. Epic and legendary snacks also give a boost. Every kind grows more often in its home biome or shop.</p>';
-    for(let t=3;t>=0;t--){const list=FOOD_T[t];h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+FOOD_ODDS[t]+'% of all snacks · '+list.length+' kinds</small></h3><div class="glist">';
+    for(let t=3;t>=0;t--){const list=FOOD_T[t];h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+fp(FOOD_ODDS[t])+' of all snacks · '+list.length+' kinds</small></h3><div class="glist">';
       for(const f of list)h+=row('<img src="'+foodURL(f.id)+'" width="38" height="38" alt="">',f.name,t,f.text+(f.fx.length?' <b>Bonus: '+foodFxText(f)+'.</b>':'')+' <i>'+where(f)+'</i>','worth ×'+f.xp.toFixed(2)+' · '+f.et.toFixed(2).replace(/0$/,'')+'× eating time');
       h+='</div></div>'}}
   else if(tab==='perks'){
-    h+='<p class="gnote">Pick a perk at Level 2, then every 4 levels. Legendary perks unlock after 4 points in their tree.</p><div class="gsub">'
+    h+='<p class="gnote">Pick a perk at Level '+LV.firstPerkLevel+', then every '+LV.perkEvery+' levels. Legendary perks unlock after '+LV.capstoneNeedsPoints+' points in their tree.</p><div class="gsub">'
       +Object.keys(TREES).map(k=>'<button type="button" class="gtab'+(k===guideTree?' on':'')+'" data-tree="'+k+'">'+TREES[k].icon+' '+TREES[k].name+'</button>').join('')+'</div>';
     h+='<div class="glist">';
     for(const p of PERKS.filter(p=>p.tree===guideTree).sort((a,b)=>a.tier-b.tier))h+=row(p.icon,p.name,p.tier,p.d(p.max),p.max>1?p.max+' ranks':'once');
     h+='</div><p class="small">The text shows the effect at the highest rank. The dot shows the rarity: grey common, blue rare, purple epic, gold legendary.</p>'}
   else{
-    h+='<p class="gnote">Items, perks and snacks come in four rarities. Each step is about three to five times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
+    h+='<p class="gnote">Items, perks and snacks come in four rarities. The better ones are much harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
       +'<div class="gsec"><h3>Snack odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+FOOD_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
       +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Both sides start from the same phrase length, longer when more is at stake. The lower level player types a few words fewer. Items, perks and being caught running change the numbers.</p></div>'}
@@ -1912,17 +2333,17 @@ function botThink(b,t){
   const bs=firstItem(b),bk=bs>=0?b.items[bs]:null;
   if(bk&&!ITEMS[bk].auto&&t>ai.itemAt){const m=ai.mode,fight=m==='flee'||m==='chase';   // bots use items too
     const ok={shield:m==='flee',smoke:m==='flee',turbo:fight,magnet:m==='food',rush:m==='food',bomb:m==='food',freeze:fight,rocket:fight,ticket:true,radar:true,shock:m==='flee',nova:m==='flee',energy:m==='flee'||m==='chase',apple:true,clover:true,rubber:fight,teleport:m==='flee',crystal:true,blackhole:m==='food'}[bk];if(ok||t>ai.itemAt+25)useItem(b,t,bs)}
-  if(ai.hold>0&&ai.target&&ai.target.state!=='eaten'&&ai.target.state!=='duel'&&t>ai.target.protect&&ai.target.buff.hide<=t){ai.hold-=.3}
+  if(ai.hold>0&&ai.target&&ai.target.state!=='eaten'&&ai.target.state!=='duel'&&t>ai.target.protect&&ai.target.buff.smoke<=t){ai.hold-=.3}
   else{ai.hold=0;ai.target=null;
     let threat=null,td=1e9,prey=null,ps=0;
     const bh=houseAt(b.x,b.y);
-    for(const o of ents){if(o===b||o.state==='eaten'||o.state==='duel'||t<o.protect||o.buff.hide>t)continue;
+    for(const o of ents){if(o===b||o.state==='eaten'||o.state==='duel'||t<o.protect||o.buff.smoke>t)continue;
       const d=Math.hypot(o.x-b.x,o.y-b.y);if(d>560)continue;
       const oh=houseAt(o.x,o.y);if(oh!==bh&&d>180)continue;
       const lo=L(o);
       if(lo>=lb+3&&d<340&&d<td){threat=o;td=d}
       else if((lo<=lb-1||o.state==='eat')&&d<460){const s=(o.state==='eat'?2.2:1)*(1+(lb-lo)*.08)/d;if(s>ps){ps=s;prey=o}}}
-    const kd=king&&king!==b&&king.state==='move'&&t>=king.protect&&king.buff.hide<=t?Math.hypot(king.x-b.x,king.y-b.y):1e9;   // everybody hunts the king
+    const kd=king&&king!==b&&king.state==='move'&&t>=king.protect&&king.buff.smoke<=t?Math.hypot(king.x-b.x,king.y-b.y):1e9;   // everybody hunts the king
     if(kd<1100&&ai.brave>.3&&lb>=L(king)*.3){ai.mode='chase';ai.target=king;ai.hold=rand(2,4)}
     else if(threat&&ai.brave<.75){ai.mode='flee';ai.target=threat}
     else if(prey&&Math.random()<ai.aggr){ai.mode='chase';ai.target=prey;ai.hold=rand(1.2,2.4)}
@@ -1942,37 +2363,37 @@ function botThink(b,t){
 
 /* ---------- step ---------- */
 function splashFx(e){dust(e.x,e.y+16,12,'#bfe9ff',170,4.5);ring(e.x,e.y+16,6,56,'#fff',.45);ring(e.x,e.y+16,3,34,'#9fdcff',.35);sfx.splash(vol(e))}
-// 1 snack = 1 xp. Level L costs 5 * (1 + 0.15 * (L-1)) xp: level 1 = 5 snacks, level 50 = 41, level 100 = 79
-const lvlCost=lvl=>5*(1+(Math.floor(lvl)-1)*.15);
-const snackGain=lvl=>1.7/lvlCost(lvl);   // a snack is worth 1.7x what the cost table says, so eating pays off
-const xpOf=lvl=>{const f=Math.floor(lvl);return 5*((f-1)+.15*(f-1)*(f-2)/2)+(lvl-f)*lvlCost(f)};   // everything a player at this level has collected
+// 1 snack = 1 xp. Level L costs costBase * (1 + costGrowth * (L-1)) xp (settings: levels): level 1 = 5 snacks, level 50 = 41, level 100 = 79
+const lvlCost=lvl=>LV.costBase*(1+(Math.floor(lvl)-1)*LV.costGrowth);
+const snackGain=lvl=>LV.snackValue/lvlCost(lvl);   // a snack is worth a bit more than the cost table says, so eating pays off
+const xpOf=lvl=>{const f=Math.floor(lvl);return LV.costBase*((f-1)+LV.costGrowth*(f-1)*(f-2)/2)+(lvl-f)*lvlCost(f)};   // everything a player at this level has collected
 function gainXp(e,xp){let guard=0;while(xp>1e-6&&guard++<400){const c=lvlCost(e.lvl),room=(1-(e.lvl-Math.floor(e.lvl)))*c;
   if(xp>=room){gainLvl(e,room/c+1e-9);xp-=room}else{gainLvl(e,xp/c);xp=0}}}   // the higher your level, the more snacks a level costs
 const vol=e=>e.isPlayer?1:player?clamp(1-Math.hypot(e.x-player.x,e.y-player.y)/650,0,1)*.6:0;
-const EAT_T=.6;
+const EAT_T=LV.eatTime;
 // crumb colours live in the FOOD table
 /* gift boxes (items) and level orbs (dropped when someone is eaten) */
-const BOX_OUT=170, BOX_IN=120;
+const BOX_OUT=sc(CFG.spawn.boxesOutside), BOX_IN=sc(CFG.spawn.boxesInside);
 let boxes=[], orbs=[];
 function spawnBox(inside){const p=spotFor(inside);if(p)boxes.push({x:p.x,y:p.y,bob:Math.random()*6.28,inside})}
 // gift boxes also sink to the bottom of ponds and lakes: you have to swim to find them, and they hold much better loot
-const WATER_BOX=36;
+const WATER_BOX=sc(CFG.spawn.boxesUnderwater);
 function spawnWaterBox(){const ok=ponds.filter(p=>p.kind!=='ice');if(!ok.length)return;const p=pick(ok),a=Math.random()*6.28,r=Math.sqrt(Math.random())*.7;
   boxes.push({x:p.x+Math.cos(a)*p.rx*r,y:p.y+Math.sin(a)*p.ry*r,bob:Math.random()*6.28,inside:false,water:true})}
 for(let i=0;i<BOX_OUT;i++)spawnBox(false);
 for(let i=0;i<BOX_IN;i++)spawnBox(true);
 for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
 function dropOrbs(x,y,total){if(total<3)return;const n=clamp(Math.round(total/12),1,10);
-  for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(120,260);orbs.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v:total/n,life:35,bob:Math.random()*6.28})}}
+  for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(120,260);orbs.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v:total/n,life:DU.orbLife,bob:Math.random()*6.28})}}
 // three item slots, each with its own key (Q, E, R); slots keep their place when one is used
-const SLOTS=7, SLOT_KEYS=['Q','W','E','R','T','Z','U'], SLOT_LV=[0,0,0,12,30,60,100];   // you start with 3 slots; more unlock at level 12, 30, 60 and 100
+const SLOTS=7, SLOT_KEYS=['Q','W','E','R','T','Z','U'], SLOT_LV=CFG.levels.itemSlotLevels.slice(0,7).map(v=>Math.max(0,+v||0));   // you start with 3 slots; more unlock at level 12, 30, 60 and 100
 const slotsOf=e=>{const l=L(e);let n=0;for(const v of SLOT_LV)if(l>=v)n++;return n};
 const freeSlot=e=>{const n=slotsOf(e);for(let i=0;i<n;i++)if(!e.items[i])return i;return -1};
-const itemRoom=e=>freeSlot(e)>=0&&(e.human||!e.items.some(Boolean));   // bots only carry one
+const itemRoom=e=>freeSlot(e)>=0&&(e.human||e.items.filter(Boolean).length<CFG.players.botItems);   // bots carry fewer items than players
 const hasItem=(e,k)=>e.items.indexOf(k);
 const firstItem=e=>e.items.findIndex(Boolean);
 function addItem(e,k){const i=freeSlot(e);if(i<0)return false;e.items[i]=k;return true}
-function giveItem(e,t,water){const lk=e.st.fortune+((e.luck||0)>0?2:0);if(e.luck>0)e.luck--;let k=rollItem(lk,water);if(!e.human)while(k==='warp'||k==='freeze'||k==='sticky')k=rollItem(lk,water);   // bots keep their hands off the annoying ones
+function giveItem(e,t,water){const lk=e.st.fortune+((e.luck||0)>0?ITEMS.clover.p.extraRolls:0);if(e.luck>0)e.luck--;let k=rollItem(lk,water);if(!e.human)for(let g=0;g<30&&(k==='warp'||k==='freeze'||k==='sticky');g++)k=rollItem(lk,water);   // bots keep their hands off the annoying ones
   addItem(e,k);e.ai.itemAt=t+rand(2,8);if(e.st.boxbonus)gainXp(e,e.st.boxbonus);
   questEvent(e,'box',!!water);
   if(e.isPlayer)itemReveal(e,k,water)}
@@ -1988,44 +2409,46 @@ function itemReveal(e,k,water){const it=ITEMS[k],T=TIERS[it.tier],n=it.tier;
     burst(e.x,e.y-16,36,[T.c,'#fff','#ff8fc2'],340);ring(e.x,e.y+16,4,150,'#fff',.6);ring(e.x,e.y+16,8,110,T.c,.8);stars(e.x,e.y-30,14,[T.c,'#fff'],320)}}
 let timeWarp={until:0,owner:null};
 const st0=e=>e.st.staMax;
-function useItem(e,t,slot){if(slot==null)slot=firstItem(e);const k=e.items[slot];if(!k)return;const it=ITEMS[k];
+function useItem(e,t,slot){if(slot==null)slot=firstItem(e);const k=e.items[slot];if(!k)return;const it=ITEMS[k],c=it.p;
   if(it.auto){if(e.isPlayer)showToast(it.icon+' '+it.name+' works by itself in your next duel');return}
-  const dur=it.dur*e.st.itemx;
+  const dur=it.dur*e.st.itemx;let stacks=1;
   if(Math.random()<e.st.recycle){if(e.isPlayer)floater(e.x,e.y-74,'RECYCLED!','#9fdcff')}else e.items[slot]=null;
-  if(k==='bomb'){for(let i=0;i<16;i++){const a=i/16*6.283,r=rand(70,170);foods.push({x:clamp(e.x+Math.cos(a)*r,40,WORLD-40),y:clamp(e.y+Math.sin(a)*r,40,WORLD-40),t:rollFood(-1,'',1),bob:Math.random()*6.28,inside:false})}
-    burst(e.x,e.y,20,['#ff6b3d','#ffc93c','#fff'],260);ring(e.x,e.y+10,10,180,'#ff6b3d',.5)}
-  else if(k==='freeze'){for(const o of ents)if(o!==e&&o.state==='move'&&Math.hypot(o.x-e.x,o.y-e.y)<340){o.buff.freeze=t+dur;o.vx=o.vy=0;stars(o.x,o.y-10,4,['#9fdcff','#fff'],120)}
-    ring(e.x,e.y+10,10,340,'#9fdcff',.55)}
+  if(k==='bomb'){for(let i=0;i<c.snacks;i++){const a=i/c.snacks*6.283,r=rand(c.minRadius,c.maxRadius);foods.push({x:clamp(e.x+Math.cos(a)*r,40,WORLD-40),y:clamp(e.y+Math.sin(a)*r,40,WORLD-40),t:rollFood(-1,'',1),bob:Math.random()*6.28,inside:false})}
+    burst(e.x,e.y,20,['#ff6b3d','#ffc93c','#fff'],260);ring(e.x,e.y+10,10,c.maxRadius+10,'#ff6b3d',.5)}
+  else if(k==='freeze'){for(const o of ents)if(o!==e&&o.state==='move'&&Math.hypot(o.x-e.x,o.y-e.y)<c.radius){addBuff(o,'freeze',dur,t);o.vx=o.vy=0;stars(o.x,o.y-10,4,['#9fdcff','#fff'],120)}
+    ring(e.x,e.y+10,10,c.radius,'#9fdcff',.55)}
   else if(k==='energy'){e.stamina=st0(e);e.dashCharges=e.st.charges;e.dashCd=0;dust(e.x,e.y+10,14,'#9fdcff',120,6);if(e.isPlayer)floater(e.x,e.y-60,'ENERGY!','#9fdcff',true)}
-  else if(k==='apple'){gainXp(e,4);stars(e.x,e.y-16,8,['#9be564','#fff'],200);if(e.isPlayer)floater(e.x,e.y-60,'GOLDEN APPLE!','#9be564',true)}
-  else if(k==='crystal'){gainXp(e,lvlCost(e.lvl)*3);stars(e.x,e.y-16,16,['#7ad0ff','#fff',GOLD],300);ring(e.x,e.y+10,8,200,'#7ad0ff',.7);if(e.isPlayer){floater(e.x,e.y-60,'LEVEL CRYSTAL!','#7ad0ff',true);shake=Math.max(shake,6)}}
-  else if(k==='clover'){e.luck=3;stars(e.x,e.y-16,8,['#6fd36f','#fff'],180);if(e.isPlayer)floater(e.x,e.y-60,'LUCKY!','#6fd36f',true)}
-  else if(k==='sticky'){let best=null,bd=420;for(const o of ents){if(o===e||o.state==='eaten')continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd&&o.items.some(Boolean)){bd=d;best=o}}
+  else if(k==='apple'){gainXp(e,c.xp);stars(e.x,e.y-16,8,['#9be564','#fff'],200);if(e.isPlayer)floater(e.x,e.y-60,'GOLDEN APPLE!','#9be564',true)}
+  else if(k==='crystal'){gainXp(e,lvlCost(e.lvl)*c.levels);stars(e.x,e.y-16,16,['#7ad0ff','#fff',GOLD],300);ring(e.x,e.y+10,8,200,'#7ad0ff',.7);if(e.isPlayer){floater(e.x,e.y-60,'LEVEL CRYSTAL!','#7ad0ff',true);shake=Math.max(shake,6)}}
+  else if(k==='clover'){e.luck=(STK.stacking?(e.luck||0):0)+c.boxes;stars(e.x,e.y-16,8,['#6fd36f','#fff'],180);if(e.isPlayer)floater(e.x,e.y-60,'LUCKY!','#6fd36f',true)}
+  else if(k==='sticky'){let best=null,bd=c.radius;for(const o of ents){if(o===e||o.state==='eaten')continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd&&o.items.some(Boolean)){bd=d;best=o}}
     const slotS=best?best.items.findIndex(Boolean):-1,free=freeSlot(e);
     if(best&&slotS>=0){const got=best.items[slotS];best.items[slotS]=null;if(free>=0)e.items[free]=got;else e.items[slot]=got;ring(best.x,best.y,8,80,'#ff8fc2',.5);if(e.isPlayer){floater(e.x,e.y-60,'STOLEN: '+ITEMS[got].name,'#ff8fc2',true);itemReveal(e,got,false)}if(best.isPlayer)floater(best.x,best.y-60,'ITEM STOLEN!','#ff8fc2',true)}
     else if(e.isPlayer)floater(e.x,e.y-60,'nobody to rob','#fff',true)}
-  else if(k==='teleport'){let p=freeSpot(40);for(let i=0;i<12&&Math.hypot(p.x-e.x,p.y-e.y)<1600;i++)p=freeSpot(40);ring(e.x,e.y+10,8,120,'#9b5de5',.6);dust(e.x,e.y+10,14,'#b06bff',160,6);e.x=p.x;e.y=p.y;e.vx=e.vy=0;e.protect=Math.max(e.protect,t+1.5);e.lx=e.x;ring(e.x,e.y+10,8,120,'#9b5de5',.6);if(e.isPlayer){flash();cam.x=e.x;cam.y=e.y}}
-  else if(k==='ticket'){gainXp(e,10);stars(e.x,e.y-16,10,[GOLD,'#fff'],220);if(e.isPlayer)floater(e.x,e.y-60,'GOLDEN TICKET!',GOLD,true)}
-  else if(k==='warp'){timeWarp={until:t+dur,owner:e};ring(e.x,e.y+10,10,420,'#9b5de5',.7)}
+  else if(k==='teleport'){let p=freeSpot(40);for(let i=0;i<12&&Math.hypot(p.x-e.x,p.y-e.y)<c.minDistance;i++)p=freeSpot(40);ring(e.x,e.y+10,8,120,'#9b5de5',.6);dust(e.x,e.y+10,14,'#b06bff',160,6);e.x=p.x;e.y=p.y;e.vx=e.vy=0;e.protect=Math.max(e.protect,t+1.5);e.lx=e.x;ring(e.x,e.y+10,8,120,'#9b5de5',.6);if(e.isPlayer){flash();cam.x=e.x;cam.y=e.y}}
+  else if(k==='ticket'){gainXp(e,c.xp);stars(e.x,e.y-16,10,[GOLD,'#fff'],220);if(e.isPlayer)floater(e.x,e.y-60,'GOLDEN TICKET!',GOLD,true)}
+  else if(k==='warp'){if(STK.stacking&&timeWarp.owner===e&&timeWarp.until>t)timeWarp.until=Math.min(timeWarp.until+dur,t+dur*Math.max(1,c.maxStacks||5));else timeWarp={until:t+dur,owner:e};ring(e.x,e.y+10,10,420,'#9b5de5',.7)}
   else if(k==='nova'){for(const o of ents){if(o===e||o.state==='eaten')continue;const dx=o.x-e.x,dy=o.y-e.y,d=Math.hypot(dx,dy);
-      if(d<520&&d>1){o.vx+=dx/d*1100;o.vy+=dy/d*1100;o.slideT=.6;o.sqv-=5;if(o.state==='move')o.buff.freeze=t+dur}}
-    e.buff.shield=t+4;e.protect=Math.max(e.protect,t+4);ring(e.x,e.y+10,10,520,'#fff',.7);ring(e.x,e.y+10,6,380,GOLD,.6);ring(e.x,e.y+10,4,240,'#b06bff',.5);dust(e.x,e.y+20,24,'#fff6d5',300,8);
+      if(d<c.radius&&d>1){o.vx+=dx/d*c.force;o.vy+=dy/d*c.force;o.slideT=.6;o.sqv-=5;if(o.state==='move')addBuff(o,'freeze',dur,t)}}
+    e.buff.shield=Math.max(e.buff.shield,t+c.shieldTime);e.protect=Math.max(e.protect,t+c.shieldTime);ring(e.x,e.y+10,10,c.radius,'#fff',.7);ring(e.x,e.y+10,6,c.radius*.73,GOLD,.6);ring(e.x,e.y+10,4,c.radius*.46,'#b06bff',.5);dust(e.x,e.y+20,24,'#fff6d5',300,8);
     if(e.isPlayer){shake=Math.max(shake,12);kick=Math.max(kick,.15)}}
   else if(k==='shock'){for(const o of ents){if(o===e||o.state==='eaten')continue;const dx=o.x-e.x,dy=o.y-e.y,d=Math.hypot(dx,dy);
-      if(d<400&&d>1){o.vx+=dx/d*950;o.vy+=dy/d*950;o.slideT=.5;o.sqv-=4}}
-    ring(e.x,e.y+10,10,400,'#fff',.5);ring(e.x,e.y+10,6,280,GOLD,.45);dust(e.x,e.y+20,16,'#e9dcc0',260,7);if(e.isPlayer){shake=Math.max(shake,8);kick=Math.max(kick,.12)}}
-  else{e.buff[k]=t+dur;   // timed buffs: magnet, turbo, shield, rush, smoke, rocket, radar
-    if(k==='shield')e.protect=Math.max(e.protect,t+dur);
+      if(d<c.radius&&d>1){o.vx+=dx/d*c.force;o.vy+=dy/d*c.force;o.slideT=.5;o.sqv-=4}}
+    ring(e.x,e.y+10,10,c.radius,'#fff',.5);ring(e.x,e.y+10,6,c.radius*.7,GOLD,.45);dust(e.x,e.y+20,16,'#e9dcc0',260,7);if(e.isPlayer){shake=Math.max(shake,8);kick=Math.max(kick,.12)}}
+  else{stacks=addBuff(e,k,dur,t);   // timed buffs: magnet, turbo, shield, rush, smoke, rocket, radar, rubber, blackhole
+    if(k==='shield')e.protect=Math.max(e.protect,e.buff.shield);
     if(k==='smoke'){e.dashCharges=e.st.charges;e.dashCd=0;dust(e.x,e.y+10,18,'#d9d4e8',110,9)}}
   ring(e.x,e.y+18,8,70,'#9b5de5',.45);stars(e.x,e.y-16,6,['#fff','#9b5de5',GOLD],160);e.sqv+=4;
+  if(stacks>1&&e.isPlayer)floater(e.x,e.y-100,it.name+' ×'+stacks,'#fff',true);
   if(e.isPlayer){sfx.item();flash()}}
 /* ---------- quests: now and then you must find something before time runs out ---------- */
 function questText(q){return q.type==='snack'?'Eat '+q.n+' '+FOOD[q.kind].icon+' '+FOOD[q.kind].pl:q.type==='box'?'Open '+q.n+' gift boxes 🎁':'Find a box hidden underwater 🎁'}
 function questNotify(e,kind,text){if(e.isPlayer){showToast(text,kind==='done'?'#9be564':kind==='new'?'#ffc93c':'#ff8fa0');if(kind==='done')sfx.perk();else if(kind==='new')sfx.click()}else e.questMsg=[kind,text]}
+const qint=a=>a[0]+((Math.random()*(a[1]-a[0]+1))|0);
 function startQuest(e,t){const r=Math.random();let q;
-  if(r<.55){const n=3+((Math.random()*3)|0);q={type:'snack',kind:pick(FOOD_T[0]).id,n,mult:1.2+n*.2,time:rand(80,110)}}
-  else if(r<.85||!boxes.some(b=>b.water)){const n=2+((Math.random()*2)|0);q={type:'box',n,mult:1.6+n*.4,time:rand(100,130)}}
-  else q={type:'water',n:1,mult:3,time:rand(110,140)};
+  if(r<QU.snackChance){const Q=QU.snack,n=qint(Q.count);q={type:'snack',kind:pick(FOOD_T[0].length?FOOD_T[0]:FOODS.map(id=>FOOD[id])).id,n,mult:Q.rewardBase+n*Q.rewardPerItem,time:rand(Q.time[0],Q.time[1])}}
+  else if(r<QU.snackChance+QU.boxChance||!boxes.some(b=>b.water)){const Q=QU.box,n=qint(Q.count);q={type:'box',n,mult:Q.rewardBase+n*Q.rewardPerItem,time:rand(Q.time[0],Q.time[1])}}
+  else q={type:'water',n:1,mult:QU.water.reward,time:rand(QU.water.time[0],QU.water.time[1])};
   q.have=0;q.end=t+q.time;q.total=q.time;e.quest=q;
   questNotify(e,'new','QUEST: '+questText(q))}
 function questEvent(e,type,arg){const q=e.quest;if(!q||!e.human)return;
@@ -2033,13 +2456,13 @@ function questEvent(e,type,arg){const q=e.quest;if(!q||!e.human)return;
   else if(q.type==='box'){if(type!=='box')return}
   else if(!(type==='box'&&arg))return;   // 'water': only a box from the bottom of a pond counts
   if(++q.have<q.n)return;
-  e.quest=null;e.questNext=now()+rand(150,210);gainXp(e,lvlCost(e.lvl)*q.mult);
+  e.quest=null;e.questNext=now()+rand(QU.nextDelay[0],QU.nextDelay[1]);gainXp(e,lvlCost(e.lvl)*q.mult);
   stars(e.x,e.y-16,12,[GOLD,'#9be564','#fff'],240);ring(e.x,e.y+16,8,120,'#9be564',.6);floater(e.x,e.y-96,'QUEST DONE!','#9be564',true);
   questNotify(e,'done','Quest complete! Bonus level reward')}
 function questStep(e,t){if(!e.human||e.state==='eaten'||e.state==='duel')return;
-  if(e.questNext==null)e.questNext=t+rand(90,150);
+  if(e.questNext==null)e.questNext=t+rand(QU.firstDelay[0],QU.firstDelay[1]);
   if(!e.quest){if(t>=e.questNext)startQuest(e,t)}
-  else if(t>=e.quest.end){e.quest=null;e.questNext=t+rand(150,210);questNotify(e,'fail','Quest expired…')}}
+  else if(t>=e.quest.end){e.quest=null;e.questNext=t+rand(QU.nextDelay[0],QU.nextDelay[1]);questNotify(e,'fail','Quest expired…')}}
 function stepEnt(e,dt,t){
   questStep(e,t);
   const st=e.st,bf=e.buff;
@@ -2048,15 +2471,15 @@ function stepEnt(e,dt,t){
   e.dashCd=Math.max(0,e.dashCd-dt);if(bf.rubber>t){e.dashCd=0;e.dashCharges=Math.max(e.dashCharges,1)}e.chomp=Math.max(0,e.chomp-dt);
   if(e.dashCd<=0&&e.dashCharges<st.charges){e.dashCharges++;if(e.dashCharges<st.charges)e.dashCd=DASH_CD*st.dashCd}
   e.sqv+=(-90*e.sq-11*e.sqv)*dt;e.sq=clamp(e.sq+e.sqv*dt,-.42,.42);   // squash & stretch spring
-  if(st.bubble&&e.state!=='eaten'){e.bubbleT+=dt;if(e.bubbleT>=45&&freeSlot(e)>=0){e.bubbleT=0;addItem(e,'shield');if(e.isPlayer){showToast('Iron Bubble ready · press '+SLOT_KEYS[e.items.indexOf('shield')]);sfx.pickup()}}}
-  if(st.fairy&&e.state!=='eaten'){e.fairyT=(e.fairyT||0)+dt;if(e.fairyT>=60&&freeSlot(e)>=0){e.fairyT=0;giveItem(e,t);if(e.isPlayer)sfx.pickup()}}
+  if(st.bubble&&e.state!=='eaten'){e.bubbleT+=dt;if(e.bubbleT>=PK.bubble.every&&freeSlot(e)>=0){e.bubbleT=0;addItem(e,'shield');if(e.isPlayer){showToast('Iron Bubble ready · press '+SLOT_KEYS[e.items.indexOf('shield')]);sfx.pickup()}}}
+  if(st.fairy&&e.state!=='eaten'){e.fairyT=(e.fairyT||0)+dt;if(e.fairyT>=PK.fairy.every&&freeSlot(e)>=0){e.fairyT=0;giveItem(e,t);if(e.isPlayer)sfx.pickup()}}
   if(L(e)>=150&&e.state!=='eaten'&&Math.random()<dt*30)parts.push({k:'sq',x:e.x+rand(-10,10),y:e.y+18,vx:rand(-15,15),vy:-rand(40,90),life:.5,max:.5,c:pick(['#ff6b3d','#ffc93c','#e8475f']),s:rand(4,7)});
   if(L(e)>=350&&e.state!=='eaten'&&Math.hypot(e.vx,e.vy)>60&&Math.random()<dt*12)parts.push({k:'star',x:e.x+rand(-8,8),y:e.y+rand(10,22),vx:rand(-20,20),vy:rand(-10,10),life:.7,max:.7,c:pick([GOLD,'#fff','#ff8fc2','#9fdcff']),s:rand(4,8),rot:Math.random()*3});
   if(bf.rush>t&&Math.random()<dt*14)parts.push({k:'star',x:e.x+rand(-16,16),y:e.y-rand(0,30),vx:0,vy:-30,life:.5,max:.5,c:'#ff8fc2',s:rand(4,7),rot:Math.random()*3});
   let tl=0;
   if(e.state==='eat'){
     e.stateT-=dt;
-    {const w=bf.freeze>t?{ux:0,uy:0,f:0}:e.want,sp=BASE*w.f*st.speed*.35;e.vx+=(w.ux*sp-e.vx)*Math.min(1,10*dt);e.vy+=(w.uy*sp-e.vy)*Math.min(1,10*dt)}
+    {const w=bf.freeze>t?{ux:0,uy:0,f:0}:e.want,sp=BASE*w.f*st.speed*MV.eatingSpeed;e.vx+=(w.ux*sp-e.vx)*Math.min(1,10*dt);e.vy+=(w.uy*sp-e.vy)*Math.min(1,10*dt)}
     const p=clamp(1-e.stateT/e.eatT,0,1),side=e.dir==='left'?-1:1,need=p<.25?0:p<.45?1:p<.65?2:3;
     const fd=FOOD[e.eatFood]||FOOD.apple;
     while(e.bites<need){e.bites++;const soda=fd.drink;
@@ -2064,9 +2487,9 @@ function stepEnt(e,dt,t){
     e.chewT-=dt;if(p>.25&&e.chewT<=0){e.chewT=.1;e.sqv+=e.bites%2?1.4:-1.4}
     if(fd.drink)tl=-side*.13*Math.min(1,p/.25);
     if(e.stateT<=0){e.state='move';e.bites=0;
-      let gn=snackGain(e.lvl)*st.xp*(bf.rush>t?1.5:1)*fd.xp;const jp=Math.random()<st.jackpot;if(jp)gn*=3;
+      let gn=snackGain(e.lvl)*st.xp*(bf.rush>t?1+ITEMS.rush.p.xpBonus*stackN(e,'rush',t):1)*fd.xp;const jp=Math.random()<st.jackpot;if(jp)gn*=PK.jackpot.multiplier;
       if(st.cozy&&houseAt(e.x,e.y))gn*=1+st.cozy;
-      e.chain=t-e.lastEat<4?Math.min(5,e.chain+1):0;e.lastEat=t;if(st.combo&&e.chain){gn*=1+st.combo*e.chain;if(e.isPlayer)floater(e.x-22,e.y-84,'COMBO x'+(e.chain+1),'#ff8fc2')}
+      e.chain=t-e.lastEat<PK.combo.window?Math.min(PK.combo.maxChain,e.chain+1):0;e.lastEat=t;if(st.combo&&e.chain){gn*=1+st.combo*e.chain;if(e.isPlayer)floater(e.x-22,e.y-84,'COMBO x'+(e.chain+1),'#ff8fc2')}
       gainLvl(e,gn);e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);foodFx(e,fd,t);foodPop(e,fd);
       if(e.human)e.snacks=(e.snacks||0)+1;
       if(e.isPlayer){stats.snacks++;floater(e.x,e.y-60,'+'+(gn*100).toFixed(gn<.1?1:0)+'%',GOLD);floater(e.x+18,e.y-84,jp?'JACKPOT!':pick(['YUM!','NOM!','TASTY!']),jp?GOLD:'#fff',jp)}}}
@@ -2074,14 +2497,14 @@ function stepEnt(e,dt,t){
   else if(e.state==='eaten'){e.stateT-=dt;const w=e.eater;if(w){e.x+=(w.x-e.x)*Math.min(1,dt*6);e.y+=(w.y-10-e.y)*Math.min(1,dt*6)}return}
   else{
     const frozen=bf.freeze>t,w=frozen?{ux:0,uy:0,f:0,sprint:false,dash:false}:e.want,turbo=bf.turbo>t,rk=bf.rocket>t;
-    let sp=BASE*w.f*st.speed*(1-Math.min(.15,L(e)/1000))*(turbo?1.4:1)*(timeWarp.until>t&&timeWarp.owner!==e?.45:1)*(swim?.55:1);   // bigger levels are a little slower
+    let sp=BASE*w.f*st.speed*(1-Math.min(MV.slowdownMax,L(e)*MV.slowdownPerLevel))*(turbo?1+ITEMS.turbo.p.speedBonus*stackN(e,'turbo',t):1)*(timeWarp.until>t&&timeWarp.owner!==e?ITEMS.warp.p.slowdown:1)*(swim?MV.swimSpeed:1);   // bigger levels are a little slower
     const spr=w.sprint&&(e.stamina>1||turbo)&&w.f>.2&&!swim;
-    if(spr){sp*=st.sprintx;if(!turbo)e.stamina=Math.max(0,e.stamina-38*dt)}else e.stamina=Math.min(st.staMax,e.stamina+(w.f<.2?30:18)*dt*st.regen);
+    if(spr){sp*=st.sprintx;if(!turbo)e.stamina=Math.max(0,e.stamina-MV.sprintDrain*dt)}else e.stamina=Math.min(st.staMax,e.stamina+(w.f<.2?MV.regenResting:MV.regenMoving)*dt*st.regen);
     e.sprinting=spr;
     if(w.dash&&!swim&&(e.dashCharges>0||rk)&&(!rk||e.dashT<=0)){let dx=w.ux,dy=w.uy;
       if(!dx&&!dy){dx=e.dir==='left'?-1:e.dir==='right'?1:0;dy=e.dir==='up'?-1:e.dir==='down'?1:0}
       if(!rk){e.dashCharges--;if(e.dashCd<=0)e.dashCd=DASH_CD*st.dashCd}
-      e.dashT=rk?.22:.17;e.slideT=.6*st.slide;e.vx=dx*780*st.dashv*(rk?1.35:1);e.vy=dy*780*st.dashv*(rk?1.35:1);
+      const rb=rk?1+ITEMS.rocket.p.dashBoost*stackN(e,'rocket',t):1;e.dashT=rk?MV.dashTime*1.3:MV.dashTime;e.slideT=MV.slideTime*st.slide;e.vx=dx*MV.dashSpeed*st.dashv*rb;e.vy=dy*MV.dashSpeed*st.dashv*rb;
       e.sq=-.3;e.sqv=10;sfx.dash(vol(e));   // crouch, then spring into a stretch
       dust(e.x,e.y+22,10,'#e9dcc0',170,5);ring(e.x,e.y+22,6,52,'#fff',.35);
       if(e.isPlayer){kick=Math.max(kick,.09);shake=Math.max(shake,3)}}
@@ -2105,12 +2528,13 @@ function stepEnt(e,dt,t){
   // you must move away from them AND they must move toward you (dashing past a slow target does not count)
   if(e.state==='move'&&(e.sprinting||e.dashT>0||s>300)){
     for(const o of ents){if(o===e||o.state!=='move')continue;const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);
-      if(d<420&&d>1&&(e.vx*dx+e.vy*dy)/d>80&&(o.vx*dx+o.vy*dy)/d>60)e.fled[o.id]=t+3}}
+      if(d<420&&d>1&&(e.vx*dx+e.vy*dy)/d>80&&(o.vx*dx+o.vy*dy)/d>60)e.fled[o.id]=t+DU.fleeMemory}}
   if(e.state==='move'){
-    const magnet=bf.magnet>t,hole=bf.blackhole>t,vr=Math.max(st.vac,magnet?420:0,hole?1000:0),gr=hole?800:st.nose?380:magnet?280:0;
+    const MG=ITEMS.magnet.p,BH=ITEMS.blackhole.p,mn=bf.magnet>t?stackN(e,'magnet',t):0,hn=bf.blackhole>t?stackN(e,'blackhole',t):0;   // how many magnets / black holes run (stacked items pull harder)
+    const vr=Math.max(st.vac,mn?MG.radius*mn:0,hn?BH.radius*hn:0),gr=Math.max(st.nose?PK.nose.radius:0,mn?MG.boxRadius*mn:0,hn?BH.boxRadius*hn:0),bsp=hn?BH.boxSpeed*hn:mn?MG.boxSpeed*mn:PK.nose.speed;
     const pull=(o,r,sp)=>{const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy);if(d<r&&d>1){const k=Math.min(d,sp*dt)/d;o.x+=dx*k;o.y+=dy*k}};
-    if(vr>0){const sp=hole?900:magnet?540:400;for(let ci=Math.floor((e.x-vr)/FGC);ci<=Math.floor((e.x+vr)/FGC);ci++)for(let cj=Math.floor((e.y-vr)/FGC);cj<=Math.floor((e.y+vr)/FGC);cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(let k=0;k<cell.length;k++)pull(cell[k],vr,sp)}}
-    if(gr>0){for(const b of boxes)if(!b.water)pull(b,gr,420);for(const o of orbs)pull(o,gr,hole?800:420)}
+    if(vr>0){const sp=hn?BH.speed*hn:mn?MG.speed*mn:PK.vacuum.speed;for(let ci=Math.floor((e.x-vr)/FGC);ci<=Math.floor((e.x+vr)/FGC);ci++)for(let cj=Math.floor((e.y-vr)/FGC);cj<=Math.floor((e.y+vr)/FGC);cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(let k=0;k<cell.length;k++)pull(cell[k],vr,sp)}}
+    if(gr>0){for(const b of boxes)if(!b.water)pull(b,gr,bsp);for(const o of orbs)pull(o,gr,bsp)}
     e.boxT=(e.boxT||0)-dt;   // bots only look for gift boxes ten times a second, there are many boxes
     if(e.human||e.boxT<=0){e.boxT=.1;for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];
       if(Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14&&!itemRoom(e)){
@@ -2123,7 +2547,7 @@ function stepEnt(e,dt,t){
     scan:for(let ci=fi-1;ci<=fi+1;ci++)for(let cj=fj-1;cj<=fj+1;cj++){const cell=fgrid.get(ci*1000+cj);if(!cell)continue;
       for(let k=0;k<cell.length;k++){const f=cell[k];if(f.gone)continue;
         if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){f.gone=true;cell.splice(k,1);const at=foods.indexOf(f);if(at>=0)foods.splice(at,1);e.state='eat';
-          e.eatT=EAT_T*st.eatT*(bf.rush>t?.35:1)*(FOOD[f.t]||FOOD.apple).et;e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;questEvent(e,'snack',f.t);e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
+          e.eatT=EAT_T*st.eatT*(bf.rush>t?Math.max(.04,ITEMS.rush.p.eatTime/stackN(e,'rush',t)):1)*(FOOD[f.t]||FOOD.apple).et;e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;questEvent(e,'snack',f.t);e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
           if(st.snackGuard)e.protect=Math.max(e.protect,t+st.snackGuard);break scan}}}}
 }
 const FGC=160;let fgrid=new Map();
@@ -2141,16 +2565,16 @@ function startDuel(a,b,t){a.state='duel';b.state='duel';a.vx=a.vy=b.vx=b.vy=0;
   const kOf=e=>{const i=e.items.findIndex(k=>k==='gkeys')>=0?e.items.indexOf('gkeys'):e.items.indexOf('keys');if(i<0)return false;const k=e.items[i];e.items[i]=null;return k},ka=kOf(a),kb=kOf(b);   // Pro Keyboard is used up by the duel
   if(role==='server'&&(a.human||b.human)){srvStartDuel(a,b,aCaught,bCaught,ka,kb,t);return}
   if(a.isPlayer||b.isPlayer){const p=a.isPlayer?a:b,o=a.isPlayer?b:a;openTypingDuel(p,o,a.isPlayer?aCaught:bCaught,a.isPlayer?bCaught:aCaught,a.isPlayer?ka:kb,a.isPlayer?kb:ka)}
-  else{const la=a.lvl+2,lb=b.lvl+2;let pa=.5-clamp((la-lb)*.006,-.2,.2)+(aCaught?.12:0)-(bCaught?.12:0)+(ka?.1:0)-(kb?.1:0);botDuels.push({a,b,end:t+rand(1.8,3),pa:clamp(pa,.15,.85)})}}
-function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=.6;
+  else{const la=a.lvl+2,lb=b.lvl+2;let pa=.5-clamp((la-lb)*DU.botVsBotLevelEdge,-DU.botVsBotMaxEdge,DU.botVsBotMaxEdge)+(aCaught?DU.caughtEdge:0)-(bCaught?DU.caughtEdge:0)+(ka?DU.keyboardEdge:0)-(kb?DU.keyboardEdge:0);botDuels.push({a,b,end:t+rand(DU.botVsBot[0],DU.botVsBot[1]),pa:clamp(pa,.15,.85)})}}
+function finishDuel(w,l,t){w.state='move';w.protect=t+DU.winnerProtection+w.st.afterwin;w.chomp=.6;
   // you never get everything: a winner takes about half of what the loser collected (less for much weaker victims) and
   // one win is capped at 15 levels of your own; another 20% drops as orbs, the rest is gone
-  const Ll=L(l),Lw=L(w),xpL=xpOf(l.lvl),frac=.5*clamp(Ll/Math.max(1,Lw)*2,.4,1),cap=lvlCost(w.lvl)*15;
-  const slain=l===king,bonus=slain?Math.min(cap,xpL*.2)*w.st.kingx:0,xpGain=Math.max(4,Math.min(cap,xpL*frac*w.st.plunder))+bonus;   // even a beginner is worth at least 2 snacks
-  dropOrbs(l.x,l.y,xpL*.2);
+  const Ll=L(l),Lw=L(w),xpL=xpOf(l.lvl),frac=DU.winnerShare*clamp(Ll/Math.max(1,Lw)*2,DU.weakVictimFloor,1),cap=lvlCost(w.lvl)*DU.winCap;
+  const slain=l===king,bonus=slain?Math.min(cap,xpL*DU.kingBonusShare)*w.st.kingx:0,xpGain=Math.max(DU.minWinXp,Math.min(cap,xpL*frac*w.st.plunder))+bonus;   // even a beginner is worth at least 2 snacks
+  dropOrbs(l.x,l.y,xpL*DU.orbShare);
   const gained=()=>{const b=w.lvl;gainXp(w,xpGain);return w.lvl-b};
   if(l.items.indexOf('angel')>=0){   // Angel Feather: you lose the duel but not your life
-    l.items[l.items.indexOf('angel')]=null;l.lvl=Math.max(1,l.lvl*.5);l.state='move';l.protect=t+3;l.sqv+=5;floater(l.x,l.y-100,'ANGEL SAVED YOU!','#fff',true);ring(l.x,l.y,10,120,'#fff',.6);stars(l.x,l.y-16,10,['#fff',GOLD],220);
+    l.items[l.items.indexOf('angel')]=null;l.lvl=Math.max(1,l.lvl*ITEMS.angel.p.keepShare);l.state='move';l.protect=t+3;l.sqv+=5;floater(l.x,l.y-100,'ANGEL SAVED YOU!','#fff',true);ring(l.x,l.y,10,120,'#fff',.6);stars(l.x,l.y-16,10,['#fff',GOLD],220);
     if(l.isPlayer){$('hud').hidden=false;sfx.perk();showToast('Angel Feather saved you')}
     gained();return}
   if(l.isPlayer)respawnLvl=Math.max(1,Math.floor(Ll*l.st.keep));
@@ -2159,7 +2583,7 @@ function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=
   l.state='eaten';l.stateT=.7;l.eater=w;
   burst(l.x,l.y-10,22,['#fff',GOLD,'#ff8fc2','#3db5ff'],240);stars(l.x,l.y-10,12,[GOLD,'#fff','#ff8fc2','#3db5ff'],280);
   ring(w.x,w.y,10,90,GOLD,.5);w.sqv+=6;
-  if(w.st.adren){w.dashCharges=w.st.charges;w.dashCd=0;w.stamina=w.st.staMax;if(w.st.adren>1)w.buff.turbo=t+3}
+  if(w.st.adren){w.dashCharges=w.st.charges;w.dashCd=0;w.stamina=w.st.staMax;if(w.st.adren>1)addBuff(w,'turbo',PK.adrenaline.turbo,t)}
   const ls=firstItem(l);
   if(ls>=0&&w.st.thief&&Math.random()<w.st.thief&&freeSlot(w)>=0){addItem(w,l.items[ls]);l.items[ls]=null;w.ai.itemAt=t+rand(2,6);floater(w.x,w.y-150,'ITEM STOLEN!','#fff',true)}
   floater(w.x,w.y-104,'CHOMP!','#fff',true);const gl=gained();floater(w.x,w.y-80,'+'+(gl>=10?gl.toFixed(0):gl.toFixed(1))+' LV',GOLD,true);
@@ -2176,16 +2600,17 @@ function advOf(a,b,t){const [ps,os]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.
   const free=(me,op)=>me.st.warm+(me.st.head-op.st.head)/1.5+(me.st.flow?.5:0)-(op.st.flow?.5:0)+(me.st.forgive-op.st.forgive)*.3;
   return Math.round((os.n-free(b,a))-(ps.n-free(a,b)))}
 // both players always get the same base length: the more is at stake (high levels, big level gap) the longer it is. Only items, perks and running away change it.
-const stakeWords=(a,b)=>clamp(3+Math.floor((L(a)+L(b))/24)+Math.floor(Math.abs(L(a)-L(b))/10),3,20);
+const stakeWords=(a,b)=>clamp(DU.baseWords+Math.floor((L(a)+L(b))/Math.max(1,DU.levelSumDivisor))+Math.floor(Math.abs(L(a)-L(b))/Math.max(1,DU.gapDivisor)),DU.minWords,DU.maxWords);
 // a higher level is an advantage on its own, so the LOWER level player gets fewer words: about 1 per 9 levels of difference (at least 1 from a gap of 4, at most 30% of the phrase)
-function gapCut(me,op){const d=L(op)-L(me);if(d<4)return 0;return clamp(Math.round(d/9),1,Math.max(1,Math.ceil(stakeWords(me,op)*.3)))}
-function sentenceWords(me,op,caught,kb){const base=stakeWords(me,op),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
-    under=(L(op)>L(me)?me.st.underdog:0)+gapCut(me,op),curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*.3)):kb?1:0;
-  return{n:clamp(base-chase-perk-under+curse-key,2,26),base,chase,perk,key,curse,under}}
+function gapCut(me,op){const d=L(op)-L(me);if(d<DU.gapFrom)return 0;return clamp(Math.round(d/Math.max(1,DU.gapLevelsPerWord)),1,Math.max(1,Math.ceil(stakeWords(me,op)*DU.gapMaxShare)))}
+function sentenceWords(me,op,caught,kb){const base=stakeWords(me,op),chase=caught?Math.max(0,DU.caughtWords-op.st.slippery):0,perk=me.st.short,
+    under=(L(op)>L(me)?me.st.underdog:0)+gapCut(me,op),curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*ITEMS.gkeys.p.share)):kb?ITEMS.keys.p.words:0;
+  return{n:clamp(base-chase-perk-under+curse-key,DU.shortestPhrase,DU.longestPhrase),base,chase,perk,key,curse,under}}
+const botWpm=e=>clamp(DU.botWpm+e.skill+Math.min(L(e)*DU.botWpmPerLevel,DU.botWpmMaxLevelBonus)+rand(-3,3),DU.botWpmMin,DU.botWpmMax);   // how fast a bot types
 function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   const [ps,os]=duelWords(p,o,pCaught,oCaught,pKb,oKb);
   const text=makePhrase(ps.n),otext=makePhrase(os.n);
-  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:clamp(32+o.skill+Math.min(L(o)*.06,14)+rand(-3,3),18,100),phase:'count',countT:5.6,start:0,oStep:0,lastN:'READY?',streak:0,forgive:p.st.forgive,warm:p.st.warm,delay:p.st.head,flow:p.st.flow,run:0};
+  duel={p,o,text,typed:'',oLen:otext.length,oProg:0,wpm:botWpm(o),phase:'count',countT:Math.max(3,DU.countdown),start:0,oStep:0,lastN:'READY?',streak:0,forgive:p.st.forgive,warm:p.st.warm,delay:p.st.head,flow:p.st.flow,run:0};
   presentDuel(p,o,ps,os,text,duelBanner(pCaught,oCaught,ps,os,o.name))}
 function presentDuel(p,o,ps,os,text,banner){
   $('dMe').innerHTML=esc2(p.name)+' <small>Lv '+L(p)+' · '+ps.n+' words</small>';$('dOp').innerHTML=esc2(o.name)+' <small>Lv '+L(o)+' · '+os.n+' words</small>';
@@ -2243,7 +2668,7 @@ function updateDuel(dt,t){
     const st2=Math.floor(duel.oProg/5);if(st2>duel.oStep){duel.oStep=st2;duel.o.sqv+=1.6;burst(duel.o.x+rand(-10,10),duel.o.y-28,2,['#e8475f','#fff'],80)}
     return}
   duel.delay-=dt;   // Head Start: the opponent begins typing late
-  const slow=duel.flow&&duel.streak>=20?.7:1;
+  const slow=duel.flow&&duel.streak>=PK.flow.streak?PK.flow.slowdown:1;
   if(duel.delay<=0)duel.oProg+=duel.wpm*5/60*dt*rand(.6,1.4)*slow;
   const step=Math.floor(duel.oProg/5);if(step>duel.oStep){duel.oStep=step;duel.o.sqv+=1.6;burst(duel.o.x+rand(-10,10),duel.o.y-28,2,['#e8475f','#fff'],80)}
   $('dOpBar').style.width=Math.min(100,duel.oProg/duel.oLen*100)+'%';
@@ -2254,15 +2679,15 @@ function updateDuel(dt,t){
 let fgT=0,stockT=0,stockOut=0,stockIn=0,boxOut=0,boxIn=0,boxWater=0,boardT=0,kingT=0,king=null,respawnLvl=1,overUI=false;
 function update(dt,t){
   stockT-=dt;if(stockT<=0){stockT=.25;stockOut=foods.reduce((n,f)=>n+(f.inside?0:1),0);stockIn=foods.length-stockOut;boxWater=boxes.reduce((n,b)=>n+(b.water?1:0),0);boxOut=boxes.reduce((n,b)=>n+(b.inside||b.water?0:1),0);boxIn=boxes.length-boxOut-boxWater}
-  if(boxOut<BOX_OUT&&Math.random()<dt*.5){spawnBox(false);boxOut++}
-  if(boxIn<BOX_IN&&Math.random()<dt*.5){spawnBox(true);boxIn++}
-  if(boxWater<WATER_BOX&&Math.random()<dt*.1){spawnWaterBox();boxWater++}
+  if(boxOut<BOX_OUT&&Math.random()<dt*CFG.spawn.boxRefillOutside){spawnBox(false);boxOut++}
+  if(boxIn<BOX_IN&&Math.random()<dt*CFG.spawn.boxRefillInside){spawnBox(true);boxIn++}
+  if(boxWater<WATER_BOX&&Math.random()<dt*CFG.spawn.boxRefillUnderwater){spawnWaterBox();boxWater++}
   for(const o of orbs){o.x+=o.vx*dt;o.y+=o.vy*dt;o.vx*=.92;o.vy*=.92;o.life-=dt}orbs=orbs.filter(o=>o.life>0);
   kingT-=dt;if(kingT<=0){kingT=.25;let best=null;for(const e of ents)if(e.state!=='eaten'&&(!best||e.lvl>best.lvl))best=e;
-    const nk=best&&L(best)>=8?best:null;
+    const nk=best&&L(best)>=LV.kingMinLevel?best:null;
     if(nk!==king){if(player&&nk===player){showToast('You are the KING! Everyone hunts you');sfx.king()}else if(player&&king===player&&game==='play')showToast('You lost the crown');king=nk}}
-  if(stockOut<FOOD_OUT&&Math.random()<dt*8){spawnFood(false);stockOut++}
-  if(stockIn<FOOD_IN&&Math.random()<dt*2){spawnFood(true);stockIn++}
+  if(stockOut<FOOD_OUT&&Math.random()<dt*CFG.spawn.snackRefillOutside){spawnFood(false);stockOut++}
+  if(stockIn<FOOD_IN&&Math.random()<dt*CFG.spawn.snackRefillInside){spawnFood(true);stockIn++}
   fgT-=dt;if(fgT<=0){fgT=.1;fgBuild()}
   if(player&&(player.state==='move'||player.state==='eat')&&game==='play'){
     const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);
@@ -2273,7 +2698,7 @@ function update(dt,t){
   // duel triggers
   for(let i=0;i<ents.length;i++){const a=ents[i];if((a.state!=='move'&&a.state!=='eat')||t<a.protect)continue;
     for(let j=i+1;j<ents.length;j++){const b=ents[j];if((b.state!=='move'&&b.state!=='eat')||t<b.protect)continue;
-      if(Math.abs(a.x-b.x)<36&&Math.abs(a.y-b.y)<36&&Math.hypot(a.x-b.x,a.y-b.y)<34){if((a.isPlayer||b.isPlayer)&&duel)continue;
+      if(Math.abs(a.x-b.x)<DU.touchDistance+2&&Math.abs(a.y-b.y)<DU.touchDistance+2&&Math.hypot(a.x-b.x,a.y-b.y)<DU.touchDistance){if((a.isPlayer||b.isPlayer)&&duel)continue;
         if((a.st.phase&&a.dashT>0)||(b.st.phase&&b.dashT>0))continue;   // Phase Dash
         startDuel(a,b,t);break}}}
   for(const d of botDuels)if(t>=d.end){d.done=true;Math.random()<d.pa?finishDuel(d.a,d.b,t):finishDuel(d.b,d.a,t)}
@@ -2282,7 +2707,7 @@ function update(dt,t){
   // remove eaten bots, respawn
   for(const e of ents)if(e.state==='eaten'&&!e.human&&e.stateT<=0)e.gone=true;
   ents=ents.filter(e=>!e.gone);
-  if(ents.filter(e=>!e.human).length<BOTS&&Math.random()<dt*.8)spawnBot(t);
+  if(ents.filter(e=>!e.human).length<BOTS&&Math.random()<dt*CFG.players.botRespawn)spawnBot(t);
   if(deadT>0){deadT-=dt;if(deadT<=0)showDeath()}
   if(role==='server'){parts.length=0;floaters.length=0;skids.length=0;return}
   updateVisuals(dt,t)}
@@ -2318,7 +2743,7 @@ function updateHud(t){const p=player,l=L(p),st=p.st,dcd=DASH_CD*st.dashCd;
   for(let i=0;i<SLOTS;i++){const k=p.items[i],it=k?ITEMS[k]:null,el=islots[i],sig=k||'';
     if(el._k!==sig){el._k=sig;el.className='islot'+(it?' has t'+it.tier+(it.auto?' auto':''):'');el.querySelector('.ii').textContent=it?it.icon:'';el.querySelector('.in').textContent=it?it.name:'empty';
       el.querySelector('.it').textContent=it?(it.auto?'auto':TIERS[it.tier].n):'';el.title=it?it.name+': '+it.d:'Pick up gift boxes to fill a slot'}}
-  $('buffs').textContent=Object.keys(p.buff).filter(k=>p.buff[k]>t).map(k=>ITEMS[k].icon+Math.ceil(p.buff[k]-t)+'s').join(' ');
+  $('buffs').textContent=Object.keys(p.buff).filter(k=>p.buff[k]>t&&ITEMS[k]).map(k=>{const n=stackN(p,k,t);return ITEMS[k].icon+(n>1?'×'+n+' ':'')+Math.ceil(p.buff[k]-t)+'s'}).join(' ');
   $('kingbar').hidden=king!==p;
   const sb=$('statusbar');   // always tell the player when something is slowing or freezing them
   if(p.buff.freeze>t){sb.hidden=false;sb.textContent='🧊 FROZEN '+Math.ceil(p.buff.freeze-t)+'s'}
@@ -2374,13 +2799,13 @@ function drawMini(){const c=300,k=c/WORLD;if(miniSeed!==WORLD_SEED)makeMiniBg();
   mctx.fillStyle='#ff6b3d';mctx.beginPath();mctx.arc(player.x*k,player.y*k,6,0,6.3);mctx.fill()}
 
 /* ---------- multiplayer, server side: runs headless in Node (server/server.js) ---------- */
-const STATE_I={move:0,eat:1,duel:2,eaten:3}, DIR_I={down:0,up:1,left:2,right:3}, SNAP_EVERY=3;   // 60 Hz simulation, 20 Hz snapshots
+const STATE_I={move:0,eat:1,duel:2,eaten:3}, DIR_I={down:0,up:1,left:2,right:3}, SNAP_EVERY=Math.max(1,Math.round(60/Math.max(1,CFG.network.updatesPerSecond)));   // 60 Hz simulation, 20 Hz snapshots by default
 const humans=new Map(), sds=[];
 let outbox=[], tickN=0, boardAt=0;
 const send=(h,o)=>{if(h&&h.alive)outbox.push([h.cid,o])};
 const isFleeing=(e,t)=>{for(const k in e.fled)if(e.fled[k]>t)return true;return false};
 function srvSpawn(h,lvl,t){
-  const e=makeEnt(h.name,lvl,false,t);e.human=true;if(h.look)Object.assign(e,h.look);e.protect=t+4;e.top=L(e);e.won=0;e.snacks=0;e.respawnLvl=1;
+  const e=makeEnt(h.name,lvl,false,t);e.human=true;if(h.look)Object.assign(e,h.look);e.protect=t+CFG.players.onlineSpawnProtection;e.top=L(e);e.won=0;e.snacks=0;e.respawnLvl=1;
   e.want={ux:0,uy:0,f:0,sprint:false,dash:false};e.h=h;h.e=e;h.dead=false;h.offer=null;h.perksDirty=true;h.dashQ=h.useQ=false;
   if(h.near){const f=[...humans.values()].find(o=>o!==h&&o.e&&o.e.state!=='eaten'&&o.name===h.near);   // a friend asked to join next to someone
     if(f){for(let i=0;i<40;i++){const a=Math.random()*6.28,r=rand(200,380),x=clamp(f.e.x+Math.cos(a)*r,60,WORLD-60),y=clamp(f.e.y+Math.sin(a)*r,60,WORLD-60);if(!wallHit(x,y,30)&&!waterAt(x,y)){e.x=x;e.y=y;break}}}
@@ -2389,7 +2814,7 @@ function srvSpawn(h,lvl,t){
 function srvJoin(cid,name,look,near){
   const nm=String(name||'').replace(/[^\w .\-]/g,'').trim().slice(0,14)||'Player';
   const h={cid,name:nm,look:cleanLook(look),near:String(near||'').slice(0,14),alive:true,e:null,known:new Set(),inp:{ux:0,uy:0,f:0,sp:false},dashQ:false,useQ:false,offer:null,dead:false,perksDirty:true};
-  humans.set(cid,h);send(h,{t:'welcome',seed:WORLD_SEED,hz:60,snap:SNAP_EVERY,build:BUILD});srvSpawn(h,1,now());return h}
+  humans.set(cid,h);send(h,{t:'welcome',seed:WORLD_SEED,hz:60,snap:SNAP_EVERY,build:BUILD,cfg:CFGID});srvSpawn(h,1,now());return h}
 function srvLeave(cid){
   const h=humans.get(cid);if(!h)return;h.alive=false;humans.delete(cid);const e=h.e;if(!e)return;
   const sd=e.sd;if(sd&&!sd.done){const o=sd.a===e?sd.b:sd.a;sd.done=true;o.sd=null;o.state='move';o.protect=now()+2;if(o.human)send(o.h,{t:'dend',win:true,gain:0,left:true})}
@@ -2425,8 +2850,8 @@ function duelBanner(pCaught,oCaught,ps,os,oName){
   return{main,sub,cls}}
 function srvStartDuel(a,b,aC,bC,ka,kb,t){
   const [ps,os]=duelWords(a,b,aC,bC,ka,kb),ta=makePhrase(ps.n),tb=makePhrase(os.n);
-  const sd={a,b,ta,tb,pa:0,pb:0,sa:0,sb:0,da:false,db:false,phase:'count',countT:5.6,start:0,born:t,pt:0,done:false,
-    wa:clamp(32+a.skill+L(a)*.1+rand(-3,3),18,100),wb:clamp(32+b.skill+L(b)*.1+rand(-3,3),18,100),dla:b.human?b.st.head:0,dlb:a.human?a.st.head:0};   // Head Start delays a bot opponent
+  const sd={a,b,ta,tb,pa:0,pb:0,sa:0,sb:0,da:false,db:false,phase:'count',countT:Math.max(3,DU.countdown),start:0,born:t,pt:0,done:false,
+    wa:botWpm(a),wb:botWpm(b),dla:b.human?b.st.head:0,dlb:a.human?a.st.head:0};   // Head Start delays a bot opponent
   a.sd=b.sd=sd;sds.push(sd);
   if(a.human)send(a.h,{t:'duel',opp:b.id,text:ta,myN:ps.n,oppN:os.n,oLen:tb.length,banner:duelBanner(aC,bC,ps,os,b.name)});
   if(b.human)send(b.h,{t:'duel',opp:a.id,text:tb,myN:os.n,oppN:ps.n,oLen:ta.length,banner:duelBanner(bC,aC,os,ps,a.name)})}
@@ -2444,10 +2869,10 @@ function srvDuels(dt,t){
     let win=null;
     for(const s of ['a','b']){const o=s==='a'?'b':'a',me=sd[s],op=sd[o];
       if(me.human){if(sd['d'+s])win=win||s}
-      else{sd['dl'+s]-=dt;const slow=op.human&&op.st.flow&&sd['s'+o]>=20?.7:1;
+      else{sd['dl'+s]-=dt;const slow=op.human&&op.st.flow&&sd['s'+o]>=PK.flow.streak?PK.flow.slowdown:1;
         if(sd['dl'+s]<=0)sd['p'+s]+=sd['w'+s]*5/60*dt*rand(.6,1.4)*slow;
         if(sd['p'+s]>=sd['t'+s].length)win=win||s}}
-    if(!win&&t-sd.born>90)win=sd.pa/sd.ta.length>=sd.pb/sd.tb.length?'a':'b';   // nobody finished: the one further ahead wins
+    if(!win&&t-sd.born>DU.timeout)win=sd.pa/sd.ta.length>=sd.pb/sd.tb.length?'a':'b';   // nobody finished: the one further ahead wins
     if(win){srvEndDuel(sd,win,t);continue}
     sd.pt-=dt;if(sd.pt<=0){sd.pt=.1;for(const s of ['a','b'])if(sd[s].human){const o=s==='a'?'b':'a';send(sd[s].h,{t:'dprog',o:Math.min(1,sd['p'+o]/sd['t'+o].length)})}}}
   for(let i=sds.length-1;i>=0;i--)if(sds[i].done)sds.splice(i,1)}
@@ -2459,12 +2884,13 @@ function srvRec(e,t,full,me){
   if(e.state==='eaten'){r.et=+e.stateT.toFixed(2);if(e.eater)r.er=e.eater.id}
   const pr=e.protect-t;if(pr>0)r.pr=+pr.toFixed(1);
   for(const k in e.buff){const v=e.buff[k]-t;if(v>0)(r.b=r.b||{})[k]=+v.toFixed(1)}
+  if(e.stk)for(const k in e.stk){const n=stackN(e,k,t);if(n>1)(r.bn=r.bn||{})[k]=n}
   if(isFleeing(e,t))r.fl=1;
   if(me&&e!==me&&(e.state==='move'||e.state==='eat')&&Math.abs(e.x-me.x)<700&&Math.abs(e.y-me.y)<700)r.dl=advOf(me,e,t);
   if(full)r.f={name:e.name,skin:e.skin,shirt:e.shirt,hair:e.hair,pants:e.pants,hs:e.hs,acc:e.acc,acol:e.acol,sty:e.sty,shorts:e.shorts,shoes:e.shoes};
   return r}
 function srvSnapshot(h,t){
-  const me=h.e,R=1250,R2=1150,known=new Set(),m={t:'s',e:[],f:[],b:[],o:[]};
+  const me=h.e,R=CFG.network.viewRadius,R2=CFG.network.dataRadius,known=new Set(),m={t:'s',e:[],f:[],b:[],o:[]};
   for(const e of ents){if(Math.abs(e.x-me.x)>R||Math.abs(e.y-me.y)>R)continue;known.add(e.id);m.e.push(srvRec(e,t,!h.known.has(e.id),me))}
   h.known=known;
   for(const f of foods)if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2)m.f.push([f.x|0,f.y|0,(FOOD[f.t]||FOOD.apple).i]);
@@ -2490,7 +2916,7 @@ function srvStep(dt){
   if(tickN%SNAP_EVERY===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
+if(role==='server')globalThis.__sim={join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,boxes,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
@@ -2512,7 +2938,7 @@ function joinGame(addrArg,near){
   attachSock(sock,name,near);
   sock.onerror=()=>{if(role!=='client'){loadingHide();$('mpstatus').textContent='Could not reach '+addr+'. Is the server running, and are you on the same network?'}}}
 /* ---------- loading screen: shown from pressing Play/Join until the first update from the game arrives ---------- */
-const TIPS=['Tip: look at the green or red number over a player before you touch them.','Tip: press F8 any time to send a bug report.','Tip: Q W E (later R T Z U) use your item slots. More slots unlock at Lv 12, 30, 60 and 100.','Tip: the mouse wheel zooms, zooming out unlocks with your level.','Tip: yellow mats are doors. Houses block the view.','Tip: gift boxes also hide at the bottom of ponds.'];
+const TIPS=['Tip: look at the green or red number over a player before you touch them.','Tip: press F8 any time to send a bug report.','Tip: Q W E (later R T Z U) use your item slots. More slots unlock as you level up.','Tip: the mouse wheel zooms, zooming out unlocks with your level.','Tip: yellow mats are doors. Houses block the view.','Tip: gift boxes also hide at the bottom of ponds.'];
 let loadTimer=0,joinQ=null,playTok=0;
 const nextFrame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));   // let the browser paint the loading screen before heavy work blocks it
 function loadingShow(t,sub){$('loading').hidden=false;$('loadt').textContent=t;$('loads').textContent=sub||pick(TIPS);clearTimeout(loadTimer);
@@ -2529,7 +2955,7 @@ function attachSock(sock,name,near){
    as server/server.js) and the others connect to it over WebRTC. The free PeerJS broker only introduces the browsers to each other. */
 const PeerC=typeof Peer!=='undefined'?Peer:null;
 const P2P={peer:null,worker:null,conns:new Map(),nextCid:1,isHost:false,players:[],poll:0,state:'unknown',hostName:'',slot:0};
-const LOBBY_SLOTS=8, LOBBY_MAX=12;   // up to 8 games per room name, 12 players per browser-hosted game (the host's upload is the limit)
+const LOBBY_SLOTS=Math.max(1,Math.min(20,Math.round(CFG.players.gamesPerRoom))), LOBBY_MAX=Math.max(1,Math.min(60,Math.round(CFG.players.maxPerGame)));   // up to 8 games per room name, 12 players per browser-hosted game (the host's upload is the limit)
 const peerIdFor=slot=>'typebite-'+(($('room').value||'public').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20)||'public')+'-'+slot;
 const peerOpts=()=>Object.assign({},(typeof window!=='undefined'&&window.SNACK_PEER)||{});
 const WORKER_PRE='self.__SERVER__=true;self.window=self;const __stub=()=>{const f=function(){};return new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>"";if(k==="then")return undefined;if(k in t)return t[k];return __stub()},set(t,k,v){t[k]=v;return true},apply(){return __stub()},construct(){return __stub()}})};self.document=__stub();self.Audio=__stub();self.localStorage={getItem:()=>null,setItem(){}};self.innerWidth=1280;self.innerHeight=720;self.devicePixelRatio=1;self.requestAnimationFrame=()=>0;self.matchMedia=()=>({matches:false});\n';
@@ -2542,7 +2968,7 @@ setInterval(()=>{const n=performance.now(),dt=Math.min(.05,(n-last)/1000);last=n
 onmessage=e=>{const d=e.data;try{if(d.join)sim.join(d.cid,d.name,d.look,d.near);else if(d.leave)sim.leave(d.cid);else if(d.msg)sim.msg(d.cid,d.msg);else if(d.q)postMessage({players:sim.players(),ms})}catch(e2){err(e2,'host server message')}}})();`;
 function fromClient(cid,m,st){if(m.t==='join'&&!st.joined){st.joined=true;P2P.worker.postMessage({join:1,cid,name:m.name,look:m.look,near:m.near})}else if(st.joined)P2P.worker.postMessage({cid,msg:m})}
 function startWorker(){
-  const w=new Worker(URL.createObjectURL(new Blob([WORKER_PRE+SELF_CODE+WORKER_POST],{type:'text/javascript'})));
+  const w=new Worker(URL.createObjectURL(new Blob([WORKER_PRE+'self.TYPEBITE_CONFIG='+JSON.stringify(CFG)+';\n'+SELF_CODE+WORKER_POST],{type:'text/javascript'})));
   P2P.worker=w;P2P.isHost=true;
   w.onmessage=e=>{const d=e.data;
     if(d.out)for(const [cid,str] of d.out){const c=P2P.conns.get(cid);if(!c)continue;if(c.local){if(c.sock.onmessage)c.sock.onmessage({data:str})}else if(c.conn.open){try{c.conn.send(str)}catch(_){}}}
@@ -2614,8 +3040,8 @@ function onNet(m){lastNet=now();
   switch(m.t){
     case 'full':{const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();loadingHide();$('mpstatus').textContent='That game is full. Pick another one or press Play to start your own.';return}
     case 'welcome':
-      if(m.build!==BUILD){const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();
-        loadingHide();$('mpstatus').textContent='This game runs a different version ('+(m.build||'older')+' instead of '+BUILD+'). Everyone needs the same index.html: download the newest one.';return}
+      if(m.build!==BUILD||(m.cfg&&m.cfg!==CFGID)){const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();
+        loadingHide();$('mpstatus').textContent=m.build!==BUILD?'This game runs a different version ('+(m.build||'older')+' instead of '+BUILD+'). Everyone needs the same index.html: download the newest one.':'This game uses different game settings (config.js) than your page. Reload the page; if it stays like this the host edited the settings.';return}
       joinQ=[];loadingShow('Building the world…','The map is big, this takes a moment.');
       {const tok=playTok;setTimeout(()=>{if(tok!==playTok){joinQ=null;return}try{enterClientMode(m.seed)}finally{const q=joinQ||[];joinQ=null;for(const x of q)onNet(x)}},50)}break;
     case 's':applySnap(m);break;
@@ -2646,14 +3072,14 @@ function resetSoloWorld(){
   for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
   {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}}
 function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,shorts:f.shorts,shoes:f.shoes,
-  perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
+  perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,smoke:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
   x:r.x,y:r.y,tx:r.x,ty:r.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,dashT:0,slideT:0,sprinting:false,fled:{},protect:0,ghosts:[],ghostT:0,chomp:0,
   sq:0,sqv:0,lean:0,skidT:0,bites:0,chewT:0,lastStep:0,lvl:1,ep:0,isPlayer:false,human:false,snapAt:now(),_st:'move',_dash:false};
   calcStats(e);return e}
 function recToEnt(e,r,t){
   e.snapAt=t;e.tx=r.x;e.ty=r.y;e.vx=r.vx;e.vy=r.vy;e.dir=DIRS[r.d]||'down';e.state=STATES[r.s]||'move';e.lvl=r.l;
   e.dashing=!!r.da;e.dashT=e.dashing?.1:0;e.slideT=r.sl?.4:0;e.sprinting=!!r.sp;e.chomp=r.ch?.3:0;e.human=!!r.h;e.adv=r.dl;
-  e.protect=t+(r.pr||0);for(const k in e.buff)e.buff[k]=t+((r.b&&r.b[k])||0);e.fled=r.fl?{x:t+1}:{};
+  e.protect=t+(r.pr||0);for(const k in e.buff)e.buff[k]=t+((r.b&&r.b[k])||0);e.bn=r.bn||null;e.fled=r.fl?{x:t+1}:{};
   if(e.state==='eat'){e.eatFood=r.ef;e.ep=r.ep||0;e.stateT=e.eatT*(1-e.ep)}
   if(e.state==='eaten'){e.stateT=r.et||0;e.eater=cl.get(r.er)||null}}
 function applySnap(m){
@@ -2676,8 +3102,8 @@ function applySnap(m){
   const isKing=!!(player&&m.k&&m.k.id===myId);
   if(isKing&&!wasKing){showToast('You are the KING! Everyone hunts you');sfx.king()}else if(!isKing&&wasKing&&player)showToast('You lost the crown');
   wasKing=isKing}
-const ITEM_RESULT={apple:'+4 snacks of level',ticket:'+10 snacks of level',crystal:'+3 levels!',energy:'Stamina full, dash ready',clover:'Next 3 boxes are luckier',bomb:'Snacks everywhere!',teleport:'Whoosh!',sticky:'Gloves used',shock:'Everyone pushed away',nova:'SUPERNOVA!',freeze:'Everyone nearby is frozen',warp:'Everybody else is slow',smoke:'You are hidden',shield:'Nobody can duel you',magnet:'Snacks fly to you',turbo:'Turbo!',rush:'Sugar Rush!',radar:'Radar on: see the minimap',rocket:'Rocket Boots!',rubber:'Dash without cooldown',blackhole:'Black Hole!',keys:'Keyboard used',gkeys:'Golden Keyboard used',angel:'Angel Feather used'};
-const ITEM_RING={shock:400,nova:520,freeze:340,warp:420,blackhole:300,bomb:170,teleport:120};
+const ITEM_RESULT={apple:'+'+ITEMS.apple.p.xp+' snacks of level',ticket:'+'+ITEMS.ticket.p.xp+' snacks of level',crystal:'+'+ITEMS.crystal.p.levels+' levels!',energy:'Stamina full, dash ready',clover:'Next '+ITEMS.clover.p.boxes+' boxes are luckier',bomb:'Snacks everywhere!',teleport:'Whoosh!',sticky:'Gloves used',shock:'Everyone pushed away',nova:'SUPERNOVA!',freeze:'Everyone nearby is frozen',warp:'Everybody else is slow',smoke:'You are hidden',shield:'Nobody can duel you',magnet:'Snacks fly to you',turbo:'Turbo!',rush:'Sugar Rush!',radar:'Radar on: see the minimap',rocket:'Rocket Boots!',rubber:'Dash without cooldown',blackhole:'Black Hole!',keys:'Keyboard used',gkeys:'Golden Keyboard used',angel:'Angel Feather used'};
+const ITEM_RING={shock:ITEMS.shock.p.radius,nova:ITEMS.nova.p.radius,freeze:ITEMS.freeze.p.radius,warp:420,blackhole:300,bomb:ITEMS.bomb.p.maxRadius,teleport:120};
 function itemUsedFx(p,k){const it=ITEMS[k];if(!it)return;const T=TIERS[it.tier];   // on a client the effect itself runs on the server: show it here
   sfx.item();flash();floater(p.x,p.y-72,it.icon+' '+it.name,'#fff',true);floater(p.x,p.y-100,ITEM_RESULT[k]||'Used!',T.c,false);
   ring(p.x,p.y+18,8,ITEM_RING[k]||90,T.c,.5);stars(p.x,p.y-16,5+it.tier*3,[T.c,'#fff',GOLD],170+it.tier*50);p.sqv+=4;
@@ -2747,7 +3173,7 @@ function renderBoardNet(m){
 function tryOpenDuel(){if(pendingDuel&&player&&cl.get(pendingDuel.opp)){const m=pendingDuel;pendingDuel=null;openNetDuel(m)}}
 function openNetDuel(m){
   const o=cl.get(m.opp);if(!player||!o)return;
-  duel={p:player,o,text:m.text,typed:'',oLen:m.oLen,oProg:0,wpm:0,phase:'count',countT:5.6,start:0,oStep:0,lastN:'READY?',streak:0,forgive:player.st.forgive,warm:player.st.warm,delay:0,flow:false,net:true,waiting:false};
+  duel={p:player,o,text:m.text,typed:'',oLen:m.oLen,oProg:0,wpm:0,phase:'count',countT:Math.max(3,DU.countdown),start:0,oStep:0,lastN:'READY?',streak:0,forgive:player.st.forgive,warm:player.st.warm,delay:0,flow:false,net:true,waiting:false};
   presentDuel(player,o,{n:m.myN},{n:m.oppN},m.text,m.banner)}
 function endNetDuel(m){
   if(!duel)return;const t=now(),w=liveWpm(t);stats.best=Math.max(stats.best,m.win?w:0);const {p}=duel;duel=null;
@@ -3084,7 +3510,7 @@ function drawEnt(e,t){
   if(e.slideT>0&&e.dashT<=0&&spd>230)sy*=.86;
   const puff=e.state==='eat'?Math.abs(Math.sin(t*20))*.03:0;
   if(!e.swim){ctx.fillStyle='rgba(43,33,64,.22)';ctx.beginPath();ctx.ellipse(e.x,e.y+23,17*sc*(1+Math.max(0,-e.sq)*.4),6*sc,0,0,6.3);ctx.fill()}
-  const lv=L(e),hid=e.buff.hide>t;
+  const lv=L(e),hid=e.buff.smoke>t;
   let advGood=null,advM=0,advAl=0;
   if(e.adv&&!e.isPlayer&&!hid&&(e.state==='move'||e.state==='eat')){   // green = you type fewer words than them, red = more
     advGood=e.adv>0;advM=Math.min(3,Math.abs(e.adv));advAl=clamp((640-Math.hypot(e.x-(player?player.x:e.x),e.y-(player?player.y:e.y)))/300,0,1);
@@ -3210,7 +3636,7 @@ function render(t){
       default:ctx.fillStyle=p.c;ctx.fillRect(p.x-p.s/2,p.y-p.s/2,p.s,p.s)}}
   ctx.globalAlpha=1;
   for(const h of houses)if(inView(h.x+h.w/2,h.y+h.h/2,400))drawRoof(h);
-  for(const e of vis){if(e.state==='eaten'||e.state==='duel'||(e.buff.hide>t&&!e.isPlayer))continue;const hh=houseAt(e.x,e.y);if(hh&&hh.alpha>.5&&!e.isPlayer)continue;drawTag(e)}
+  for(const e of vis){if(e.state==='eaten'||e.state==='duel'||(e.buff.smoke>t&&!e.isPlayer))continue;const hh=houseAt(e.x,e.y);if(hh&&hh.alpha>.5&&!e.isPlayer)continue;drawTag(e)}
   ctx.textAlign='center';for(const f of floaters){if(!sightOf(f.x,f.y))continue;ctx.globalAlpha=clamp(f.life,0,1);ctx.font=(f.big?26:18)+'px "Lilita One", sans-serif';
     ctx.lineWidth=5;ctx.strokeStyle=INK;ctx.strokeText(f.text,f.x,f.y);ctx.fillStyle=f.c;ctx.fillText(f.text,f.x,f.y)}ctx.globalAlpha=1;
   drawSight(v,v2)}
@@ -3248,11 +3674,12 @@ function diag(){const tr=f=>{try{return f()}catch(_){return '?'}};return{
     +' · broker '+P2P.state+(P2P.isHost&&P2P.ms?' · host step '+P2P.ms.toFixed(1)+' ms':'')+(role==='client'&&lastNet?' · last host message '+(now()-lastNet).toFixed(2)+' s ago':'')),
   game:tr(()=>game+(player?' · Lv '+L(player)+' · '+player.state:'')+(duel?' · in a duel':'')),
   speed:tr(perfLine),
+  cfg:CFGID+(CFGW.length?' · '+CFGW.length+' problem(s) in config.js':''),
   join:tr(()=>JT.length<2?'-':JT.map((x,i)=>x[0]+' '+(i?((x[1]-JT[i-1][1])/1000).toFixed(1)+'s':'')).join(' > '))}}
 function bugReport(note){const o=[],p2=n=>String(n).padStart(2,'0'),hms=d=>p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()),d=new Date(),g=diag();
   o.push('Typebite bug report · Build '+BUILD+' · '+d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+hms(d));
   if(note)o.push('What happened: '+note.replace(/\s+/g,' '));
-  o.push('Browser: '+g.ua,'Screen: '+g.screen,'Mode: '+g.mode,'Game: '+g.game,'Speed: '+g.speed,'Join steps: '+g.join);
+  o.push('Browser: '+g.ua,'Screen: '+g.screen,'Mode: '+g.mode,'Game: '+g.game,'Speed: '+g.speed,'Settings: '+g.cfg,'Join steps: '+g.join);
   o.push(ERRLOG.length?'Errors ('+ERRLOG.length+'):':'Errors: none');
   for(const e of ERRLOG)o.push(' '+hms(e.t)+' ['+e.src+'] '+e.m+(e.n>1?' (x'+e.n+')':'')+(e.at?' @ '+e.at:''));
   return o.join('\n')}

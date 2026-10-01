@@ -22,5 +22,8 @@ Impressum, Datenschutzerklärung (PeerJS-Vermittler, Fehler-Upload), später Coo
 - Einmal im Dashboard einschalten: Domain `typebite.io` > **SSL/TLS** > **Edge Certificates** > **Always Use HTTPS** = an. Optional später **HSTS** (erst aktivieren, wenn sicher ist, dass alles über https läuft).
 - Zusätzlich leitet das Spiel selbst von http auf https um (ab r38).
 
+## Spiel-Einstellungen live ändern
+Die Datei `site/config.js` wird mit ausgeliefert (der Ordner `site` ist der Webroot) und von `index.html` beim Start nachgeladen. Wer sie auf GitHub bearbeitet und committet, ändert nach dem automatischen Deploy (ca. 1 Minute) das Spiel auf der Webseite, ohne dass gebaut werden muss. Die Zahlen, die in `index.html` selbst stecken, sind nur der Rückfall vom letzten Build. Alles dazu: `docs/konfiguration.md`.
+
 ## Automatische Updates
 Jeder Push auf `main` startet bei Cloudflare einen neuen Build und veröffentlicht ihn (ca. 1 Minute, Status unter dem Worker > Deployments). Wichtig: `index.html` muss vorher gebaut und mit eingecheckt sein. Besucher mit offener Seite müssen neu laden; Spieler mit unterschiedlichen Versionen bekommen im Mehrspieler eine Versions-Meldung.
