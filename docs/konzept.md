@@ -307,3 +307,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Fehlerberichte werden nach 90 Tagen gelöscht: GitHub Action `cleanup.yml` im privaten Repo `smackdown-errors` (Kopie: `tools/error-relay/cleanup-workflow.yml`), täglich 03:17 UTC, löscht alte Dateien und schreibt die History neu (orphan + force push). Skriptlogik lokal getestet, die Action selbst noch NICHT live gelaufen (Push von Workflow-Dateien per GITHUB_TOKEN könnte von GitHub abgelehnt werden -> einmal manuell starten und Log prüfen).
 - "Skin ready": `docs/legal/baustein-skins-zahlungen.md` (Textbaustein + Voraussetzungen). Bewusst NICHT im Live-Text, weil die Erklärung nur tatsächliche Verarbeitung beschreiben darf.
 - BUILD r40.
+
+## Runde 41 - Perk-Karten klickbar, Menü-Dialog
+- Perk-Karten sind jetzt per Klick wählbar (Tasten 1/2/3 gehen weiter). Klick auf eine Karte löst keinen Dash aus, die Figur läuft weiter zum Cursor.
+- `kbd` in Buttons (Stay/Menu) hatte weißen Text auf weißem Feld; jetzt dunkle Schrift.
+- BUILD r41. Nur Syntax geprüft, Klick nicht im Browser getestet.
