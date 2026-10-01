@@ -361,3 +361,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - iPhone-Messung (App-Modus, Hochformat): inner 393x793, lvh 852, screen 852, safe 59/34. Das Layout-Viewport ist 59 px kürzer als der Bildschirm, der Canvas (852 hoch) wird unten bei 793 abgeschnitten. Querformat ist ok (inner = screen). Im Safari-Browser läuft das Bild unter der Leiste weiter.
 - Versuch: im App-Modus `html.tall` (overflow: visible, body min-height 100lvh), damit der Canvas unter die Layout-Grenze malen darf. Ungeprüft; Diagnose zeigt "tall" an.
 - BUILD r48.
+
+## Runde 49 - Slots, große Karte, FPS-Limit, Essgeräusch
+- Item-Slots: Start 3 (Q W E), neue Slots bei Lv 12, 30, 60, 100 (R T Z U; Slot 6 = physisch Y/Z, beide Tasten gehen). `slotsOf`/`freeSlot`; Items-Arrays haben immer 7 Einträge, nur freigeschaltete Slots zählen. Beim Freischalten Toast. Hinweis: verliert man im Duell Level, werden obere Slots wieder unsichtbar/unbenutzbar (Items bleiben, bis man wieder aufsteigt).
+- Große Karte: Minimap antippen/anklicken oder Taste M (Esc/Klick daneben schließt). Auflösung der Karte bleibt 300 px (hochskaliert).
+- Settings: Frame rate limit (Unlimited, 144, 120, 90, 60, 45, 30). Umsetzung: Frames überspringen, wenn die Zeit seit dem letzten Frame zu kurz ist. Test: Limit 30 -> FPS-Anzeige 30.
+- Essgeräusch: Beim Client ist zwischen zwei Snapshots kein 'move'-Zustand sichtbar, wenn direkt der nächste Snack gegessen wird -> kein Ton. Jetzt erkennt `fxStep` den Neustart am Fortschritt (`ep` springt von >.6 auf <.35) und spielt yum + boop. Ungetestet im echten Mehrspielerspiel, nur Code-Pfad.
+- BUILD r49.

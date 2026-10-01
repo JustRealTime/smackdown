@@ -233,6 +233,7 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 .srow{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px}.srow span:first-child{width:130px;flex:none}.srow input[type=range]{flex:1;accent-color:var(--tomato)}.srow output{width:44px;text-align:right;font:700 12px var(--mono)}
 .srow.chk{cursor:pointer}.srow.chk input{width:18px;height:18px;accent-color:var(--tomato)}
 #metrics{position:fixed;left:16px;top:calc(164px + env(safe-area-inset-top,0px));font:700 12px/1.4 var(--mono);color:#fff;background:rgba(43,33,64,.7);padding:4px 8px;border-radius:8px;white-space:pre;pointer-events:none;z-index:5}
+#mini{cursor:pointer}#mini.big{position:fixed;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(86vmin,600px);height:min(86vmin,600px);z-index:20}
 #kingbar{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top,0px));transform:translateX(-50%);padding:6px 14px;font-weight:800;font-size:13px;background:var(--gold);white-space:nowrap}
 #perks{pointer-events:none;position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:4;width:max-content;max-width:calc(100% - 32px)}
 #perks.up{animation:perkup .45s cubic-bezier(.2,1.2,.4,1)}
@@ -314,6 +315,8 @@ body.touch #buffs{display:none}body.touch .islot.auto::after{content:'auto';posi
 body.touch #mini{display:block;width:84px;height:84px;right:calc(8px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;border-width:2px;border-radius:12px}
 body.touch #board:not([hidden]){display:block}body.touch #board{width:112px;padding:4px 7px;right:calc(8px + env(safe-area-inset-right,0px));top:calc(98px + env(safe-area-inset-top,0px));border-width:2px;border-radius:10px;opacity:.85}
 body.touch #board h2{display:none}body.touch #board ol{font-size:10px;gap:0}body.touch #board li:nth-child(n+4):not(.me){display:none}
+body.touch .islots{flex-wrap:wrap-reverse;justify-content:flex-end;max-width:164px}
+body.touch #mini.big{position:fixed;left:50%;top:50%;right:auto;bottom:auto;width:min(86vmin,600px);height:min(86vmin,600px);border-width:3px;border-radius:14px}
 body.touch #quest{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:calc(8px + env(safe-area-inset-left,0px));transform:none;pointer-events:none;min-width:0;width:150px;padding:3px 8px 5px;gap:2px;border-width:2px;opacity:.92}
 body.touch #quest b{font-size:12px}body.touch #quest small{font-size:10px}
 body.touch #kingbar{top:auto;left:calc(8px + env(safe-area-inset-left,0px));transform:none;bottom:calc(84px + env(safe-area-inset-bottom,0px));white-space:normal;max-width:150px;font-size:11px;padding:3px 8px}
@@ -378,7 +381,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <p id="next">Next look: shoulder pads at Lv 10</p>
     <p id="treeline"></p>
   </div>
-  <div id="itemslot"><div class="islots"><div class="islot" data-s="0"><kbd>Q</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="1"><kbd>W</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="2"><kbd>E</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div></div><small id="buffs"></small></div>
+  <div id="itemslot"><div class="islots"><div class="islot" data-s="0"><kbd>Q</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="1"><kbd>W</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="2"><kbd>E</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="3"><kbd>R</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="4"><kbd>T</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="5"><kbd>Z</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div><div class="islot" data-s="6"><kbd>U</kbd><span class="ii"></span><b class="in">empty</b><small class="it"></small></div></div><small id="buffs"></small></div>
 </section>
 
 <div id="statusbar" hidden></div>
@@ -417,12 +420,12 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r48</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r49</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
       <dt><kbd>Space</kbd> <kbd>Click</kbd></dt><dd>Dash and slide, the fastest move</dd>
-      <dt><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd></dt><dd>Use the item in slot 1, 2 or 3 (you carry up to 3)</dd>
+      <dt><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> …</dt><dd>Use the item in that slot (3 slots, more at Lv 12, 30, 60, 100: R T Z U)</dd>
       <dt><kbd>Wheel</kbd> <kbd>+</kbd> <kbd>-</kbd></dt><dd>Zoom the camera (0 resets)</dd>
       <dt><kbd>Esc</kbd></dt><dd>Back to this menu</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
@@ -441,6 +444,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
     <h3>Graphics</h3>
+    <label class="srow"><span>Frame rate limit</span><select data-k="fps"><option value="0">Unlimited</option><option value="144">144 fps</option><option value="120">120 fps</option><option value="90">90 fps</option><option value="60">60 fps</option><option value="45">45 fps</option><option value="30">30 fps (old PCs)</option></select></label>
     <label class="srow tonly"><span>Zoom</span><input type="range" min="80" max="250" data-z="1"><output></output></label>
     <label class="srow"><span>Render distance</span><input type="range" min="30" max="100" data-k="rd"><output></output></label>
     <label class="srow chk"><input type="checkbox" data-k="potato"><span style="width:auto">Potato PC mode (low resolution, fewer effects, short render distance)</span></label>
@@ -555,7 +559,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r48';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r49';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1117,7 +1121,7 @@ function cleanLook(l){if(!l||typeof l!=='object')return null;const o={};
 const randomLook=()=>({skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),shoes:pick(SHOECOLS),acol:pick(ACOLS),hs:pick(HS_ALL),acc:pick(ACC_ALL),sty:pick(STY_ALL),shorts:Math.random()<.3});
 let ents=[],player=null,nextId=1;
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
-  const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
+  const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
     dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+3,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
     skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(-8,14),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),shorts:Math.random()<.3,shoes:pick(SHOECOLS),
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
@@ -1144,7 +1148,7 @@ function floater(x,y,text,c='#fff',big=false){floaters.push({x,y,text,c,life:1.4
 /* ---------- sound: everything is synthesized, no files ---------- */
 const TOUCH=role!=='server'&&(()=>{try{return matchMedia('(pointer:coarse)').matches||/[?&]touch=1/.test(location.search)}catch(_){return false}})();
 if(TOUCH)document.body.classList.add('touch');
-const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0};
+const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0,fps:0};   // fps: 0 = no limit
 try{const o=JSON.parse(localStorage.getItem('snackdown-settings')||'{}');for(const k in SET)if(typeof o[k]==='number')SET[k]=o[k]}catch(_){}
 const MET={f:60,t:0,ping:-1,sent:0},metEl=$('metrics');
 const saveSet=()=>{try{localStorage.setItem('snackdown-settings',JSON.stringify(SET))}catch(_){}};
@@ -1257,7 +1261,7 @@ const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
 addEventListener('blur',()=>{shift=false});
 // left click dashes too (clicks on buttons and panels do not)
-addEventListener('mousedown',e=>{if(e.button===0&&!TOUCH&&game==='play'&&!duel&&!overUI&&!leaveOpen&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
+addEventListener('mousedown',e=>{if(e.button===0&&!TOUCH&&game==='play'&&!duel&&!overUI&&!leaveOpen&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide,#mini'))dashPressed=true});
 addEventListener('keyup',e=>{if(e.key==='Shift')shift=false});
 addEventListener('keydown',e=>{
   if(!$('settings').hidden){if(e.key==='Escape'){e.preventDefault();openSettings(false)}return}
@@ -1269,8 +1273,8 @@ addEventListener('keydown',e=>{
   if(e.key==='/'||e.key==="'")e.preventDefault();   // Firefox: these open Quick Find and steal all following keys
   if(duel){if(!TOUCH)handleTyping(e);return}
   if(e.key==='Shift')shift=true;
-  const slot=e.code==='KeyQ'?0:e.code==='KeyW'?1:e.code==='KeyE'?2:-1;
-  if(slot>=0&&!e.repeat&&player){const ik=player.items[slot],iv=ik&&ITEMS[ik];if(iv&&iv.auto){showToast(iv.icon+' '+iv.name+': passive, used automatically in your next duel');return}if(role==='client')netSend({t:'use',s:slot});else useItem(player,now(),slot)}
+  const slot=({KeyQ:0,KeyW:1,KeyE:2,KeyR:3,KeyT:4,KeyY:5,KeyZ:5,KeyU:6})[e.code]??-1;   // slot 6 is Z on a German keyboard (physical Y), Z elsewhere also works
+  if(slot>=0&&player&&slot<slotsOf(player)&&!e.repeat){const ik=player.items[slot],iv=ik&&ITEMS[ik];if(iv&&iv.auto){showToast(iv.icon+' '+iv.name+': passive, used automatically in your next duel');return}if(role==='client')netSend({t:'use',s:slot});else useItem(player,now(),slot)}
   if(offer&&!e.repeat&&(e.key==='1'||e.key==='2'||e.key==='3')){choose(+e.key-1);return}
   if(e.code==='Space'){e.preventDefault();if(!e.repeat)dashPressed=true}
 });
@@ -1476,7 +1480,7 @@ const DEMOS=[
    s+='<g>'+an('opacity',[0,0,1,1,0],[0,.5,.56,.97,1],D)+'<rect x="196" y="256" width="168" height="36" rx="12" fill="#fff" stroke="'+VI+'" stroke-width="3"/>'+vemo(222,282,'🎹',22)+'<text x="240" y="281" class="vk" font-size="15">Pro Keyboard: +1</text></g>';
    s+=vt(430,30,'+1 from your item',17,'#ffc93c',an('opacity',[0,0,1,1,0],[0,.52,.58,.97,1],D));
    return vscene(glowDef('ga',false)+glowDef('gb',true),s)}},
- {title:'Gift boxes and items',text:'Gift boxes lie around the map, in buildings and hidden at the bottom of ponds. You carry up to 3 items, one per slot, each with its own key: Q, W and E. Rarer items are much stronger.',
+ {title:'Gift boxes and items',text:'Gift boxes lie around the map, in buildings and hidden at the bottom of ponds. You start with 3 item slots (keys Q, W, E) and unlock more at levels 12, 30, 60 and 100 (R, T, Z, U). Rarer items are much stronger.',
   svg(){const D=9;let s='';
    s+=vemo(330,150,'🎁',44,an('opacity',[1,1,0,0,1],[0,.27,.3,.97,1],D))+'<g>'+mv([[330,150],[330,142],[330,150]],[0,.5,1],1.2,{lin:true}).replace('repeatCount="indefinite"','repeatCount="indefinite"')+'</g>';
    s+='<circle cx="330" cy="135" r="10" fill="none" stroke="#3db5ff" stroke-width="6" opacity="0">'+an('opacity',[0,0,1,0,0],[0,.29,.3,.42,1],D)+an('r',[10,10,90,90],[0,.3,.42,1],D)+'</circle>';
@@ -1694,11 +1698,13 @@ for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
 function dropOrbs(x,y,total){if(total<3)return;const n=clamp(Math.round(total/12),1,10);
   for(let i=0;i<n;i++){const a=Math.random()*6.28,v=rand(120,260);orbs.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v:total/n,life:35,bob:Math.random()*6.28})}}
 // three item slots, each with its own key (Q, E, R); slots keep their place when one is used
-const SLOTS=3, SLOT_KEYS=['Q','W','E'];
-const itemRoom=e=>e.items.indexOf(null)>=0&&(e.human||!e.items.some(Boolean));   // bots only carry one
+const SLOTS=7, SLOT_KEYS=['Q','W','E','R','T','Z','U'], SLOT_LV=[0,0,0,12,30,60,100];   // you start with 3 slots; more unlock at level 12, 30, 60 and 100
+const slotsOf=e=>{const l=L(e);let n=0;for(const v of SLOT_LV)if(l>=v)n++;return n};
+const freeSlot=e=>{const n=slotsOf(e);for(let i=0;i<n;i++)if(!e.items[i])return i;return -1};
+const itemRoom=e=>freeSlot(e)>=0&&(e.human||!e.items.some(Boolean));   // bots only carry one
 const hasItem=(e,k)=>e.items.indexOf(k);
 const firstItem=e=>e.items.findIndex(Boolean);
-function addItem(e,k){const i=e.items.indexOf(null);if(i<0)return false;e.items[i]=k;return true}
+function addItem(e,k){const i=freeSlot(e);if(i<0)return false;e.items[i]=k;return true}
 function giveItem(e,t,water){const lk=e.st.fortune+((e.luck||0)>0?2:0);if(e.luck>0)e.luck--;let k=rollItem(lk,water);if(!e.human)while(k==='warp'||k==='freeze'||k==='sticky')k=rollItem(lk,water);   // bots keep their hands off the annoying ones
   addItem(e,k);e.ai.itemAt=t+rand(2,8);if(e.st.boxbonus)gainXp(e,e.st.boxbonus);
   questEvent(e,'box',!!water);
@@ -1728,7 +1734,7 @@ function useItem(e,t,slot){if(slot==null)slot=firstItem(e);const k=e.items[slot]
   else if(k==='crystal'){gainXp(e,lvlCost(e.lvl)*3);stars(e.x,e.y-16,16,['#7ad0ff','#fff',GOLD],300);ring(e.x,e.y+10,8,200,'#7ad0ff',.7);if(e.isPlayer){floater(e.x,e.y-60,'LEVEL CRYSTAL!','#7ad0ff',true);shake=Math.max(shake,6)}}
   else if(k==='clover'){e.luck=3;stars(e.x,e.y-16,8,['#6fd36f','#fff'],180);if(e.isPlayer)floater(e.x,e.y-60,'LUCKY!','#6fd36f',true)}
   else if(k==='sticky'){let best=null,bd=420;for(const o of ents){if(o===e||o.state==='eaten')continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd&&o.items.some(Boolean)){bd=d;best=o}}
-    const slotS=best?best.items.findIndex(Boolean):-1,free=e.items.indexOf(null);
+    const slotS=best?best.items.findIndex(Boolean):-1,free=freeSlot(e);
     if(best&&slotS>=0){const got=best.items[slotS];best.items[slotS]=null;if(free>=0)e.items[free]=got;else e.items[slot]=got;ring(best.x,best.y,8,80,'#ff8fc2',.5);if(e.isPlayer){floater(e.x,e.y-60,'STOLEN: '+ITEMS[got].name,'#ff8fc2',true);itemReveal(e,got,false)}if(best.isPlayer)floater(best.x,best.y-60,'ITEM STOLEN!','#ff8fc2',true)}
     else if(e.isPlayer)floater(e.x,e.y-60,'nobody to rob','#fff',true)}
   else if(k==='teleport'){let p=freeSpot(40);for(let i=0;i<12&&Math.hypot(p.x-e.x,p.y-e.y)<1600;i++)p=freeSpot(40);ring(e.x,e.y+10,8,120,'#9b5de5',.6);dust(e.x,e.y+10,14,'#b06bff',160,6);e.x=p.x;e.y=p.y;e.vx=e.vy=0;e.protect=Math.max(e.protect,t+1.5);e.lx=e.x;ring(e.x,e.y+10,8,120,'#9b5de5',.6);if(e.isPlayer){flash();cam.x=e.x;cam.y=e.y}}
@@ -1776,8 +1782,8 @@ function stepEnt(e,dt,t){
   e.dashCd=Math.max(0,e.dashCd-dt);if(bf.rubber>t){e.dashCd=0;e.dashCharges=Math.max(e.dashCharges,1)}e.chomp=Math.max(0,e.chomp-dt);
   if(e.dashCd<=0&&e.dashCharges<st.charges){e.dashCharges++;if(e.dashCharges<st.charges)e.dashCd=DASH_CD*st.dashCd}
   e.sqv+=(-90*e.sq-11*e.sqv)*dt;e.sq=clamp(e.sq+e.sqv*dt,-.42,.42);   // squash & stretch spring
-  if(st.bubble&&e.state!=='eaten'){e.bubbleT+=dt;if(e.bubbleT>=45&&e.items.indexOf(null)>=0){e.bubbleT=0;addItem(e,'shield');if(e.isPlayer){showToast('Iron Bubble ready · press '+SLOT_KEYS[e.items.indexOf('shield')]);sfx.pickup()}}}
-  if(st.fairy&&e.state!=='eaten'){e.fairyT=(e.fairyT||0)+dt;if(e.fairyT>=60&&e.items.indexOf(null)>=0){e.fairyT=0;giveItem(e,t);if(e.isPlayer)sfx.pickup()}}
+  if(st.bubble&&e.state!=='eaten'){e.bubbleT+=dt;if(e.bubbleT>=45&&freeSlot(e)>=0){e.bubbleT=0;addItem(e,'shield');if(e.isPlayer){showToast('Iron Bubble ready · press '+SLOT_KEYS[e.items.indexOf('shield')]);sfx.pickup()}}}
+  if(st.fairy&&e.state!=='eaten'){e.fairyT=(e.fairyT||0)+dt;if(e.fairyT>=60&&freeSlot(e)>=0){e.fairyT=0;giveItem(e,t);if(e.isPlayer)sfx.pickup()}}
   if(L(e)>=150&&e.state!=='eaten'&&Math.random()<dt*30)parts.push({k:'sq',x:e.x+rand(-10,10),y:e.y+18,vx:rand(-15,15),vy:-rand(40,90),life:.5,max:.5,c:pick(['#ff6b3d','#ffc93c','#e8475f']),s:rand(4,7)});
   if(L(e)>=350&&e.state!=='eaten'&&Math.hypot(e.vx,e.vy)>60&&Math.random()<dt*12)parts.push({k:'star',x:e.x+rand(-8,8),y:e.y+rand(10,22),vx:rand(-20,20),vy:rand(-10,10),life:.7,max:.7,c:pick([GOLD,'#fff','#ff8fc2','#9fdcff']),s:rand(4,8),rot:Math.random()*3});
   if(bf.rush>t&&Math.random()<dt*14)parts.push({k:'star',x:e.x+rand(-16,16),y:e.y-rand(0,30),vx:0,vy:-30,life:.5,max:.5,c:'#ff8fc2',s:rand(4,7),rot:Math.random()*3});
@@ -1841,7 +1847,7 @@ function stepEnt(e,dt,t){
     e.boxT=(e.boxT||0)-dt;   // bots only look for gift boxes ten times a second, there are many boxes
     if(e.human||e.boxT<=0){e.boxT=.1;for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];
       if(Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14&&!itemRoom(e)){
-        if(e.human&&t>(b.nopeT||0)){b.nopeT=t+2;b.hop=.4;if(e.isPlayer){floater(e.x,e.y-70,'SLOTS FULL!','#ff8fa0',true);ring(b.x,b.y,6,36,'#ff8fa0',.4);sfx.nope()}questNotify(e,'warn','Your item slots are full. Use an item (Q W E) to make room for this gift box.')}
+        if(e.human&&t>(b.nopeT||0)){b.nopeT=t+2;b.hop=.4;if(e.isPlayer){floater(e.x,e.y-70,'SLOTS FULL!','#ff8fa0',true);ring(b.x,b.y,6,36,'#ff8fa0',.4);sfx.nope()}questNotify(e,'warn','Your item slots are full. Use an item to make room for this gift box.')}
         continue}
       if(Math.abs(b.x-e.x)<e.r+14&&Math.abs(b.y-e.y)<e.r+14&&itemRoom(e)){boxes.splice(i,1);giveItem(e,t,b.water);if(b.water&&e.isPlayer)sfx.splash(1);break}}}
     for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];
@@ -1888,7 +1894,7 @@ function finishDuel(w,l,t){w.state='move';w.protect=t+2.5+w.st.afterwin;w.chomp=
   ring(w.x,w.y,10,90,GOLD,.5);w.sqv+=6;
   if(w.st.adren){w.dashCharges=w.st.charges;w.dashCd=0;w.stamina=w.st.staMax;if(w.st.adren>1)w.buff.turbo=t+3}
   const ls=firstItem(l);
-  if(ls>=0&&w.st.thief&&Math.random()<w.st.thief&&w.items.indexOf(null)>=0){addItem(w,l.items[ls]);l.items[ls]=null;w.ai.itemAt=t+rand(2,6);floater(w.x,w.y-150,'ITEM STOLEN!','#fff',true)}
+  if(ls>=0&&w.st.thief&&Math.random()<w.st.thief&&freeSlot(w)>=0){addItem(w,l.items[ls]);l.items[ls]=null;w.ai.itemAt=t+rand(2,6);floater(w.x,w.y-150,'ITEM STOLEN!','#fff',true)}
   floater(w.x,w.y-104,'CHOMP!','#fff',true);const gl=gained();floater(w.x,w.y-80,'+'+(gl>=10?gl.toFixed(0):gl.toFixed(1))+' LV',GOLD,true);
   if(w.isPlayer||l.isPlayer){hitstop=.22;shake=Math.max(shake,9);kick=Math.max(kick,.14);flash();w.isPlayer?sfx.chomp():sfx.lose()}else sfx.chomp(vol(w)*.7)
   if(l.isPlayer){deadT=1}}
@@ -2041,6 +2047,7 @@ function updateHud(t){const p=player,l=L(p),st=p.st,dcd=DASH_CD*st.dashCd;
   $('treeline').textContent=treeLine();
   {const q=p.quest,el=$('quest');if(q){const left=Math.max(0,q.end-t);el.hidden=false;el.classList.toggle('low',left<15);
       $('qtext').textContent='Quest: '+questText(q)+'  '+q.have+'/'+q.n;$('qbar').style.width=(100*clamp(left/q.total,0,1))+'%';$('qtime').textContent=Math.ceil(left)+'s'}else el.hidden=true}
+  const ns=slotsOf(p);if(p._ns!==ns){if(p._ns&&ns>p._ns){showToast('New item slot unlocked · press '+SLOT_KEYS[ns-1],'#9be564');sfx.pickup()}p._ns=ns;for(let i=0;i<SLOTS;i++)islots[i].hidden=i>=ns}
   for(let i=0;i<SLOTS;i++){const k=p.items[i],it=k?ITEMS[k]:null,el=islots[i],sig=k||'';
     if(el._k!==sig){el._k=sig;el.className='islot'+(it?' has t'+it.tier+(it.auto?' auto':''):'');el.querySelector('.ii').textContent=it?it.icon:'';el.querySelector('.in').textContent=it?it.name:'empty';
       el.querySelector('.it').textContent=it?(it.auto?'auto':TIERS[it.tier].n):'';el.title=it?it.name+': '+it.d:'Pick up gift boxes to fill a slot'}}
@@ -2064,9 +2071,9 @@ muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(
 const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
-function applySet(){sfx.vol();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
+function applySet(){sfx.vol();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else if(i.tagName==='SELECT')i.value=String(SET[k]);else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
 function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
-$('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
+$('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.tagName==='SELECT'?+i.value:i.value/100;
   if(k==='sv'&&!sfx.muted)sfx.click();applySet();saveSet()});
 {const fb=$('fsbtn'),de=document.documentElement;if(!(de.requestFullscreen||de.webkitRequestFullscreen))fb.hidden=true;
   else fb.addEventListener('click',()=>{try{(document.fullscreenElement||document.webkitFullscreenElement)?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(de.requestFullscreen||de.webkitRequestFullscreen).call(de)}catch(_){}})}
@@ -2074,6 +2081,10 @@ $('setbtn').addEventListener('click',()=>openSettings(true));$('gear').addEventL
 $('settings').addEventListener('mousedown',e=>{if(e.target===$('settings'))openSettings(false)});
 if(role!=='server')applySet();
 const mctx=$('mini').getContext('2d');
+const miniBig=on=>{$('mini').classList.toggle('big',on===undefined?!$('mini').classList.contains('big'):on)};
+$('mini').addEventListener('click',e=>{e.stopPropagation();miniBig()});
+addEventListener('click',e=>{if(!e.target.closest('#mini'))miniBig(false)});
+addEventListener('keydown',e=>{if(game==='play'&&!duel&&e.code==='KeyM'&&!e.repeat)miniBig();else if(e.key==='Escape'&&$('mini').classList.contains('big')){miniBig(false);e.stopImmediatePropagation()}},true);
 function drawMini(){const c=300,k=c/WORLD;if(miniSeed!==WORLD_SEED)makeMiniBg();mctx.drawImage(miniBg,0,0);
   for(const h of houses){mctx.fillStyle=h.roof;mctx.fillRect(h.x*k,h.y*k,Math.max(6,h.w*k),Math.max(6,h.h*k))}
   mctx.fillStyle='#9b5de5';for(const b of boxes)if(!b.inside&&!b.water)mctx.fillRect(b.x*k-2,b.y*k-2,4,4);
@@ -2224,7 +2235,7 @@ function joinGame(addrArg,near){
   attachSock(sock,name,near);
   sock.onerror=()=>{if(role!=='client'){loadingHide();$('mpstatus').textContent='Could not reach '+addr+'. Is the server running, and are you on the same network?'}}}
 /* ---------- loading screen: shown from pressing Play/Join until the first update from the game arrives ---------- */
-const TIPS=['Tip: look at the green or red number over a player before you touch them.','Tip: press F8 any time to send a bug report.','Tip: Q W E use your three item slots.','Tip: the mouse wheel zooms, zooming out unlocks with your level.','Tip: yellow mats are doors. Houses block the view.','Tip: gift boxes also hide at the bottom of ponds.'];
+const TIPS=['Tip: look at the green or red number over a player before you touch them.','Tip: press F8 any time to send a bug report.','Tip: Q W E (later R T Z U) use your item slots. More slots unlock at Lv 12, 30, 60 and 100.','Tip: the mouse wheel zooms, zooming out unlocks with your level.','Tip: yellow mats are doors. Houses block the view.','Tip: gift boxes also hide at the bottom of ponds.'];
 let loadTimer=0,joinQ=null,playTok=0;
 const nextFrame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));   // let the browser paint the loading screen before heavy work blocks it
 function loadingShow(t,sub){$('loading').hidden=false;$('loadt').textContent=t;$('loads').textContent=sub||pick(TIPS);clearTimeout(loadTimer);
@@ -2358,7 +2369,7 @@ function resetSoloWorld(){
   for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
   {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}}
 function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,shorts:f.shorts,shoes:f.shoes,
-  perks:{},picksDone:0,items:[null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
+  perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,hide:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
   x:r.x,y:r.y,tx:r.x,ty:r.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,dashT:0,slideT:0,sprinting:false,fled:{},protect:0,ghosts:[],ghostT:0,chomp:0,
   sq:0,sqv:0,lean:0,skidT:0,bites:0,chewT:0,lastStep:0,lvl:1,ep:0,isPlayer:false,human:false,snapAt:now(),_st:'move',_dash:false};
   calcStats(e);return e}
@@ -2421,6 +2432,8 @@ function fxStep(e,dt,t){
   e._dash=e.dashing;
   let tl=0;
   if(e.state==='eat'){const p=e.ep,side=e.dir==='left'?-1:1,need=p<.25?0:p<.45?1:p<.65?2:3;
+    if(e._st==='eat'&&e._ep>.6&&p<.35){e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);if(e.isPlayer)stats.snacks++;e.bites=0;e.chewT=0;e.sqv-=3;sfx.boop(vol(e))}   // the next snack was started between two snapshots: no state change to notice
+    e._ep=p;
     while(e.bites<need){e.bites++;const soda=e.eatFood==='soda';burst(e.x+side*4,e.y-10,soda?6:9,CRUMBS[e.eatFood]||['#fff'],soda?70:95);e.sqv+=e.bites%2?-3:3;soda?sfx.sip(e.bites,vol(e)):sfx.bite(e.bites,vol(e))}
     e.chewT-=dt;if(p>.25&&e.chewT<=0){e.chewT=.1;e.sqv+=e.bites%2?1.4:-1.4}
     if(e.eatFood==='soda')tl=-side*.13*Math.min(1,p/.25)}
@@ -2992,7 +3005,8 @@ function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||S
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
 setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1&&SET.mping){MET.sent=performance.now();netSend({t:'ping',c:MET.sent})}},2000);
 function loop(){requestAnimationFrame(loop);   // always schedule the next frame first: one error must never freeze the game
-  const t=now(),raw=t-last;let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
+  const t=now(),raw=t-last;if(SET.fps>0&&raw<1/SET.fps-.0025)return;   // frame rate limit: skip this display frame
+  let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
   if(raw>0&&raw<1&&document.visibilityState==='visible'&&game==='play'){const q=QSTAT;q.n++;q.sum+=raw;if(q.n>=100){const avg=q.sum/q.n;q.n=0;q.sum=0;   // about 2 s: too slow -> fewer pixels, fast again -> more
       if(SET.potato){}else if(avg>.026&&QS>.55){QS=Math.max(.55,QS*.82);resize()}else if(avg<.0145&&QS<1){QS=Math.min(1,QS*1.1);resize()}}}
   if(raw>0&&raw<1&&document.visibilityState==='visible'){const h=PERF.hist;h.push(raw);if(h.length>600)h.shift();if(game==='play'&&t>PERF.grace){if(raw>.05)PERF.slow++;if(raw>PERF.worst)PERF.worst=raw}}
