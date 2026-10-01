@@ -238,3 +238,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Bot-Tippgeschwindigkeit wächst langsamer mit dem Level (max. +14 WPM).
 - Legendäre Items deutlich seltener (Kiste 1 %, Unterwasser 6 %); weniger Kisten. Neu bewertet: Sugar Rush Rare, Radar Common, Time Warp 4 s, Golden Keyboard ca. 30 %.
 - docs/release-plan.md: Rechtliches und Plan für Release, Werbung, Mikrotransaktionen, Steam. Build r29.
+
+## Runde 29: Musik bereinigt, Schriften eingebettet
+
+- Entfernt: personaxmother, peronamorhwr, minecraft, sadmarioinb4, sadmariosda (Menü hat jetzt 3 Lieder, Todesbildschirm 1, König 1). 
+- Schriften (Lilita One, Nunito, JetBrains Mono) liegen in fonts/ und sind in index.html eingebettet, es gibt keinen Google-Aufruf mehr. Build r29.

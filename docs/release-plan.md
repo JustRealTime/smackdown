@@ -2,6 +2,11 @@
 
 Plan des Entwicklers: 1. Balancing, 2. eigene Webseite mit vielen Spielern, 3. Werbung, 4. Mikrotransaktionen (Skins, Flaggen), 5. Steam.
 
+## Erledigt
+- Fremde Musik entfernt (personaxmother, peronamorhwr, minecraft, sadmarioinb4, sadmariosda). Der Rest ist laut Entwickler komplett selbst komponiert, ohne Loops. Wichtig: Beweise aufheben (Projektdateien/DAW-Sessions, Datumsstempel), falls es je Streit gibt.
+- Schriften sind eingebettet (kein Google-Aufruf), Lizenzen in `fonts/`, `THIRD_PARTY.md` angelegt.
+- Beim Öffnen des Menüs fragt das Spiel den PeerJS-Vermittler (peerjs.com) ab. Dabei geht die IP-Adresse dorthin. Für den echten Release entweder eigenen Vermittler betreiben oder die Abfrage erst nach Zustimmung/Klick starten und in der Datenschutzerklärung nennen.
+
 ## Vor dem ersten öffentlichen Release (Österreich/EU)
 - **Musik klären (wichtigster Punkt):** Eigene Kompositionen sind frei nutzbar. Nachbauten fremder Lieder (auch als MIDI/Cover) bleiben urheberrechtlich geschützt (Komposition) und brauchen eine Lizenz oder müssen raus. Dateinamen im Ordner `music/`, die nach Fremdmaterial aussehen und geprüft werden müssen: `personaxmother`, `peronamorhwr`, `minecraft`, `sadmarioinb4`, `sadmariosda`, `africa`, `dead_inside`, `chase_action`. Dazu prüfen: Samples, Loops, Soundfonts mit eigener Lizenz. AKM-Mitgliedschaft prüfen (Rechteübertragung).
 - **Name:** "Snackdown" klingt nach WWE "SmackDown" (Marke). Vor einem Release Markenrecherche (Österreichisches Patentamt, EUIPO) und besser einen eigenen, unterscheidbaren Namen wählen.
