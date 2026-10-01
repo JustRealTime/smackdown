@@ -28,9 +28,11 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
   Walls in a grid `wgrid`, foods in `fgrid` (rebuilt every 0.1 s). Ground is painted in cached 512px chunks.
 - Progression: unlimited levels, XP economy (`lvlCost`, `snackGain` x1.7, `gainXp`), 5 perk trees (feast/sprint/typist/guard/trick) with rarities
   (common/rare/epic/legendary, 55/30/11/4 %), perk pick at Lv2 then every 4 levels, 1/2/3 keys only (cards ignore the mouse).
-- Items: 3 slots with keys Q/W/E, 25 items in 4 rarities (`ITEMS`, `TIER_ODDS` 66/26/7/1, underwater boxes `WATER_ODDS` 34/40/20/6). Quests every ~3 min.
+- Items: 3 slots with keys Q/W/E, more unlock at Lv 12/30/60/100 (R/T/Z/U, `SLOT_LV`, `slotsOf`, `freeSlot`), 25 items in 4 rarities (`ITEMS`, `TIER_ODDS` 66/26/7/1, underwater boxes `WATER_ODDS` 34/40/20/6). Quests every ~3 min.
 - Duel: both players start from the SAME phrase length `stakeWords(a,b)` = 3 + avgLevel/12 + levelGap/10 (max 20); the LOWER-level player then types `gapCut` fewer words (1 per ~9 levels of gap, min 1 from a gap of 4, max 30 %). Items, perks and "running away" change it further.
   `advOf()` drives the green/red aura + number over other players (counts items/perks too). Server-authoritative duels in multiplayer (`srvStartDuel`).
+- Food (r50): 57 kinds in `FOOD_SRC` (28 common, 15 rare, 9 epic, 5 legendary; odds `FOOD_ODDS` 80/16/3.5/.5). Each has its own sprite in `FOOD_ART` (helpers `fo.*`), nutrition `xp` (normalised so an average snack = 1.0), eating time `et`, home biomes/shops (6x/8x spawn weight in `rollFood`), crumb colours and for epic/legendary an effect (`foodFx`: rush/turbo/shield/magnet/radar/sta/dash/item). Sprites are cached at 3x (`foodImg`); the guide has a Snacks tab built from the table. `python3 tools/foodsheet.py out.html` paints all of them for a visual check.
+- Frame pacing (r50): `SET.fps` 0 = follow the monitor (default), 30..1000 = limit. rAF drives the loop (`rafLoop`/`frame`/`gateOk`); a limit above the measured refresh rate (`HZM`, from rAF timestamps) also runs `frame` from a MessageChannel/setTimeout loop (`fastSync`/`fastTick`) because rAF can never exceed the screen. Settings: checkbox "match monitor" + log slider with snapping.
 - Look system: Terraria-style customizer (`LOOK`, `cleanLook` validated on the server), pixel sprites generated in code (`sprite()`), cached.
 - Line of sight: only house walls block (`computeSight`, polygon shadow); entities/foods/boxes in shadow are not drawn. Zoom starts 150 %, zooming out unlocks with level (80 % at Lv 60).
 - Tutorial: 9 animated inline-SVG scenes (SMIL), function `DEMOS`. Guide: items/perks/rarity lists built from the data tables.
@@ -54,7 +56,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r49; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r50; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)

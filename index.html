@@ -145,7 +145,7 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 .glist{display:flex;flex-direction:column}
 .grow{display:grid;grid-template-columns:34px 150px 1fr auto;gap:10px;align-items:center;padding:7px 4px;border-top:1px solid #e4dcef}
 .grow:first-child{border-top:0}
-.grow .gi{font-size:22px;text-align:center}
+.grow .gi{font-size:22px;text-align:center}.grow .gi img{display:block;margin:0 auto}.grow p i{color:var(--muted);font-style:normal;font-size:12px}
 .grow b{font:16px var(--display);display:flex;align-items:center;gap:7px}
 .grow b i{width:9px;height:9px;border-radius:50%;background:var(--rc);border:2px solid var(--ink);flex:none}
 .grow p{margin:0;font-weight:700;font-size:13px;line-height:1.25}
@@ -230,7 +230,7 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 #settings{z-index:31;background:rgba(43,33,64,.6)}
 #settings .panel{width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
 #settings h2{margin:0;font:28px var(--display)}#settings h3{margin:6px 0 0;font:18px var(--display);color:var(--tomato)}
-.srow{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px}.srow span:first-child{width:130px;flex:none}.srow input[type=range]{flex:1;accent-color:var(--tomato)}.srow output{width:44px;text-align:right;font:700 12px var(--mono)}
+.srow{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px}.srow span:first-child{width:130px;flex:none}.srow input[type=range]{flex:1;accent-color:var(--tomato)}#fpso{width:74px!important;font-size:11px}.srow output{width:44px;text-align:right;font:700 12px var(--mono)}
 .srow.chk{cursor:pointer}.srow.chk input{width:18px;height:18px;accent-color:var(--tomato)}
 #metrics{position:fixed;left:16px;top:calc(164px + env(safe-area-inset-top,0px));font:700 12px/1.4 var(--mono);color:#fff;background:rgba(43,33,64,.7);padding:4px 8px;border-radius:8px;white-space:pre;pointer-events:none;z-index:5}
 #mini{cursor:pointer}#mini.big{position:fixed;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(86vmin,600px);height:min(86vmin,600px);z-index:20}
@@ -420,7 +420,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r49</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r50</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -444,7 +444,9 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
     <h3>Graphics</h3>
-    <label class="srow"><span>Frame rate limit</span><select data-k="fps"><option value="0">Unlimited</option><option value="144">144 fps</option><option value="120">120 fps</option><option value="90">90 fps</option><option value="60">60 fps</option><option value="45">45 fps</option><option value="30">30 fps (old PCs)</option></select></label>
+    <label class="srow chk"><input type="checkbox" id="fpsauto"><span style="width:auto">Match monitor refresh rate <b id="hzinfo"></b></span></label>
+    <label class="srow"><span>Frame rate limit</span><input type="range" id="fpsr" min="0" max="1000"><output id="fpso"></output></label>
+    <p class="small" id="fpsnote" hidden>Above your monitor's refresh rate the game draws extra frames you cannot see. That can lower input lag a little but needs much more power.</p>
     <label class="srow tonly"><span>Zoom</span><input type="range" min="80" max="250" data-z="1"><output></output></label>
     <label class="srow"><span>Render distance</span><input type="range" min="30" max="100" data-k="rd"><output></output></label>
     <label class="srow chk"><input type="checkbox" data-k="potato"><span style="width:auto">Potato PC mode (low resolution, fewer effects, short render distance)</span></label>
@@ -458,7 +460,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 
 <div id="guide" class="overlay" hidden>
   <div class="panel" id="gpanel">
-    <div id="ghead"><h2>Guide</h2><div id="gtabs"><button type="button" class="gtab on" data-t="items">Items</button><button type="button" class="gtab" data-t="perks">Perks</button><button type="button" class="gtab" data-t="rar">Rarity</button></div><button type="button" class="btn alt" id="gclose">Close</button></div>
+    <div id="ghead"><h2>Guide</h2><div id="gtabs"><button type="button" class="gtab on" data-t="items">Items</button><button type="button" class="gtab" data-t="foods">Snacks</button><button type="button" class="gtab" data-t="perks">Perks</button><button type="button" class="gtab" data-t="rar">Rarity</button></div><button type="button" class="btn alt" id="gclose">Close</button></div>
     <div id="gbody"></div>
   </div>
 </div>
@@ -559,7 +561,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r49';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r50';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -791,69 +793,297 @@ function collide(e){const r=e.r,i0=Math.floor((e.x-r)/WGC),i1=Math.floor((e.x+r)
   e.x=clamp(e.x,r,WORLD-r);e.y=clamp(e.y,r,WORLD-r);}
 
 /* ---------- food ---------- */
-const FOODS=['burger','apple','soda','pizza','donut'], FOOD_OUT=4000, FOOD_IN=1100;
+const FOOD_OUT=4000, FOOD_IN=1100;
+/* ---------- food: 57 kinds in four rarities. Each one looks different, feeds differently, and the better ones have an effect ---------- */
+const FOOD_ODDS=[80,16,3.5,.5], BIOME_KEYS='mfdsawjvc';   // share of all snacks per rarity; biome letters: meadow forest desert snow autumn swamp jungle volcano candy
+// id, name, icon, rarity, nutrition (before balancing), eating time, home biomes, home shops, crumb colours, effects, text, drink?, plural
+const FOOD_SRC=[
+ ['burger','Burger','🍔',0,.95,1,'','diner arcade','f2a93b 7a3e1d 6ab04c','','Stacked high and juicy.'],
+ ['apple','Apple','🍎',0,.7,.8,'ma','barn greenhouse','e8475f fff6d5 6ab04c','','Crisp and sweet. Quick to eat.'],
+ ['soda','Soda','🥤',0,.8,.8,'','diner arcade cinema','9fdcff fff 3db5ff','','Fizzy! Gulped down in no time.',1],
+ ['pizza','Pizza','🍕',0,1.05,1,'','pizzeria diner','ffd23f d98e3a e8475f','','A cheesy slice. Really filling.'],
+ ['donut','Donut','🍩',0,.85,.9,'c','bakery','ff8fc2 e0a860 fff','','Pink icing with sprinkles.'],
+ ['fries','Fries','🍟',0,.75,.85,'','diner arcade cinema','ffd23f e8475f fff6d5','','Hot, salty and crispy.',0,'fries'],
+ ['hotdog','Hot Dog','🌭',0,.95,1,'a','diner cinema','f2c27b c4553b ffd23f','','Sausage with a mustard zigzag.',0,'hot dogs'],
+ ['cookie','Cookie','🍪',0,.6,.7,'c','bakery cafe','d8a25e 5a3320 fff6d5','','Crunchy, with chocolate chips.'],
+ ['banana','Banana','🍌',0,.7,.8,'j','','ffe14d e0b800 7a5a2a','','Mind the peel!'],
+ ['cupcake','Cupcake','🧁',0,.85,.9,'c','bakery cafe','ff8fc2 5a8dee fff','','A tiny cake with a cherry on top.'],
+ ['taco','Taco','🌮',0,1,1,'d','','f2c14e 6ab04c e8475f','','Crunchy shell, loaded with filling.'],
+ ['popcorn','Popcorn','🍿',0,.55,.8,'','cinema arcade','fff6d5 ffd23f e8475f','','Light and fluffy. Not very filling.',0,'popcorn boxes'],
+ ['pretzel','Pretzel','🥨',0,.7,.85,'a','bakery cafe','b8692a fff d98e3a','','A salty twist.'],
+ ['watermelon','Watermelon','🍉',0,.8,.9,'d','','ee4a5a 3f9b3a 2b2140','','A juicy summer slice.',0,'melon slices'],
+ ['carrot','Carrot','🥕',0,.5,.7,'m','barn greenhouse','ff8a1f 6ab04c d2610a','','Healthy, but not very filling.'],
+ ['cheese','Cheese','🧀',0,.65,.8,'m','barn','ffd23f f2c230 e0a81a','','Smells strong and has holes.',0,'cheese wedges'],
+ ['egg','Fried Egg','🍳',0,.75,.85,'mw','barn diner cafe','fffdf5 ffb300 fff6d5','','Sunny side up.',0,'fried eggs'],
+ ['toast','Toast','🍞',0,.6,.8,'','cafe home bakery','c9812e ffe2a8 e8b866','','Golden brown and crunchy.',0,'toasts'],
+ ['icecream','Ice Cream','🍦',0,.8,.9,'sc','icecream','ff8fc2 fff1c9 e0a860','','Two scoops. Eat it before it melts.',0,'ice creams'],
+ ['grapes','Grapes','🍇',0,.65,.8,'a','greenhouse','8e44ad b06bff 6ab04c','','A small sweet bunch.',0,'grape bunches'],
+ ['cherries','Cherries','🍒',0,.55,.7,'m','','d62839 e8475f 6ab04c','','A sweet little pair.',0,'cherries'],
+ ['corn','Corn','🌽',0,.7,.9,'ma','barn greenhouse','ffd23f e8b800 6ab04c','','A whole cob.',0,'corn cobs'],
+ ['milk','Milk','🥛',0,.55,.7,'m','barn cafe','fff fff 3db5ff','','Cold and creamy.',1,'milk cartons'],
+ ['lollipop','Lollipop','🍭',0,.6,.8,'c','icecream','ff6fa5 fff ffd23f','','A swirl of sugar.'],
+ ['sushi','Sushi','🍣',0,1.1,1,'w','','ff7a59 fffdf5 233c2e','','Salmon on rice. Surprisingly filling.',0,'sushi'],
+ ['pancakes','Pancakes','🥞',0,.95,1.1,'a','cafe diner','f4c070 e0a860 a8431b','','A fluffy stack with syrup.',0,'pancake stacks'],
+ ['bagel','Bagel','🥯',0,.75,.9,'','bakery cafe','e8b66f fff6d5 b87f3a','','Chewy, with sesame seeds.'],
+ ['orange','Orange','🍊',0,.65,.8,'dj','greenhouse','ff9f1c e08400 6ab04c','','Peel it and enjoy.'],
+ ['cake','Strawberry Cake','🍰',1,1.7,1.2,'c','bakery cafe','f7b4c8 fff6ea e8475f','','Soft and creamy. A slice of heaven.',0,'cake slices'],
+ ['ramen','Ramen','🍜',1,2.1,1.35,'s','cafe','ffe08a fffdf5 e8475f','','A hot bowl with an egg on top.',0,'ramen bowls'],
+ ['steak','Steak','🥩',1,2.5,1.4,'v','diner','b5482c e0694a fffdf5','','Thick, juicy and heavy.',0,'steaks'],
+ ['croissant','Croissant','🥐',1,1.5,1.1,'m','bakery cafe','e6a24a f2b95b b87f3a','','Buttery and flaky.'],
+ ['pineapple','Pineapple','🍍',1,1.9,1.25,'j','','f7b733 4c9a3c e08400','','Spiky outside, sweet inside.'],
+ ['avocado','Avocado','🥑',1,1.6,1.1,'j','greenhouse','3d6b2e c8e07a 8a5a2b','','Creamy green goodness.'],
+ ['chocolate','Chocolate Bar','🍫',1,1.7,1.1,'c','cafe arcade','6b3a1e 4a2412 c3ccd6','','Dark, sweet and smooth.'],
+ ['honey','Honey Jar','🍯',1,2,1.2,'f','','f2a921 ffc933 8b5a2b','','Golden honey. A bee wants it too.',0,'honey jars'],
+ ['bubbletea','Bubble Tea','🧋',1,1.8,1.1,'c','cafe icecream','f3d9b1 3a2216 ff8fc2','','Chewy pearls and a fat straw.',1,'bubble teas'],
+ ['curry','Curry','🍛',1,2.3,1.35,'dv','diner','c97a1d fffdf5 4c9a3c','','Spicy sauce on a hill of rice.',0,'curries'],
+ ['dumplings','Dumplings','🥟',1,2,1.2,'s','cafe','fffdf5 f2c27b c4553b','','Steamed and neatly pleated.',0,'dumplings'],
+ ['waffle','Waffle','🧇',1,1.8,1.2,'a','cafe diner','e0a24a b8761f ffe98a','','Crispy grid, melting butter.',0,'waffles'],
+ ['coconut','Coconut','🥥',1,1.9,1.2,'jd','icecream','7a4b25 fffdf5 5a3318','','Drink it straight from the shell.',1,'coconuts'],
+ ['mango','Mango','🥭',1,1.8,1.15,'j','greenhouse','ffb02e ff5a36 4c9a3c','','Sweet, juicy and sticky.'],
+ ['lobster','Lobster','🦞',1,2.8,1.45,'w','','e8475f d62839 fffdf5','','Fancy and heavy. Takes a while to crack.',0,'lobsters'],
+ ['bdaycake','Birthday Cake','🎂',2,3.8,1.5,'c','bakery','ff8fc2 fff6ea 5aa8ff','rush:5','Candles lit! Starts a Sugar Rush.',0,'birthday cakes'],
+ ['bento','Bento Box','🍱',2,4.4,1.6,'sw','cafe','fffdf5 ff7a59 6ab04c','sta','A whole lunch box. Refills your stamina.',0,'bento boxes'],
+ ['chicken','Roast Chicken','🍗',2,4,1.5,'v','diner','c97a2b e8a44a fffdf5','turbo:6','Golden and crispy. Makes you fast.',0,'drumsticks'],
+ ['shavedice','Shaved Ice','🍧',2,3.4,1.3,'s','icecream','ff8fc2 ffd23f 3db5ff','dash','Rainbow syrup on ice. Recharges your dash.',0,'shaved ices'],
+ ['truffle','Golden Truffle','🍄',2,4.8,1.4,'f','','3b2a22 5a4333 ffd23f','item','Earthy, flecked with gold. Brings a gift.',0,'truffles'],
+ ['dragonfruit','Dragon Fruit','🐉',2,3.9,1.4,'j','greenhouse','e0357f fff 4c9a3c','magnet:8','Spiky and pink. Pulls snacks to you.',0,'dragon fruits'],
+ ['fondue','Fondue','🫕',2,4.2,1.6,'s','diner','ffd23f e8475f f2c27b','shield:5','Melted cheese and bread. Cosy and safe.',0,'fondues'],
+ ['dango','Dango','🍡',2,3.5,1.3,'c','icecream','ff9ecb fffdf5 9be5a8','sta,dash','Three chewy rice balls on a stick.',0,'dango sticks'],
+ ['juice','Sparkling Juice','🧃',2,3.3,1,'','cafe cinema','ffb347 fff ff8fc2','radar:10','Fizzy and fancy. Shows everyone on the map.',1,'sparkling juices'],
+ ['goldburger','Golden Burger','🥇',3,11,1.8,'v','diner','ffd54a b8860b fff6d5','rush:10','Pure gold between two buns. Worth the hunt.',0,'golden burgers'],
+ ['diamonddonut','Diamond Donut','💎',3,13,1.7,'c','bakery','8ee9ff fff 3db5ff','shield:6,dash','It sparkles like ice.',0,'diamond donuts'],
+ ['rainbowcake','Rainbow Cake','🌈',3,15,1.9,'c','bakery','ff4f4f ffd23f 3db5ff','turbo:8,sta','Every colour at once.',0,'rainbow cakes'],
+ ['phoenixegg','Phoenix Egg','🔥',3,18,2,'v','','ff7a1a ffd23f ff4d00','rush:8,sta,dash','Warm to the touch. It glows.',0,'phoenix eggs'],
+ ['mooncake','Moon Cake','🥮',3,22,2.2,'','cafe','d49a4a fff3b0 3b3a7a','magnet:10,radar:10,shield:5','Baked under a full moon.',0,'moon cakes']];
+const FOOD={}, FOODS=[], FOOD_T=[[],[],[],[]];
+FOOD_SRC.forEach((a,i)=>{const [id,name,icon,tier,xp,et,bm,sh,cr,fx,text,drink,pl]=a;
+  const f={id,name,icon,tier,raw:xp,xp,et,bm:[...bm].reduce((m,c)=>m|1<<BIOME_KEYS.indexOf(c),0),sh,cr:cr.split(' ').map(c=>'#'+c),fx:fx?fx.split(','):[],text,drink:!!drink,
+    pl:pl||(/(ch|sh|s|x)$/.test(name)?name+'es':name+'s').toLowerCase(),i};
+  FOOD[id]=f;FOODS.push(id);FOOD_T[tier].push(f)});
+{let E=0;for(let t=0;t<4;t++)E+=FOOD_ODDS[t]/100*FOOD_T[t].reduce((s,f)=>s+f.raw,0)/FOOD_T[t].length;   // balance: an average snack is worth exactly what it was before there were 57 kinds
+ for(const id of FOODS)FOOD[id].xp=FOOD[id].raw/E}
+// pick a kind: rarity first, then the home biome / shop makes a kind about 6x more likely
+function rollFood(bi,shop,maxT){let r=Math.random()*100,t=0;for(;t<3;t++){r-=FOOD_ODDS[t];if(r<0)break}
+  if(maxT!==undefined&&t>maxT)t=maxT;
+  const list=FOOD_T[t],w=list.map(f=>1+(bi>=0&&f.bm&(1<<bi)?5:0)+(shop&&f.sh.indexOf(shop)>=0?7:0));
+  r=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<list.length;i++){r-=w[i];if(r<=0)return list[i].id}return list[0].id}
 let foods=[];
 function spotFor(inside){
   if(!inside)return freeSpot(24);
   let r=Math.random()*houses.reduce((s,h)=>s+h.food,0),h=houses[0];for(const b of houses){r-=b.food;if(r<=0){h=b;break}}
   for(let i=0;i<12;i++){const x=rand(h.x+40,h.x+h.w-40),y=rand(h.y+40,h.y+h.h-40);
-    if(!wallHit(x,y,24))return{x,y}}
+    if(!wallHit(x,y,24))return{x,y,type:h.type}}
   return null}
-function spawnFood(inside){const p=spotFor(inside);if(p)foods.push({x:p.x,y:p.y,t:pick(FOODS),bob:Math.random()*6.28,inside})}
+function spawnFood(inside){const p=spotFor(inside);if(p)foods.push({x:p.x,y:p.y,t:rollFood(inside?-1:biomeAt(p.x,p.y),p.type),bob:Math.random()*6.28,inside})}
+
+/* ---------- how every kind looks ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();ctx.stroke()}
+const fo={
+ c(x,y,r,f){ctx.fillStyle=f;ctx.beginPath();ctx.arc(x,y,r,0,6.3);ctx.fill();ctx.stroke()},
+ e(x,y,rx,ry,f,a){ctx.fillStyle=f;ctx.beginPath();ctx.ellipse(x,y,rx,ry,a||0,0,6.3);ctx.fill();ctx.stroke()},
+ r(x,y,w,h,rad,f){ctx.fillStyle=f;ctx.beginPath();ctx.roundRect(x,y,w,h,rad);ctx.fill();ctx.stroke()},
+ p(pts,f,ns){ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);ctx.closePath();ctx.fill();if(!ns)ctx.stroke()},
+ s(pts){ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);ctx.closePath();ctx.stroke()},
+ l(pts,col,w){ctx.save();ctx.strokeStyle=col||INK;ctx.lineWidth=w||2;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);ctx.stroke();ctx.restore()},
+ d(f,list){ctx.fillStyle=f;for(const a of list)ctx.fillRect(a[0],a[1],a[2]||2,a[3]||1.6)},
+ o(f,list){ctx.fillStyle=f;for(const a of list){ctx.beginPath();ctx.arc(a[0],a[1],a[2]||1.4,0,6.3);ctx.fill()}},
+ h(x,y,rx,ry,a){ctx.save();ctx.globalAlpha=.55;ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(x,y,rx,ry,a||0,0,6.3);ctx.fill();ctx.restore()},
+ u(list,f){ctx.lineWidth=5;for(const a of list){ctx.beginPath();ctx.arc(a[0],a[1],a[2],0,6.3);ctx.stroke()}ctx.fillStyle=f;for(const a of list){ctx.beginPath();ctx.arc(a[0],a[1],a[2],0,6.3);ctx.fill()}ctx.lineWidth=2.5},   // a blob made of circles with one outline
+ g(r,w,f){ctx.save();ctx.lineWidth=w+5;ctx.strokeStyle=INK;ctx.beginPath();ctx.arc(0,0,r,0,6.3);ctx.stroke();ctx.lineWidth=w;ctx.strokeStyle=f;ctx.beginPath();ctx.arc(0,0,r,0,6.3);ctx.stroke();ctx.restore()},   // a ring (the hole stays see-through)
+ k(x,y,r,f){ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(x,y-r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.quadraticCurveTo(x,y,x,y+r);ctx.quadraticCurveTo(x,y,x-r,y);ctx.quadraticCurveTo(x,y,x,y-r);ctx.fill()}   // sparkle
+};
+const burgerArt=(bun,pat,lea,seed)=>{ctx.fillStyle=bun;rr(-12,5,24,7,3);ctx.fillStyle=pat;rr(-13,1,26,5,2);ctx.fillStyle=lea;rr(-14,-2,28,4,2);
+  ctx.fillStyle=bun;ctx.beginPath();ctx.moveTo(-13,-2);ctx.quadraticCurveTo(-13,-14,0,-14);ctx.quadraticCurveTo(13,-14,13,-2);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle=seed;[[-5,-9],[2,-10],[6,-6],[-1,-6]].forEach(([a,b])=>{ctx.fillRect(a,b,2,1.5)})};
+const donutArt=(icing,dough,spr)=>{fo.g(8,8,dough);fo.g(7.8,5.6,icing);   // icing is a slightly thinner ring on top of the dough
+  [[-7,-4,0],[3,-9,.6],[8,0,1.4],[4,7,2.2],[-4,8,.8],[-9,3,2.6]].forEach(([x,y,a],i)=>{ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle=spr[i%spr.length];ctx.fillRect(-1.6,-.7,3.2,1.5);ctx.restore()})};
+const FOOD_ART={
+ burger(){burgerArt('#f2a93b','#7a3e1d','#6ab04c','#fff6d5')},
+ apple(){
+  ctx.fillStyle='#e8475f';ctx.beginPath();ctx.arc(-4,1,9,0,6.3);ctx.arc(4,1,9,0,6.3);ctx.fill();
+  ctx.beginPath();ctx.moveTo(0,-7);ctx.bezierCurveTo(-18,-12,-16,14,-3,11);ctx.quadraticCurveTo(0,13,3,11);ctx.bezierCurveTo(16,14,18,-12,0,-7);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#fff';ctx.globalAlpha=.6;ctx.beginPath();ctx.ellipse(-6,-2,2,3.5,.4,0,6.3);ctx.fill();ctx.globalAlpha=1;
+  ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(1,-13);ctx.stroke();
+  ctx.fillStyle='#6ab04c';ctx.beginPath();ctx.ellipse(5,-12,5,2.6,-.5,0,6.3);ctx.fill();ctx.stroke()},
+ soda(){
+  ctx.beginPath();ctx.moveTo(3,-11);ctx.lineTo(8,-19);ctx.stroke();
+  ctx.fillStyle='#3db5ff';ctx.beginPath();ctx.moveTo(-10,-11);ctx.lineTo(10,-11);ctx.lineTo(7,13);ctx.lineTo(-7,13);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#fff';ctx.fillRect(-8,-2,16,5);ctx.fillStyle='#fffdf7';rr(-12,-14,24,4,2)},
+ pizza(){
+  ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.moveTo(-12,-11);ctx.lineTo(12,-11);ctx.lineTo(0,13);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#d98e3a';rr(-14,-15,28,6,3);
+  ctx.fillStyle='#e8475f';[[-4,-4],[4,-3],[0,4]].forEach(([a,b])=>{ctx.beginPath();ctx.arc(a,b,2.8,0,6.3);ctx.fill()})},
+ donut(){donutArt('#ff8fc2','#e0a860',['#fff','#3db5ff','#ffd23f','#9b5de5'])},
+ fries(){for(let i=0;i<6;i++)fo.r(-11+i*4.2,-15+((i*7)%5),4,15+(i*5)%4,1,'#ffd23f');
+  fo.p([-12,-2,12,-2,9,13,-9,13],'#e8475f');fo.r(-5,3,10,5,2,'#fff6d5')},
+ hotdog(){ctx.save();ctx.rotate(-.45);fo.r(-16,-3,32,12,6,'#d99a52');fo.r(-17,-6,34,7,3.5,'#c4553b');fo.r(-16,0,32,11,5.5,'#f2c27b');
+  fo.l([-12,-2.5,-8,-.5,-4,-2.5,0,-.5,4,-2.5,8,-.5,12,-2.5],'#ffd23f',2.2);ctx.restore()},
+ cookie(){fo.c(0,0,13,'#d8a25e');fo.o('#5a3320',[[-5,-5,2.4],[4,-6,2.2],[-1,1,2.4],[7,2,2],[-8,4,1.8],[2,8,2.2]]);fo.h(-6,-8,3,1.6,-.6)},
+ banana(){ctx.fillStyle='#ffe14d';ctx.beginPath();ctx.moveTo(-13,-9);ctx.quadraticCurveTo(-2,20,14,-9);ctx.lineTo(11,-13);ctx.quadraticCurveTo(0,6,-9,-13);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.r(10,-17,5,6,1.5,'#7a5a2a');fo.l([-8,-6,-2,2,6,-1],'#e0b800',1.5);fo.h(-3,4,5,1.5,.25)},
+ cupcake(){fo.p([-10,0,10,0,7,13,-7,13],'#5a8dee');fo.l([-5,1,-3.5,12],'#a9c4ff',1.6);fo.l([0,1,0,12],'#a9c4ff',1.6);fo.l([5,1,3.5,12],'#a9c4ff',1.6);
+  fo.e(0,-2,11.5,6,'#ff8fc2');fo.e(0,-8,8.5,5.5,'#ffb3d9');fo.e(0,-12.5,5,4,'#ff8fc2');fo.c(0,-17,2.6,'#e8475f');fo.d('#fff',[[-5,-9],[3,-8],[-1,-3],[6,-2]])},
+ taco(){ctx.save();ctx.rotate(-.22);ctx.fillStyle='#d99a2b';ctx.beginPath();ctx.arc(0,-3,15,Math.PI,0,true);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.c(-7,-6,4.5,'#6ab04c');fo.c(0,-9,5,'#e8475f');fo.c(7,-6,4.5,'#6ab04c');fo.c(-2,-5,3.6,'#ffd23f');fo.c(4,-4.5,3,'#f6f1d0');
+  ctx.fillStyle='#f2c14e';ctx.beginPath();ctx.arc(0,-1,15,Math.PI,0,true);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.o('#d99a2b',[[-6,7,1.2],[2,9,1.2],[8,5,1.2],[-9,3.5,1.2],[0,4.5,1.2]]);fo.h(-7,5,2.5,1.4,.5);ctx.restore()},
+ popcorn(){const K='#fff6d5';fo.c(-8,-6,5,K);fo.c(-1,-11,5.5,K);fo.c(7,-7,5,K);fo.c(-3,-4,4.5,K);fo.c(4,-3,4.5,K);
+  fo.o('#ffd23f',[[-8,-7,1.6],[0,-12,1.6],[7,-8,1.6],[3,-3,1.4]]);
+  fo.p([-11,-2,11,-2,9,14,-9,14],'#fff',1);fo.p([-11,-2,-5.5,-2,-4.5,14,-9,14],'#e8475f',1);fo.p([0,-2,5.5,-2,4.5,14,0,14],'#e8475f',1);fo.s([-11,-2,11,-2,9,14,-9,14])},
+ pretzel(){const pp=()=>{ctx.beginPath();ctx.ellipse(0,-4,10.5,8.5,0,0,6.3);ctx.moveTo(-8,2.5);ctx.quadraticCurveTo(-2,6,9,12.5);ctx.moveTo(8,2.5);ctx.quadraticCurveTo(2,6,-9,12.5)};
+  ctx.lineCap='round';ctx.strokeStyle=INK;ctx.lineWidth=8;pp();ctx.stroke();ctx.strokeStyle='#b8692a';ctx.lineWidth=4.6;pp();ctx.stroke();
+  fo.o('#fff',[[-8,-8,1],[2,-12,1],[8,-6,1],[-3,-2,1],[0,8,1],[-7,1,1]])},
+ watermelon(){const arc=(r,f,s)=>{ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(-r,-8);ctx.arc(0,-8,r,Math.PI,0,true);ctx.closePath();ctx.fill();if(s)ctx.stroke()};
+  arc(15,'#3f9b3a',1);arc(12.6,'#f4f1d0');arc(11,'#ee4a5a');ctx.fillStyle=INK;[[-6,-2,.3],[0,1,0],[6,-2,-.3],[-3,-5,.2],[3,-5,-.2]].forEach(([x,y,a])=>{ctx.beginPath();ctx.ellipse(x,y,1.1,1.8,a,0,6.3);ctx.fill()})},
+ carrot(){ctx.save();ctx.rotate(.6);fo.e(-3,-14,2.5,5.5,'#4caf50',-.4);fo.e(3,-14,2.5,5.5,'#4caf50',.4);fo.e(0,-15,2.5,6,'#6ab04c');
+  ctx.fillStyle='#ff8a1f';ctx.beginPath();ctx.moveTo(-6,-8);ctx.quadraticCurveTo(0,-12,6,-8);ctx.lineTo(1.2,15);ctx.lineTo(-1.2,15);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.l([-4,-3,0,-2],'#d2610a',1.5);fo.l([1,3,4,2],'#d2610a',1.5);fo.l([-2,8,1,9],'#d2610a',1.4);fo.h(-3,-5,1.3,3,.1);ctx.restore()},
+ cheese(){fo.p([-14,1,6,-10,14,-3,-6,8],'#ffe45c');fo.p([-14,1,-6,8,-6,15,-14,8],'#e0a81a');fo.p([-6,8,14,-3,14,5,-6,15],'#f2c230');
+  fo.o('#d9a000',[[-2,-2,1.8],[6,-4,1.3]]);fo.e(3,8,2.1,1.5,'#d9a000');fo.e(9,3,1.3,1.1,'#d9a000')},
+ egg(){fo.u([[-5,-3,8.5],[5,-2,8],[2,6,8.5],[-6,5,7],[0,0,9]],'#fffdf5');fo.c(1,0,5.2,'#ffb300');fo.h(-.5,-2,1.8,1.2,-.5)},
+ toast(){const P=()=>{ctx.beginPath();ctx.moveTo(-11,13);ctx.lineTo(-11,-1);ctx.bezierCurveTo(-17,-3,-16,-14,-6,-13);ctx.bezierCurveTo(-3,-16,3,-16,6,-13);ctx.bezierCurveTo(16,-14,17,-3,11,-1);ctx.lineTo(11,13);ctx.closePath()};
+  ctx.fillStyle='#c9812e';P();ctx.fill();ctx.stroke();ctx.save();ctx.scale(.8,.8);ctx.translate(0,1.5);ctx.fillStyle='#ffe2a8';P();ctx.fill();ctx.restore();
+  fo.o('#e8b866',[[-3,-3,1],[3,2,1],[-4,6,1],[4,-6,1]])},
+ icecream(){fo.p([-9,0,9,0,0,17],'#e0a860');fo.l([-5,3,3,11],'#b87f3a',1.3);fo.l([5,3,-3,11],'#b87f3a',1.3);
+  fo.e(0,-1,10.5,5.5,'#ff8fc2');fo.c(0,-8,8.5,'#fff1c9');fo.c(0,-16.5,2.4,'#e8475f');fo.h(-3,-10,2.2,1.4,-.6)},
+ grapes(){fo.l([0,-9,1,-14],'#6a4a2a',2.4);fo.e(5,-14,5,2.6,'#6ab04c',-.5);
+  [[-7,-5],[0,-5],[7,-5],[-3.5,1],[3.5,1],[0,7],[-7,6],[7,6]].slice(0,6).forEach(([x,y])=>{fo.c(x,y,4.8,'#8e44ad');fo.o('rgba(255,255,255,.55)',[[x-1.5,y-1.5,1.1]])})},
+ cherries(){fo.l([-6,5,-2,-12],'#4c8c2b',2);fo.l([6,6,-2,-12],'#4c8c2b',2);fo.e(4,-13,5,2.6,'#6ab04c',.3);
+  fo.c(-6,7,6,'#d62839');fo.c(6,8,6,'#e8475f');fo.o('rgba(255,255,255,.6)',[[-8,5,1.4],[4,6,1.4]])},
+ corn(){ctx.save();ctx.rotate(-.5);fo.e(0,-2,7.5,14,'#ffd23f');
+  for(let j=-10;j<=8;j+=4)for(let i=-4;i<=4;i+=4)fo.o('#e8b800',[[i+(j%8?0:2),j,1.1]]);
+  fo.e(-4,9,4,9,'#6ab04c',.3);fo.e(4,9,4,9,'#4c9a3c',-.3);ctx.restore()},
+ milk(){fo.p([-9,-6,9,-6,9,14,-9,14],'#fff');fo.p([-9,-6,0,-15,9,-6],'#e9f2ff');ctx.fillStyle='#3db5ff';ctx.fillRect(-9,3,18,6);
+  fo.o('#2b2140',[[-3,-1,1.8],[3,-2,1.4],[-1,12,1.5]]);fo.s([-9,-6,9,-6,9,14,-9,14])},
+ lollipop(){fo.p([2,6,5,6,10,18,7,18],'#fff6d5');fo.c(-1,-3,12,'#ff6fa5');
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.2;ctx.beginPath();for(let a=.5;a<10.5;a+=.3){const r=a*1.05,x=-1+Math.cos(a)*r,y=-3+Math.sin(a)*r;a<.6?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke()},
+ sushi(){fo.r(-13,1,26,12,6,'#fffdf5');fo.o('#e6e0cc',[[-9,7,.9],[-5,9,.9],[6,8,.9],[10,6,.9]]);fo.e(0,-2,14.5,7.5,'#ff7a59');
+  fo.l([-9,-6,-6,1],'#ffd1c2',1.8);fo.l([-2,-8,0,-1],'#ffd1c2',1.8);fo.l([5,-7,7,0],'#ffd1c2',1.8);fo.r(-3.5,-9,7,22,1.5,'#233c2e')},
+ pancakes(){fo.r(-14,3,28,8,4,'#d9993f');fo.r(-14,-3,28,8,4,'#e8ad57');fo.r(-14,-9,28,8,4,'#f4c070');
+  fo.e(0,-9,10,3.5,'#a8431b');fo.r(-9,-9,3,8,1.5,'#a8431b');fo.r(6,-9,3,6,1.5,'#a8431b');fo.r(-4,-14,8,5,1.5,'#ffe98a')},
+ bagel(){fo.g(8.5,9,'#e8b66f');fo.d('#fff6d5',[[-9,-9,2.2,1.2],[2,-12,2.2,1.2],[10,-4,2.2,1.2],[9,6,2.2,1.2],[-1,12,2.2,1.2],[-11,3,2.2,1.2],[-5,8,2.2,1.2],[5,-7,2.2,1.2]])},
+ orange(){fo.c(0,1,12.5,'#ff9f1c');fo.h(-5,-4,3,2,-.6);fo.o('#e08400',[[3,5,.9],[-4,7,.9],[7,0,.9],[-8,2,.9],[2,-3,.9]]);fo.e(5,-12,5.5,2.8,'#6ab04c',-.4);fo.l([0,-11,1,-14],'#6a4a2a',2)},
+ cake(){fo.r(-13,3,26,10,3,'#f7b4c8');fo.r(-13,-2,26,6,2,'#fff6ea');fo.r(-13,-7,26,6,3,'#f2a0ba');fo.r(-13,-12,26,5,2.5,'#fff');
+  fo.p([-3,-14,3,-14,0,-18],'#6ab04c',1);fo.c(0,-16,4.2,'#e8475f');fo.p([-3,-19,0,-17,3,-19,0,-21],'#6ab04c',1);fo.o('#ffd23f',[[-1.5,-16,.7],[1.5,-15,.7]])},
+ ramen(){ctx.fillStyle='#e8475f';ctx.beginPath();ctx.moveTo(-15,-2);ctx.arc(0,-2,15,0,Math.PI);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.e(0,-2,15.5,5,'#fffdf5');fo.e(0,-2.5,12.5,3.6,'#f0c14a');fo.l([-9,-3,-5,-1.5,-1,-3,3,-1.5,7,-3],'#e0a800',1.3);
+  fo.e(5,-5,4.6,3.6,'#fffdf5');fo.c(5,-5,1.8,'#ffb300');fo.c(-6,-5,3.3,'#fffdf5');fo.o('#ff8fa0',[[-6,-5,1.3]]);fo.p([-1,-4,3,-12,6,-9,2,-3],'#233c2e');
+  fo.l([8,-10,15,-18],'#b8692a',1.8);fo.l([11,-9,17,-16],'#b8692a',1.8)},
+ steak(){const P=()=>{ctx.beginPath();ctx.moveTo(-13,-2);ctx.bezierCurveTo(-14,-12,2,-14,9,-10);ctx.bezierCurveTo(16,-6,15,8,6,11);ctx.bezierCurveTo(-4,14,-13,8,-13,-2);ctx.closePath()};
+  ctx.fillStyle='#a8452c';P();ctx.fill();ctx.stroke();ctx.save();ctx.scale(.78,.78);ctx.translate(0,1);ctx.fillStyle='#e0694a';P();ctx.fill();ctx.restore();
+  fo.l([-6,-6,2,2],'#7a2a1a',1.8);fo.l([-1,-9,7,-1],'#7a2a1a',1.8);fo.l([-8,0,-2,6],'#7a2a1a',1.8);fo.c(8,6,3.2,'#fffdf5')},
+ croissant(){const arc=(i,rx,ry,col)=>{const a=Math.PI*(1.2+i*.15);ctx.save();ctx.translate(Math.cos(a)*13,9+Math.sin(a)*13);ctx.rotate(a+Math.PI/2);fo.e(0,0,rx,ry,col);ctx.restore()};
+  arc(0,4,3.6,'#d9923d');arc(5,4,3.6,'#d9923d');arc(1,5.5,4.6,'#e6a24a');arc(4,5.5,4.6,'#e6a24a');arc(2.5,7.5,6,'#f2b95b');fo.h(-1,-5,3,1.2,-.1)},
+ pineapple(){fo.p([-2,-6,-7,-16,-3,-12,0,-20,3,-12,7,-16,2,-6],'#4c9a3c');ctx.save();ctx.beginPath();ctx.ellipse(0,4,9.5,12.5,0,0,6.3);ctx.fillStyle='#f7b733';ctx.fill();ctx.clip();
+  ctx.lineWidth=1.5;ctx.strokeStyle='#c98a14';for(let k=-24;k<=24;k+=7){ctx.beginPath();ctx.moveTo(k-10,-9);ctx.lineTo(k+10,19);ctx.stroke();ctx.beginPath();ctx.moveTo(k+10,-9);ctx.lineTo(k-10,19);ctx.stroke()}ctx.restore();
+  ctx.beginPath();ctx.ellipse(0,4,9.5,12.5,0,0,6.3);ctx.stroke();fo.h(-4,-1,1.6,3.5,.2)},
+ avocado(){const P=()=>{ctx.beginPath();ctx.moveTo(0,-15);ctx.bezierCurveTo(8,-15,8,-5,14,3);ctx.bezierCurveTo(18,12,8,17,0,17);ctx.bezierCurveTo(-8,17,-18,12,-14,3);ctx.bezierCurveTo(-8,-5,-8,-15,0,-15);ctx.closePath()};
+  ctx.fillStyle='#3d6b2e';P();ctx.fill();ctx.stroke();ctx.save();ctx.scale(.8,.8);ctx.translate(0,2);ctx.fillStyle='#c8e07a';P();ctx.fill();ctx.restore();fo.c(0,6,5.4,'#8a5a2b');fo.h(-1.5,4,1.5,2,.3)},
+ chocolate(){ctx.save();ctx.rotate(-.25);fo.r(-12,-11,24,23,2.5,'#6b3a1e');
+  [-4,4].forEach(x=>fo.l([x,-11,x,12],'#4a2412',1.5));[-4,1.5,7].forEach(y=>fo.l([-12,y,12,y],'#4a2412',1.5));
+  fo.h(-8,-8,2,1.2,0);fo.h(0,-8,2,1.2,0);fo.p([-12,3,-8,1,-4,3,0,1,4,3,8,1,12,3,12,12,-12,12],'#c3ccd6');fo.r(-12,6,24,5,1,'#e8475f');ctx.restore()},
+ honey(){fo.r(-10,-4,20,18,5,'#f2a921');fo.r(-8,-9,16,6,2,'#8b5a2b');fo.r(-6,3,12,7,2,'#fff6d5');fo.p([0,4,3,6.5,3,8.5,0,10.5,-3,8.5,-3,6.5],'#f2a921',1);
+  fo.r(-10,-5,20,4,2,'#ffc933');fo.r(-7,-2,3,5,1.5,'#ffc933');fo.h(-6,3,1.2,5,0);fo.e(11,-11,3.4,2.6,'#ffd23f');fo.d(INK,[[10,-12,1.4,5]]);fo.e(10.5,-14.5,2.6,1.6,'rgba(255,255,255,.8)',.4)},
+ bubbletea(){fo.l([4,-8,8,-19],INK,5.6);fo.l([4,-8,8,-19],'#ff8fc2',3);fo.p([-9,-10,9,-10,7,14,-7,14],'#f3d9b1');fo.r(-11,-13,22,4,2,'#fff');
+  fo.o('#3a2216',[[-4,10,2.6],[1,11,2.6],[5,9.5,2.6],[-2,6.5,2.6],[3,6,2.6],[-5,6,2.2]]);fo.o('rgba(255,255,255,.5)',[[-4.7,9.2,.8],[.3,10.2,.8],[4.3,8.7,.8]]);fo.h(-5,-3,1.2,4,0)},
+ curry(){fo.e(0,5,15.5,8.5,'#fff');fo.e(0,5,12,5.7,'#e9edf2');fo.e(-5,3,8,5,'#fffdf5');fo.e(5,5,8,4.6,'#c97a1d');
+  fo.o('#e8942b',[[3,4,1.5],[7,6,1.5],[10,4,1.2]]);fo.o('#4c9a3c',[[1,6,1.1],[8,3,1.1]]);fo.l([-3,-4,-5,-9],'rgba(43,33,64,.35)',1.6);fo.l([3,-3,5,-9],'rgba(43,33,64,.35)',1.6)},
+ dumplings(){const dp=(x,y,s)=>{ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#fffdf5';ctx.beginPath();ctx.moveTo(-10,3);ctx.quadraticCurveTo(-10,-9,0,-9);ctx.quadraticCurveTo(10,-9,10,3);ctx.quadraticCurveTo(0,9,-10,3);ctx.closePath();ctx.fill();ctx.stroke();
+   for(const px of [-5,-1.7,1.7,5]){ctx.beginPath();ctx.moveTo(px,-8);ctx.lineTo(px*1.1,-3);ctx.stroke()}ctx.restore()};
+  dp(-5,5,1);dp(6,-1,1)},
+ waffle(){fo.r(-13,-13,26,26,4,'#e0a24a');[-4.5,4.5].forEach(i=>{fo.l([i,-12,i,12],'#b8761f',1.8);fo.l([-12,i,12,i],'#b8761f',1.8)});
+  fo.r(-4,-4,8,6,1.5,'#ffe98a');fo.c(8,8,2.5,'#e8475f')},
+ coconut(){fo.l([3,-6,8,-18],INK,5.4);fo.l([3,-6,8,-18],'#ff6b3d',2.8);fo.c(0,3,12.5,'#7a4b25');fo.e(0,-5,9,3.6,'#fffdf5');fo.e(0,-5.2,6.5,2.2,'#dfeeff');
+  fo.l([-9,6,-6,10],'#5a3318',1.2);fo.l([6,7,9,4],'#5a3318',1.2);fo.l([-2,10,1,13],'#5a3318',1.2);fo.h(-6,2,1.4,3,.3)},
+ mango(){const g=ctx.createLinearGradient(-12,10,12,-10);g.addColorStop(0,'#ffd23f');g.addColorStop(.55,'#ffa02e');g.addColorStop(1,'#ff5a36');
+  ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-12,-2);ctx.bezierCurveTo(-12,-14,6,-15,12,-6);ctx.bezierCurveTo(16,2,8,14,-2,13);ctx.bezierCurveTo(-10,12,-12,6,-12,-2);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.e(3,-13,6.5,2.8,'#4c9a3c',.45);fo.h(-6,-3,1.6,4,.4)},
+ lobster(){fo.e(0,18.5,5,2.2,'#d62839');fo.e(0,15,4.2,2.8,'#e8475f');fo.e(0,11.5,5,3.2,'#e8475f');fo.e(0,7.5,6,3.6,'#e8475f');
+  [[-7,0,-12,3],[7,0,12,3],[-7,-3,-12,-1],[7,-3,12,-1]].forEach(a=>fo.l(a,INK,1.8));
+  fo.l([-5,-5,-10,-10],INK,5.5);fo.l([-5,-5,-10,-10],'#e8475f',3);fo.l([5,-5,10,-10],INK,5.5);fo.l([5,-5,10,-10],'#e8475f',3);
+  fo.e(-12,-14,3.2,6,'#e8475f',-.45);fo.e(-8,-15,2.8,5.5,'#d62839',.35);fo.e(12,-14,3.2,6,'#e8475f',.45);fo.e(8,-15,2.8,5.5,'#d62839',-.35);
+  fo.e(0,-1,7.5,9,'#e8475f');fo.l([-3,-9,-7,-20],INK,1.4);fo.l([3,-9,7,-20],INK,1.4);fo.o('#fff',[[-3,-8,1.6],[3,-8,1.6]]);fo.o(INK,[[-3,-8,.7],[3,-8,.7]]);fo.h(-2,-2,1.4,4,.2)},
+ bdaycake(){fo.r(-14,2,28,12,3,'#ff8fc2');fo.o('#fff',[[-11,3,2.7],[-5.5,3.5,2.7],[0,3,2.7],[5.5,3.5,2.7],[11,3,2.7]]);fo.r(-9,-6,18,9,3,'#fff6ea');
+  [[-5,'#5aa8ff'],[0,'#ffd23f'],[5,'#6ad06a']].forEach(([x,c])=>{fo.r(x-1.3,-13,2.6,7,1,c);fo.e(x,-16,1.8,2.8,'#ffc933')});
+  fo.d('#ffd23f',[[-10,8],[-3,10],[4,8],[9,10]]);fo.d('#3db5ff',[[-7,11],[1,12],[7,6]]);fo.d('#9b5de5',[[-1,6],[11,11]])},
+ bento(){fo.r(-15,-11,30,24,4,'#3a2a36');fo.r(-12,-8,13,8,2,'#fffdf5');fo.o('#2b2140',[[-8,-5,.8],[-4,-3,.8],[-1,-6,.8]]);
+  fo.r(2,-8,10,8,2,'#ff7a59');fo.r(-12,2,8,8,2,'#ffd23f');fo.r(-3,2,9,8,2,'#6ab04c');fo.c(10,6,3.4,'#e8475f')},
+ chicken(){ctx.save();ctx.rotate(-.6);ctx.fillStyle='#fffdf5';ctx.beginPath();ctx.moveTo(2,8);ctx.lineTo(2,16);ctx.stroke();fo.r(-1.5,8,3.4,9,1.5,'#fffdf5');fo.c(-1.8,17,2.4,'#fffdf5');fo.c(2.4,17,2.4,'#fffdf5');
+  ctx.fillStyle='#c97a2b';ctx.beginPath();ctx.moveTo(-11,-4);ctx.bezierCurveTo(-12,-17,9,-17,11,-4);ctx.bezierCurveTo(12,3,5,10,0,10);ctx.bezierCurveTo(-6,10,-11,3,-11,-4);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.h(-5,-8,2,4.5,.2);fo.l([-3,-1,3,-1],'#a85d17',1.5);fo.l([-2,4,2,4],'#a85d17',1.5);ctx.restore()},
+ shavedice(){fo.p([-9,3,9,3,6,14,-6,14],'#fffdf5');ctx.save();ctx.beginPath();ctx.ellipse(0,3,13,13,0,Math.PI,0);ctx.closePath();ctx.fillStyle='#e8f6ff';ctx.fill();ctx.clip();
+  [['#ff6f91',-14],['#ffd23f',-9],['#3db5ff',-4]].forEach(([c,y])=>{ctx.fillStyle=c;ctx.fillRect(-14,y,28,5)});ctx.restore();
+  ctx.beginPath();ctx.ellipse(0,3,13,13,0,Math.PI,0);ctx.closePath();ctx.stroke();fo.l([5,-8,12,-17],'#c3ccd6',2.2);fo.c(13,-18,2.6,'#e8475f')},
+ truffle(){fo.u([[-5,-3,7],[4,-4,7],[6,3,6.5],[-4,5,7],[0,0,8]],'#3b2a22');fo.o('#5a4333',[[-6,-5,1.6],[3,-8,1.4],[6,1,1.8],[-3,6,1.6],[0,1,1.5]]);
+  fo.k(-6,-3,2.8,'#ffd23f');fo.k(5,-6,2.2,'#ffe98a');fo.k(2,5,3,'#ffd23f');fo.k(-2,1,1.8,'#fff6d5')},
+ dragonfruit(){fo.e(0,3,10,12.5,'#e0357f');[[-10,-3,-15,-8,-9,-9],[10,-3,15,-8,9,-9],[-11,5,-17,3,-11,0],[11,5,17,3,11,0],[-8,12,-12,17,-5,14],[8,12,12,17,5,14],[0,-9,-3,-17,4,-12]].forEach(a=>fo.p(a,'#4cb05a'));
+  fo.h(-4,-1,1.8,4,.2);fo.o('#fff',[[5,2,1],[2,8,1],[-2,5,1]])},
+ fondue(){fo.l([8,-3,13,-17],'#b8692a',2);fo.r(7,-18,7,7,1.5,'#f2c27b');fo.p([-13,-2,13,-2,10,13,-10,13],'#e8475f');fo.e(0,-2,13,4.5,'#ffd23f');fo.o('#fff6a8',[[-4,-3,1.4],[3,-2,1.2]]);
+  fo.r(-14,5,3,3,1.5,'#b8b8c8');fo.r(11,5,3,3,1.5,'#b8b8c8');fo.p([-3,14,0,19,3,14],'#ffb300');fo.h(-7,5,1,5,0)},
+ dango(){fo.l([-14,14,14,-14],INK,4.8);fo.l([-14,14,14,-14],'#d9a860',2.4);fo.c(-7,7,6.2,'#ff9ecb');fo.c(0,0,6.2,'#fffdf5');fo.c(7,-7,6.2,'#9be5a8');fo.h(-9,5,1.3,2,.4);fo.h(-2,-2,1.3,2,.4);fo.h(5,-9,1.3,2,.4)},
+ juice(){fo.p([-7,-14,7,-14,5,6,-5,6],'#e8f6ff');fo.p([-6,-8,6,-8,4.6,6,-4.6,6],'#ffb347');fo.l([0,6,0,13],INK,4);fo.l([0,6,0,13],'#e8f6ff',1.8);fo.e(0,14,7,2.2,'#fffdf5');
+  fo.o('#fff',[[-2,-3,1.3],[2,-5,1.1],[0,1,1.1],[-1,-7,.9]]);fo.k(8,-12,3.2,'#ffd23f');fo.k(-9,-3,2.4,'#fff6d5')},
+ goldburger(){burgerArt('#ffd54a','#b8860b','#e8c34a','#fff6d5');fo.k(-10,-12,3.6,'#fff6d5');fo.k(11,-3,3,'#fff');fo.k(6,-14,2.4,'#ffe98a')},
+ diamonddonut(){donutArt('#8ee9ff','#e8e0ff',['#fff','#3db5ff','#b06bff','#fff']);
+  [[-8,-3],[7,-6],[4,8]].forEach(([x,y])=>fo.p([x,y-3.4,x+3,y,x,y+3.4,x-3,y],'#fff'));fo.k(10,5,3.4,'#fff');fo.k(-10,-10,3,'#c8f4ff')},
+ rainbowcake(){[['#ff4f4f',-10],['#ff9f1c',-6],['#ffd23f',-2],['#6ad06a',2],['#3db5ff',6],['#9b5de5',10]].forEach(([c,y])=>fo.r(-13,y,26,4.4,1,c));
+  fo.r(-13,-14,26,4,2,'#fff');fo.k(0,-17,4.6,'#ffd23f');fo.o('#fff',[[-7,-12,1],[5,-12,1],[9,-12,1]])},
+ phoenixegg(){fo.p([-7,-6,-10,-16,-4,-11,-1,-20,3,-11,9,-16,7,-6],'#ffb300');fo.p([-3,-6,-3,-12,0,-9,3,-12,3,-6],'#ff4d00');
+  ctx.fillStyle='#ff7a1a';ctx.beginPath();ctx.moveTo(0,-14);ctx.bezierCurveTo(9,-14,12,2,11,7);ctx.bezierCurveTo(10,15,-10,15,-11,7);ctx.bezierCurveTo(-12,2,-9,-14,0,-14);ctx.closePath();ctx.fill();ctx.stroke();
+  fo.o('#ffd23f',[[-4,-2,1.8],[4,2,2],[-2,7,1.6],[5,-5,1.4],[-6,4,1.3]]);fo.h(-5,-6,1.8,4,.25)},
+ mooncake(){fo.c(0,0,13,'#d49a4a');fo.g(9.5,1.4,'#fff3b0');fo.c(0,0,8,'#3b3a7a');
+  ctx.fillStyle='#fff3b0';ctx.beginPath();ctx.arc(-1,0,5.2,0,6.3);ctx.fill();ctx.fillStyle='#3b3a7a';ctx.beginPath();ctx.arc(1.4,-1.2,4.6,0,6.3);ctx.fill();
+  fo.k(5,5,2.4,'#fff3b0');fo.k(-5,-5,2,'#fff3b0');fo.k(6,-4,1.6,'#ffe98a')}
+};
+function drawFood(t,x,y,s){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.lineWidth=2.5;ctx.strokeStyle=INK;ctx.lineJoin='round';
+  const a=FOOD_ART[t];if(a)a();
+  ctx.restore();}
+
 for(let i=0;i<FOOD_OUT;i++)spawnFood(false);
 for(let i=0;i<FOOD_IN;i++)spawnFood(true);
 
-function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();ctx.stroke()}
-function drawFood(t,x,y,s){
-  ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.lineWidth=2.5;ctx.strokeStyle=INK;ctx.lineJoin='round';
-  switch(t){
-    case 'burger':
-      ctx.fillStyle='#f2a93b';rr(-12,5,24,7,3);
-      ctx.fillStyle='#7a3e1d';rr(-13,1,26,5,2);
-      ctx.fillStyle='#6ab04c';rr(-14,-2,28,4,2);
-      ctx.fillStyle='#f2a93b';ctx.beginPath();ctx.moveTo(-13,-2);ctx.quadraticCurveTo(-13,-14,0,-14);ctx.quadraticCurveTo(13,-14,13,-2);ctx.closePath();ctx.fill();ctx.stroke();
-      ctx.fillStyle='#fff6d5';[[-5,-9],[2,-10],[6,-6],[-1,-6]].forEach(([a,b])=>{ctx.fillRect(a,b,2,1.5)});break;
-    case 'apple':
-      ctx.fillStyle='#e8475f';ctx.beginPath();ctx.arc(-4,1,9,0,6.3);ctx.arc(4,1,9,0,6.3);ctx.fill();
-      ctx.beginPath();ctx.moveTo(0,-7);ctx.bezierCurveTo(-18,-12,-16,14,-3,11);ctx.quadraticCurveTo(0,13,3,11);ctx.bezierCurveTo(16,14,18,-12,0,-7);ctx.fill();ctx.stroke();
-      ctx.fillStyle='#fff';ctx.globalAlpha=.6;ctx.beginPath();ctx.ellipse(-6,-2,2,3.5,.4,0,6.3);ctx.fill();ctx.globalAlpha=1;
-      ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(1,-13);ctx.stroke();
-      ctx.fillStyle='#6ab04c';ctx.beginPath();ctx.ellipse(5,-12,5,2.6,-.5,0,6.3);ctx.fill();ctx.stroke();break;
-    case 'soda':
-      ctx.beginPath();ctx.moveTo(3,-11);ctx.lineTo(8,-19);ctx.stroke();
-      ctx.fillStyle='#3db5ff';ctx.beginPath();ctx.moveTo(-10,-11);ctx.lineTo(10,-11);ctx.lineTo(7,13);ctx.lineTo(-7,13);ctx.closePath();ctx.fill();ctx.stroke();
-      ctx.fillStyle='#fff';ctx.fillRect(-8,-2,16,5);ctx.fillStyle='#fffdf7';rr(-12,-14,24,4,2);break;
-    case 'pizza':
-      ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.moveTo(-12,-11);ctx.lineTo(12,-11);ctx.lineTo(0,13);ctx.closePath();ctx.fill();ctx.stroke();
-      ctx.fillStyle='#d98e3a';rr(-14,-15,28,6,3);
-      ctx.fillStyle='#e8475f';[[-4,-4],[4,-3],[0,4]].forEach(([a,b])=>{ctx.beginPath();ctx.arc(a,b,2.8,0,6.3);ctx.fill()});break;
-    case 'donut':
-      ctx.fillStyle='#e0a860';ctx.beginPath();ctx.arc(0,0,12,0,6.3);ctx.fill();ctx.stroke();
-      ctx.fillStyle='#ff8fc2';ctx.beginPath();ctx.arc(0,-1,10,0,6.3);ctx.fill();
-      ctx.fillStyle='#8fd16a';ctx.beginPath();ctx.arc(0,0,4,0,6.3);ctx.fill();ctx.stroke();
-      [['#fff',-6,-5],['#3db5ff',5,-6],['#ffd23f',6,3],['#fff',-5,5],['#9b5de5',0,-8]].forEach(([c,a,b])=>{ctx.fillStyle=c;ctx.fillRect(a,b,3,1.5)});break;
-  }
-  ctx.restore();}
+// every kind is painted once at 3x and then stamped; rare ones get a glow behind them
+const FIMG={}, FCS=3, FSZ=128, FURL={};
+function foodImg(id){let c=FIMG[id];if(c)return c;
+  c=document.createElement('canvas');c.width=c.height=FSZ;const g=c.getContext('2d'),main=ctx,fd=FOOD[id];ctx=g;g.translate(FSZ/2,FSZ/2);g.scale(FCS,FCS);
+  if(fd&&fd.tier>=2){const gr=g.createRadialGradient(0,0,3,0,0,21);gr.addColorStop(0,fd.tier===3?'rgba(255,224,102,.6)':'rgba(176,107,255,.5)');gr.addColorStop(1,fd.tier===3?'rgba(255,224,102,0)':'rgba(176,107,255,0)');g.fillStyle=gr;g.beginPath();g.arc(0,0,21,0,6.3);g.fill()}
+  drawFood(id,0,0,1);ctx=main;return FIMG[id]=c}
+const foodURL=id=>FURL[id]||(FURL[id]=foodImg(id).toDataURL());
+function drawFoodSprite(id,x,y,s){const w=FSZ*s/FCS;ctx.drawImage(foodImg(id),x-w/2,y-w/2,w,w)}
+const foodCr=id=>(FOOD[id]||FOOD.apple).cr;
+const FX_TXT={sta:()=>'refills your stamina',dash:()=>'recharges your dash',item:()=>'gives you a random item',rush:n=>'Sugar Rush for '+n+'s',turbo:n=>'Turbo for '+n+'s',shield:n=>'a bubble shield for '+n+'s',magnet:n=>'a magnet for '+n+'s',radar:n=>'radar for '+n+'s'};
+const foodFxText=f=>f.fx.map(x=>{const [k,v]=x.split(':');return FX_TXT[k](v)}).join(', ');
+// the boost that rare snacks give when the last bite is gone (server / solo only)
+function foodFx(e,fd,t){for(const x of fd.fx){const [k,v]=x.split(':'),d=(+v||0)*(e.st.itemx||1);
+  if(k==='sta')e.stamina=st0(e);
+  else if(k==='dash'){e.dashCharges=e.st.charges;e.dashCd=0}
+  else if(k==='item'){if(itemRoom(e))giveItem(e,t)}
+  else{e.buff[k]=Math.max(e.buff[k]||0,t+d);if(k==='shield')e.protect=Math.max(e.protect,t+d)}}}
+// the show for a rare snack: rings and stars for everybody to see, name and sound for the player
+function foodPop(e,fd){if(fd.tier<1)return;const T=TIERS[fd.tier];
+  if(fd.tier>=2){ring(e.x,e.y+18,8,90+fd.tier*25,T.c,.6);stars(e.x,e.y-16,6+fd.tier*3,[T.c,'#fff',GOLD],200+fd.tier*40)}
+  if(e.isPlayer){floater(e.x,e.y-104,T.n.toUpperCase()+': '+fd.name+'!',T.c,true);
+    if(fd.tier===1)sfx.rare();else if(fd.tier===2)sfx.epic();else sfx.legendary();
+    if(fd.fx.length)floater(e.x,e.y-128,foodFxText(fd),'#fff')}}
 
 const BITES={};   // food with bites taken out, cached
 const BITE_AT=[[-13,-9],[13,-5],[-2,11]];
 function biteSprite(type,n){const k=type+n;if(BITES[k])return BITES[k];
-  const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),main=ctx;
-  ctx=g;g.translate(32,32);g.scale(1.4,1.4);drawFood(type,0,0,1);ctx=main;
-  g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='destination-out';
-  for(let i=0;i<n;i++){const [bx,by]=BITE_AT[i];g.beginPath();g.arc(32+bx*1.4,32+by*1.4,10,0,6.3);g.fill()}
+  const c=document.createElement('canvas');c.width=c.height=FSZ;const g=c.getContext('2d');g.drawImage(foodImg(type),0,0);g.globalCompositeOperation='destination-out';
+  for(let i=0;i<n;i++){const [bx,by]=BITE_AT[i];g.beginPath();g.arc(FSZ/2+bx*FCS,FSZ/2+by*FCS,7.2*FCS,0,6.3);g.fill()}
   return BITES[k]=c}
 function drawEatFood(e,t){
-  const p=clamp(1-e.stateT/e.eatT,0,1),side=e.dir==='left'?-1:1,ease=1-Math.pow(1-Math.min(1,p/.25),2);
+  const p=clamp(1-e.stateT/e.eatT,0,1),side=e.dir==='left'?-1:1,ease=1-Math.pow(1-Math.min(1,p/.25),2),fd=FOOD[e.eatFood]||FOOD.apple;
   const hx=e.x+side*15,hy=e.y+2,mx=e.x+side*3,my=e.y-8;
   ctx.save();ctx.translate(hx+(mx-hx)*ease,hy+(my-hy)*ease-Math.sin(ease*Math.PI)*10);
-  if(e.eatFood==='soda'){
+  if(fd.drink){
     ctx.rotate(-side*ease*2);if(e.bites)ctx.translate(0,Math.sin(t*40)*.8);
-    drawFood('soda',0,0,.85-.3*(e.bites/3));
+    drawFood(fd.id,0,0,.85-.3*(e.bites/3));
     if(p>.25&&Math.random()<.35)parts.push({k:'dust',x:e.x+side*4+rand(-4,4),y:e.y-14,vx:rand(-10,10),vy:-rand(30,60),life:.5,max:.5,c:'#dff3ff',s:rand(2,3.5)})}
   else{
     if(p>.25)ctx.rotate(Math.sin(t*34)*.09);
-    const q=.8/1.4;ctx.imageSmoothingEnabled=true;ctx.drawImage(biteSprite(e.eatFood,e.bites),-32*q,-32*q,64*q,64*q);ctx.imageSmoothingEnabled=false}
+    const w=FSZ*.85/FCS;ctx.imageSmoothingEnabled=true;ctx.drawImage(biteSprite(fd.id,e.bites),-w/2,-w/2,w,w);ctx.imageSmoothingEnabled=false}
   ctx.restore();
   // how long you stay vulnerable
   ctx.lineWidth=4;ctx.lineCap='round';ctx.strokeStyle='rgba(43,33,64,.25)';ctx.beginPath();ctx.arc(e.x,e.y-6,35,0,6.3);ctx.stroke();
@@ -1148,10 +1378,39 @@ function floater(x,y,text,c='#fff',big=false){floaters.push({x,y,text,c,life:1.4
 /* ---------- sound: everything is synthesized, no files ---------- */
 const TOUCH=role!=='server'&&(()=>{try{return matchMedia('(pointer:coarse)').matches||/[?&]touch=1/.test(location.search)}catch(_){return false}})();
 if(TOUCH)document.body.classList.add('touch');
-const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0,fps:0};   // fps: 0 = no limit
+const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0,fps:0};   // fps: 0 = follow the monitor, otherwise a limit from 30 to 1000
 try{const o=JSON.parse(localStorage.getItem('snackdown-settings')||'{}');for(const k in SET)if(typeof o[k]==='number')SET[k]=o[k]}catch(_){}
 const MET={f:60,t:0,ping:-1,sent:0},metEl=$('metrics');
+if(SET.fps&&(SET.fps<30||SET.fps>1000))SET.fps=0;
 const saveSet=()=>{try{localStorage.setItem('snackdown-settings',JSON.stringify(SET))}catch(_){}};
+/* ---------- frame pacing ----------
+   SET.fps 0 = one frame per screen refresh (requestAnimationFrame as is). A number is a limit; a limit above the monitor rate also runs the
+   game from a timer loop, because requestAnimationFrame can never be faster than the screen. The refresh rate is measured from rAF. */
+const HZM={t:0,d:[],hz:60,wins:[]}, FPSC={due:0,gen:0,run:false,mc:null};
+const HZ_STD=[30,48,50,60,72,75,90,100,120,144,165,180,240,360,480];
+const snapHz=h=>{for(const v of HZ_STD)if(Math.abs(h-v)<=v*.045)return v;return Math.round(h)};
+const capFps=()=>SET.fps>=30?Math.min(1000,SET.fps):0;
+const fastWanted=()=>capFps()>HZM.hz*1.03;
+function gateOk(t){const f=capFps();if(!f)return true;const per=1/f,half=fastWanted()?.0003:.5/HZM.hz;   // a frame is due when its time has come, give or take half a screen refresh
+  if(t+half<FPSC.due)return false;FPSC.due=FPSC.due<t-per*2?t+per:FPSC.due+per;return true}
+function probeHz(ts){const p=HZM;
+  if(p.t&&document.visibilityState==='visible'){const d=ts-p.t;
+    if(d>1.5&&d<70){p.d.push(d);
+      if(p.d.length>=100){const a=p.d.slice().sort((x,y)=>x-y),q=a[Math.floor(a.length*.15)];p.d.length=0;   // the quick frames show the real refresh rate, slow ones are just a busy PC
+        p.wins.push(snapHz(1000/q));if(p.wins.length>5)p.wins.shift();
+        const hz=Math.max(...p.wins);if(hz!==p.hz){p.hz=hz;fastSync();if(typeof syncFps==='function')syncFps()}}}}
+  p.t=ts}
+function fastSync(){if(role==='server'||typeof MessageChannel==='undefined')return;
+  const want=fastWanted()&&document.visibilityState==='visible';
+  if(want&&!FPSC.run){FPSC.run=true;const g=++FPSC.gen;if(!FPSC.mc){FPSC.mc=new MessageChannel();FPSC.mc.port1.onmessage=e=>fastTick(e.data)}setTimeout(()=>fastTick(g),0)}
+  else if(!want&&FPSC.run){FPSC.run=false;FPSC.gen++}}
+function fastTick(g){if(g!==FPSC.gen||!FPSC.run)return;
+  if(!fastWanted()||document.visibilityState!=='visible'){FPSC.run=false;return}
+  const wait=FPSC.due-now();
+  if(wait>.004){setTimeout(()=>fastTick(g),(wait-.0025)*1000);return}   // long wait: sleep; the last milliseconds are spun through message events
+  if(wait<=.0004)frame();
+  FPSC.mc.port2.postMessage(g)}
+if(role!=='server')document.addEventListener('visibilitychange',()=>{FPSC.due=0;fastSync()});
 const sfx=(()=>{
   let ac=null,master=null,noiseBuf=null,muted=false;
   try{muted=localStorage.getItem('snackdown-mute')==='1'}catch(_){}
@@ -1353,9 +1612,16 @@ function buildGuide(tab){
   const row=(icon,name,tier,text,extra)=>'<div class="grow" style="--rc:'+TIERS[tier].c+'"><span class="gi">'+icon+'</span><b><i title="'+TIERS[tier].n+'"></i>'+name+'</b><p>'+text+'</p><small>'+(extra||'')+'</small></div>';
   let h='';
   if(tab==='items'){
-    h+='<p class="gnote">You can carry 3 items. Each slot has a key: <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Better items are much rarer.</p>';
+    h+='<p class="gnote">You start with 3 item slots (<kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>). More unlock at Lv '+SLOT_LV.slice(3).join(', ')+' with the keys <kbd>R</kbd> <kbd>T</kbd> <kbd>Z</kbd> <kbd>U</kbd>. Better items are much rarer.</p>';
     for(let t=3;t>=0;t--){h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+TIER_ODDS[t]+'% per box · '+WATER_ODDS[t]+'% underwater</small></h3><div class="glist">';
       for(const k of Object.keys(ITEMS)){const it=ITEMS[k];if(it.tier===t)h+=row(it.icon,it.name,t,it.d,it.auto?'automatic':it.dur?it.dur+'s':'instant')}
+      h+='</div></div>'}}
+  else if(tab==='foods'){
+    const pretty={icecream:'ice cream shops',home:'homes',bakery:'bakeries',cafe:'cafes'},where=f=>{const bs=BIOME.filter((b,i)=>f.bm&(1<<i)).map(b=>b.n),sh=f.sh?f.sh.split(' ').map(x=>pretty[x]||x+'s'):[];
+      return 'Outside: '+(bs.length?bs.join(', '):'anywhere')+'.'+(sh.length?' Inside: '+sh.join(', ')+'.':'')};
+    h+='<p class="gnote">'+FOODS.length+' kinds of snacks lie around the map and in buildings. Each one feeds you differently: <b>worth</b> says how many average snacks it counts for. Bigger food takes longer to eat, and you are easy prey while you chew. Epic and legendary snacks also give a boost. Every kind grows more often in its home biome or shop.</p>';
+    for(let t=3;t>=0;t--){const list=FOOD_T[t];h+='<div class="gsec"><h3 style="color:'+TIERS[t].t+'">'+TIERS[t].n+' <small>'+FOOD_ODDS[t]+'% of all snacks · '+list.length+' kinds</small></h3><div class="glist">';
+      for(const f of list)h+=row('<img src="'+foodURL(f.id)+'" width="38" height="38" alt="">',f.name,t,f.text+(f.fx.length?' <b>Bonus: '+foodFxText(f)+'.</b>':'')+' <i>'+where(f)+'</i>','worth ×'+f.xp.toFixed(2)+' · '+f.et.toFixed(2).replace(/0$/,'')+'× eating time');
       h+='</div></div>'}}
   else if(tab==='perks'){
     h+='<p class="gnote">Pick a perk at Level 2, then every 4 levels. Legendary perks unlock after 4 points in their tree.</p><div class="gsub">'
@@ -1364,7 +1630,8 @@ function buildGuide(tab){
     for(const p of PERKS.filter(p=>p.tree===guideTree).sort((a,b)=>a.tier-b.tier))h+=row(p.icon,p.name,p.tier,p.d(p.max),p.max>1?p.max+' ranks':'once');
     h+='</div><p class="small">The text shows the effect at the highest rank. The dot shows the rarity: grey common, blue rare, purple epic, gold legendary.</p>'}
   else{
-    h+='<p class="gnote">Items and perks come in four rarities. Each step is about three times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
+    h+='<p class="gnote">Items, perks and snacks come in four rarities. Each step is about three to five times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
+      +'<div class="gsec"><h3>Snack odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+FOOD_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
       +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Both sides start from the same phrase length, longer when more is at stake. The lower level player types a few words fewer. Items, perks and being caught running change the numbers.</p></div>'}
   $('gbody').innerHTML=h}
@@ -1683,7 +1950,7 @@ function gainXp(e,xp){let guard=0;while(xp>1e-6&&guard++<400){const c=lvlCost(e.
   if(xp>=room){gainLvl(e,room/c+1e-9);xp-=room}else{gainLvl(e,xp/c);xp=0}}}   // the higher your level, the more snacks a level costs
 const vol=e=>e.isPlayer?1:player?clamp(1-Math.hypot(e.x-player.x,e.y-player.y)/650,0,1)*.6:0;
 const EAT_T=.6;
-const CRUMBS={burger:['#f2a93b','#7a3e1d','#6ab04c'],apple:['#e8475f','#fff6d5','#6ab04c'],pizza:['#ffd23f','#d98e3a','#e8475f'],donut:['#ff8fc2','#e0a860','#fff'],soda:['#9fdcff','#fff','#3db5ff']};
+// crumb colours live in the FOOD table
 /* gift boxes (items) and level orbs (dropped when someone is eaten) */
 const BOX_OUT=170, BOX_IN=120;
 let boxes=[], orbs=[];
@@ -1725,7 +1992,7 @@ function useItem(e,t,slot){if(slot==null)slot=firstItem(e);const k=e.items[slot]
   if(it.auto){if(e.isPlayer)showToast(it.icon+' '+it.name+' works by itself in your next duel');return}
   const dur=it.dur*e.st.itemx;
   if(Math.random()<e.st.recycle){if(e.isPlayer)floater(e.x,e.y-74,'RECYCLED!','#9fdcff')}else e.items[slot]=null;
-  if(k==='bomb'){for(let i=0;i<16;i++){const a=i/16*6.283,r=rand(70,170);foods.push({x:clamp(e.x+Math.cos(a)*r,40,WORLD-40),y:clamp(e.y+Math.sin(a)*r,40,WORLD-40),t:pick(FOODS),bob:Math.random()*6.28,inside:false})}
+  if(k==='bomb'){for(let i=0;i<16;i++){const a=i/16*6.283,r=rand(70,170);foods.push({x:clamp(e.x+Math.cos(a)*r,40,WORLD-40),y:clamp(e.y+Math.sin(a)*r,40,WORLD-40),t:rollFood(-1,'',1),bob:Math.random()*6.28,inside:false})}
     burst(e.x,e.y,20,['#ff6b3d','#ffc93c','#fff'],260);ring(e.x,e.y+10,10,180,'#ff6b3d',.5)}
   else if(k==='freeze'){for(const o of ents)if(o!==e&&o.state==='move'&&Math.hypot(o.x-e.x,o.y-e.y)<340){o.buff.freeze=t+dur;o.vx=o.vy=0;stars(o.x,o.y-10,4,['#9fdcff','#fff'],120)}
     ring(e.x,e.y+10,10,340,'#9fdcff',.55)}
@@ -1753,11 +2020,10 @@ function useItem(e,t,slot){if(slot==null)slot=firstItem(e);const k=e.items[slot]
   ring(e.x,e.y+18,8,70,'#9b5de5',.45);stars(e.x,e.y-16,6,['#fff','#9b5de5',GOLD],160);e.sqv+=4;
   if(e.isPlayer){sfx.item();flash()}}
 /* ---------- quests: now and then you must find something before time runs out ---------- */
-const FOOD_ICON={burger:'🍔',apple:'🍎',soda:'🥤',pizza:'🍕',donut:'🍩'}, FOOD_NAME={burger:'burgers',apple:'apples',soda:'sodas',pizza:'pizzas',donut:'donuts'};
-function questText(q){return q.type==='snack'?'Eat '+q.n+' '+FOOD_ICON[q.kind]+' '+FOOD_NAME[q.kind]:q.type==='box'?'Open '+q.n+' gift boxes 🎁':'Find a box hidden underwater 🎁'}
+function questText(q){return q.type==='snack'?'Eat '+q.n+' '+FOOD[q.kind].icon+' '+FOOD[q.kind].pl:q.type==='box'?'Open '+q.n+' gift boxes 🎁':'Find a box hidden underwater 🎁'}
 function questNotify(e,kind,text){if(e.isPlayer){showToast(text,kind==='done'?'#9be564':kind==='new'?'#ffc93c':'#ff8fa0');if(kind==='done')sfx.perk();else if(kind==='new')sfx.click()}else e.questMsg=[kind,text]}
 function startQuest(e,t){const r=Math.random();let q;
-  if(r<.55){const n=3+((Math.random()*3)|0);q={type:'snack',kind:pick(FOODS),n,mult:1.2+n*.2,time:rand(80,110)}}
+  if(r<.55){const n=3+((Math.random()*3)|0);q={type:'snack',kind:pick(FOOD_T[0]).id,n,mult:1.2+n*.2,time:rand(80,110)}}
   else if(r<.85||!boxes.some(b=>b.water)){const n=2+((Math.random()*2)|0);q={type:'box',n,mult:1.6+n*.4,time:rand(100,130)}}
   else q={type:'water',n:1,mult:3,time:rand(110,140)};
   q.have=0;q.end=t+q.time;q.total=q.time;e.quest=q;
@@ -1792,15 +2058,16 @@ function stepEnt(e,dt,t){
     e.stateT-=dt;
     {const w=bf.freeze>t?{ux:0,uy:0,f:0}:e.want,sp=BASE*w.f*st.speed*.35;e.vx+=(w.ux*sp-e.vx)*Math.min(1,10*dt);e.vy+=(w.uy*sp-e.vy)*Math.min(1,10*dt)}
     const p=clamp(1-e.stateT/e.eatT,0,1),side=e.dir==='left'?-1:1,need=p<.25?0:p<.45?1:p<.65?2:3;
-    while(e.bites<need){e.bites++;const soda=e.eatFood==='soda';
-      burst(e.x+side*4,e.y-10,soda?6:9,CRUMBS[e.eatFood]||['#fff'],soda?70:95);e.sqv+=e.bites%2?-3:3;soda?sfx.sip(e.bites,vol(e)):sfx.bite(e.bites,vol(e))}
+    const fd=FOOD[e.eatFood]||FOOD.apple;
+    while(e.bites<need){e.bites++;const soda=fd.drink;
+      burst(e.x+side*4,e.y-10,soda?6:9,fd.cr,soda?70:95);e.sqv+=e.bites%2?-3:3;soda?sfx.sip(e.bites,vol(e)):sfx.bite(e.bites,vol(e))}
     e.chewT-=dt;if(p>.25&&e.chewT<=0){e.chewT=.1;e.sqv+=e.bites%2?1.4:-1.4}
-    if(e.eatFood==='soda')tl=-side*.13*Math.min(1,p/.25);
+    if(fd.drink)tl=-side*.13*Math.min(1,p/.25);
     if(e.stateT<=0){e.state='move';e.bites=0;
-      let gn=snackGain(e.lvl)*st.xp*(bf.rush>t?1.5:1);const jp=Math.random()<st.jackpot;if(jp)gn*=3;
+      let gn=snackGain(e.lvl)*st.xp*(bf.rush>t?1.5:1)*fd.xp;const jp=Math.random()<st.jackpot;if(jp)gn*=3;
       if(st.cozy&&houseAt(e.x,e.y))gn*=1+st.cozy;
       e.chain=t-e.lastEat<4?Math.min(5,e.chain+1):0;e.lastEat=t;if(st.combo&&e.chain){gn*=1+st.combo*e.chain;if(e.isPlayer)floater(e.x-22,e.y-84,'COMBO x'+(e.chain+1),'#ff8fc2')}
-      gainLvl(e,gn);e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
+      gainLvl(e,gn);e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);foodFx(e,fd,t);foodPop(e,fd);
       if(e.human)e.snacks=(e.snacks||0)+1;
       if(e.isPlayer){stats.snacks++;floater(e.x,e.y-60,'+'+(gn*100).toFixed(gn<.1?1:0)+'%',GOLD);floater(e.x+18,e.y-84,jp?'JACKPOT!':pick(['YUM!','NOM!','TASTY!']),jp?GOLD:'#fff',jp)}}}
   else if(e.state==='duel'){e.vx=0;e.vy=0;if(Math.random()<dt*2.5)e.sqv+=Math.random()<.5?-1.6:1.6}
@@ -1856,7 +2123,7 @@ function stepEnt(e,dt,t){
     scan:for(let ci=fi-1;ci<=fi+1;ci++)for(let cj=fj-1;cj<=fj+1;cj++){const cell=fgrid.get(ci*1000+cj);if(!cell)continue;
       for(let k=0;k<cell.length;k++){const f=cell[k];if(f.gone)continue;
         if(Math.abs(f.x-e.x)<e.r+12&&Math.abs(f.y-e.y+4)<e.r+12){f.gone=true;cell.splice(k,1);const at=foods.indexOf(f);if(at>=0)foods.splice(at,1);e.state='eat';
-          e.eatT=EAT_T*st.eatT*(bf.rush>t?.35:1);e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;questEvent(e,'snack',f.t);e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
+          e.eatT=EAT_T*st.eatT*(bf.rush>t?.35:1)*(FOOD[f.t]||FOOD.apple).et;e.stateT=e.eatT;e.bites=0;e.chewT=0;e.eatFood=f.t;questEvent(e,'snack',f.t);e.vx*=.3;e.vy*=.3;e.sqv-=3;sfx.boop(vol(e));
           if(st.snackGuard)e.protect=Math.max(e.protect,t+st.snackGuard);break scan}}}}
 }
 const FGC=160;let fgrid=new Map();
@@ -2071,9 +2338,19 @@ muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(
 const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
-function applySet(){sfx.vol();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else if(i.tagName==='SELECT')i.value=String(SET[k]);else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
+function applySet(){sfx.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
 function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
-$('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.tagName==='SELECT'?+i.value:i.value/100;
+const FPS_SNAP=[30,60,90,120,144,165,240,360,500,1000];
+const fpsPos=f=>1000*Math.log(clamp(f,30,1000)/30)/Math.log(1000/30), fpsAt=p=>Math.round(30*Math.pow(1000/30,p/1000));   // the slider is logarithmic, so 30..144 gets as much room as 144..1000
+function syncFps(){const a=$('fpsauto'),r=$('fpsr');if(!a)return;
+  a.checked=!SET.fps;const f=SET.fps||HZM.hz;if(fpsAt(+r.value)!==f||!r.dataset.p)r.value=Math.round(fpsPos(f));r.dataset.p=r.value;r.style.opacity=SET.fps?1:.5;
+  $('fpso').textContent=SET.fps?SET.fps+' fps'+(SET.fps>=1000?' (max)':''):'= monitor';$('hzinfo').textContent='('+HZM.hz+' Hz detected)';$('fpsnote').hidden=!fastWanted()}
+$('fpsauto').addEventListener('change',e=>{SET.fps=e.target.checked?0:Math.max(30,Math.min(1000,HZM.hz));saveSet();applySet()});
+$('fpsr').addEventListener('input',e=>{const r=e.target;let p=+r.value,f=null;const prev=+(r.dataset.p||p);
+  if(Math.abs(p-prev)>1.5)for(const v of FPS_SNAP.concat([HZM.hz]))if(Math.abs(fpsPos(v)-p)<=12){f=v;break}   // snaps to the usual rates; one-step keyboard moves do not snap
+  if(f===null)f=clamp(fpsAt(p),30,1000);else p=fpsPos(f);
+  r.value=Math.round(p);r.dataset.p=r.value;SET.fps=f;saveSet();applySet()});
+$('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
   if(k==='sv'&&!sfx.muted)sfx.click();applySet();saveSet()});
 {const fb=$('fsbtn'),de=document.documentElement;if(!(de.requestFullscreen||de.webkitRequestFullscreen))fb.hidden=true;
   else fb.addEventListener('click',()=>{try{(document.fullscreenElement||document.webkitFullscreenElement)?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(de.requestFullscreen||de.webkitRequestFullscreen).call(de)}catch(_){}})}
@@ -2190,7 +2467,7 @@ function srvSnapshot(h,t){
   const me=h.e,R=1250,R2=1150,known=new Set(),m={t:'s',e:[],f:[],b:[],o:[]};
   for(const e of ents){if(Math.abs(e.x-me.x)>R||Math.abs(e.y-me.y)>R)continue;known.add(e.id);m.e.push(srvRec(e,t,!h.known.has(e.id),me))}
   h.known=known;
-  for(const f of foods)if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2)m.f.push([f.x|0,f.y|0,FOODS.indexOf(f.t)]);
+  for(const f of foods)if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2)m.f.push([f.x|0,f.y|0,(FOOD[f.t]||FOOD.apple).i]);
   for(const b of boxes)if(Math.abs(b.x-me.x)<R2&&Math.abs(b.y-me.y)<R2)m.b.push([b.x|0,b.y|0,b.water?1:0]);
   for(const o of orbs)if(Math.abs(o.x-me.x)<R2&&Math.abs(o.y-me.y)<R2)m.o.push([o.x|0,o.y|0,Math.round(o.v)]);
   const me2={lvl:+me.lvl.toFixed(3),sta:Math.round(me.stamina),dc:me.dashCharges,dcd:+me.dashCd.toFixed(2),it:me.items,pd:me.picksDone};
@@ -2416,6 +2693,9 @@ function applyMe(p,me,t){
   if(before!==undefined&&after>before)levelFx(p,before,after);
   p._pl=after}
 /* the visual half of the rules: squash, dust, bites and sounds, driven by what the server tells us */
+function snackDone(e){const fd=FOOD[e._lf]||FOOD[e.eatFood]||FOOD.apple;e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
+  if(e.isPlayer){stats.snacks++;const g=e.lvl-(e._lvl0||e.lvl);if(g>0)floater(e.x,e.y-60,'+'+(g*100).toFixed(g<.1?1:0)+'%',GOLD)}
+  foodPop(e,fd)}
 function fxStep(e,dt,t){
   const age=Math.min(.12,t-e.snapAt),px=e.tx+e.vx*age,py=e.ty+e.vy*age;
   if(Math.hypot(px-e.x,py-e.y)>350){e.x=px;e.y=py}else{const k=Math.min(1,dt*18);e.x+=(px-e.x)*k;e.y+=(py-e.y)*k}
@@ -2423,20 +2703,19 @@ function fxStep(e,dt,t){
   {const wt=waterAt(e.x,e.y),swim=!!wt&&wt.kind!=='ice';if(swim!==!!e.swim){e.swim=swim;if(swim)splashFx(e)}}
   if(e.state!==e._st){
     if(e.state==='eat'){e.bites=0;e.chewT=0;e.sqv-=3;e._lvl0=e.lvl;sfx.boop(vol(e))}
-    else if(e._st==='eat'&&e.state==='move'){e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);
-      if(e.isPlayer){stats.snacks++;const g=e.lvl-(e._lvl0||e.lvl);if(g>0)floater(e.x,e.y-60,'+'+(g*100).toFixed(g<.1?1:0)+'%',GOLD)}}
+    else if(e._st==='eat'&&e.state==='move')snackDone(e);
     else if(e.state==='duel'){e.sqv-=4;ring(e.x,e.y,8,70,'#fff',.4);ring(e.x,e.y,4,100,GOLD,.55);stars(e.x,e.y-20,6,[GOLD,'#fff','#ff6b3d'],240);if(!e.isPlayer)sfx.clash()}
     else if(e.state==='eaten'){burst(e.x,e.y-10,22,['#fff',GOLD,'#ff8fc2','#3db5ff'],240);stars(e.x,e.y-10,12,[GOLD,'#fff','#ff8fc2','#3db5ff'],280);e.sqv+=6}
-    e._st=e.state}
+    e._st=e.state;e._ep=0}
   if(e.dashing&&!e._dash){e.sq=-.3;e.sqv=10;sfx.dash(vol(e));dust(e.x,e.y+22,10,'#e9dcc0',170,5);ring(e.x,e.y+22,6,52,'#fff',.35);if(e.isPlayer){kick=Math.max(kick,.09);shake=Math.max(shake,3)}}
   e._dash=e.dashing;
   let tl=0;
   if(e.state==='eat'){const p=e.ep,side=e.dir==='left'?-1:1,need=p<.25?0:p<.45?1:p<.65?2:3;
-    if(e._st==='eat'&&e._ep>.6&&p<.35){e.sqv+=4;sfx.yum(vol(e));ring(e.x,e.y+18,6,44,GOLD,.4);stars(e.x,e.y-16,5,[GOLD,'#fff'],130);if(e.isPlayer)stats.snacks++;e.bites=0;e.chewT=0;e.sqv-=3;sfx.boop(vol(e))}   // the next snack was started between two snapshots: no state change to notice
-    e._ep=p;
-    while(e.bites<need){e.bites++;const soda=e.eatFood==='soda';burst(e.x+side*4,e.y-10,soda?6:9,CRUMBS[e.eatFood]||['#fff'],soda?70:95);e.sqv+=e.bites%2?-3:3;soda?sfx.sip(e.bites,vol(e)):sfx.bite(e.bites,vol(e))}
+    if(e._ep>.6&&p<.35){snackDone(e);e.bites=0;e.chewT=0;e.sqv-=3;e._lvl0=e.lvl;sfx.boop(vol(e))}   // the next snack was started between two snapshots: no state change to notice
+    e._ep=p;const fd=FOOD[e.eatFood]||FOOD.apple;e._lf=e.eatFood;
+    while(e.bites<need){e.bites++;const soda=fd.drink;burst(e.x+side*4,e.y-10,soda?6:9,fd.cr,soda?70:95);e.sqv+=e.bites%2?-3:3;soda?sfx.sip(e.bites,vol(e)):sfx.bite(e.bites,vol(e))}
     e.chewT-=dt;if(p>.25&&e.chewT<=0){e.chewT=.1;e.sqv+=e.bites%2?1.4:-1.4}
-    if(e.eatFood==='soda')tl=-side*.13*Math.min(1,p/.25)}
+    if(fd.drink)tl=-side*.13*Math.min(1,p/.25)}
   else if(e.state==='move')tl=(e.dashT>0||e.slideT>0)?clamp(e.vx/650,-.6,.6)*.9:e.sprinting?clamp(e.vx/600,-.35,.35):clamp(e.vx/1400,-.15,.15);
   e.lean+=(tl-e.lean)*Math.min(1,dt*14);
   const s=Math.hypot(e.vx,e.vy),lv=L(e);
@@ -2908,8 +3187,13 @@ function render(t){
   for(const b of bushes)if(near(b.x,b.y,30))drawBush(b);
   for(const d of decor)if(near(d.x,d.y,50))drawDecor(d,t);
   const qk=player&&player.quest&&player.quest.type==='snack'?player.quest.kind:null;
-  for(const f of foods)if(near(f.x,f.y,30)&&sightOf(f.x,f.y)){drawFood(f.t,f.x,f.y+Math.sin(t*3+f.bob)*2,.9);
+  ctx.imageSmoothingEnabled=true;
+  for(const f of foods)if(near(f.x,f.y,30)&&sightOf(f.x,f.y)){const fd=FOOD[f.t]||FOOD.apple,fy=f.y+Math.sin(t*3+f.bob)*2;
+    if(fd.tier>0){ctx.globalAlpha=.24+.1*Math.sin(t*3+f.bob);ctx.fillStyle=TIERS[fd.tier].c;ctx.beginPath();ctx.ellipse(f.x,f.y+11,12+fd.tier*3,5+fd.tier,0,0,6.3);ctx.fill();ctx.globalAlpha=1}   // rare snacks glow on the ground
+    drawFoodSprite(f.t,f.x,fy,.9+fd.tier*.05);
+    if(fd.tier>=2){const a=Math.sin(t*4+f.bob*3);if(a>0){ctx.globalAlpha=a;fo.k(f.x+12,fy-13,4+fd.tier,'#fff');ctx.globalAlpha=1}}
     if(f.t===qk){ctx.strokeStyle='rgba(155,229,100,'+(.55+Math.sin(t*6)*.35)+')';ctx.lineWidth=3;ctx.beginPath();ctx.arc(f.x,f.y,20+Math.sin(t*6)*3,0,6.3);ctx.stroke()}}
+  ctx.imageSmoothingEnabled=false;
   for(const b of boxes)if(near(b.x,b.y,40)&&sightOf(b.x,b.y))drawBox(b,t);
   for(const o of orbs)if(near(o.x,o.y,40)&&sightOf(o.x,o.y))drawOrb(o,t);
   drawWalls(inView,t);
@@ -3001,14 +3285,17 @@ function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||S
   const l=[];if(SET.mfps)l.push('FPS  '+Math.round(MET.f));
   if(SET.mping)l.push('Delay '+(role==='client'&&MET.ping>=0?Math.round(MET.ping)+' ms':role==='client'?'...':'- (solo)'));
   if(SET.mmore&&TOUCH)l.push(VPDBG.replace(/ · /g,'\n'));
+  if(SET.mmore)l.push('Monitor '+HZM.hz+' Hz'+(SET.fps?' · limit '+SET.fps:''));
   if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''),P2P.isHost&&P2P.ms?'Host step '+P2P.ms.toFixed(1)+' ms':'');
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
 setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1&&SET.mping){MET.sent=performance.now();netSend({t:'ping',c:MET.sent})}},2000);
-function loop(){requestAnimationFrame(loop);   // always schedule the next frame first: one error must never freeze the game
-  const t=now(),raw=t-last;if(SET.fps>0&&raw<1/SET.fps-.0025)return;   // frame rate limit: skip this display frame
+function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);frame()}   // always schedule the next frame first: one error must never freeze the game
+function frame(){
+  const t=now(),raw=t-last;if(!gateOk(t))return;   // frame rate limit: skip this one
   let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
   if(raw>0&&raw<1&&document.visibilityState==='visible'&&game==='play'){const q=QSTAT;q.n++;q.sum+=raw;if(q.n>=100){const avg=q.sum/q.n;q.n=0;q.sum=0;   // about 2 s: too slow -> fewer pixels, fast again -> more
-      if(SET.potato){}else if(avg>.026&&QS>.55){QS=Math.max(.55,QS*.82);resize()}else if(avg<.0145&&QS<1){QS=Math.min(1,QS*1.1);resize()}}}
+      const cp=capFps(),k=cp&&cp<HZM.hz*.97?60/cp:1;   // a limit below the monitor rate makes frames slow on purpose: judge them against that limit
+      if(SET.potato){}else if(avg>.026*k&&QS>.55){QS=Math.max(.55,QS*.82);resize()}else if(avg<.0145*k&&QS<1){QS=Math.min(1,QS*1.1);resize()}}}
   if(raw>0&&raw<1&&document.visibilityState==='visible'){const h=PERF.hist;h.push(raw);if(h.length>600)h.shift();if(game==='play'&&t>PERF.grace){if(raw>.05)PERF.slow++;if(raw>PERF.worst)PERF.worst=raw}}
   if(raw>0&&raw<1)MET.f+=(1/raw-MET.f)*.05;if(t-MET.t>.4){MET.t=t;drawMetrics()}
   if(hitstop>0){hitstop-=dt;dt*=.12}
@@ -3016,7 +3303,7 @@ function loop(){requestAnimationFrame(loop);   // always schedule the next frame
   try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e,'update')}
   if(!isFinite(cam.x)||!isFinite(cam.y)||!isFinite(kick)||!isFinite(ZZ)){cam.x=player&&isFinite(player.x)?player.x:WORLD/2;cam.y=player&&isFinite(player.y)?player.y:WORLD/2;if(!isFinite(kick))kick=0;if(!isFinite(dz))dz=0;if(!isFinite(shake))shake=0;if(!isFinite(hitstop))hitstop=0}
   try{render(t)}catch(e){reportErr(e,'render')}}
-requestAnimationFrame(loop);
+requestAnimationFrame(rafLoop);
 })();
 </script>
 </body>

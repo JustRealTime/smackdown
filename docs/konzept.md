@@ -368,3 +368,21 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Settings: Frame rate limit (Unlimited, 144, 120, 90, 60, 45, 30). Umsetzung: Frames überspringen, wenn die Zeit seit dem letzten Frame zu kurz ist. Test: Limit 30 -> FPS-Anzeige 30.
 - Essgeräusch: Beim Client ist zwischen zwei Snapshots kein 'move'-Zustand sichtbar, wenn direkt der nächste Snack gegessen wird -> kein Ton. Jetzt erkennt `fxStep` den Neustart am Fortschritt (`ep` springt von >.6 auf <.35) und spielt yum + boop. Ungetestet im echten Mehrspielerspiel, nur Code-Pfad.
 - BUILD r49.
+
+## Runde 50 - FPS bis 1000, 57 Snacks
+**FPS**
+- Standard ist jetzt "Match monitor refresh rate" (Haken in den Settings, zeigt die erkannte Hz-Zahl); das ist exakt das alte Verhalten von requestAnimationFrame. Die Hz-Zahl wird aus den rAF-Zeitstempeln gemessen (schnelle 15 % der Abstände, Maximum der letzten 5 Messfenster, auf übliche Werte gerastet).
+- Ohne Haken: Schieberegler 30..1000 fps, logarithmisch, rastet bei 30, 60, 90, 120, 144, 165, 240, 360, 500, 1000 (und bei der Monitor-Hz) ein; Pfeiltasten (Einzelschritte) rasten nicht, damit man nicht hängen bleibt.
+- Limit unter der Monitorrate: Frames werden im rAF übersprungen, mit "halber Bildschirmtakt"-Toleranz (60 fps auf 144 Hz ergibt wirklich ~60, nicht 48). Limit über der Monitorrate: zusätzlich läuft `frame()` aus einer Timer-Schleife (setTimeout zum Schlafen, MessageChannel für die letzten ms). Ehrlich: der Bildschirm zeigt trotzdem nur seine Hz; mehr Frames senken höchstens die Eingabeverzögerung etwas und kosten viel CPU (Hinweis im Menü).
+- Auto-Qualität (QS) beurteilt Frames bei einem Limit unter der Monitorrate gegen dieses Limit (sonst hätte 30 fps die Auflösung gesenkt).
+- Getestet (Headless-Chromium, Software-Rendering): Limit 30/45/60 -> ~30/49/60 fps angezeigt, 144/500/1000 -> 101/140/125 fps (durch die Rechenleistung begrenzt, 60-Hz-Bildschirm). Slider-Einrasten per Skript geprüft. NICHT getestet: echte 144/240-Hz-Monitore.
+**Snacks**
+- 57 Arten statt 5, jede mit eigenem Aussehen, eigenem Nährwert (`xp`, auf Durchschnitt 1,0 normiert: der durchschnittliche Snack bringt gleich viel XP wie vorher; die häufigen sind weniger wert, seltene mehr), eigener Esszeit (`et`).
+- Seltenheit: common/rare/epic/legendary mit 80/16/3.5/0.5 % der Snacks (5/15/9/28 Arten). Seltene haben einen Glanz am Boden, epische/legendäre funkeln; beim Essen gibt es Name, Ton (`sfx.rare/epic/legendary`) und Ringe.
+- Epische und legendäre Snacks haben einen Bonus: Sugar Rush, Turbo, Blasenschild, Magnet, Radar, Stamina auffüllen, Dash aufladen oder ein Geschenk (Items-Logik wiederverwendet).
+- Heimat: jede Art wächst häufiger in bestimmten Biomen (Faktor 6) und in bestimmten Läden (Faktor 8), z. B. Ramen im Schnee, Bananen im Dschungel, Donuts in Zuckerland/Bäckerei.
+- Guide: neuer Tab "Snacks" mit Bild, Beschreibung, Nährwert, Esszeit, Bonus und Fundort; die Rarity-Seite zeigt auch die Snack-Chancen. Quests ("Iss 4 Burger") nehmen nur häufige Snacks.
+- Technik: Sprites werden einmal in 3-facher Auflösung gezeichnet und dann gestempelt (schneller als 57 Vektorformen pro Frame); Biss-Sprites nutzen dasselbe. Snapshot-Index ist `FOOD[id].i`.
+- Fix: das Essgeräusch-Nachziehen aus r49 (`_ep`) löste bei jedem normalen Snack doppelt aus; jetzt wird `_ep` bei jedem Zustandswechsel zurückgesetzt.
+- Getestet: alle 57 Sprites auf der Kontaktkarte, Spielstart solo, Online-Host + Beitritt (57 Arten beim Beitretenden), Essen von goldenem Burger (+2,3 Level auf Lv 5, Rush), Phoenix-Ei (Stamina, Dash, Rush), Trüffel (Item), Guide (57 Zeilen, Mobil-Layout). NICHT getestet: wie es sich spielt (Balance der Seltenheiten), Gehör der Sounds.
+- BUILD r50.
