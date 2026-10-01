@@ -301,3 +301,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Datenschutz: Das Menü fragt beim ersten Besuch "Play online with friends?" (Yes, go online / No, offline only). Vor der Zustimmung wird nichts an den Vermittlungsdienst (PeerJS) gesendet, Play startet dann ein Solo-Spiel. Die Wahl steht im Local Storage (`snackdown-online`) und lässt sich im Bereich "Friends" ein- und ausschalten. Test: vor der Zustimmung 0 Anfragen an den Vermittler, nach "Yes" funktionieren Lobby-Liste, Host und Beitritt wie vorher.
 - `docs/legal/`: Entwürfe für Impressum und Datenschutzerklärung (Österreich/DSGVO) mit Platzhaltern, noch nicht veröffentlicht. Erkenntnis: Die Bibliothek PeerJS nutzt standardmäßig Googles STUN-Server und PeerJS-Relay-Server (turn.peerjs.com, EU/USA); das steht in der Datenschutzerklärung. Build r39.
+
+## Runde 40 - Impressum, Datenschutz, 90-Tage-Löschung
+- `site/impressum.html` und `site/datenschutz.html` mit den echten Daten (Ali Kesan, Salzburg, noch kein Gewerbe). Live unter typebite.io/impressum und /datenschutz. Menü-Footer verlinkt beide, Consent-Text verlinkt die Datenschutzseite.
+- Fehlerberichte werden nach 90 Tagen gelöscht: GitHub Action `cleanup.yml` im privaten Repo `smackdown-errors` (Kopie: `tools/error-relay/cleanup-workflow.yml`), täglich 03:17 UTC, löscht alte Dateien und schreibt die History neu (orphan + force push). Skriptlogik lokal getestet, die Action selbst noch NICHT live gelaufen (Push von Workflow-Dateien per GITHUB_TOKEN könnte von GitHub abgelehnt werden -> einmal manuell starten und Log prüfen).
+- "Skin ready": `docs/legal/baustein-skins-zahlungen.md` (Textbaustein + Voraussetzungen). Bewusst NICHT im Live-Text, weil die Erklärung nur tatsächliche Verarbeitung beschreiben darf.
+- BUILD r40.

@@ -1,0 +1,36 @@
+name: cleanup
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Delete error reports older than 90 days
+        shell: bash
+        run: |
+          set -e
+          git config user.name "cleanup"
+          git config user.email "cleanup@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          cutoff=$(date -u -d "today - 90 days" +%F)
+          removed=0
+          for f in errors/*.jsonl; do
+            [ -e "$f" ] || continue
+            d=$(basename "$f" | cut -c1-10)
+            if [[ "$d" < "$cutoff" ]]; then git rm -q "$f"; removed=$((removed+1)); fi
+          done
+          echo "cutoff $cutoff, removed $removed old files"
+          if [ "$removed" -gt 0 ]; then
+            git commit -qm "delete error reports older than 90 days"
+            git checkout -q --orphan fresh
+            git add -A
+            git commit -qm "error reports of the last 90 days"
+            git push -f origin fresh:"$branch"
+          fi

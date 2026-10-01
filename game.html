@@ -300,7 +300,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     </div>
     <div id="consent" hidden>
       <b>Play online with friends?</b>
-      <p class="small">Online games use a matchmaking service (PeerJS, USA). Your IP address is sent to it and to the other players of your game, and the other players see your name and look. We store nothing about you. You can change this at any time.</p>
+      <p class="small">Online games use a matchmaking service (PeerJS, USA). Your IP address is sent to it and to the other players of your game, and the other players see your name and look. We store nothing about you. You can change this at any time. <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Privacy details</a></p>
       <div class="row"><button class="btn" type="button" id="consentyes">Yes, go online</button><button class="btn alt" type="button" id="consentno">No, offline only</button></div>
     </div>
     <details id="mpadv"><summary>Friends: room and server options</summary>
@@ -316,7 +316,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r39</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r40</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -427,7 +427,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r39';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r40';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){

@@ -1,7 +1,6 @@
-# Impressum und Datenschutzerklärung (Entwürfe, keine Rechtsberatung)
+# Rechtstexte (keine Rechtsberatung)
 
-- `impressum-entwurf.html` und `datenschutz-entwurf.html` sind Entwürfe mit Platzhaltern `[[...]]` und `[[PRÜFEN: ...]]`.
-- Sie liegen bewusst hier und werden noch **nicht** veröffentlicht (nicht im Ordner `site/`).
-- Zum Veröffentlichen: Platzhalter ausfüllen, Hinweise "[[PRÜFEN]]" klären, `<meta name="robots" content="noindex">` entfernen, als `site/impressum.html` und `site/datenschutz.html` ablegen (Cloudflare liefert sie dann unter `/impressum` und `/datenschutz` aus) und im Menü des Spiels verlinken.
-- Die Erklärung beschreibt den Stand ab Build r39: Online-Spiel nur nach Einwilligung ("Yes, go online"), Fehlerberichte, Cloudflare als Hosting, keine Cookies, keine Werbung. Ändert sich eines davon (Werbung, Konten, Zahlungen, Analyse), muss der Text vorher angepasst werden.
-- Vor dem öffentlichen Bewerben einmal anwaltlich oder bei der WKO prüfen lassen.
+- Veröffentlicht: `site/impressum.html` (-> typebite.io/impressum) und `site/datenschutz.html` (-> typebite.io/datenschutz). Stand 1. Oktober 2026, ohne Gewerbe (Privatperson).
+- `baustein-skins-zahlungen.md`: vorbereitete Ergänzung und Checkliste für den Tag, an dem Skins verkauft werden. Die Erklärung beschreibt heute nur, was wirklich passiert (Cloudflare, Online-Spiel nur nach Einwilligung, Fehlerberichte 90 Tage). Sie muss VOR jeder Änderung am Spiel (Werbung, Konten, Zahlungen, Analyse) angepasst werden.
+- Fehlerberichte werden nach 90 Tagen automatisch gelöscht (GitHub-Action im privaten Log-Repo `smackdown-errors`, siehe `docs/fehler-upload.md`).
+- Vor dem öffentlichen Bewerben einmal von der WKO-Gründerberatung oder einem Anwalt prüfen lassen. Sobald ein Gewerbe angemeldet ist, im Impressum Gewerbe, Behörde, Kammer ergänzen.
