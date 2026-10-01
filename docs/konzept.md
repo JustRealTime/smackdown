@@ -285,3 +285,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Das Spiel heißt jetzt Typebite (Titel, Menü, Fehlerbericht, README, Server-Texte). Lobby-Ids beginnen mit `typebite-`, ältere Versionen sind wegen der Versionsprüfung ohnehin nicht kompatibel. Interne Schlüssel (localStorage `snackdown-*`, Fehler-Relay) bleiben unverändert, damit gespeicherte Einstellungen nicht verloren gehen.
 - Entscheidung des Entwicklers trotz Hinweis: ähnliche kleine Spiele existieren (BiteType!, Type 'n' Bite). TMview: keine EU/AT-Marke. Vor Werbung/Steam anwaltlich prüfen lassen.
+
+## Runde 37 (r37): Domain und Veröffentlichung vorbereitet
+
+- Domain typebite.io bei Cloudflare gekauft (Ablauf 01.10.2027, Verlängerung 50 USD/Jahr, Auto-Renew an, 2FA aktiv). `docs/deploy.md` beschreibt die Veröffentlichung mit Cloudflare Pages.
+- Menü: Auf einer öffentlichen https-Seite wird `localhost:8080` nicht mehr abgefragt (Browser würden sonst nach einer Berechtigung für das lokale Netz fragen). Build r37.

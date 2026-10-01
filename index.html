@@ -308,7 +308,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r36</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r37</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -426,7 +426,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
-const BUILD='r36';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r37';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1380,7 +1380,7 @@ let polling=false,scanned=false,firstScan=null,resolveScan=null;
 firstScan=new Promise(r=>{resolveScan=r});
 async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||document.hidden)return;polling=true;
   try{const found=[],cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
-    const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);cand.push('localhost:8080');
+    const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);if(typeof location==='undefined'||location.protocol!=='https:')cand.push('localhost:8080');   // a public https page must not poke at the visitor's own machine (browsers ask for a permission)
     for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){found.push({kind:'node',addr:a,host:'Dedicated',players:j.players});break}}
     if(PeerC&&!P2P.isHost){const r=await scoutLobbies();if(r){P2P.state='up';found.push(...r)}}
     lobbies=found;showLobbies();if(!scanned||P2P.state!=='unknown'){scanned=true;resolveScan()}}finally{polling=false}}
