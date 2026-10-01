@@ -36,6 +36,8 @@
 [hidden]{display:none!important}
 html,body{height:100%;overflow:hidden}
 html{background:var(--grass)}
+html.tall,html.tall body{overflow:visible;height:auto}
+html.tall body{min-height:100lvh}
 body{margin:0;background:var(--grass);color:var(--ink);font-family:var(--body);font-size:15px;user-select:none}
 #vp{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100lvh;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);box-sizing:border-box;visibility:hidden;pointer-events:none}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
@@ -415,7 +417,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r47</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r48</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -553,7 +555,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r47';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r48';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -571,13 +573,14 @@ const flash=()=>restart($('flash'),'go');
 let QS=1;   // quality scale: lowered automatically when the frame rate stays low
 let VPDBG='';
 function resize(){DPR=Math.max(.5,Math.min(2,window.devicePixelRatio||1)*QS);W=innerWidth;H=innerHeight;
-  {const r=$('vp').getBoundingClientRect(),cs=getComputedStyle($('vp'));   // the largest viewport: on phones the picture continues under the browser bars and the home indicator
+  if(typeof __SERVER__==='undefined'){const r=$('vp').getBoundingClientRect(),cs=getComputedStyle($('vp'));   // the largest viewport: on phones the picture continues under the browser bars and the home indicator
    let ph=0,sh=0;
    if(r.width>=innerWidth-1&&r.height>=innerHeight&&r.height<innerHeight+200){W=Math.round(r.width);H=Math.round(r.height);ph=H}
    const st=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));   // home-screen app on iPhone: the window can be shorter than the screen
    if(st&&window.screen){const a=Math.max(screen.width,screen.height),b=Math.min(screen.width,screen.height),fh=innerWidth>innerHeight?b:a;if(fh>H&&fh-H<140){H=fh;sh=fh}}
    cv.style.width=W===innerWidth?'':W+'px';cv.style.height=H===innerHeight?'':H+'px';
-   VPDBG='inner '+innerWidth+'x'+innerHeight+' · lvh '+Math.round(r.height)+' · screen '+screen.width+'x'+screen.height+' · canvas '+W+'x'+H+' · app '+(st?'yes':'no')+' · safe '+cs.paddingTop+'/'+cs.paddingBottom+(window.visualViewport?' · visual '+Math.round(visualViewport.height):'')}
+   document.documentElement.classList.toggle('tall',H>innerHeight+4&&st);
+   VPDBG='inner '+innerWidth+'x'+innerHeight+' · lvh '+Math.round(r.height)+' · screen '+screen.width+'x'+screen.height+' · canvas '+W+'x'+H+' · app '+(st?'yes':'no')+(H>innerHeight+4&&st?' tall':'')+' · safe '+cs.paddingTop+'/'+cs.paddingBottom+(window.visualViewport?' · visual '+Math.round(visualViewport.height):'')}
   cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU;}
 addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,250));setTimeout(resize,400);resize();
 

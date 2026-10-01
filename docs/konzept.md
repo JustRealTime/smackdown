@@ -354,3 +354,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Da ich kein iPhone habe: Settings -> Details zeigt am Handy zusätzlich `inner / lvh / screen / canvas / app / safe / visual` (auch im Bug-Report unter Screen). Der Nutzer schickt einen Screenshot davon, daraus lässt sich der echte Fehler ablesen.
 - Vermutung (ungeprüft): Das Layout-Viewport der App ist ca. 60 px kürzer als der Bildschirm; was außerhalb liegt, kann die Seite eventuell gar nicht bemalen.
 - BUILD r47.
+
+## Runde 48 - Online-Start repariert (Regression aus r47), Vollbild-Versuch
+- Fehler: `resize()` rief ab r47 `getComputedStyle` auf; im Web Worker (Host-Server) gibt es das nicht -> "host server crashed" -> Online-Spiel blieb bei "Starting your game..." hängen. Gefunden im Fehler-Upload (Logs vom iPhone und PC, 10:55-10:57). Fix: Messblock nur wenn `typeof __SERVER__==='undefined'`.
+- Test: lokaler PeerJS-Broker, Online an, Play -> Host startet, HUD sichtbar, keine Fehler (Headless-Chromium). Lehre: Änderungen an gemeinsam genutztem Code (resize, Render) immer auch mit Online-Host testen.
+- iPhone-Messung (App-Modus, Hochformat): inner 393x793, lvh 852, screen 852, safe 59/34. Das Layout-Viewport ist 59 px kürzer als der Bildschirm, der Canvas (852 hoch) wird unten bei 793 abgeschnitten. Querformat ist ok (inner = screen). Im Safari-Browser läuft das Bild unter der Leiste weiter.
+- Versuch: im App-Modus `html.tall` (overflow: visible, body min-height 100lvh), damit der Canvas unter die Layout-Grenze malen darf. Ungeprüft; Diagnose zeigt "tall" an.
+- BUILD r48.
