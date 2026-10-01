@@ -1,8 +1,8 @@
-# Snackdown
+# Typebite
 
 Ein Browser-Spiel im Stil von agar.io. Man läuft als kleine Pixel-Figur durch eine Cartoon-Welt, isst Snacks, steigt im Level auf und besiegt andere in Tippduellen.
 
-Der Name ist noch ein Arbeitstitel.
+Der Name Typebite ist gewählt (Domain typebite.io geplant). Vor einem kommerziellen Release Marke und Namensähnlichkeit prüfen: es gibt ähnlich klingende kleine Spiele (BiteType!, Type 'n' Bite).
 
 ## Spielen
 

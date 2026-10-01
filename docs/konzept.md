@@ -280,3 +280,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Ladebildschirm ab Play/Join: Spinner, Schrittanzeige ("Looking for a game…", "Joining X's game…", "Starting your game…", "Building the world…"), Tipp, Abbrechen-Knopf. Er wird erst gezeichnet, dann läuft die schwere Arbeit (Weltbau), und verschwindet beim ersten Update des Spiels. Nachrichten, die während des Weltbaus ankommen, warten in einer Warteschlange.
 - Balance: Wer das niedrigere Level hat, tippt 1-2 (bei großem Abstand mehr) Wörter weniger: ca. 1 pro 9 Level Unterschied, ab Abstand 4 mindestens 1, höchstens 30 % der Phrase. Beispiele: Lv 1 gegen Lv 17: 2 gegen 4 Wörter; Lv 1 gegen Lv 40: 4 gegen 7; Lv 1 gegen Lv 400: 14 gegen 20; gleiches Level: gleich viele.
+
+## Runde 36 (r36): Name Typebite
+
+- Das Spiel heißt jetzt Typebite (Titel, Menü, Fehlerbericht, README, Server-Texte). Lobby-Ids beginnen mit `typebite-`, ältere Versionen sind wegen der Versionsprüfung ohnehin nicht kompatibel. Interne Schlüssel (localStorage `snackdown-*`, Fehler-Relay) bleiben unverändert, damit gespeicherte Einstellungen nicht verloren gehen.
+- Entscheidung des Entwicklers trotz Hinweis: ähnliche kleine Spiele existieren (BiteType!, Type 'n' Bite). TMview: keine EU/AT-Marke. Vor Werbung/Steam anwaltlich prüfen lassen.

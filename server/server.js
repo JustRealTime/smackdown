@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
-  Snackdown LAN server. No npm packages needed, just Node 18+.
+  Typebite LAN server. No npm packages needed, just Node 18+.
 
     node server/server.js            (port 8080)
     node server/server.js 3000       (other port)
@@ -137,7 +137,7 @@ setInterval(() => {
 
 module.exports = { sim, server };
 if (require.main === module || process.env.SNACK_LISTEN) server.listen(PORT, '0.0.0.0', () => {
-  console.log('Snackdown server is running on port ' + PORT);
+  console.log('Typebite server is running on port ' + PORT);
   console.log('  you:      http://localhost:' + PORT);
   for (const list of Object.values(os.networkInterfaces()))
     for (const i of list || []) if (i.family === 'IPv4' && !i.internal) console.log('  friends:  http://' + i.address + ':' + PORT + '   (same Wi-Fi or Tailscale)');

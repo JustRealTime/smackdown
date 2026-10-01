@@ -1,4 +1,4 @@
-# Snackdown (working title) - project briefing for Claude
+# Typebite (formerly the working title Snackdown) - project briefing for Claude
 
 Read this first. It describes what the project is, how it is built, what was decided and what is open.
 The owner speaks German (writes German/English mixed, casual). Reply in German unless asked otherwise. Keep answers honest and short:
@@ -37,7 +37,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - Audio: synthesized sfx (`sfx`, voice limiter) + music player with per-mode playlists (`TRACKS`, `MODES`), loudness normalised.
 - Multiplayer without a server file (WebRTC via PeerJS): the first player who presses Play becomes HOST: their tab runs this same code in a Web Worker
   (`startWorker`, source = `document.currentScript.textContent`) as the game server; the host plays through a local fake socket. Others connect with
-  PeerJS data channels (JSON strings). Lobby ids are `snackdown-<room>-<slot>` (8 slots per room name, 12 players max). The menu scouts all slots
+  PeerJS data channels (JSON strings). Lobby ids are `typebite-<room>-<slot>` (8 slots per room name, 12 players max). The menu scouts all slots
   (`scoutLobbies`) and lists games with Join buttons. Play joins the fullest non-full game or hosts a new one. A `BUILD` id is checked on join (version mismatch message).
   Uses the PUBLIC PeerJS broker (0.peerjs.com) for now; planned: own broker + TURN. Test hook: `window.SNACK_PEER` overrides Peer options.
 - Game loop is crash-proof (`loop()` schedules the next frame first; errors show a red bar via `reportErr(e,src)`).
@@ -54,7 +54,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r35; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r36; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
@@ -77,5 +77,5 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 1. Balance until fair (but keep uncertainty at the top: nobody should be favoured except via items). Legendary items must stay rare.
 2. Own website that can host many players; players host lobbies in the browser to keep server cost near zero.
 3. Later: ads (needs consent banner), then direct-buy cosmetic microtransactions only (skins, flags; no random paid boxes), then Steam.
-4. Name is not final. Gewerbe will be registered when income starts. Legal pages (Impressum, privacy, cookie banner) will be done later together.
+4. Name: TYPEBITE (decided 2026-10-01, domain typebite.io at easyname, ~18 EUR first year then ~90, plan: transfer to a cheap registrar after a year). Known risk, accepted by the owner: similar small games exist (BiteType! browser burger typing game, Type 'n' Bite on itch.io); TMview showed no EU/AT mark. Re-check the mark with a lawyer before ads/Steam. Internal keys keep the old prefix (localStorage `snackdown-*`, error relay name). Gewerbe will be registered when income starts. Legal pages (Impressum, privacy, cookie banner) will be done later together.
 Next planned step: playtests with 5-10 people on different browsers/devices (guide: docs/spieltest.md; testers send F8 bug reports), then fix bugs and rebalance, then the technical release items in docs/release-plan.md.
