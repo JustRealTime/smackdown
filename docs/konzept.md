@@ -334,3 +334,11 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Musikübergänge weicher: Einblenden .9/s statt 2.5/s, Ausblenden 1.3/s statt 4/s (Überblendung ca. 2-3 s). Nicht gehört, nur Werte geändert.
 - Vollbild: iOS Safari erlaubt Webseiten kein Vollbild. Deshalb PWA-Daten (`site/manifest.webmanifest`, Icons, apple-mobile-web-app-Tags, theme-color): "Zum Home-Bildschirm" startet ohne Leisten. Fullscreen-Button in den Settings, wo der Browser es kann (Android, Desktop). Hinweis im Menü.
 - BUILD r44. Echte iPhone-Prüfung der Tastatur steht aus.
+
+## Runde 45 - Musik, Handy-Layout, passive Items
+- Musikwechsel: erst blendet der alte Song ganz aus (linear, ca. 1,8 s; bei Ducking schneller), dann startet der nächste und blendet langsam ein (ca. 3,5 s). Test im Headless-Chromium: Lautstärke des alten Songs läuft auf 0, erst dann steigt der neue.
+- Musik ist standardmäßig AUS (localStorage `snackdown-music` = '1' schaltet ein). Hinweis: wer vorher Musik an hatte, hat keinen Eintrag '1' und beginnt auch mit "aus".
+- Handy: Quest und King-Hinweis unten links (nicht klickbar, halbtransparent) statt oben über HUD/Buttons.
+- Home-Bildschirm-App (iPhone): Canvas-Höhe wird auf die Bildschirmhöhe gesetzt, damit unten kein Streifen bleibt (nur wenn `navigator.standalone`/display-mode standalone und der Unterschied < 140 px). NICHT auf dem Gerät geprüft.
+- Passive Items (Piano usw.): Antippen bzw. Q/W/E zeigt "passive, used automatically in your next duel" (auch im Client-Modus, vorher nur Solo), Slot trägt am Handy das Label "auto".
+- BUILD r45.
