@@ -269,3 +269,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Worker auf Cloudflare eingerichtet (`snackdown-errors.alikesan2004.workers.dev`), Test-Bericht ist im privaten Repo `smackdown-errors` angekommen. Die Adresse ist jetzt im Spiel eingetragen: Fehler werden ab Build r33 automatisch hochgeladen, im Menü steht ein Hinweis.
 - Der Worker erklärt GitHub-Fehler jetzt genau (Token falsch/abgelaufen, Repo für den Token nicht sichtbar, Branch fehlt, keine Schreibrechte) und ignoriert Leerzeichen in den Einstellungen.
 - Der Token läuft am 30.12.2026 ab und muss dann erneuert werden (docs/fehler-upload.md). Build r33.
+
+## Runde 34 (r34): Item-Effekte sichtbar, schnelleres Beitreten, Auto-Auflösung
+
+- Im Mehrspieler läuft der Effekt eines Items auf dem Host, deshalb sah man nichts (Apfel & Co). Jetzt zeigt der Client beim Benutzen (Slot wird leer) Name, Ergebnis ("+4 snacks of level", "Stamina full, dash ready" ...), Ring (Größe je Item), Sterne, Blitz und Ton. Laufende Effekte (Magnet, Turbo, Rocket, Black Hole, Rubber Band, Sugar Rush, Radar, Smoke) haben einen rotierenden Ring unter der Figur.
+- Beitreten: Der geöffnete Scout-Kanal zum Vermittler wird wiederverwendet (spart einen Verbindungsaufbau). Läuft die erste Suche noch, wartet Play bis zu 3,5 s darauf, statt aus Versehen ein zweites Spiel zu starten. Statusmeldungen "Joining X's game…". Fehlschlag meldet den Grund. Der Bug-Report enthält "Join steps" mit Zeiten (Klick > Vermittler > verbunden > welcome > Welt gebaut > erster Snapshot), damit man sieht, wo es hängt.
+- Ruckeln: automatische Auflösung. Liegt der Schnitt zwei Sekunden lang unter ca. 38 FPS, sinkt die Zeichenauflösung stufenweise bis 55 %, bei hohen FPS steigt sie wieder.

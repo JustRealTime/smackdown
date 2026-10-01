@@ -305,7 +305,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r33</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r34</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -414,9 +414,9 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
-const BUILD='r33';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r34';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
-var ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
+var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
   addEventListener('error',e=>{if(e&&e.message==='Script error.'&&!e.error)return;reportErr(e&&(e.error||e.message)||'unknown error','page')});
   addEventListener('unhandledrejection',e=>{logErr(e&&e.reason||'promise rejected','promise')});   // only logged for the report: offline/broker failures end up here
@@ -429,7 +429,8 @@ let ctx=cv.getContext('2d');
 let W=0,H=0,DPR=1,Z=1,ZU=1.5,ZZ=1,shake=0,kick=0,dz=0,hitstop=0;
 const restart=(el,cls)=>{el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)};
 const flash=()=>restart($('flash'),'go');
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU;}
+let QS=1;   // quality scale: lowered automatically when the frame rate stays low
+function resize(){DPR=Math.max(.5,Math.min(2,window.devicePixelRatio||1)*QS);W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU;}
 addEventListener('resize',resize);resize();
 
 const INK='#2b2140', GOLD='#ffc93c', CAPE='#d62839', SHOE='#3a2a22';
@@ -1363,13 +1364,14 @@ function showLobbies(){const el=$('online');
   $('olhead').textContent='● Online · '+lobbies.length+(lobbies.length===1?' game':' games')+' · '+n+(n===1?' player':' players');
   $('ollist').innerHTML=lobbies.map((l,i)=>{const names=l.players.slice(0,4).map(p=>esc2(String(p.name))).join(', ')+(l.players.length>4?' …':''),full=l.max&&l.players.length>=l.max;
     return '<div class="olrow"><span><b>'+esc2(String(l.host||'Server'))+(l.kind==='node'?' (server)':"'s game")+'</b> <small>'+l.players.length+' playing</small><br><small>'+(names||'nobody yet')+'</small></span>'+(full?'<small>full</small>':'<button type="button" class="btn alt" data-i="'+i+'">Join</button>')+'</div>'}).join('')}
-let polling=false;
+let polling=false,scanned=false,firstScan=null,resolveScan=null;
+firstScan=new Promise(r=>{resolveScan=r});
 async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||document.hidden)return;polling=true;
   try{const found=[],cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
     const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);cand.push('localhost:8080');
     for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){found.push({kind:'node',addr:a,host:'Dedicated',players:j.players});break}}
     if(PeerC&&!P2P.isHost){const r=await scoutLobbies();if(r){P2P.state='up';found.push(...r)}}
-    lobbies=found;showLobbies()}finally{polling=false}}
+    lobbies=found;showLobbies();if(!scanned||P2P.state!=='unknown'){scanned=true;resolveScan()}}finally{polling=false}}
 $('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-i]');const l=b&&lobbies[+b.dataset.i];if(!l)return;
   if(l.kind==='node')joinGame(l.addr);else playP2P(l.host,l)});
 $('solobtn').addEventListener('click',()=>{lobbies=[];startGame()});
@@ -2045,23 +2047,27 @@ function registerHost(slot,tries){if(!P2P.isHost||!PeerC)return;slot=slot||1;tri
     if(tries<4&&P2P.isHost)setTimeout(()=>registerHost(slot,tries+1),6000+tries*4000)})}
 function startHostLocal(name,near){try{startWorker()}catch(e){P2P.isHost=false;return false}
   P2P.hostName=name;attachSock(localSocket(),name,near);registerHost(1);return true}
-function p2pConnect(slot){return new Promise((res,rej)=>{let done=false;const p=new PeerC(undefined,peerOpts());
+function p2pConnect(slot,reuse){return new Promise((res,rej)=>{let done=false;const p=reuse||new PeerC(undefined,peerOpts());
   const fail=r=>{if(done)return;done=true;clearTimeout(to);try{p.destroy()}catch(_){}rej(r)},to=setTimeout(()=>fail('timeout'),9000);
   p.on('error',e=>fail(e.type||'error'));
-  p.on('open',()=>{const conn=p.connect(peerIdFor(slot||1),{reliable:true,serialization:'json'});
+  const go=()=>{jmark('broker');const conn=p.connect(peerIdFor(slot||1),{reliable:true,serialization:'json'});
     conn.on('open',()=>{if(done)return;done=true;clearTimeout(to);
       const sock={readyState:1,send:s=>{try{conn.send(s)}catch(_){}},close:()=>{try{conn.close();p.destroy()}catch(_){}}};
       conn.on('data',d=>{if(sock.onmessage)sock.onmessage({data:d})});conn.on('close',()=>{if(sock.onclose)sock.onclose()});
-      P2P.peer=p;res(sock);setTimeout(()=>sock.onopen&&sock.onopen(),0)});
-    conn.on('error',()=>fail('conn'))})})}
+      jmark('connected');P2P.peer=p;res(sock);setTimeout(()=>sock.onopen&&sock.onopen(),0)});
+    conn.on('error',()=>fail('conn'))};
+  if(p.open)go();else p.on('open',go)})}
 function p2pCleanup(){clearInterval(P2P.poll);if(scout){try{scout.destroy()}catch(_){}scout=null}if(P2P.worker){try{P2P.worker.terminate()}catch(_){}P2P.worker=null}
   if(P2P.peer){try{P2P.peer.destroy()}catch(_){}P2P.peer=null}P2P.conns.clear();P2P.isHost=false}
 async function playP2P(near,lobby){
   const name=($('name').value.trim()||'Player').slice(0,14);
-  if(scout){try{scout.destroy()}catch(_){}scout=null}
+  JT.length=0;applySnap.f=0;jmark('click');
+  if(!lobby&&!scanned&&firstScan){$('mpstatus').textContent='Looking for games…';await Promise.race([firstScan,new Promise(r=>setTimeout(r,3500))])}   // the first look is still running: do not start a second game by accident
+  const sp=scout&&scout.open?scout:null;scout=null;
   lobby=lobby||pickLobby('p2p');
-  if(lobby){$('mpstatus').textContent='Joining…';   // a game is running: join it
-    try{attachSock(await p2pConnect(lobby.slot),name,near||lobby.host);$('mpstatus').textContent='';return}catch(r){$('mpstatus').textContent=''}}
+  if(lobby){$('mpstatus').textContent='Joining '+(lobby.host?lobby.host+"'s game":'game')+'…';   // a game is running: join it
+    try{attachSock(await p2pConnect(lobby.slot,sp),name,near||lobby.host);return}catch(r){$('mpstatus').textContent='Could not connect to that game ('+r+'). Starting your own.'}}
+  if(sp){try{sp.destroy()}catch(_){}}
   if(!startHostLocal(name,near)){$('mpstatus').textContent='Could not start an online game, so this is a solo game.';startGame()}}
 // the menu asks every lobby slot of the room who is playing, through one long-lived scout connection
 let scout=null;
@@ -2098,7 +2104,7 @@ function onNet(m){lastNet=now();
     case 'dend':if(pendingDuel){pendingDuel=null;showOffer()}else endNetDuel(m);break;
     case 'dead':showDeathNet(m);break}}
 function enterClientMode(seed){
-  role='client';pendingDuel=null;buildWorld(seed);ents=[];cl=new Map();foods=[];boxes=[];orbs=[];player=null;king=null;kingPos=null;parts=[];floaters=[];skids=[];duel=null;offer=null;
+  jmark('welcome');role='client';pendingDuel=null;buildWorld(seed);jmark('world');ents=[];cl=new Map();foods=[];boxes=[];orbs=[];player=null;king=null;kingPos=null;parts=[];floaters=[];skids=[];duel=null;offer=null;
   timeWarp={until:0,owner:null};wasKing=false;Object.assign(stats,{won:0,snacks:0,best:0,top:1});
   game='play';$('start').hidden=true;$('dead').hidden=true;$('mpstatus').textContent='';
   for(const id of ['hud','board','minilogo','mini'])$(id).hidden=false;
@@ -2126,6 +2132,7 @@ function recToEnt(e,r,t){
   if(e.state==='eat'){e.eatFood=r.ef;e.ep=r.ep||0;e.stateT=e.eatT*(1-e.ep)}
   if(e.state==='eaten'){e.stateT=r.et||0;e.eater=cl.get(r.er)||null}}
 function applySnap(m){
+  if(JT.length&&JT[JT.length-1][0]!=='first snapshot'&&!applySnap.f){applySnap.f=1;jmark('first snapshot')}
   const t=now(),seen=new Set();
   for(const r of m.e){let e=cl.get(r.i);if(!e){if(!r.f)continue;e=makeClientEnt(r);cl.set(r.i,e)}seen.add(r.i);recToEnt(e,r,t)}
   for(const id of [...cl.keys()])if(!seen.has(id))cl.delete(id);
@@ -2143,7 +2150,14 @@ function applySnap(m){
   const isKing=!!(player&&m.k&&m.k.id===myId);
   if(isKing&&!wasKing){showToast('You are the KING! Everyone hunts you');sfx.king()}else if(!isKing&&wasKing&&player)showToast('You lost the crown');
   wasKing=isKing}
+const ITEM_RESULT={apple:'+4 snacks of level',ticket:'+10 snacks of level',crystal:'+3 levels!',energy:'Stamina full, dash ready',clover:'Next 3 boxes are luckier',bomb:'Snacks everywhere!',teleport:'Whoosh!',sticky:'Gloves used',shock:'Everyone pushed away',nova:'SUPERNOVA!',freeze:'Everyone nearby is frozen',warp:'Everybody else is slow',smoke:'You are hidden',shield:'Nobody can duel you',magnet:'Snacks fly to you',turbo:'Turbo!',rush:'Sugar Rush!',radar:'Radar on: see the minimap',rocket:'Rocket Boots!',rubber:'Dash without cooldown',blackhole:'Black Hole!',keys:'Keyboard used',gkeys:'Golden Keyboard used',angel:'Angel Feather used'};
+const ITEM_RING={shock:400,nova:520,freeze:340,warp:420,blackhole:300,bomb:170,teleport:120};
+function itemUsedFx(p,k){const it=ITEMS[k];if(!it)return;const T=TIERS[it.tier];   // on a client the effect itself runs on the server: show it here
+  sfx.item();flash();floater(p.x,p.y-72,it.icon+' '+it.name,'#fff',true);floater(p.x,p.y-100,ITEM_RESULT[k]||'Used!',T.c,false);
+  ring(p.x,p.y+18,8,ITEM_RING[k]||90,T.c,.5);stars(p.x,p.y-16,5+it.tier*3,[T.c,'#fff',GOLD],170+it.tier*50);p.sqv+=4;
+  if(ITEM_RING[k]>=340){shake=Math.max(shake,6);kick=Math.max(kick,.08)}}
 function applyMe(p,me,t){
+  if(p._itemsSeen){for(let i=0;i<SLOTS;i++){const k=p.items[i];if(k&&!me.it[i]&&!(ITEMS[k]&&ITEMS[k].auto&&false))itemUsedFx(p,k)}}p._itemsSeen=1;
   for(let i=0;i<SLOTS;i++)if(me.it[i]&&me.it[i]!==p.items[i])itemReveal(p,me.it[i],false)
   const before=p._pl;p.lvl=me.lvl;p.stamina=me.sta;p.dashCharges=me.dc;p.dashCd=me.dcd;p.items=me.it.slice();p.picksDone=me.pd;
   if(me.perks){p.perks=me.perks;calcStats(p)}
@@ -2496,6 +2510,7 @@ const TINT=new Map();
 function tintOf(spr,good,a){const k=(good?'g':'r')+a.toFixed(2);let m=TINT.get(spr);if(!m){m={};TINT.set(spr,m)}
   if(!m[k]){const c=document.createElement('canvas');c.width=spr.width;c.height=spr.height;const g=c.getContext('2d');g.drawImage(spr,0,0);g.globalCompositeOperation='source-atop';g.fillStyle=good?'rgba(63,208,106,'+a+')':'rgba(255,77,106,'+a+')';g.fillRect(0,0,c.width,c.height);m[k]=c}
   return m[k]}
+const BUFF_COL={magnet:'#ff6b6b',turbo:'#3db5ff',rocket:'#ff9f1c',blackhole:'#9b5de5',rubber:'#2ec4b6',rush:'#ff8fc2',radar:'#6fd36f',smoke:'#9a8fb0'};
 function drawAura(e,l,t){const tier=l>=300?5:l>=200?4:l>=150?3:l>=125?2:l>=100?1:0;if(!tier)return;
   ctx.fillStyle=tier===5?'hsla('+((t*90)%360|0)+',90%,60%,.42)':['','rgba(255,201,60,.35)','rgba(61,181,255,.4)','rgba(255,107,61,.4)','rgba(155,93,229,.45)'][tier];
   ctx.beginPath();ctx.arc(e.x,e.y,38+Math.sin(t*4)*4+tier*2,0,6.3);ctx.fill();
@@ -2549,6 +2564,8 @@ function drawEnt(e,t){
     ctx.globalAlpha=al*.9;ctx.fillStyle=good?'rgba(63,208,106,'+(.16+m*.05)+')':'rgba(255,77,106,'+(.16+m*.05)+')';ctx.strokeStyle=good?'#3fd06a':'#ff4d6a';ctx.lineWidth=3+m;
     ctx.beginPath();ctx.ellipse(e.x,e.y+12,(42+m*3)*pu,(20+m*1.5)*pu,0,0,6.3);ctx.fill();ctx.stroke();ctx.globalAlpha=1}
   drawAura(e,lv,t);
+  {let br=0;for(const k in BUFF_COL){if(e.buff[k]>t){br++;const R=26+br*7,left=e.buff[k]-t;ctx.save();ctx.globalAlpha=left<1.5?.35+.35*Math.sin(t*14):.8;ctx.strokeStyle=BUFF_COL[k];ctx.lineWidth=3;ctx.setLineDash([9,7]);ctx.lineDashOffset=-t*40*(br%2?1:-1);
+      ctx.beginPath();ctx.ellipse(e.x,e.y+16,R*1.25,R*.5,0,0,6.3);ctx.stroke();ctx.restore()}}}
   for(const g of e.ghosts){ctx.globalAlpha=g.life*1.6;ctx.save();ctx.translate(g.x,g.y+FY);ctx.rotate(g.lean);ctx.scale(1-g.sq*.55,1+g.sq);ctx.drawImage(sprite(e,look,g.dir,0),-W0/2,-69,W0,H0);ctx.restore()}ctx.globalAlpha=1;
   const bob=e.state==='eat'?0:(frame?(e.sprinting?-2.5:-1.5):0);
   if(look.wings)drawWings(e,t);
@@ -2693,11 +2710,12 @@ function diag(){const tr=f=>{try{return f()}catch(_){return '?'}};return{
   mode:tr(()=>(P2P.isHost?'host':role)+' · room '+($('room').value.trim()||'public')+(P2P.slot?' · lobby '+P2P.slot:'')+' · humans '+(P2P.isHost?P2P.players.length:ents.filter(e=>e.human).length)
     +' · broker '+P2P.state+(P2P.isHost&&P2P.ms?' · host step '+P2P.ms.toFixed(1)+' ms':'')+(role==='client'&&lastNet?' · last host message '+(now()-lastNet).toFixed(2)+' s ago':'')),
   game:tr(()=>game+(player?' · Lv '+L(player)+' · '+player.state:'')+(duel?' · in a duel':'')),
-  speed:tr(perfLine)}}
+  speed:tr(perfLine),
+  join:tr(()=>JT.length<2?'-':JT.map((x,i)=>x[0]+' '+(i?((x[1]-JT[i-1][1])/1000).toFixed(1)+'s':'')).join(' > '))}}
 function bugReport(note){const o=[],p2=n=>String(n).padStart(2,'0'),hms=d=>p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()),d=new Date(),g=diag();
   o.push('Snackdown bug report · Build '+BUILD+' · '+d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+hms(d));
   if(note)o.push('What happened: '+note.replace(/\s+/g,' '));
-  o.push('Browser: '+g.ua,'Screen: '+g.screen,'Mode: '+g.mode,'Game: '+g.game,'Speed: '+g.speed);
+  o.push('Browser: '+g.ua,'Screen: '+g.screen,'Mode: '+g.mode,'Game: '+g.game,'Speed: '+g.speed,'Join steps: '+g.join);
   o.push(ERRLOG.length?'Errors ('+ERRLOG.length+'):':'Errors: none');
   for(const e of ERRLOG)o.push(' '+hms(e.t)+' ['+e.src+'] '+e.m+(e.n>1?' (x'+e.n+')':'')+(e.at?' @ '+e.at:''));
   return o.join('\n')}
@@ -2724,8 +2742,11 @@ if(role!=='server'){
     else if(!$('bugrep').hidden)e.stopPropagation()},true)}   // typing in the report box must not use items, dash or zoom (default action still types)
 
 let last=now();
+const QSTAT={n:0,sum:0};
 function loop(){requestAnimationFrame(loop);   // always schedule the next frame first: one error must never freeze the game
   const t=now(),raw=t-last;let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
+  if(raw>0&&raw<1&&document.visibilityState==='visible'&&game==='play'){const q=QSTAT;q.n++;q.sum+=raw;if(q.n>=100){const avg=q.sum/q.n;q.n=0;q.sum=0;   // about 2 s: too slow -> fewer pixels, fast again -> more
+      if(avg>.026&&QS>.55){QS=Math.max(.55,QS*.82);resize()}else if(avg<.0145&&QS<1){QS=Math.min(1,QS*1.1);resize()}}}
   if(raw>0&&raw<1&&document.visibilityState==='visible'){const h=PERF.hist;h.push(raw);if(h.length>600)h.shift();if(game==='play'){if(raw>.05)PERF.slow++;if(raw>PERF.worst)PERF.worst=raw}}
   if(hitstop>0){hitstop-=dt;dt*=.12}
   shake*=Math.pow(.02,dt);kick*=Math.pow(.06,dt);
