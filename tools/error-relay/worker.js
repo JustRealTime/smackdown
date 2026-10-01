@@ -41,28 +41,47 @@ const b64dec = c => { const x = atob(String(c).replace(/\s/g, '')); const b = ne
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function append(env, rec) {
-  const branch = env.BRANCH || 'main', day = rec.at.slice(0, 10);
-  const hd = { Authorization: 'Bearer ' + env.GITHUB_TOKEN, Accept: 'application/vnd.github+json', 'User-Agent': 'snackdown-error-relay', 'X-GitHub-Api-Version': '2022-11-28' };
+  const branch = String(env.BRANCH || 'main').trim(), day = rec.at.slice(0, 10), repo = String(env.REPO).trim();
+  const hd = { Authorization: 'Bearer ' + String(env.GITHUB_TOKEN).trim(), Accept: 'application/vnd.github+json', 'User-Agent': 'snackdown-error-relay', 'X-GitHub-Api-Version': '2022-11-28' };
   const line = JSON.stringify(rec) + '\n';
   for (let attempt = 0; attempt < 5; attempt++) {
     let path, sha, old = '';
     for (let part = 1; part <= 20; part++) {   // find today's file that still has room
       path = 'errors/' + day + (part > 1 ? '-' + part : '') + '.jsonl';
-      const g = await fetch('https://api.github.com/repos/' + env.REPO + '/contents/' + path + '?ref=' + encodeURIComponent(branch), { headers: hd });
+      const g = await fetch('https://api.github.com/repos/' + repo + '/contents/' + path + '?ref=' + encodeURIComponent(branch), { headers: hd });
       if (g.status === 404) { sha = undefined; old = ''; break; }
-      if (!g.ok) throw new Error('GitHub read ' + g.status + ': ' + (await g.text()).slice(0, 200));
+      if (!g.ok) throw new Error(await explain(g, repo, branch, hd, 'read'));
       const j = await g.json();
       if (j.size > ROTATE_AT) continue;
       sha = j.sha; old = b64dec(j.content || ''); break;
     }
     const body = { message: 'error report ' + rec.build + ' ' + rec.kind + ' ' + rec.sid, content: b64enc(old + line), branch };
     if (sha) body.sha = sha;
-    const r = await fetch('https://api.github.com/repos/' + env.REPO + '/contents/' + path, { method: 'PUT', headers: { ...hd, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const r = await fetch('https://api.github.com/repos/' + repo + '/contents/' + path, { method: 'PUT', headers: { ...hd, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (r.ok) return path;
-    if (r.status !== 409 && r.status !== 422) throw new Error('GitHub write ' + r.status + ': ' + (await r.text()).slice(0, 200));
+    if (r.status !== 409 && r.status !== 422) throw new Error(await explain(r, repo, branch, hd, 'write'));
     await sleep(150 + Math.random() * 500 * (attempt + 1));   // somebody else wrote the file in between: read again and retry
   }
   throw new Error('GitHub write: too many conflicts');
+}
+
+// turns GitHub's short answers (a private repo the token cannot see is just "404 Not Found") into a message that says what to fix
+async function explain(res, repo, branch, hd, what) {
+  const raw = 'GitHub ' + what + ' ' + res.status + ': ' + (await res.text()).slice(0, 160);
+  try {
+    if (res.status === 401) return raw + ' -> the token is wrong or expired: create a new one and replace the secret GITHUB_TOKEN.';
+    const rr = await fetch('https://api.github.com/repos/' + repo, { headers: hd });
+    if (rr.status === 404) {
+      const u = await fetch('https://api.github.com/user', { headers: hd });
+      const who = u.ok ? (await u.json()).login : 'unknown';
+      return raw + ' -> the token (account ' + who + ') cannot see the repo "' + repo + '". Check the variable REPO, and in the token: Repository access = Only select repositories with this repo, then Update.';
+    }
+    if (!rr.ok) return raw + ' -> repo check returned ' + rr.status;
+    const br = await fetch('https://api.github.com/repos/' + repo + '/branches/' + encodeURIComponent(branch), { headers: hd });
+    if (br.status === 404) return raw + ' -> the repo has no branch "' + branch + '". Add a README on GitHub or set the variable BRANCH.';
+    const perm = (await rr.json()).permissions;
+    return raw + ' -> the repo is visible but writing is refused' + (perm ? ' (permissions ' + JSON.stringify(perm) + ')' : '') + '. Give the token "Contents: Read and write".';
+  } catch (_) { return raw; }
 }
 
 export default {
