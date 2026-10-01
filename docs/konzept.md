@@ -319,3 +319,11 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Während Settings offen ist, läuft die Figur nicht zum Cursor und Tasten gehen nicht ans Spiel (Server läuft weiter).
 - Gespeichert in localStorage `snackdown-settings`. BUILD r42.
 - Getestet (Chromium, headless): Settings öffnen/Slider/Haken/Esc, Speichern, Metriken im Solo-Spiel, Potato (Res 55 %), Ping 26 ms gegen `server/server.js`. NICHT getestet: Hören der Lautstärke, P2P-Ping, Gefühl der Render distance auf echter Hardware.
+
+## Runde 43 - Handy-Unterstützung, "Network delay"
+- Metrik "Ping (to the host)" heißt jetzt "Network delay" (Overlay: "Delay").
+- Touch-Modus (`TOUCH`: `(pointer:coarse)`, zum Testen auch `?touch=1`; Klasse `body.touch`): schwebender Joystick (irgendwo auf dem Spielfeld ziehen), Buttons Dash und Run (halten), Items per Antippen (Q/W/E-Slots, geht auch mit Maus), Menü-Button (☰) und Zahnrad für Settings, Zoom-Slider in den Settings (Start 100 %, Minimum 80 %). Maus-Steuerung/Dash-per-Klick sind im Touch-Modus aus.
+- Duell am Handy: das Panel sitzt ganz oben, ein unsichtbares Eingabefeld (`#tin`) holt die Handy-Tastatur; Textänderungen werden per Diff (auch bei Autokorrektur/Vorschlägen) in Tastendrücke umgewandelt. Tippen irgendwo öffnet die Tastatur, falls sie nicht von selbst aufgeht ("tap here to type").
+- Kompaktes Layout: HUD klein oben links (Level + 3 dünne Balken), Minimap 84 px oben rechts, Bestenliste nur Top 3 + du, Quest klein, Perk-Karten als drei kleine Karten in der Mitte, Menü ohne lange Erklärtexte (Touch-Hinweis statt Tastenliste), Hinweis "needs a keyboard" entfernt. viewport: kein Pinch-Zoom.
+- BUILD r43.
+- Getestet (Chromium-Emulation, Touch-Ereignisse, Querformat 844x390 und Hochformat 390x844): Menü, Joystick-Ziehen, Buttons sichtbar, Perk-Karten antippen, Duell-Panel, Tippen ins Eingabefeld inkl. Backspace, Desktop-Regression, Node-Server startet. NICHT getestet: echte Geräte (iOS Safari, Android Chrome), ob die Tastatur dort automatisch aufgeht, wie die Tastatur das Bild verdeckt, Performance auf schwachen Handys, Pinch-Zoom (nicht gebaut).

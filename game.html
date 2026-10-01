@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Typebite</title>
 <style>
 /* fonts are bundled (SIL Open Font License, see fonts/), nothing is loaded from Google */
@@ -264,6 +264,74 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 8px))}75%{transform:translateX(calc(-50% + 8px))}}
 #duel.shake{animation:shake .18s}
 @media (max-width:640px){.pcard{width:140px;padding-bottom:8px}#itemslot{display:none}#kingbar{white-space:normal;text-align:center;width:max-content;max-width:90%}#mini{display:none}#board{display:none}.bars{width:140px}}
+/* ---------- phones and tablets (body.touch): small, little text, thumbs only ---------- */
+#joy,.tbtn,#tapnote,.tonly,#menubtn{display:none}
+#tin{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;pointer-events:none}
+body.touch{overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.touch input{-webkit-user-select:text;user-select:text}
+body.touch #game{touch-action:none}
+body.touch #mute,body.touch #musicbtn,body.touch #minilogo{display:none}
+body.touch .tonly{display:flex}body.touch p.tonly{display:block}body.touch dl.how,body.touch .how2{display:none}
+body.touch #startform{box-sizing:border-box;width:100%;max-width:420px}body.touch .row{flex-wrap:wrap}body.touch input#name{min-width:120px}
+body.touch #joy{display:block;position:fixed;left:0;top:0;width:104px;height:104px;border-radius:50%;border:3px solid rgba(255,255,255,.7);background:rgba(43,33,64,.22);opacity:0;pointer-events:none;z-index:6;transition:opacity .12s}
+body.touch #joy.on{opacity:1}
+body.touch #joyk{position:absolute;left:30px;top:30px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.85);border:3px solid var(--ink)}
+body.touch .tbtn{position:fixed;z-index:6;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;border:3px solid var(--ink);background:var(--tomato);color:#fff;font:15px var(--display);box-shadow:0 3px 0 var(--ink);touch-action:none;padding:0}
+body.touch .tbtn.down{transform:translateY(3px);box-shadow:none;filter:brightness(.9)}
+body.touch:not(.inplay) .tbtn{display:none}
+body.touch.inplay .tbtn,body.touch.inplay #menubtn{display:flex}
+body.touch #btnDash{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+body.touch #btnSprint{right:calc(86px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:50px;height:50px;background:var(--sky);font-size:13px}
+body.touch #menubtn.round{width:34px;height:34px;font:18px/1 var(--body);background:#fff;color:var(--ink);top:calc(8px + env(safe-area-inset-top,0px));right:calc(100px + env(safe-area-inset-right,0px))}
+body.touch #gear{top:calc(8px + env(safe-area-inset-top,0px));right:calc(140px + env(safe-area-inset-right,0px));left:auto;width:34px;height:34px;padding:0;border-radius:50%;font-size:0;display:none}
+body.touch.inplay #gear{display:flex;align-items:center;justify-content:center}
+body.touch #gear::before{content:"\2699";font-size:20px;line-height:1}
+body.touch #hud{left:calc(8px + env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;padding:5px 9px;gap:8px;border-width:2px;border-radius:12px}
+body.touch #lvbadge{font-size:22px;min-width:30px}body.touch #lvbadge small,body.touch #next,body.touch #treeline{display:none}
+body.touch .bars{width:104px;gap:3px}body.touch .bar{height:9px;border-width:2px}body.touch .bar span{display:none}
+body.touch .bar.st{height:6px}body.touch .bar.ds{height:6px}
+body.touch #itemslot{display:flex;position:fixed;right:calc(8px + env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:6}
+body.touch .islots{display:flex;gap:6px}
+body.touch .islot{width:46px;min-height:46px;height:46px;padding:0;border-width:2px;border-radius:10px;background:rgba(255,255,255,.88)}
+body.touch .islot .in,body.touch .islot .it{display:none}body.touch .islot .ii{font-size:22px}
+body.touch .islot kbd{font-size:9px;padding:0 3px;top:-2px;border-width:1px;border-bottom-width:2px}
+body.touch #buffs{display:none}
+body.touch #mini{display:block;width:84px;height:84px;right:calc(8px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;border-width:2px;border-radius:12px}
+body.touch #board:not([hidden]){display:block}body.touch #board{width:112px;padding:4px 7px;right:calc(8px + env(safe-area-inset-right,0px));top:calc(98px + env(safe-area-inset-top,0px));border-width:2px;border-radius:10px;opacity:.85}
+body.touch #board h2{display:none}body.touch #board ol{font-size:10px;gap:0}body.touch #board li:nth-child(n+4):not(.me){display:none}
+body.touch #quest{top:calc(8px + env(safe-area-inset-top,0px));min-width:0;width:150px;padding:3px 8px 5px;gap:2px;border-width:2px}
+body.touch #quest b{font-size:12px}body.touch #quest small{font-size:10px}
+body.touch #kingbar{top:calc(58px + env(safe-area-inset-top,0px));font-size:11px;padding:3px 8px}
+body.touch #metrics{top:calc(62px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));font-size:10px;padding:2px 6px}
+body.touch #statusbar{font-size:11px}
+body.touch #toast{top:30%;font-size:26px}
+/* perks: three small cards in the middle of the screen */
+body.touch #perks{bottom:auto;top:50%;transform:translate(-50%,-50%);gap:4px;pointer-events:none}
+body.touch #phead{font-size:15px}
+body.touch #pcards{gap:6px;flex-wrap:nowrap}
+body.touch .pcard{width:30vw;max-width:150px;padding:20px 6px 6px;font-size:10px;gap:1px;border-width:2px;border-radius:10px}
+body.touch .pcard .pi{font-size:24px}body.touch .pcard b{font-size:14px}body.touch .pcard .pd{font-size:10px;line-height:1.15}
+body.touch .pcard .pt{display:none}body.touch .pcard em{font-size:9px}body.touch .pcard .prar{font-size:8px;padding:0 5px}body.touch .pcard .pk{font-size:9px;left:5px;top:4px}
+/* duel: sits at the very top so the phone keyboard never covers it */
+body.touch #duel{box-sizing:border-box;top:calc(6px + env(safe-area-inset-top,0px));width:calc(100% - 12px);padding:6px 10px 6px;gap:5px;border-width:2px;border-radius:12px}
+body.touch #duel .side .who{font-size:13px}body.touch #duel .vsmark{font-size:18px;-webkit-text-stroke:1px var(--ink)}
+body.touch #duel .bar{height:8px}body.touch #duel .vs{gap:6px}
+body.touch #words{font-size:clamp(15px,4.4vw,22px);line-height:1.35;min-height:1.4em}
+body.touch .dfoot{font-size:11px}body.touch #tapnote{display:inline}body.touch.kb #tapnote{display:none}
+body.touch #warmnote{font-size:11px;margin:0}body.touch .chips{display:none}
+body.touch #dbanner{top:46%;padding:5px 12px;font-size:14px}
+body.touch #count{top:46%}
+/* menus */
+body.touch .overlay{align-items:start;overflow:auto;padding:10px}
+body.touch .card{padding:14px 16px;gap:9px;margin:auto;width:min(420px,100%)}
+body.touch .logo{font-size:38px}body.touch .tag,body.touch .card>.small{font-size:12px}
+body.touch #start .tag{display:none}
+body.touch .btn{font-size:17px;padding:8px 14px}body.touch .btn.alt{font-size:14px;padding:6px 11px}
+body.touch #start .row:last-of-type{flex-wrap:wrap;justify-content:center}
+body.touch .stats{grid-template-columns:repeat(4,1fr);gap:6px}body.touch .stat b{font-size:22px}body.touch .stat span{font-size:9px}
+body.touch #again+.small{display:none}
+body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
+@media (orientation:landscape) and (max-height:460px){body.touch .logo{font-size:30px}body.touch #start .tag{display:none}body.touch .card{padding:10px 14px;gap:6px}body.touch #quest{left:50%}}
 @media (prefers-reduced-motion:reduce){#itemslot .t3,.islot.t3{animation:none}#perks.up{animation:none}.pcard{transition:none}#words .cur{animation:none}.btn{transition:none}#flash.go,#count.pop,#toast.pop,#dbanner.pop,#dbanner.pop,#duel.in,#duel.in .vsmark,#duel.in .chip,#duel.shake{animation:none}}
 </style>
 </head>
@@ -276,6 +344,11 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 <button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <button id="gear" class="panel" type="button" aria-label="Settings">Settings</button>
 <div id="metrics" hidden></div>
+<div id="joy"><i id="joyk"></i></div>
+<button id="menubtn" class="tbtn round" type="button" aria-label="Menu">&#9776;</button>
+<button id="btnSprint" class="tbtn" type="button">Run</button>
+<button id="btnDash" class="tbtn" type="button">Dash</button>
+<input id="tin" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" aria-hidden="true" tabindex="-1">
 <canvas id="mini" class="panel" width="300" height="300" hidden></canvas>
 
 <section id="hud" class="panel" hidden>
@@ -326,7 +399,7 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r42</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r43</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -336,9 +409,9 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
       <dt><kbd>Esc</kbd></dt><dd>Back to this menu</dd>
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
-    <p class="small">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
-    <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Both players start from the same phrase length: the more is at stake (high levels or a big level gap), the longer it is. The player with the lower level types a few words fewer. Run away and get caught, and your opponent gets a shorter one.</p>
-    <p class="warn" id="touchwarn" hidden>This prototype needs a keyboard. Please play on a PC for now.</p>
+    <p class="small how2">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
+    <p class="small how2">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Both players start from the same phrase length: the more is at stake (high levels or a big level gap), the longer it is. The player with the lower level types a few words fewer. Run away and get caught, and your opponent gets a shorter one.</p>
+    <p class="small tonly">Touch: drag anywhere to walk, <b>Dash</b> and <b>Run</b> buttons, tap an item to use it. Bump into someone and the keyboard pops up for the typing duel.</p>
   </form>
 </div>
 
@@ -349,11 +422,12 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
     <h3>Graphics</h3>
+    <label class="srow tonly"><span>Zoom</span><input type="range" min="80" max="250" data-z="1"><output></output></label>
     <label class="srow"><span>Render distance</span><input type="range" min="30" max="100" data-k="rd"><output></output></label>
     <label class="srow chk"><input type="checkbox" data-k="potato"><span style="width:auto">Potato PC mode (low resolution, fewer effects, short render distance)</span></label>
     <h3>Metrics</h3>
     <label class="srow chk"><input type="checkbox" data-k="mfps"><span style="width:auto">FPS</span></label>
-    <label class="srow chk"><input type="checkbox" data-k="mping"><span style="width:auto">Ping (to the host)</span></label>
+    <label class="srow chk"><input type="checkbox" data-k="mping"><span style="width:auto">Network delay</span></label>
     <label class="srow chk"><input type="checkbox" data-k="mmore"><span style="width:auto">Details (players, resolution, host step time)</span></label>
     <div class="row" style="justify-content:center"><button class="btn alt" type="button" id="setclose">Close</button></div>
   </div>
@@ -427,7 +501,7 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
   </div>
   <p id="warmnote" hidden></p>
   <div id="words"></div>
-  <div class="dfoot"><span id="dWpm">0 WPM</span></div>
+  <div class="dfoot"><span id="dWpm">0 WPM</span><span id="tapnote">tap here to type</span></div>
 </section>
 <div id="dbanner" hidden></div>
 <div id="count" hidden></div>
@@ -454,7 +528,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r42';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r43';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1031,6 +1105,8 @@ function streak(x,y,a,len,c='#fff'){parts.push({k:'line',x,y,vx:0,vy:0,life:.22,
 function floater(x,y,text,c='#fff',big=false){floaters.push({x,y,text,c,life:1.4,big})}
 
 /* ---------- sound: everything is synthesized, no files ---------- */
+const TOUCH=role!=='server'&&(()=>{try{return matchMedia('(pointer:coarse)').matches||/[?&]touch=1/.test(location.search)}catch(_){return false}})();
+if(TOUCH)document.body.classList.add('touch');
 const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0};
 try{const o=JSON.parse(localStorage.getItem('snackdown-settings')||'{}');for(const k in SET)if(typeof o[k]==='number')SET[k]=o[k]}catch(_){}
 const MET={f:60,t:0,ping:-1,sent:0},metEl=$('metrics');
@@ -1139,7 +1215,7 @@ const mouse={x:0,y:0};let shift=false,dashPressed=false,game='menu';
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
 addEventListener('blur',()=>{shift=false});
 // left click dashes too (clicks on buttons and panels do not)
-addEventListener('mousedown',e=>{if(e.button===0&&game==='play'&&!duel&&!overUI&&!leaveOpen&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
+addEventListener('mousedown',e=>{if(e.button===0&&!TOUCH&&game==='play'&&!duel&&!overUI&&!leaveOpen&&!e.target.closest('button,input,#perks,#hud,.overlay,#guide'))dashPressed=true});
 addEventListener('keyup',e=>{if(e.key==='Shift')shift=false});
 addEventListener('keydown',e=>{
   if(!$('settings').hidden){if(e.key==='Escape'){e.preventDefault();openSettings(false)}return}
@@ -1149,18 +1225,52 @@ addEventListener('keydown',e=>{
   if(game==='dead'&&e.key==='Enter'){e.preventDefault();playAgain();return}
   if(game!=='play')return;
   if(e.key==='/'||e.key==="'")e.preventDefault();   // Firefox: these open Quick Find and steal all following keys
-  if(duel){handleTyping(e);return}
+  if(duel){if(!TOUCH)handleTyping(e);return}
   if(e.key==='Shift')shift=true;
   const slot=e.code==='KeyQ'?0:e.code==='KeyW'?1:e.code==='KeyE'?2:-1;
   if(slot>=0&&!e.repeat&&player){if(role==='client')netSend({t:'use',s:slot});else useItem(player,now(),slot)}
   if(offer&&!e.repeat&&(e.key==='1'||e.key==='2'||e.key==='3')){choose(+e.key-1);return}
   if(e.code==='Space'){e.preventDefault();if(!e.repeat)dashPressed=true}
 });
+/* ---------- touch: floating joystick, Dash / Run buttons, items by tap, hidden input for the phone keyboard in duels ---------- */
+const joy={on:false,id:-1,ox:0,oy:0,ux:0,uy:0,f:0};
+if(TOUCH){
+  const joyEl=$('joy'),joyK=$('joyk'),JR=46,tin=$('tin');let tmirror='',DU=false,IP=false;
+  const joyAt=(x,y)=>{let dx=x-joy.ox,dy=y-joy.oy;const d=Math.hypot(dx,dy);
+    if(d>JR){joy.ox+=dx*(d-JR)/d;joy.oy+=dy*(d-JR)/d;dx=x-joy.ox;dy=y-joy.oy}
+    const l=Math.hypot(dx,dy);joy.ux=l>1?dx/l:0;joy.uy=l>1?dy/l:0;joy.f=clamp((l-8)/(JR-8),0,1);
+    joyEl.style.transform='translate('+(joy.ox-52)+'px,'+(joy.oy-52)+'px)';joyK.style.transform='translate('+dx+'px,'+dy+'px)'};
+  const joyOff=()=>{joy.on=false;joy.id=-1;joy.ux=joy.uy=joy.f=0;joyEl.classList.remove('on')};
+  cv.addEventListener('touchstart',e=>{e.preventDefault();if(game!=='play'||duel||leaveOpen||!$('settings').hidden||joy.on)return;
+    const t=e.changedTouches[0];joy.on=true;joy.id=t.identifier;joy.ox=t.clientX;joy.oy=t.clientY;joyEl.classList.add('on');joyAt(t.clientX,t.clientY)},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(joy.on&&t.identifier===joy.id)joyAt(t.clientX,t.clientY)},{passive:false});
+  for(const ev of ['touchend','touchcancel'])cv.addEventListener(ev,e=>{for(const t of e.changedTouches)if(t.identifier===joy.id)joyOff()});
+  const hold=(id,on,off)=>{const b=$(id);b.addEventListener('touchstart',e=>{e.preventDefault();b.classList.add('down');on()},{passive:false});
+    for(const ev of ['touchend','touchcancel'])b.addEventListener(ev,e=>{e.preventDefault();b.classList.remove('down');off&&off()},{passive:false})};
+  hold('btnDash',()=>{if(game==='play'&&!duel)dashPressed=true});
+  hold('btnSprint',()=>{shift=true},()=>{shift=false});
+  $('menubtn').addEventListener('click',()=>{if(game==='play'&&!duel)askLeave(true)});
+  // the phone keyboard: a hidden input; every change of its text is turned into key presses (works with autocorrect and word bubbles too)
+  const tinReset=()=>{tin.value='';tmirror=''};
+  tin.addEventListener('input',()=>{if(!duel){tinReset();return}
+    const v=tin.value,m=tmirror;let c=0;while(c<v.length&&c<m.length&&v[c]===m[c])c++;
+    const back=m.length-c,add=v.slice(c);tmirror=v;
+    for(let i=0;i<back;i++)handleTyping({key:'Backspace',preventDefault(){}});
+    for(const ch of add)handleTyping({key:ch,preventDefault(){}});
+    if(v.length>80)tinReset()});
+  tin.addEventListener('focus',()=>document.body.classList.add('kb'));tin.addEventListener('blur',()=>document.body.classList.remove('kb'));
+  addEventListener('touchend',()=>{if(duel&&document.activeElement!==tin)tin.focus({preventScroll:true})},{passive:true});
+  setInterval(()=>{const d=!!duel;if(d!==DU){DU=d;if(d){joyOff();tinReset();try{tin.focus({preventScroll:true})}catch(_){}}else tin.blur()}
+    const ip=game==='play'&&!duel&&!!player&&player.state!=='eaten';if(ip!==IP){IP=ip;document.body.classList.toggle('inplay',ip);if(!ip)joyOff()}},100);
+}
+// tap an item slot to use it (also with the mouse)
+for(const el of document.querySelectorAll('.islot'))el.addEventListener('click',()=>{if(game!=='play'||duel||!player)return;const sl=+el.dataset.s;if(role==='client')netSend({t:'use',s:sl});else useItem(player,now(),sl)});
 let cam={x:WORLD/2,y:WORLD/2};
 // zoom with the mouse wheel or + / - (0 resets); the badge shows the number so it is easy to report a favourite value
 // you start zoomed in at 150% and unlock zooming out with levels (down to 80% at Lv 60); zooming in is always allowed
-const ZOOM_MAX=2.5, zoomMin=()=>clamp(Math.ceil((1.5-.7*((player?L(player):1)-1)/59)*20-1e-6)/20,.8,1.5);
+const ZOOM_MAX=2.5, zoomMin=()=>TOUCH?.8:clamp(Math.ceil((1.5-.7*((player?L(player):1)-1)/59)*20-1e-6)/20,.8,1.5);
 let lastZMin=1.5;
+if(TOUCH)ZU=1;
 try{const z=+localStorage.getItem('snackdown-zoom');if(z>=.8&&z<=ZOOM_MAX)ZU=z}catch(_){}
 let zoomTagT=0;
 function setZoom(v,quiet){const mn=zoomMin();ZU=clamp(Math.round(v*100)/100,mn,ZOOM_MAX);resize();try{localStorage.setItem('snackdown-zoom',ZU)}catch(_){}
@@ -1436,7 +1546,6 @@ try{const sv=localStorage.getItem('snackdown-server');if(sv)$('server').value=sv
 $('room').addEventListener('change',()=>{try{localStorage.setItem('snackdown-room',$('room').value)}catch(_){}if(scout){try{scout.destroy()}catch(_){}}scout=null;lobbies=[];P2P.state='unknown';pollOnline()});
 if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host&&!$('server').value)$('server').value=location.host;
 try{const n=localStorage.getItem('snackdown-name');if(n)$('name').value=n}catch(_){}
-if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(pointer:fine)').matches)$('touchwarn').hidden=false;
 
 function levelFx(e,before,after){
   floater(e.x,e.y-70,'LEVEL '+after+'!',GOLD,true);burst(e.x,e.y-20,18,[GOLD,'#fff','#ff6b3d'],200);
@@ -1838,7 +1947,7 @@ function update(dt,t){
   fgT-=dt;if(fgT<=0){fgT=.1;fgBuild()}
   if(player&&(player.state==='move'||player.state==='eat')&&game==='play'){
     const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);
-    player.want=d>6&&!overUI&&$('settings').hidden?{ux:dx/d,uy:dy/d,f:clamp((d-6)/110,0,1),sprint:shift,dash:dashPressed}:{ux:0,uy:0,f:0,sprint:false,dash:dashPressed}}
+    player.want=joy.on&&$('settings').hidden&&!leaveOpen?{ux:joy.ux,uy:joy.uy,f:joy.f,sprint:shift,dash:dashPressed}:!TOUCH&&d>6&&!overUI&&$('settings').hidden?{ux:dx/d,uy:dy/d,f:clamp((d-6)/110,0,1),sprint:shift,dash:dashPressed}:{ux:0,uy:0,f:0,sprint:false,dash:dashPressed}}
   dashPressed=false;
   if(role==='server')srvApplyInputs(t);
   for(const e of ents){if(!e.human&&e.state==='move'){e.ai.t-=dt;if(e.ai.t<=0){e.ai.t=.3;botThink(e,t)}}stepEnt(e,dt,t)}
@@ -1909,9 +2018,9 @@ muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(
 const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
-function applySet(){sfx.vol();QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
+function applySet(){sfx.vol();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
 function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
-$('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
+$('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
   if(k==='sv'&&!sfx.muted)sfx.click();applySet();saveSet()});
 $('setbtn').addEventListener('click',()=>openSettings(true));$('gear').addEventListener('click',()=>openSettings(true));$('setclose').addEventListener('click',()=>openSettings(false));
 $('settings').addEventListener('mousedown',e=>{if(e.target===$('settings'))openSettings(false)});
@@ -2282,7 +2391,8 @@ function fxStep(e,dt,t){
   if(e.buff.rush>t&&Math.random()<dt*14)parts.push({k:'star',x:e.x+rand(-16,16),y:e.y-rand(0,30),vx:0,vy:-30,life:.5,max:.5,c:'#ff8fc2',s:rand(4,7),rot:Math.random()*3})}
 function sendInput(t){
   let ux=0,uy=0,f=0;
-  if(player&&game==='play'&&!duel&&!overUI&&!leaveOpen&&$('settings').hidden&&player.state!=='eaten'){const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);if(d>6){ux=dx/d;uy=dy/d;f=clamp((d-6)/110,0,1)}}
+  if(joy.on&&player&&game==='play'&&!duel&&!leaveOpen&&$('settings').hidden&&player.state!=='eaten'){ux=joy.ux;uy=joy.uy;f=joy.f}
+  else if(!TOUCH&&player&&game==='play'&&!duel&&!overUI&&!leaveOpen&&$('settings').hidden&&player.state!=='eaten'){const mw=toWorld(mouse.x,mouse.y),dx=mw.x-player.x,dy=mw.y-player.y,d=Math.hypot(dx,dy);if(d>6){ux=dx/d;uy=dy/d;f=clamp((d-6)/110,0,1)}}
   const dash=dashPressed;dashPressed=false;const key=ux.toFixed(2)+','+uy.toFixed(2)+','+f.toFixed(1)+','+shift;
   if(dash||(key!==lastIn&&t-inSentAt>.03)||t-inSentAt>.25){netSend({t:'in',ux:+ux.toFixed(3),uy:+uy.toFixed(3),f:+f.toFixed(2),sp:shift,da:dash?1:0});lastIn=key;inSentAt=t}}
 function updateClient(dt,t){
@@ -2828,7 +2938,7 @@ let last=now();
 const QSTAT={n:0,sum:0};
 function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||SET.mmore;if(!on||game==='menu'){if(!metEl.hidden)metEl.hidden=true;return}
   const l=[];if(SET.mfps)l.push('FPS  '+Math.round(MET.f));
-  if(SET.mping)l.push('Ping '+(role==='client'&&MET.ping>=0?Math.round(MET.ping)+' ms':role==='client'?'...':'- (solo)'));
+  if(SET.mping)l.push('Delay '+(role==='client'&&MET.ping>=0?Math.round(MET.ping)+' ms':role==='client'?'...':'- (solo)'));
   if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''),P2P.isHost&&P2P.ms?'Host step '+P2P.ms.toFixed(1)+' ms':'');
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
 setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1&&SET.mping){MET.sent=performance.now();netSend({t:'ping',c:MET.sent})}},2000);

@@ -54,7 +54,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r42; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r43; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
@@ -70,7 +70,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - Browser-hosted lobbies: host upload limits ~8-12 players; the host can cheat; if the host leaves, the game ends. The real fix is a dedicated authoritative server later.
 - Old remote branch `claude/trusting-faraday-bg2wly` still exists (already merged); the owner wants only `main`. Deleting from the cloud session was blocked; delete it on GitHub.
 - Deleted music (third-party material) still exists in git history. Offer to rewrite history only if the owner wants it.
-- Not done yet: touch/mobile controls, name/profanity filter, Impressum + privacy policy + cookie banner, own PeerJS broker + TURN, lobby registry, music split into smaller lazily loaded files,
+- Touch support exists since r43 (floating joystick, Dash/Run buttons, hidden input for the keyboard) but is untested on real devices. Not done yet: name/profanity filter, Impressum + privacy policy + cookie banner, own PeerJS broker + TURN, lobby registry, music split into smaller lazily loaded files,
   final game name + trademark check, playtests in Firefox/Safari/Edge (only Chromium is testable in the cloud sandbox; roundRect has a fallback since r31, so Safari 14.1+ should work but is untested).
 - The peer broker is contacted when the menu opens (IP leaves to peerjs.com): needs consent or an own broker before a public release (GDPR).
 - The error upload sends browser data to Cloudflare/GitHub: fine for friends who know it (menu note), must go into the privacy policy (maybe consent) before a public release.
