@@ -308,7 +308,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r37</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r38</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -418,9 +418,10 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
-const BUILD='r37';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
+const BUILD='r38';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
-var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
+var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
   addEventListener('error',e=>{if(e&&e.message==='Script error.'&&!e.error)return;reportErr(e&&(e.error||e.message)||'unknown error','page')});
   addEventListener('unhandledrejection',e=>{logErr(e&&e.reason||'promise rejected','promise')});   // only logged for the report: offline/broker failures end up here
@@ -1130,6 +1131,7 @@ const toWorld=(sx,sy)=>({x:(sx-W/2)/ZZ+cam.x,y:(sy-H/2)/ZZ+cam.y});
 /* ---------- game flow ---------- */
 const stats={won:0,snacks:0,best:0,top:1};
 function startGame(){
+  PERF.grace=now()+2.5;
   sfx.init();sfx.start();
   const t=now();const nm=($('name').value.trim()||'You').slice(0,14);
   try{localStorage.setItem('snackdown-name',nm)}catch(_){}
@@ -2121,7 +2123,7 @@ function onNet(m){lastNet=now();
     case 'dend':if(pendingDuel){pendingDuel=null;showOffer()}else endNetDuel(m);break;
     case 'dead':showDeathNet(m);break}}
 function enterClientMode(seed){
-  jmark('welcome');role='client';pendingDuel=null;buildWorld(seed);jmark('world');ents=[];cl=new Map();foods=[];boxes=[];orbs=[];player=null;king=null;kingPos=null;parts=[];floaters=[];skids=[];duel=null;offer=null;
+  PERF.grace=now()+2.5;jmark('welcome');role='client';pendingDuel=null;buildWorld(seed);jmark('world');ents=[];cl=new Map();foods=[];boxes=[];orbs=[];player=null;king=null;kingPos=null;parts=[];floaters=[];skids=[];duel=null;offer=null;
   timeWarp={until:0,owner:null};wasKing=false;Object.assign(stats,{won:0,snacks:0,best:0,top:1});
   game='play';$('start').hidden=true;$('dead').hidden=true;$('mpstatus').textContent='';
   for(const id of ['hud','board','minilogo','mini'])$(id).hidden=false;
@@ -2742,6 +2744,7 @@ function tryCopy(s){const fb=()=>{let ok=false;try{const ta=document.createEleme
   try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(s).then(()=>true,()=>fb())}catch(_){}
   return Promise.resolve(fb())}
 function openReport(){$('buginfo').value=bugReport('');$('bugmsg').textContent='';$('bugrep').hidden=false;$('bugtxt').focus()}
+function doneMsg(t){if(game==='play')showToast(t,'#9be564');else{const b=$('errbar');b.hidden=false;b.textContent=t;clearTimeout(reportErr.h);reportErr.h=setTimeout(()=>{b.hidden=true},4000)}}
 function quickReport(){const sent=sendRelay('report','',ERRLOG,false);
   tryCopy(bugReport('')).then(ok=>sent.then(up=>{if(!ok&&!up){openReport();return}const msg=up?'Bug report sent!':'Bug report copied!';
     if(game==='play')showToast(msg,'#9be564');else{const b=$('errbar');b.hidden=false;b.textContent=up?'Bug report sent to the developer.':'Bug report copied. Paste it into your chat with the developer.';clearTimeout(reportErr.h);reportErr.h=setTimeout(()=>{b.hidden=true},5000)}}))}
@@ -2752,8 +2755,8 @@ if(role!=='server'){
   $('bugbtn').addEventListener('click',openReport);
   $('bugclose').addEventListener('click',()=>{$('bugrep').hidden=true});
   $('bugcopy').addEventListener('click',()=>{const note=$('bugtxt').value.trim(),s=bugReport(note);$('buginfo').value=s;const sent=sendRelay('report',note,ERRLOG,false);
-    tryCopy(s).then(ok=>sent.then(up=>{if(up){$('bugmsg').textContent='Sent to the developer'+(ok?' and copied.':'.');return}
-      if(ok){$('bugmsg').textContent=errUrl()?'Sending failed (offline?), but the report is copied: paste it into your chat with the developer.':'Copied! Paste it into your chat with the developer.';return}
+    tryCopy(s).then(ok=>sent.then(up=>{if(up){$('bugmsg').textContent='Sent to the developer'+(ok?' and copied.':'.');$('bugtxt').value='';setTimeout(()=>{$('bugrep').hidden=true;doneMsg('Thanks! Report sent to the developer.')},700);return}
+      if(ok){$('bugmsg').textContent=errUrl()?'Sending failed (offline?), but the report is copied: paste it into your chat with the developer.':'Copied! Paste it into your chat with the developer.';if(!errUrl())setTimeout(()=>{$('bugrep').hidden=true;doneMsg('Report copied.')},900);return}
       const ta=$('buginfo');ta.focus();ta.select();$('bugmsg').textContent='Copying is blocked here. The report is selected: press Ctrl+C (Cmd+C on a Mac).'}))});
   addEventListener('keydown',e=>{if(e.key==='F8'){e.preventDefault();if(game==='play'&&$('bugrep').hidden)quickReport();else openReport()}
     else if(e.key==='Escape'&&!$('bugrep').hidden){e.preventDefault();e.stopImmediatePropagation();$('bugrep').hidden=true}
@@ -2765,7 +2768,7 @@ function loop(){requestAnimationFrame(loop);   // always schedule the next frame
   const t=now(),raw=t-last;let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
   if(raw>0&&raw<1&&document.visibilityState==='visible'&&game==='play'){const q=QSTAT;q.n++;q.sum+=raw;if(q.n>=100){const avg=q.sum/q.n;q.n=0;q.sum=0;   // about 2 s: too slow -> fewer pixels, fast again -> more
       if(avg>.026&&QS>.55){QS=Math.max(.55,QS*.82);resize()}else if(avg<.0145&&QS<1){QS=Math.min(1,QS*1.1);resize()}}}
-  if(raw>0&&raw<1&&document.visibilityState==='visible'){const h=PERF.hist;h.push(raw);if(h.length>600)h.shift();if(game==='play'){if(raw>.05)PERF.slow++;if(raw>PERF.worst)PERF.worst=raw}}
+  if(raw>0&&raw<1&&document.visibilityState==='visible'){const h=PERF.hist;h.push(raw);if(h.length>600)h.shift();if(game==='play'&&t>PERF.grace){if(raw>.05)PERF.slow++;if(raw>PERF.worst)PERF.worst=raw}}
   if(hitstop>0){hitstop-=dt;dt*=.12}
   shake*=Math.pow(.02,dt);kick*=Math.pow(.06,dt);
   try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e,'update')}

@@ -16,3 +16,11 @@ Voraussetzung: Die Domain typebite.io liegt im Cloudflare-Konto (ist so). Es wir
 
 ## Vor dem öffentlichen Bewerben
 Impressum, Datenschutzerklärung (PeerJS-Vermittler, Fehler-Upload), später Cookie-Banner. Siehe `docs/release-plan.md`.
+
+## HTTPS ("Nicht sicher" im Browser)
+- Die Adresse muss mit `https://` beginnen. `http://typebite.io` zeigt "Nicht sicher". Das Zertifikat stellt Cloudflare automatisch aus (nach dem Hinzufügen der Domain einige Minuten).
+- Einmal im Dashboard einschalten: Domain `typebite.io` > **SSL/TLS** > **Edge Certificates** > **Always Use HTTPS** = an. Optional später **HSTS** (erst aktivieren, wenn sicher ist, dass alles über https läuft).
+- Zusätzlich leitet das Spiel selbst von http auf https um (ab r38).
+
+## Automatische Updates
+Jeder Push auf `main` startet bei Cloudflare einen neuen Build und veröffentlicht ihn (ca. 1 Minute, Status unter dem Worker > Deployments). Wichtig: `index.html` muss vorher gebaut und mit eingecheckt sein. Besucher mit offener Seite müssen neu laden; Spieler mit unterschiedlichen Versionen bekommen im Mehrspieler eine Versions-Meldung.

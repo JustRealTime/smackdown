@@ -290,3 +290,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Domain typebite.io bei Cloudflare gekauft (Ablauf 01.10.2027, Verlängerung 50 USD/Jahr, Auto-Renew an, 2FA aktiv). `docs/deploy.md` beschreibt die Veröffentlichung mit Cloudflare Pages.
 - Menü: Auf einer öffentlichen https-Seite wird `localhost:8080` nicht mehr abgefragt (Browser würden sonst nach einer Berechtigung für das lokale Netz fragen). Build r37.
+
+## Runde 38 (r38): Fehlerbericht schließt sich, Auswertung, https
+
+- "Send" im Fehlerbericht schließt das Fenster nach dem Senden und zeigt "Thanks! Report sent to the developer." (Menü: roter/oben-Balken, im Spiel: Hinweis).
+- Auswertung der ersten echten Berichte (errors/2026-10-01.jsonl im Log-Repo): keine Fehler, nur Berichte. r33: 54-58 FPS im Schnitt, 1% Low 16-20 FPS, einmal 557 ms am Spielstart (Weltbau). r37: 99 FPS, 1% Low 71 FPS, Host-Schritt 7 ms. Der 550-ms-Ruckler ist der Weltbau beim Start; er zählt jetzt nicht mehr in die Ruckler-Statistik (2,5 s Schonfrist nach Spielstart).
+- typebite.io läuft über Cloudflare Workers Builds (jeder Push auf main veröffentlicht neu). Auf http://typebite.io leitet die Seite selbst auf https um. Build r38.
