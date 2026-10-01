@@ -6,7 +6,7 @@
 
 ## Einrichten auf dem eigenen PC
 1. `git clone https://github.com/JustRealTime/smackdown` (oder `git pull` im vorhandenen Ordner).
-2. Installieren: Python 3, Node.js 18+, Git. Für Browser-Tests zusätzlich `npm i playwright` und einmal `npx playwright install chromium` (in der Cloud war Chromium vorinstalliert, lokal nicht).
+2. Installieren: Python 3, Node.js 18+, Git. Für Browser-Tests zusätzlich `npm install` (installiert Playwright laut `package.json`) und einmal `npx playwright install chromium` (in der Cloud war Chromium vorinstalliert, lokal nicht).
 3. Claude Code im Ordner starten: es liest `CLAUDE.md` automatisch.
 4. Spiel ansehen: `python3 -m http.server` im Ordner, dann `http://localhost:8000/game.html` (Quelle) oder `index.html` (gebaut).
 

@@ -15,6 +15,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - `index.html` - BUILT artifact (do not edit by hand). The owner downloads only this file. Always rebuild after every change: `python3 tools/build.py`
   (embeds music/*.mp3, fonts/*.woff2 as data URIs and inlines tools/peerjs.min.js). Then commit both and `git push origin main`.
 - `site/config.js` - THE SETTINGS FILE (r51): plain text, fully commented, every tunable number of the game (map size, bots, spawn rates, rarity odds, XP, movement, duel, quests, camera, network, all 24 items, 38 perks, 57 snacks). Edit numbers here, not in game.html. Details below and in `docs/konfiguration.md` (German).
+- `package.json` / `package-lock.json` - dev tools only (Playwright for browser tests); `node_modules/` is in `.gitignore`. The game itself has no npm deps.
 - `tools/build.py`, `tools/peerjs.min.js` (PeerJS 1.5.5, MIT), `fonts/` (OFL fonts, bundled, no Google calls), `music/` (24 mp3, all the owner's own), `THIRD_PARTY.md`.
 - `server/server.js` - optional dedicated Node server (no npm deps, hand-written WebSocket). Loads the same game code in a `vm` sandbox with Proxy DOM stubs.
   `node server/server.js [port]`; `start-server.bat/.sh`. Serves game.html/index.html and `/status` (players list, CORS open).
@@ -59,13 +60,14 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r51; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r51; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main. Tooling/doc-only commits (no change to game.html or site/config.js) skip the BUILD bump and the konzept round.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
-- Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
-  with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
+- Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (locally: `npm install` once, then `npx playwright install chromium`; Playwright finds the browser itself, `require('playwright').chromium.launch()`) using a TEMPORARY copy of game.html
+  with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i --no-save peer`, so package.json stays clean; `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
   and set `window.SNACK_PEER={host:'127.0.0.1',port:9000,path:'/',secure:false,config:{iceServers:[]}}` via `addInitScript`. Headless fps looks low (software rendering).
 - Balance sims without a browser: `require('server/server.js').sim` (`join`, `step(1/60)`, `count()`, `dbg()` = ents/foods/boxes...), `SNACK_CONFIG=file.js` picks a settings file; 240 bots x 420 s takes ~3 min. The bots eat the snacks faster than the refill, so the number of snacks lying around is set by `spawn.snackRefill*` (r51 measured: 2.4/M units^2 with 16/4 and ~165 bots, old game 1.9). P2P tests: wait ~8 s on the menu (lobby scouting) before pressing Play, else the page hosts its own lobby; check `diag().mode`.
 - Cloud sandbox gotchas: `pkill -f` can kill your own shell (use a bracket pattern); the sandbox cannot reach unpkg/google/0.peerjs.com (npm works).
+- Local machine (owner's PC since 2026-10-01): Windows 11, Git Bash + PowerShell, python3 3.13, node 24, npm 11, Playwright 1.63 + Chromium. `gh` is NOT installed (git push works via Git Credential Manager). `core.autocrlf=true` (working copy CRLF, repo LF) and build.py writes CRLF on Windows, so a rebuild without changes gives no diff. Cloudflare reports each deploy as a GitHub check run "Workers Builds: typebite" (public API: `/repos/JustRealTime/smackdown/commits/<sha>/check-runs`).
 
 - Online play is opt-in (r39): `ONLINE` (localStorage `snackdown-online` yes/no) gates every PeerJS call (scout and Play). Unanswered or no = solo only, no request to the broker. Legal drafts in `docs/legal/` (not published yet; to publish copy filled files to `site/`; see docs/legal/README.md). Site hosting: Cloudflare Workers Builds from `main` (`wrangler.jsonc`, `docs/deploy.md`), domain typebite.io at Cloudflare.
 
