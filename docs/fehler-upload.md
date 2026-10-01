@@ -1,5 +1,7 @@
 # Automatischer Fehler-Upload nach GitHub (ab Build r32)
 
+**Stand:** eingerichtet und aktiv seit Build r33 (Worker `https://snackdown-errors.alikesan2004.workers.dev`, Log-Repo `JustRealTime/smackdown-errors`). Token läuft am 30.12.2026 ab.
+
 Jeder Fehler, der bei einem Spieler auftritt, landet automatisch als Zeile in einer Datei in einem **privaten** GitHub-Repo, z. B. `errors/2026-10-01.jsonl`. Dazu kommen manuelle Berichte (F8 oder „Report a problem“) mit der Beschreibung des Testers.
 
 ## Warum über einen Zwischendienst

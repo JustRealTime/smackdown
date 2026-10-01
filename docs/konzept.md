@@ -263,3 +263,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Weg: Spiel -> Cloudflare Worker (`tools/error-relay/worker.js`, hält den GitHub-Token geheim) -> GitHub. Ein Token direkt in index.html ginge nicht: Jeder mit der Datei könnte damit das Repo verändern.
 - Gebündelt und begrenzt: erster Upload 5 s nach einem Fehler, danach höchstens einer pro Minute, maximal 30 pro Tab, gleiche Fehler werden hochgezählt. Beim Schließen des Tabs wird der Rest noch gesendet. Der Worker prüft und kürzt alles, nimmt höchstens 20 Berichte pro Minute und IP an und speichert keine IP-Adressen. Spielernamen werden nie gesendet.
 - Im Menü steht dann "errors are sent to the developer automatically (no names)". Solange `ERR_URL` leer ist (Worker noch nicht eingerichtet), ist alles aus. Einrichtung: docs/fehler-upload.md. Build r32.
+
+## Runde 33: Fehler-Upload aktiv
+
+- Worker auf Cloudflare eingerichtet (`snackdown-errors.alikesan2004.workers.dev`), Test-Bericht ist im privaten Repo `smackdown-errors` angekommen. Die Adresse ist jetzt im Spiel eingetragen: Fehler werden ab Build r33 automatisch hochgeladen, im Menü steht ein Hinweis.
+- Der Worker erklärt GitHub-Fehler jetzt genau (Token falsch/abgelaufen, Repo für den Token nicht sichtbar, Branch fehlt, keine Schreibrechte) und ignoriert Leerzeichen in den Einstellungen.
+- Der Token läuft am 30.12.2026 ab und muss dann erneuert werden (docs/fehler-upload.md). Build r33.
