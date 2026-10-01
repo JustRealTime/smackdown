@@ -256,3 +256,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Fehler werden jetzt überall gesammelt: auch Fehler in Klick-Handlern und beim Start (globaler Fehler-Listener), und Fehler im Spielserver des Hosts (Web Worker). Die waren vorher komplett still: Der Host sieht sie jetzt als rote Leiste.
 - Browser: Ersatz für `roundRect` (Safari unter 16, Firefox unter 112), Caps Lock oder Shift zählen im Duell nicht mehr als Tippfehler, ' und / öffnen in Firefox nicht mehr die Schnellsuche (die hätte alle weiteren Tasten geschluckt).
 - docs/spieltest.md: Ablauf, Testaufgaben, Browser-Matrix, Fragen nach dem Spielen. Build r31.
+
+## Runde 32: Fehler automatisch nach GitHub
+
+- Alle Fehler werden automatisch hochgeladen und landen als Zeile in `errors/JJJJ-MM-TT.jsonl` im privaten Repo `smackdown-errors`. Dazu kommen die manuellen Berichte (F8, "Send report") mit der Beschreibung des Testers.
+- Weg: Spiel -> Cloudflare Worker (`tools/error-relay/worker.js`, hält den GitHub-Token geheim) -> GitHub. Ein Token direkt in index.html ginge nicht: Jeder mit der Datei könnte damit das Repo verändern.
+- Gebündelt und begrenzt: erster Upload 5 s nach einem Fehler, danach höchstens einer pro Minute, maximal 30 pro Tab, gleiche Fehler werden hochgezählt. Beim Schließen des Tabs wird der Rest noch gesendet. Der Worker prüft und kürzt alles, nimmt höchstens 20 Berichte pro Minute und IP an und speichert keine IP-Adressen. Spielernamen werden nie gesendet.
+- Im Menü steht dann "errors are sent to the developer automatically (no names)". Solange `ERR_URL` leer ist (Worker noch nicht eingerichtet), ist alles aus. Einrichtung: docs/fehler-upload.md. Build r32.

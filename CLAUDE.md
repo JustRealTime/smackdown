@@ -17,8 +17,9 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - `tools/build.py`, `tools/peerjs.min.js` (PeerJS 1.5.5, MIT), `fonts/` (OFL fonts, bundled, no Google calls), `music/` (24 mp3, all the owner's own), `THIRD_PARTY.md`.
 - `server/server.js` - optional dedicated Node server (no npm deps, hand-written WebSocket). Loads the same game code in a `vm` sandbox with Proxy DOM stubs.
   `node server/server.js [port]`; `start-server.bat/.sh`. Serves game.html/index.html and `/status` (players list, CORS open).
-- `docs/konzept.md` - decision log, one section per round (rounds 1-31). Append a new round for every feature batch.
-- `docs/release-plan.md` - legal notes, cheapest hosting plan, ordered release checklist. `docs/spieltest.md` - playtest guide for the owner and testers. `README.md` - German user readme.
+- `docs/konzept.md` - decision log, one section per round (rounds 1-32). Append a new round for every feature batch.
+- `docs/release-plan.md` - legal notes, cheapest hosting plan, ordered release checklist. `docs/spieltest.md` - playtest guide for the owner and testers. `docs/fehler-upload.md` - error upload setup (German).
+- `tools/error-relay/worker.js` - Cloudflare Worker that receives error reports and appends them to `errors/YYYY-MM-DD.jsonl` in the PRIVATE repo `JustRealTime/smackdown-errors` (token only in the worker). `README.md` - German user readme.
 
 ## Architecture in one page (all in game.html)
 - Roles: `solo` (everything in the tab), `client` (renders a world run elsewhere), `server` (headless sim; Node `vm` or a Web Worker).
@@ -42,13 +43,17 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - Game loop is crash-proof (`loop()` schedules the next frame first; errors show a red bar via `reportErr(e,src)`).
 - Bug reports (r31): `ERRLOG` collects errors from the loop (src update/render), a global `error` listener (page; `unhandledrejection` is only logged), and the host's Worker
   (src host, posted as `{err}` from `WORKER_POST`). `bugReport()` builds plain text (build, UA, screen, mode, `perfLine()` fps/hitches, host step ms `P2P.ms`, errors);
-  menu "Report a problem" (`#bugrep`), F8 in game and the error bar copy it (`tryCopy`, clipboard API then execCommand fallback). Nothing is sent anywhere.
+  menu "Report a problem" (`#bugrep`), F8 in game and the error bar copy it (`tryCopy`, clipboard API then execCommand fallback).
+- Error upload (r32): if `ERR_URL` (top of the script) is set, `logErr` -> `queueErrUpload` -> `flushErrs` -> `sendRelay` POSTs JSON (text/plain, no preflight) to the relay:
+  first upload 5 s after an error, then max 1/min, max 30 per tab, `pagehide` flushes with keepalive; repeated errors only count up (`n`, `sentN`). Manual reports (F8, Send) go too (kind report).
+  No player names. `ERR_URL` is EMPTY until the owner has deployed the worker (steps in docs/fehler-upload.md) and sent the URL. Test hook: `window.SNACK_ERR_URL`.
+  To read the logs: attach the private repo with add_repo (JustRealTime/smackdown-errors) and read `errors/*.jsonl` (one JSON object per line).
   Stack lines in reports: index.html line = game.html line + 8 (peerjs.min.js is inlined); host worker line = game.html line - (line of `(()=>{` in game.html - 3), currently -401.
 - Bots are named "Name (BOT)". 160 bots. Server step is about 6 ms.
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r31; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r32; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
@@ -65,6 +70,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - Not done yet: touch/mobile controls, name/profanity filter, Impressum + privacy policy + cookie banner, own PeerJS broker + TURN, lobby registry, music split into smaller lazily loaded files,
   final game name + trademark check, playtests in Firefox/Safari/Edge (only Chromium is testable in the cloud sandbox; roundRect has a fallback since r31, so Safari 14.1+ should work but is untested).
 - The peer broker is contacted when the menu opens (IP leaves to peerjs.com): needs consent or an own broker before a public release (GDPR).
+- The error upload sends browser data to Cloudflare/GitHub: fine for friends who know it (menu note), must go into the privacy policy (maybe consent) before a public release.
 
 ## Owner's roadmap and decisions
 1. Balance until fair (but keep uncertainty at the top: nobody should be favoured except via items). Legendary items must stay rare.
