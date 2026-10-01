@@ -1,0 +1,7 @@
+{
+  // Cloudflare Workers Builds: serves the built single-file game as static assets.
+  // Build command in the dashboard: mkdir -p site && cp index.html site/index.html
+  "name": "typebite",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./site" }
+}
