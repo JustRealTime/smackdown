@@ -115,6 +115,9 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 #hdots{display:flex;gap:7px}
 #hdots i{width:11px;height:11px;border-radius:50%;background:#e4dcef;border:2px solid var(--ink);cursor:pointer}
 #hdots i.on{background:var(--tomato)}
+#loading{z-index:60;background:rgba(43,33,64,.72)}
+.spin{width:46px;height:46px;border:7px solid #e4dcef;border-top-color:var(--tomato);border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 /* guide */
 #guide{z-index:30;background:rgba(43,33,64,.6)}
 #gpanel{width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
@@ -305,7 +308,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r34</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r35</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -316,7 +319,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <dt><kbd>Touch</kbd></dt><dd>Bump into someone to start a typing duel</dd>
     </dl>
     <p class="small">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
-    <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Both players type the same number of words: the more is at stake (high levels or a big level gap), the longer the phrase. Run away and get caught, and your opponent gets a shorter one.</p>
+    <p class="small">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Both players start from the same phrase length: the more is at stake (high levels or a big level gap), the longer it is. The player with the lower level types a few words fewer. Run away and get caught, and your opponent gets a shorter one.</p>
     <p class="warn" id="touchwarn" hidden>This prototype needs a keyboard. Please play on a PC for now.</p>
   </form>
 </div>
@@ -346,6 +349,15 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div id="hsvg"></div>
     <p id="htext"></p>
     <div id="hnav"><button type="button" class="btn alt" id="hprev">Back</button><div id="hdots"></div><button type="button" class="btn" id="hnext">Next</button></div>
+  </div>
+</div>
+
+<div id="loading" class="overlay" hidden>
+  <div class="panel card" style="text-align:center;align-items:center">
+    <div class="spin"></div>
+    <h1 class="logo" id="loadt" style="font-size:34px">Loading…</h1>
+    <p class="small" id="loads"></p>
+    <button class="lnk" type="button" id="loadcancel" style="align-self:center">Cancel</button>
   </div>
 </div>
 
@@ -406,7 +418,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
-const BUILD='r34';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r35';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1151,7 +1163,7 @@ function buildGuide(tab){
   else{
     h+='<p class="gnote">Items and perks come in four rarities. Each step is about three times harder to find.</p><div class="gsec"><h3>Gift box odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+TIER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Normal boxes</p><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+WATER_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div><p class="small">Boxes hidden underwater</p></div>'
       +'<div class="gsec"><h3>Level-up perk odds</h3><div class="gbar">'+TIERS.map((T,i)=>'<i style="width:'+PERK_ODDS[i]+'%;background:'+T.c+'">'+T.n+'</i>').join('')+'</div></div>'
-      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Both sides get the same phrase length, longer when more is at stake. Items, perks and being caught running change the numbers.</p></div>'}
+      +'<div class="gsec"><h3>Duels and auras</h3><p class="gnote">Look at someone before you touch them: a <b style="color:#2f9e4f">green</b> glow and +2 means you type 2 words fewer than them. A <b style="color:#e0334f">red</b> glow and −2 means 2 words more. Both sides start from the same phrase length, longer when more is at stake. The lower level player types a few words fewer. Items, perks and being caught running change the numbers.</p></div>'}
   $('gbody').innerHTML=h}
 /* ---------- customize: a Terraria style character editor ---------- */
 let LOOK=null;
@@ -1683,8 +1695,10 @@ function advOf(a,b,t){const [ps,os]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.
   return Math.round((os.n-free(b,a))-(ps.n-free(a,b)))}
 // both players always get the same base length: the more is at stake (high levels, big level gap) the longer it is. Only items, perks and running away change it.
 const stakeWords=(a,b)=>clamp(3+Math.floor((L(a)+L(b))/24)+Math.floor(Math.abs(L(a)-L(b))/10),3,20);
+// a higher level is an advantage on its own, so the LOWER level player gets fewer words: about 1 per 9 levels of difference (at least 1 from a gap of 4, at most 30% of the phrase)
+function gapCut(me,op){const d=L(op)-L(me);if(d<4)return 0;return clamp(Math.round(d/9),1,Math.max(1,Math.ceil(stakeWords(me,op)*.3)))}
 function sentenceWords(me,op,caught,kb){const base=stakeWords(me,op),chase=caught?Math.max(0,2-op.st.slippery):0,perk=me.st.short,
-    under=L(op)>L(me)?me.st.underdog:0,curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*.3)):kb?1:0;
+    under=(L(op)>L(me)?me.st.underdog:0)+gapCut(me,op),curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*.3)):kb?1:0;
   return{n:clamp(base-chase-perk-under+curse-key,2,26),base,chase,perk,key,curse,under}}
 function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   const [ps,os]=duelWords(p,o,pCaught,oCaught,pKb,oKb);
@@ -1986,14 +2000,22 @@ function joinGame(addrArg,near){
   if(!addr){$('mpstatus').textContent='Type the address of the server, for example 192.168.1.20:8080';return}
   try{localStorage.setItem('snackdown-server',addr)}catch(_){}
   addr=addr.replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');
-  $('mpstatus').textContent='Connecting to '+addr+' ...';
+  $('mpstatus').textContent='';loadingShow('Connecting to '+addr+'…');
   let sock;try{sock=new WebSocket((typeof location!=='undefined'&&location.protocol==='https:'?'wss://':'ws://')+addr)}catch(e){$('mpstatus').textContent='Could not connect: '+e.message;return}
   attachSock(sock,name,near);
-  sock.onerror=()=>{if(role!=='client')$('mpstatus').textContent='Could not reach '+addr+'. Is the server running, and are you on the same network?'}}
+  sock.onerror=()=>{if(role!=='client'){loadingHide();$('mpstatus').textContent='Could not reach '+addr+'. Is the server running, and are you on the same network?'}}}
+/* ---------- loading screen: shown from pressing Play/Join until the first update from the game arrives ---------- */
+const TIPS=['Tip: look at the green or red number over a player before you touch them.','Tip: press F8 any time to send a bug report.','Tip: Q W E use your three item slots.','Tip: the mouse wheel zooms, zooming out unlocks with your level.','Tip: yellow mats are doors. Houses block the view.','Tip: gift boxes also hide at the bottom of ponds.'];
+let loadTimer=0,joinQ=null,playTok=0;
+const nextFrame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));   // let the browser paint the loading screen before heavy work blocks it
+function loadingShow(t,sub){$('loading').hidden=false;$('loadt').textContent=t;$('loads').textContent=sub||pick(TIPS);clearTimeout(loadTimer);
+  loadTimer=setTimeout(()=>{$('loads').textContent='Still working. On slow connections this can take a few seconds.'},8000)}
+function loadingHide(){$('loading').hidden=true;clearTimeout(loadTimer)}
+$('loadcancel').addEventListener('click',()=>{playTok++;joinQ=null;loadingHide();if(ws&&role!=='client'){try{ws.close()}catch(_){}ws=null}toMenu()});
 function attachSock(sock,name,near){
   ws=sock;
   sock.onopen=()=>sock.send(JSON.stringify({t:'join',name,look:LOOK,near:near||''}));
-  sock.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(_){return}onNet(m)};
+  sock.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(_){return}if(ws!==sock)return;if(joinQ)joinQ.push(m);else onNet(m)};   // messages that arrive while the world is being built wait in a queue
   sock.onclose=()=>{if(role==='client')netLost()}}
 /* ---------- play without a server file ----------
    The first player who presses Play becomes the host: their tab runs the game server inside a Web Worker (the very same code
@@ -2052,15 +2074,17 @@ function p2pConnect(slot,reuse){return new Promise((res,rej)=>{let done=false;co
 function p2pCleanup(){clearInterval(P2P.poll);if(scout){try{scout.destroy()}catch(_){}scout=null}if(P2P.worker){try{P2P.worker.terminate()}catch(_){}P2P.worker=null}
   if(P2P.peer){try{P2P.peer.destroy()}catch(_){}P2P.peer=null}P2P.conns.clear();P2P.isHost=false}
 async function playP2P(near,lobby){
-  const name=($('name').value.trim()||'Player').slice(0,14);
-  JT.length=0;applySnap.f=0;jmark('click');
-  if(!lobby&&!scanned&&firstScan){$('mpstatus').textContent='Looking for games…';await Promise.race([firstScan,new Promise(r=>setTimeout(r,3500))])}   // the first look is still running: do not start a second game by accident
+  const my=++playTok,name=($('name').value.trim()||'Player').slice(0,14);
+  JT.length=0;applySnap.f=0;jmark('click');loadingShow('Looking for a game…');
+  if(!lobby&&!scanned&&firstScan){await Promise.race([firstScan,new Promise(r=>setTimeout(r,3500))]);if(my!==playTok)return}   // the first look is still running: do not start a second game by accident
   const sp=scout&&scout.open?scout:null;scout=null;
   lobby=lobby||pickLobby('p2p');
-  if(lobby){$('mpstatus').textContent='Joining '+(lobby.host?lobby.host+"'s game":'game')+'…';   // a game is running: join it
-    try{attachSock(await p2pConnect(lobby.slot,sp),name,near||lobby.host);return}catch(r){$('mpstatus').textContent='Could not connect to that game ('+r+'). Starting your own.'}}
+  if(lobby){loadingShow('Joining '+(lobby.host?lobby.host+"'s game":'a game')+'…','Connecting to the host. This usually takes a few seconds.');   // a game is running: join it
+    try{const sock=await p2pConnect(lobby.slot,sp);if(my!==playTok){try{sock.close()}catch(_){}return}attachSock(sock,name,near||lobby.host);return}
+    catch(r){if(my!==playTok)return;$('mpstatus').textContent='Could not connect to that game ('+r+'). Starting your own.'}}
   if(sp){try{sp.destroy()}catch(_){}}
-  if(!startHostLocal(name,near)){$('mpstatus').textContent='Could not start an online game, so this is a solo game.';startGame()}}
+  loadingShow('Starting your game…','Building the world and the bots. Friends can join you in a moment.');await nextFrame();if(my!==playTok)return;
+  if(!startHostLocal(name,near)){loadingHide();$('mpstatus').textContent='Could not start an online game, so this is a solo game.';startGame()}}
 // the menu asks every lobby slot of the room who is playing, through one long-lived scout connection
 let scout=null;
 function scoutLobbies(){return new Promise(res=>{
@@ -2081,11 +2105,12 @@ function scoutLobbies(){return new Promise(res=>{
   sc0.on('open',()=>{opened=true;run()});sc0.on('error',e=>{if(!opened){P2P.state='down';res(null)}})})}
 function onNet(m){lastNet=now();
   switch(m.t){
-    case 'full':{const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();$('mpstatus').textContent='That game is full. Pick another one or press Play to start your own.';return}
+    case 'full':{const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();loadingHide();$('mpstatus').textContent='That game is full. Pick another one or press Play to start your own.';return}
     case 'welcome':
       if(m.build!==BUILD){const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();
-        $('mpstatus').textContent='This game runs a different version ('+(m.build||'older')+' instead of '+BUILD+'). Everyone needs the same index.html: download the newest one.';return}
-      enterClientMode(m.seed);break;
+        loadingHide();$('mpstatus').textContent='This game runs a different version ('+(m.build||'older')+' instead of '+BUILD+'). Everyone needs the same index.html: download the newest one.';return}
+      joinQ=[];loadingShow('Building the world…','The map is big, this takes a moment.');
+      {const tok=playTok;setTimeout(()=>{if(tok!==playTok){joinQ=null;return}try{enterClientMode(m.seed)}finally{const q=joinQ||[];joinQ=null;for(const x of q)onNet(x)}},50)}break;
     case 's':applySnap(m);break;
     case 'spawned':myId=m.id;player=null;break;
     case 'board':renderBoardNet(m);break;
@@ -2102,7 +2127,7 @@ function enterClientMode(seed){
   for(const id of ['hud','board','minilogo','mini'])$(id).hidden=false;
 }
 function netLost(msg){
-  p2pCleanup();role='solo';ws=null;game='menu';duel=null;offer=null;perksEl.hidden=true;
+  loadingHide();p2pCleanup();role='solo';ws=null;game='menu';duel=null;offer=null;perksEl.hidden=true;
   for(const id of ['hud','board','minilogo','mini','kingbar','statusbar','quest','duel','dbanner','count','dead'])$(id).hidden=true;
   resetSoloWorld();$('start').hidden=false;$('mpstatus').textContent=msg==null?'Connection to the server was lost.':msg}
 // Esc leaves the round and goes back to the menu (the server keeps the game for the others)
@@ -2124,6 +2149,7 @@ function recToEnt(e,r,t){
   if(e.state==='eat'){e.eatFood=r.ef;e.ep=r.ep||0;e.stateT=e.eatT*(1-e.ep)}
   if(e.state==='eaten'){e.stateT=r.et||0;e.eater=cl.get(r.er)||null}}
 function applySnap(m){
+  if(!$('loading').hidden)loadingHide();
   if(JT.length&&JT[JT.length-1][0]!=='first snapshot'&&!applySnap.f){applySnap.f=1;jmark('first snapshot')}
   const t=now(),seen=new Set();
   for(const r of m.e){let e=cl.get(r.i);if(!e){if(!r.f)continue;e=makeClientEnt(r);cl.set(r.i,e)}seen.add(r.i);recToEnt(e,r,t)}

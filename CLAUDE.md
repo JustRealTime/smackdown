@@ -29,7 +29,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - Progression: unlimited levels, XP economy (`lvlCost`, `snackGain` x1.7, `gainXp`), 5 perk trees (feast/sprint/typist/guard/trick) with rarities
   (common/rare/epic/legendary, 55/30/11/4 %), perk pick at Lv2 then every 4 levels, 1/2/3 keys only (cards ignore the mouse).
 - Items: 3 slots with keys Q/W/E, 25 items in 4 rarities (`ITEMS`, `TIER_ODDS` 66/26/7/1, underwater boxes `WATER_ODDS` 34/40/20/6). Quests every ~3 min.
-- Duel: both players get the SAME phrase length = `stakeWords(a,b)` = 3 + avgLevel/12 + levelGap/10 (max 20). Only items, perks and "running away" change it.
+- Duel: both players start from the SAME phrase length `stakeWords(a,b)` = 3 + avgLevel/12 + levelGap/10 (max 20); the LOWER-level player then types `gapCut` fewer words (1 per ~9 levels of gap, min 1 from a gap of 4, max 30 %). Items, perks and "running away" change it further.
   `advOf()` drives the green/red aura + number over other players (counts items/perks too). Server-authoritative duels in multiplayer (`srvStartDuel`).
 - Look system: Terraria-style customizer (`LOOK`, `cleanLook` validated on the server), pixel sprites generated in code (`sprite()`), cached.
 - Line of sight: only house walls block (`computeSight`, polygon shadow); entities/foods/boxes in shadow are not drawn. Zoom starts 150 %, zooming out unlocks with level (80 % at Lv 60).
@@ -54,7 +54,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r33; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r35; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
