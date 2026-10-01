@@ -42,6 +42,8 @@ input#server{flex:1;min-width:0;font:700 14px var(--body);color:var(--ink);backg
 input#server:focus{outline:3px solid var(--sky);outline-offset:2px}
 .btn.alt{background:var(--sky);font-size:17px;padding:8px 16px}
 #mpstatus{min-height:1.2em;color:var(--bad)}
+#consent{border:3px solid var(--ink);border-radius:14px;background:#fffbe6;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+#consent b{font:18px var(--display)}
 #online{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 #olhead{font:800 13px var(--body);color:#2f9e4f}
 #ollist{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow:auto}
@@ -296,7 +298,13 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
       <div id="ollist"></div>
       <button class="lnk" type="button" id="solobtn">or play alone (offline)</button>
     </div>
+    <div id="consent" hidden>
+      <b>Play online with friends?</b>
+      <p class="small">Online games use a matchmaking service (PeerJS, USA). Your IP address is sent to it and to the other players of your game, and the other players see your name and look. We store nothing about you. You can change this at any time.</p>
+      <div class="row"><button class="btn" type="button" id="consentyes">Yes, go online</button><button class="btn alt" type="button" id="consentno">No, offline only</button></div>
+    </div>
     <details id="mpadv"><summary>Friends: room and server options</summary>
+      <button class="lnk" type="button" id="onlinetoggle"></button>
       <p class="small">Everyone who opens the game sees who is playing and can join. To play in a private group use the same room name:</p>
       <div class="row"><input id="room" maxlength="20" placeholder="Room name (optional)" autocomplete="off" spellcheck="false"></div>
       <p class="small">Advanced: a dedicated server (start-server.bat) on your own network:</p>
@@ -308,7 +316,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r38</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r39</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -427,7 +435,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r38';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r39';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1360,20 +1368,27 @@ $('gclose').addEventListener('click',()=>{$('guide').hidden=true});
 $('gtabs').addEventListener('click',e=>{const b=e.target.closest('.gtab');if(b)openGuide(b.dataset.t)});
 $('gbody').addEventListener('click',e=>{const b=e.target.closest('[data-tree]');if(b){guideTree=b.dataset.tree;openGuide('perks')}});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden)$('guide').hidden=true});
-$('startform').addEventListener('submit',e=>{e.preventDefault();const nl=pickLobby('node'),pl=pickLobby('p2p');if(nl)joinGame(nl.addr);else if(pl)playP2P(pl.host,pl);else if(PeerC&&P2P.state!=='down')playP2P();else startGame()});   // Play joins a game that is running, or starts one for friends; solo when offline
+$('startform').addEventListener('submit',e=>{e.preventDefault();const nl=pickLobby('node'),pl=pickLobby('p2p');if(nl)joinGame(nl.addr);else if(pl)playP2P(pl.host,pl);else if(PeerC&&onlineOk()&&P2P.state!=='down')playP2P();else startGame()});   // Play joins a game that is running, or starts one for friends; solo when offline
 const playAgain=()=>role==='client'?respawnNet():startGame();
 $('again').addEventListener('click',playAgain);
 $('leavestay').addEventListener('click',()=>askLeave(false));
 $('leavego').addEventListener('click',()=>{askLeave(false);toMenu()});
 $('joinbtn').addEventListener('click',()=>joinGame());
 /* ---------- find running games: list who is playing, each with a Join button ---------- */
+// online play is opt-in: nothing is sent to the matchmaking service before the player agrees
+let ONLINE=null;try{ONLINE=localStorage.getItem('snackdown-online')}catch(_){}
+const onlineOk=()=>ONLINE==='yes';
+function showConsent(){const c=$('consent');if(c)c.hidden=!!ONLINE||!PeerC;const t=$('onlinetoggle');if(t)t.textContent=!PeerC?'':onlineOk()?'Online play is ON (click to turn off)':'Online play is OFF (click to turn on)'}
+function setOnline(v){ONLINE=v;try{localStorage.setItem('snackdown-online',v)}catch(_){}
+  if(v!=='yes'){if(scout){try{scout.destroy()}catch(_){}}scout=null;lobbies=[];P2P.state='unknown';showLobbies()}
+  showConsent();if(v==='yes'){showLobbies();pollOnline()}}
 let lobbies=[];   // every game found: dedicated servers {kind:'node'} and browser-hosted lobbies {kind:'p2p'}
 const pickLobby=kind=>lobbies.filter(l=>l.kind===kind&&!(l.max&&l.players.length>=l.max)).sort((a,b)=>b.players.length-a.players.length)[0];
 async function probeServer(addr){try{const c=new AbortController(),to=setTimeout(()=>c.abort(),1500);
     const r=await fetch((typeof location!=='undefined'&&location.protocol==='https:'?'https://':'http://')+addr+'/status',{signal:c.signal,cache:'no-store'});clearTimeout(to);
     if(!r.ok)return null;const j=await r.json();return j&&Array.isArray(j.players)?j:null}catch(_){return null}}
 function showLobbies(){const el=$('online');
-  if(!lobbies.length){el.hidden=true;$('lobbyinfo').textContent=!PeerC?'':P2P.state==='up'?'No game is running yet. Press Play to start one your friends can join.':P2P.state==='down'?'Offline: Play starts a solo game.':'Looking for games…';return}
+  if(!lobbies.length){el.hidden=true;$('lobbyinfo').textContent=!PeerC?'':!onlineOk()?'Online play is off: Play starts a solo game.':P2P.state==='up'?'No game is running yet. Press Play to start one your friends can join.':P2P.state==='down'?'Offline: Play starts a solo game.':'Looking for games…';return}
   el.hidden=false;$('lobbyinfo').textContent='';const n=lobbies.reduce((a,l)=>a+l.players.length,0);
   $('olhead').textContent='● Online · '+lobbies.length+(lobbies.length===1?' game':' games')+' · '+n+(n===1?' player':' players');
   $('ollist').innerHTML=lobbies.map((l,i)=>{const names=l.players.slice(0,4).map(p=>esc2(String(p.name))).join(', ')+(l.players.length>4?' …':''),full=l.max&&l.players.length>=l.max;
@@ -1384,10 +1399,12 @@ async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||docume
   try{const found=[],cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
     const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);if(typeof location==='undefined'||location.protocol!=='https:')cand.push('localhost:8080');   // a public https page must not poke at the visitor's own machine (browsers ask for a permission)
     for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){found.push({kind:'node',addr:a,host:'Dedicated',players:j.players});break}}
-    if(PeerC&&!P2P.isHost){const r=await scoutLobbies();if(r){P2P.state='up';found.push(...r)}}
+    if(PeerC&&!P2P.isHost&&onlineOk()){const r=await scoutLobbies();if(r){P2P.state='up';found.push(...r)}}
     lobbies=found;showLobbies();if(!scanned||P2P.state!=='unknown'){scanned=true;resolveScan()}}finally{polling=false}}
 $('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-i]');const l=b&&lobbies[+b.dataset.i];if(!l)return;
   if(l.kind==='node')joinGame(l.addr);else playP2P(l.host,l)});
+$('consentyes').addEventListener('click',()=>setOnline('yes'));$('consentno').addEventListener('click',()=>setOnline('no'));
+$('onlinetoggle').addEventListener('click',()=>setOnline(onlineOk()?'no':'yes'));setTimeout(showConsent,0);   // PeerC is defined further down
 $('solobtn').addEventListener('click',()=>{lobbies=[];startGame()});
 setInterval(pollOnline,5000);setTimeout(pollOnline,300);
 try{const sv=localStorage.getItem('snackdown-server');if(sv)$('server').value=sv;const rm=localStorage.getItem('snackdown-room');if(rm)$('room').value=rm}catch(_){}
@@ -2005,7 +2022,7 @@ function joinGame(addrArg,near){
   try{localStorage.setItem('snackdown-name',name)}catch(_){}
   let addr=typeof addrArg==='string'?addrArg:$('server').value.trim();
   if(!addr&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)addr=location.host;
-  if(!addr&&PeerC)addr='p2p';
+  if(!addr&&PeerC&&onlineOk())addr='p2p';
   if(addr==='p2p'){playP2P(near);return}
   if(!addr){$('mpstatus').textContent='Type the address of the server, for example 192.168.1.20:8080';return}
   try{localStorage.setItem('snackdown-server',addr)}catch(_){}

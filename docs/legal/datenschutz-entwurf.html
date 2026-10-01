@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Datenschutzerklärung – Typebite</title>
+<style>
+:root{--ink:#2b2140;--bg:#fffdf7;--muted:#7d7196;--tomato:#ff6b3d}
+body{margin:0;background:#f4efe6;color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:820px;margin:0 auto;padding:28px 18px 60px}
+.card{background:var(--bg);border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:24px 26px}
+h1{margin:0 0 6px;font-size:34px;color:var(--tomato)}
+h2{margin:28px 0 6px;font-size:20px}
+p,li{margin:6px 0}
+a{color:#1f6fd0}
+.muted{color:var(--muted);font-size:14px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+td,th{border:2px solid var(--ink);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f1e9ff}
+</style>
+</head>
+<body>
+<main><div class="card">
+<h1>Datenschutzerklärung</h1>
+<p class="muted">Stand: [[DATUM]]. Diese Erklärung beschreibt, welche Daten beim Besuch von typebite.io und beim Spielen verarbeitet werden (Datenschutz-Grundverordnung, DSGVO, und Datenschutzgesetz, DSG).</p>
+
+<h2>1. Verantwortlicher</h2>
+<p>[[VOR- UND NACHNAME]], [[STRASSE UND HAUSNUMMER]], [[PLZ ORT]], Österreich<br>
+E-Mail: <a href="mailto:[[E-MAIL]]">[[E-MAIL]]</a></p>
+
+<h2>2. Kurzfassung</h2>
+<ul>
+<li>Es gibt <b>keine Benutzerkonten</b>, <b>keine Cookies</b>, <b>keine Werbung</b> und <b>keine Analyse- oder Tracking-Werkzeuge</b>.</li>
+<li>Schriften und Musik werden von dieser Seite selbst ausgeliefert, nicht von Google oder anderen Anbietern.</li>
+<li>Online-Spiele mit anderen Spielern nutzen einen Vermittlungsdienst und eine direkte Verbindung zwischen den Browsern. Das passiert <b>nur, wenn du im Spiel „Yes, go online“ wählst</b>.</li>
+<li>Bei technischen Fehlern können anonyme Fehlerberichte an uns gesendet werden (Abschnitt 6).</li>
+</ul>
+
+<h2>3. Hosting und Zugriffsdaten (Cloudflare)</h2>
+<p>Die Seite wird über Cloudflare ausgeliefert (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA; für den EWR gegebenenfalls Cloudflare Germany GmbH). Beim Aufruf verarbeitet Cloudflare technisch notwendige Daten, vor allem deine IP-Adresse, Datum und Uhrzeit, die aufgerufene Adresse, den Browsertyp und Verbindungsdaten, um die Seite auszuliefern und vor Missbrauch zu schützen. Wir selbst erhalten daraus keine Auswertung mit Personenbezug.</p>
+<p>Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer sicheren und schnellen Bereitstellung). Datenübermittlung in die USA: Cloudflare ist nach eigenen Angaben unter dem EU-US Data Privacy Framework zertifiziert und nutzt Standardvertragsklauseln. [[PRÜFEN: Stand der Zertifizierung vor Veröffentlichung kontrollieren]]</p>
+
+<h2>4. Speicherung im Browser</h2>
+<p>Das Spiel speichert Einstellungen in deinem Browser (Local Storage, keine Cookies): Spielername, Aussehen deiner Figur, Zoom, Ton/Musik an oder aus, Raumname, Server-Adresse und deine Wahl zum Online-Spiel. Diese Daten bleiben auf deinem Gerät und werden nicht an uns übertragen. Sie sind für die von dir gewünschte Funktion des Spiels erforderlich (§ 165 Abs. 3 TKG 2021). Du kannst sie jederzeit in den Browser-Einstellungen löschen.</p>
+
+<h2>5. Online-Spiele (Vermittlungsdienst und direkte Verbindung)</h2>
+<p>Wenn du „Yes, go online“ wählst, passiert Folgendes:</p>
+<ul>
+<li><b>Vermittlungsdienst PeerJS</b> (öffentlicher Dienst peerjs.com, 0.peerjs.com; [[PRÜFEN: Betreiber und Standort des Dienstes eintragen]]): Dein Browser meldet sich dort an und fragt nach laufenden Spielen. Dabei wird deine IP-Adresse übertragen. Die Spieldaten selbst laufen nicht über diesen Dienst.</li>
+<li><b>Direkte Verbindung zwischen Browsern (WebRTC):</b> Wer ein Spiel startet, ist Gastgeber („Host“): Sein Browser führt das Spiel aus. Die anderen Spieler verbinden sich direkt mit ihm. Dabei kennt der Host die IP-Adressen der Mitspieler, und die Mitspieler können die IP-Adresse des Hosts technisch ermitteln. Übertragen werden dein Spielname, das Aussehen deiner Figur, Spielzüge, Tipp-Ergebnisse und der Spielstand. Alle Mitspieler sehen deinen Spielnamen. <b>Wähle deshalb einen Namen, der dich nicht identifiziert.</b></li>
+<li><b>Verbindungshilfen:</b> Damit Browser sich hinter Routern finden, nutzt die Bibliothek PeerJS einen STUN-Dienst von Google (stun.l.google.com, USA) und Relay-Server von PeerJS (turn.peerjs.com, EU und USA). Dabei wird deine IP-Adresse an diese Dienste übertragen, und Spieldaten können über das Relay laufen, wenn keine direkte Verbindung möglich ist.</li>
+<li>Wir speichern keinen dieser Daten auf eigenen Servern. Der Host kann die Daten aber auf seinem Gerät verarbeiten.</li>
+</ul>
+<p>Rechtsgrundlage: Einwilligung, Art. 6 Abs. 1 lit. a DSGVO (deine Wahl „Yes, go online“) und Art. 6 Abs. 1 lit. b DSGVO (Durchführung des Spiels). Du kannst die Einwilligung jederzeit im Menü mit „Online play is ON (click to turn off)“ widerrufen. Ohne Einwilligung spielst du offline gegen Computergegner, und es werden keine Daten an den Vermittlungsdienst gesendet.</p>
+<p>Wenn du ein eigenes Spiel auf einem Server aufrufst (Adresse eingegeben), werden die Daten an diesen Server gesendet.</p>
+
+<h2>6. Fehlerberichte</h2>
+<p>Tritt im Spiel ein technischer Fehler auf, oder drückst du F8 oder „Report a problem“, sendet das Spiel einen Bericht an einen von uns betriebenen Dienst (Cloudflare Worker), der ihn in einem privaten Repository bei GitHub speichert (GitHub, Inc., USA, ein Unternehmen von Microsoft). Der Bericht enthält: Spielversion, eine zufällige Kennung dieses Tabs, Browsertyp (User-Agent), Bildschirm- und Fenstergröße, Spielmodus und Zustand, Leistungswerte (Bilder pro Sekunde), technische Fehlermeldungen mit Codestellen und, wenn du es eingibst, deinen Freitext. <b>Nicht</b> gespeichert werden deine IP-Adresse (sie dient nur kurz im Arbeitsspeicher der Begrenzung von Anfragen) und dein Spielname.</p>
+<p>Zweck: Fehler finden und beheben. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem stabilen Spiel). Speicherdauer: [[FESTLEGEN, z. B. 90 Tage; Berichte werden danach gelöscht]]. Gib im Freitext bitte keine persönlichen Daten ein.</p>
+
+<h2>7. Empfänger und Drittlandübermittlung</h2>
+<table>
+<tr><th>Empfänger</th><th>Zweck</th><th>Land</th></tr>
+<tr><td>Cloudflare</td><td>Auslieferung der Seite, Fehlerbericht-Dienst</td><td>USA / weltweit</td></tr>
+<tr><td>PeerJS (Vermittlung, Relay)</td><td>Online-Spiele, nur nach Einwilligung</td><td>[[PRÜFEN]]</td></tr>
+<tr><td>Google (STUN)</td><td>Verbindungsaufbau, nur nach Einwilligung</td><td>USA</td></tr>
+<tr><td>GitHub</td><td>Speicherung der Fehlerberichte</td><td>USA</td></tr>
+<tr><td>Mitspieler / Host</td><td>Spielen (Name, Aussehen, IP-Adresse des Hosts bzw. der Mitspieler)</td><td>je nach Mitspieler</td></tr>
+</table>
+
+<h2>8. Deine Rechte</h2>
+<p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO) und das Recht, eine erteilte Einwilligung jederzeit mit Wirkung für die Zukunft zu widerrufen. Schreib dazu an die oben genannte E-Mail-Adresse. Da wir keine Konten führen und Berichte nicht mit deiner Person verknüpfen, können wir dich oft nur anhand deiner Angaben zuordnen.</p>
+<p>Du kannst dich bei der Datenschutzbehörde beschweren: Österreichische Datenschutzbehörde, Barichgasse 40-42, 1030 Wien, <a href="https://www.dsb.gv.at">www.dsb.gv.at</a>.</p>
+
+<h2>9. Kinder und Jugendliche</h2>
+<p>Das Spiel richtet sich an Personen ab [[ALTER, z. B. 14]] Jahren. In Österreich können Jugendliche ab 14 Jahren selbst in eine Datenverarbeitung einwilligen. Jüngere Kinder brauchen die Zustimmung der Erziehungsberechtigten.</p>
+
+<h2>10. Automatisierte Entscheidungen</h2>
+<p>Es findet keine automatisierte Entscheidungsfindung mit Rechtswirkung statt.</p>
+
+<h2>11. Änderungen</h2>
+<p>Wir passen diese Erklärung an, wenn sich das Spiel oder die Rechtslage ändert (zum Beispiel bei Werbung oder Zahlungen). Es gilt die jeweils hier veröffentlichte Fassung.</p>
+
+<p class="muted" style="margin-top:26px"><a href="/">Zurück zum Spiel</a> · <a href="/impressum">Impressum</a></p>
+</div></main>
+</body>
+</html>

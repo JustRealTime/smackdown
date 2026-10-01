@@ -54,12 +54,14 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r36; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r39; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (`/opt/pw-browsers/chromium`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i peer`, `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
   and set `window.SNACK_PEER={host:'127.0.0.1',port:9000,path:'/',secure:false,config:{iceServers:[]}}` via `addInitScript`. Headless fps looks low (software rendering).
 - Cloud sandbox gotchas: `pkill -f` can kill your own shell (use a bracket pattern); the sandbox cannot reach unpkg/google/0.peerjs.com (npm works).
+
+- Online play is opt-in (r39): `ONLINE` (localStorage `snackdown-online` yes/no) gates every PeerJS call (scout and Play). Unanswered or no = solo only, no request to the broker. Legal drafts in `docs/legal/` (not published yet; to publish copy filled files to `site/`; see docs/legal/README.md). Site hosting: Cloudflare Workers Builds from `main` (`wrangler.jsonc`, `docs/deploy.md`), domain typebite.io at Cloudflare.
 
 ## Known issues / open points
 - Once the owner saw a fully purple screen after joining (HUD alive, world not drawn). NOT reproduced in many tests. Guards added (crash-proof loop, camera NaN reset,
