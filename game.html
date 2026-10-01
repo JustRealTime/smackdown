@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Typebite</title>
+<meta name="theme-color" content="#2b2140">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Typebite">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 /* fonts are bundled (SIL Open Font License, see fonts/), nothing is loaded from Google */
 @font-face{font-family:'Lilita One';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/lilita-one-400.woff2) format('woff2')}
@@ -270,7 +277,10 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 body.touch{overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.touch input{-webkit-user-select:text;user-select:text}
 body.touch #game{touch-action:none}
-body.touch #mute,body.touch #musicbtn,body.touch #minilogo{display:none}
+body.touch #minilogo{display:none}
+body.touch #mute,body.touch #musicbtn{top:calc(64px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));font-size:10px;padding:3px 8px;box-shadow:0 2px 0 var(--ink);border-width:2px;z-index:6}
+body.touch #musicbtn{left:calc(82px + env(safe-area-inset-left,0px))}
+body.touch:not(.inplay) #mute,body.touch:not(.inplay) #musicbtn{display:none}
 body.touch .tonly{display:flex}body.touch p.tonly{display:block}body.touch dl.how,body.touch .how2{display:none}
 body.touch #startform{box-sizing:border-box;width:100%;max-width:420px}body.touch .row{flex-wrap:wrap}body.touch input#name{min-width:120px}
 body.touch #joy{display:block;position:fixed;left:0;top:0;width:104px;height:104px;border-radius:50%;border:3px solid rgba(255,255,255,.7);background:rgba(43,33,64,.22);opacity:0;pointer-events:none;z-index:6;transition:opacity .12s}
@@ -294,7 +304,8 @@ body.touch #itemslot{display:flex;position:fixed;right:calc(8px + env(safe-area-
 body.touch .islots{display:flex;gap:6px}
 body.touch .islot{width:46px;min-height:46px;height:46px;padding:0;border-width:2px;border-radius:10px;background:rgba(255,255,255,.88)}
 body.touch .islot .in,body.touch .islot .it{display:none}body.touch .islot .ii{font-size:22px}
-body.touch .islot kbd{font-size:9px;padding:0 3px;top:-2px;border-width:1px;border-bottom-width:2px}
+body.touch .islot kbd{display:none}
+body.touch .islot kbd.x{font-size:9px;padding:0 3px;top:-2px;border-width:1px;border-bottom-width:2px}
 body.touch #buffs{display:none}
 body.touch #mini{display:block;width:84px;height:84px;right:calc(8px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;border-width:2px;border-radius:12px}
 body.touch #board:not([hidden]){display:block}body.touch #board{width:112px;padding:4px 7px;right:calc(8px + env(safe-area-inset-right,0px));top:calc(98px + env(safe-area-inset-top,0px));border-width:2px;border-radius:10px;opacity:.85}
@@ -302,7 +313,7 @@ body.touch #board h2{display:none}body.touch #board ol{font-size:10px;gap:0}body
 body.touch #quest{top:calc(8px + env(safe-area-inset-top,0px));min-width:0;width:150px;padding:3px 8px 5px;gap:2px;border-width:2px}
 body.touch #quest b{font-size:12px}body.touch #quest small{font-size:10px}
 body.touch #kingbar{top:calc(58px + env(safe-area-inset-top,0px));font-size:11px;padding:3px 8px}
-body.touch #metrics{top:calc(62px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));font-size:10px;padding:2px 6px}
+body.touch #metrics{top:calc(96px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));font-size:10px;padding:2px 6px}
 body.touch #statusbar{font-size:11px}
 body.touch #toast{top:30%;font-size:26px}
 /* perks: three small cards in the middle of the screen */
@@ -323,12 +334,14 @@ body.touch #dbanner{top:46%;padding:5px 12px;font-size:14px}
 body.touch #count{top:46%}
 /* menus */
 body.touch .overlay{align-items:start;overflow:auto;padding:10px}
-body.touch .card{padding:14px 16px;gap:9px;margin:auto;width:min(420px,100%)}
+body.touch .card{box-sizing:border-box;padding:14px 16px;gap:9px;margin:auto;width:min(420px,100%)}
+body.touch #dead .card{padding:10px 14px;gap:6px;max-width:360px}body.touch #dead .logo{font-size:30px}body.touch #deadby{font-size:12px}
+body.touch.induel #metrics{top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 body.touch .logo{font-size:38px}body.touch .tag,body.touch .card>.small{font-size:12px}
 body.touch #start .tag{display:none}
 body.touch .btn{font-size:17px;padding:8px 14px}body.touch .btn.alt{font-size:14px;padding:6px 11px}
 body.touch #start .row:last-of-type{flex-wrap:wrap;justify-content:center}
-body.touch .stats{grid-template-columns:repeat(4,1fr);gap:6px}body.touch .stat b{font-size:22px}body.touch .stat span{font-size:9px}
+body.touch .stats{grid-template-columns:repeat(4,1fr);gap:5px}body.touch .stat{padding:4px 5px;border-radius:9px;min-width:0}body.touch .stat b{font-size:20px}body.touch .stat span{font-size:8px;letter-spacing:0}
 body.touch #again+.small{display:none}
 body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 @media (orientation:landscape) and (max-height:460px){body.touch .logo{font-size:30px}body.touch #start .tag{display:none}body.touch .card{padding:10px 14px;gap:6px}body.touch #quest{left:50%}}
@@ -399,7 +412,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r43</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r44</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -411,13 +424,14 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     </dl>
     <p class="small how2">Green ring with +2 next to a name: in a duel you would type 2 words fewer than them. Red with −2: 2 words more.</p>
     <p class="small how2">Snacks give less and less as you level up, and you can be caught while eating. Win a duel and you get all of your opponent's levels. Both players start from the same phrase length: the more is at stake (high levels or a big level gap), the longer it is. The player with the lower level types a few words fewer. Run away and get caught, and your opponent gets a shorter one.</p>
-    <p class="small tonly">Touch: drag anywhere to walk, <b>Dash</b> and <b>Run</b> buttons, tap an item to use it. Bump into someone and the keyboard pops up for the typing duel.</p>
+    <p class="small tonly">Touch: drag anywhere to walk, <b>Dash</b> and <b>Run</b> buttons, tap an item to use it. Bump into someone and the keyboard pops up for the typing duel. iPhone fullscreen: Share → Add to Home Screen.</p>
   </form>
 </div>
 
 <div id="settings" class="overlay" hidden>
   <div class="panel">
     <h2>Settings</h2>
+    <button class="btn alt tonly" type="button" id="fsbtn" style="align-self:flex-start">Fullscreen</button>
     <h3>Sound</h3>
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
@@ -528,7 +542,7 @@ const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
 if(typeof location!=='undefined'&&location.protocol==='http:'&&/(^|\.)typebite\.io$/.test(location.hostname)){location.replace('https:'+location.href.slice(5))}   // the public site is https only
-const BUILD='r43';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r44';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1201,7 +1215,7 @@ const music=(()=>{
     duck(sec){duckT=Math.max(duckT,sec)},
     tick(dt){duckT=Math.max(0,duckT-dt);
       for(const k in el){const a=el[k],want=on&&k===cur&&unlocked?level(k)*(duckT>0?.4:1):0;
-        a._v+=(want-a._v)*Math.min(1,dt*(want>a._v?2.5:4));if(a._v<.004&&want===0){a._v=0;if(!a.paused)a.pause()}
+        a._v+=(want-a._v)*Math.min(1,dt*(want>a._v?.9:1.3));if(a._v<.004&&want===0){a._v=0;if(!a.paused)a.pause()}
         a.volume=clamp(a._v,0,1)}}
   }})();
 setInterval(()=>music.tick(.05),50);
@@ -1258,10 +1272,14 @@ if(TOUCH){
     for(let i=0;i<back;i++)handleTyping({key:'Backspace',preventDefault(){}});
     for(const ch of add)handleTyping({key:ch,preventDefault(){}});
     if(v.length>80)tinReset()});
-  tin.addEventListener('focus',()=>document.body.classList.add('kb'));tin.addEventListener('blur',()=>document.body.classList.remove('kb'));
-  addEventListener('touchend',()=>{if(duel&&document.activeElement!==tin)tin.focus({preventScroll:true})},{passive:true});
+  const kbCheck=()=>{const vv=window.visualViewport;document.body.classList.toggle('kb',!!vv&&vv.height<innerHeight*.8)};
+  if(window.visualViewport)visualViewport.addEventListener('resize',kbCheck);
+  // iOS only opens the keyboard when focus() runs inside the tap itself; if the input still has focus but the keyboard was closed, blur first
+  const tapType=()=>{if(!duel)return;if(document.activeElement===tin)tin.blur();tin.focus({preventScroll:true})};
+  addEventListener('touchend',tapType,{passive:true});addEventListener('click',tapType);
   setInterval(()=>{const d=!!duel;if(d!==DU){DU=d;if(d){joyOff();tinReset();try{tin.focus({preventScroll:true})}catch(_){}}else tin.blur()}
-    const ip=game==='play'&&!duel&&!!player&&player.state!=='eaten';if(ip!==IP){IP=ip;document.body.classList.toggle('inplay',ip);if(!ip)joyOff()}},100);
+    const ip=game==='play'&&!duel&&!!player&&player.state!=='eaten';if(ip!==IP){IP=ip;document.body.classList.toggle('inplay',ip);if(!ip)joyOff()}
+    document.body.classList.toggle('induel',d)},100);
 }
 // tap an item slot to use it (also with the mouse)
 for(const el of document.querySelectorAll('.islot'))el.addEventListener('click',()=>{if(game!=='play'||duel||!player)return;const sl=+el.dataset.s;if(role==='client')netSend({t:'use',s:sl});else useItem(player,now(),sl)});
@@ -2022,6 +2040,8 @@ function applySet(){sfx.vol();{const z=document.querySelector('#settings [data-z
 function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
 $('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
   if(k==='sv'&&!sfx.muted)sfx.click();applySet();saveSet()});
+{const fb=$('fsbtn'),de=document.documentElement;if(!(de.requestFullscreen||de.webkitRequestFullscreen))fb.hidden=true;
+  else fb.addEventListener('click',()=>{try{(document.fullscreenElement||document.webkitFullscreenElement)?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(de.requestFullscreen||de.webkitRequestFullscreen).call(de)}catch(_){}})}
 $('setbtn').addEventListener('click',()=>openSettings(true));$('gear').addEventListener('click',()=>openSettings(true));$('setclose').addEventListener('click',()=>openSettings(false));
 $('settings').addEventListener('mousedown',e=>{if(e.target===$('settings'))openSettings(false)});
 if(role!=='server')applySet();

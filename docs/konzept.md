@@ -327,3 +327,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Kompaktes Layout: HUD klein oben links (Level + 3 dünne Balken), Minimap 84 px oben rechts, Bestenliste nur Top 3 + du, Quest klein, Perk-Karten als drei kleine Karten in der Mitte, Menü ohne lange Erklärtexte (Touch-Hinweis statt Tastenliste), Hinweis "needs a keyboard" entfernt. viewport: kein Pinch-Zoom.
 - BUILD r43.
 - Getestet (Chromium-Emulation, Touch-Ereignisse, Querformat 844x390 und Hochformat 390x844): Menü, Joystick-Ziehen, Buttons sichtbar, Perk-Karten antippen, Duell-Panel, Tippen ins Eingabefeld inkl. Backspace, Desktop-Regression, Node-Server startet. NICHT getestet: echte Geräte (iOS Safari, Android Chrome), ob die Tastatur dort automatisch aufgeht, wie die Tastatur das Bild verdeckt, Performance auf schwachen Handys, Pinch-Zoom (nicht gebaut).
+
+## Runde 44 - Handy-Feedback vom iPhone
+- Q/W/E-Beschriftung am Handy weg. Sound/Music-Buttons sind am Handy wieder da (klein, unter dem HUD, nur im Spiel). Eaten-Dialog kompakt (box-sizing-Fehler: Karte war breiter als der Bildschirm).
+- Tastatur im Duell: Ursache war, dass das unsichtbare Eingabefeld nach dem Schließen der Tastatur noch den Fokus hatte und das Antippen dann nichts tat. Jetzt blur + focus im selben Tipp (touchend und click). "tap here to type" richtet sich nach der echten Tastatur (visualViewport) statt nach dem Fokus. Metriken liegen im Duell unten statt über dem Text.
+- Musikübergänge weicher: Einblenden .9/s statt 2.5/s, Ausblenden 1.3/s statt 4/s (Überblendung ca. 2-3 s). Nicht gehört, nur Werte geändert.
+- Vollbild: iOS Safari erlaubt Webseiten kein Vollbild. Deshalb PWA-Daten (`site/manifest.webmanifest`, Icons, apple-mobile-web-app-Tags, theme-color): "Zum Home-Bildschirm" startet ohne Leisten. Fullscreen-Button in den Settings, wo der Browser es kann (Android, Desktop). Hinweis im Menü.
+- BUILD r44. Echte iPhone-Prüfung der Tastatur steht aus.
