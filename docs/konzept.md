@@ -312,3 +312,10 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Perk-Karten sind jetzt per Klick wählbar (Tasten 1/2/3 gehen weiter). Klick auf eine Karte löst keinen Dash aus, die Figur läuft weiter zum Cursor.
 - `kbd` in Buttons (Stay/Menu) hatte weißen Text auf weißem Feld; jetzt dunkle Schrift.
 - BUILD r41. Nur Syntax geprüft, Klick nicht im Browser getestet.
+
+## Runde 42 - Einstellungen
+- Neues Menü "Settings" (Menü-Button und Button links oben im Spiel, Esc schließt): Lautstärke Musik und Soundeffekte (Slider), Grafik: Render distance (30-100 %, Dinge weit vom Bildschirmmittelpunkt werden nicht gezeichnet; Häuser, Boden und Schatten bleiben) und Potato-PC-Modus (feste 55 % Auflösung ohne Auto-Qualität, Render distance max 60 %, kein Screenshake, keine Bremsspuren, keine Staub-/Ring-/Linien-Partikel). Metriken: FPS, Ping (zum Host), Details (Spieler, Auflösung, Host-Schrittzeit) als Overlay links.
+- Ping: Client sendet alle 2 s `ping`, Host antwortet `pong` (gilt auch für Dedicated Server und Browser-Host). Solo zeigt "- (solo)".
+- Während Settings offen ist, läuft die Figur nicht zum Cursor und Tasten gehen nicht ans Spiel (Server läuft weiter).
+- Gespeichert in localStorage `snackdown-settings`. BUILD r42.
+- Getestet (Chromium, headless): Settings öffnen/Slider/Haken/Esc, Speichern, Metriken im Solo-Spiel, Potato (Res 55 %), Ping 26 ms gegen `server/server.js`. NICHT getestet: Hören der Lautstärke, P2P-Ping, Gefühl der Render distance auf echter Hardware.
