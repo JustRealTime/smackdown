@@ -24,6 +24,10 @@ Wichtig: Der Host sollte den Tab offen lassen, sonst endet das Spiel für alle. 
 
 Optional gibt es weiterhin einen eigenen Server (`start-server.bat`, braucht [Node.js](https://nodejs.org) 18+), z. B. für LAN-Partys ohne Internet. Die Seite dieses Servers zeigt ebenfalls die Spielerliste.
 
+## Spieltests und Fehler melden
+
+Ablauf, Testaufgaben und Fragen stehen in [docs/spieltest.md](docs/spieltest.md). Bei Problemen im Spiel **F8** drücken (oder im Menü „Report a problem“): ein Fehlerbericht wird kopiert und kann in einen Chat eingefügt werden. Es wird nichts automatisch verschickt.
+
 ## Stand
 
 Prototyp v3: Solo oder mit Freunden gegen 100 Bots auf einer großen Karte (9600 x 9600) mit 6 Biomen und Minimap, 30 betretbare Gebäude mit je mehreren markierten Eingängen in 10 Typen (Haus, Diner, Bäckerei, Fitnessstudio, Schuppen, Arcade, Scheune, Bibliothek, Gewächshaus, Café), Zeltlager, Märkte, schwimmbare Teiche, Felder und Parks, zufällig gemischte Charaktere, Level-Looks bis Level 1500, kurze Tippduelle mit Animationen, Sprint, Dash mit Slide und Essanimation mit Bissen. Es gibt keine Level-Grenze: Perk-Bäume bei Level-Ups, Items, einen König mit Kopfgeld und Level-Orbs. Effekte sind erzeugt, die Hintergrundmusik steckt in `index.html`. Oben links lassen sich Sound und Musik einzeln abschalten. Multiplayer im lokalen Netz gibt es (siehe oben).

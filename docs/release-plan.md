@@ -31,7 +31,7 @@ Plan des Entwicklers: 1. Balancing, 2. eigene Webseite mit vielen Spielern, 3. W
 
 ## Nächste Schritte bis "release ready"
 1. **Name, Domain, Marke:** Namen festlegen, Domain sichern, Recherche beim Patentamt/EUIPO.
-2. **Spieltests:** 5-10 Leute spielen lassen (auch Firefox, Safari, Edge, schwache Laptops), Balancing nach Rückmeldung, Fehler sammeln. Fehlerüberwachung einbauen (z. B. Sentry-Gratisstufe, mit Zustimmung), `reportErr` ist schon vorbereitet.
+2. **Spieltests:** 5-10 Leute spielen lassen (auch Firefox, Safari, Edge, schwache Laptops), Balancing nach Rückmeldung, Fehler sammeln. Fehlerbericht zum Kopieren ist seit r31 eingebaut (F8 / "Report a problem", nichts wird verschickt), Anleitung in `docs/spieltest.md`. Automatische Fehlerüberwachung (z. B. Sentry) erst für den öffentlichen Release, dann mit Zustimmung.
 3. **Technik fertigstellen:** eigener Vermittler + TURN + TLS, Musik in kleinere Dateien (Ogg/MP3 96 kbit/s) und nachladen statt alles in einer 8-MB-Datei, Lobby-Registry, Begrenzung/Anti-Missbrauch, Namensfilter gegen Beleidigungen.
 4. **Plattformen:** entscheiden ob Handy-Steuerung kommt (aktuell nur PC mit Tastatur). Webseite mit Startseite, Vorschaubild, Favicon, Open-Graph-Bild, Datenschutz-freundlicher Statistik (z. B. Plausible/Umami).
 5. **Recht auf der Seite:** Impressum, Datenschutzerklärung (Vermittler/TURN, Spielername, IP), Cookie-/Einwilligungsbanner (CMP) bevor Werbung kommt. Einmal Anwalt oder Erstberatung drüberschauen lassen.

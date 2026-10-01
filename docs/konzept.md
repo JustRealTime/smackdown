@@ -248,3 +248,11 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Bots heißen jetzt "Name (BOT)" in der Rangliste, über den Köpfen und im Duell.
 - Browser-Lobbys haben bis zu 8 Plätze pro Raumname (snackdown-<raum>-1 bis -8). Das Menü fragt alle Plätze ab und listet jedes laufende Spiel mit Host, Spielerzahl und Join-Knopf. Play tritt dem vollsten Spiel mit Platz bei, sonst startet es ein neues. Maximal 12 Spieler pro Lobby. Build r30.
+
+## Runde 31: Vorbereitung Spieltests
+
+- Versions-Check repariert: Die interne Build-Nummer stand noch auf r28, obwohl das Menü r30 zeigte. Spieler mit r28, r29 und r30 konnten sich also gegenseitig beitreten, ohne Warnung. Jetzt gibt es nur noch eine Konstante (`BUILD`), das Menü-Label wird daraus gesetzt.
+- Fehlerbericht für Tester: "Report a problem" im Menü (mit Beschreibungsfeld), F8 im Spiel und "Copy bug report" in der roten Fehlerleiste kopieren einen Text in die Zwischenablage: Build, Browser, Bildschirm, Modus (Host/Client/Solo, Raum, Lobby, Menschen, Vermittler-Status, Rechenzeit des Hosts pro Schritt, letzte Nachricht vom Host), FPS mit 1 %-Tief und Rucklern über 50 ms, die letzten 10 Fehler mit Quelle (page, update, render, host) und Codezeile. Es wird nichts verschickt (keine Einwilligung nötig), Dateipfade werden entfernt.
+- Fehler werden jetzt überall gesammelt: auch Fehler in Klick-Handlern und beim Start (globaler Fehler-Listener), und Fehler im Spielserver des Hosts (Web Worker). Die waren vorher komplett still: Der Host sieht sie jetzt als rote Leiste.
+- Browser: Ersatz für `roundRect` (Safari unter 16, Firefox unter 112), Caps Lock oder Shift zählen im Duell nicht mehr als Tippfehler, ' und / öffnen in Firefox nicht mehr die Schnellsuche (die hätte alle weiteren Tasten geschluckt).
+- docs/spieltest.md: Ablauf, Testaufgaben, Browser-Matrix, Fragen nach dem Spielen. Build r31.

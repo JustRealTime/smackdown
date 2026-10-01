@@ -66,6 +66,13 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 
 #zoomtag{position:fixed;left:50%;bottom:calc(200px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:6px 16px;font:18px var(--display);transition:opacity .4s;pointer-events:none;z-index:5}
 #errbar{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);max-width:min(92%,760px);padding:8px 14px;border-radius:12px;background:#ff4d6a;color:#fff;font:800 13px var(--body);border:3px solid var(--ink);z-index:40;text-align:center}
+#errbar button{margin-left:6px;font:800 12px var(--body);color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:2px 8px;cursor:pointer}
+#bugrep{z-index:50}
+#bpanel{width:min(600px,100%);max-height:100%;overflow:auto;gap:12px}
+#bpanel h2{margin:0;font:28px var(--display);letter-spacing:.5px}
+#bpanel textarea{width:100%;box-sizing:border-box;resize:vertical;font:700 14px var(--body);color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:12px;padding:8px 10px;user-select:text;-webkit-user-select:text}
+#bpanel textarea:focus{outline:3px solid var(--sky);outline-offset:2px}
+#bpanel #buginfo{font:500 11px/1.45 var(--mono);color:var(--muted);white-space:pre;overflow:auto}
 #quest{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);padding:8px 16px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:230px;z-index:4;border-color:var(--ink)}
 #quest b{font:18px var(--display);letter-spacing:.3px}
 #quest small{font:800 12px var(--mono);color:var(--muted)}
@@ -298,7 +305,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small" style="opacity:.6">Build r30</p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r31</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -380,6 +387,16 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 <div id="toast" hidden></div>
 <div id="zoomtag" class="panel" hidden></div>
 <div id="errbar" hidden></div>
+<div id="bugrep" class="overlay" hidden>
+  <div class="panel card" id="bpanel">
+    <h2>Report a problem</h2>
+    <p class="small">Write what happened, press Copy and paste the report into your chat with the developer. Nothing is sent automatically. In a game, F8 copies a report right away.</p>
+    <textarea id="bugtxt" rows="3" maxlength="600" placeholder="What happened? What did you do just before? Which browser?" spellcheck="false"></textarea>
+    <textarea id="buginfo" rows="9" readonly spellcheck="false"></textarea>
+    <div class="row"><button class="btn" type="button" id="bugcopy">Copy report</button><button class="btn alt" type="button" id="bugclose">Close</button></div>
+    <p class="small" id="bugmsg"></p>
+  </div>
+</div>
 <div id="quest" class="panel" hidden><b id="qtext"></b><div class="qbar"><i id="qbar"></i></div><small id="qtime"></small></div>
 
 <script src="tools/peerjs.min.js"></script>
@@ -389,6 +406,15 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
 const $=id=>document.getElementById(id);
 let role=typeof __SERVER__!=='undefined'?'server':'solo';
 const SELF_CODE=role==='solo'&&document.currentScript?document.currentScript.textContent:'';   // the host tab runs this same code inside a Worker as the game server   // 'solo' = everything in this tab, 'client' = connected to a server, 'server' = headless in Node
+const BUILD='r31';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+var ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0},lastNet=0;   // var on purpose: bug reports must work even if start-up crashed half way
+if(role!=='server'){
+  addEventListener('error',e=>{if(e&&e.message==='Script error.'&&!e.error)return;reportErr(e&&(e.error||e.message)||'unknown error','page')});
+  addEventListener('unhandledrejection',e=>{logErr(e&&e.reason||'promise rejected','promise')});   // only logged for the report: offline/broker failures end up here
+  if(typeof CanvasRenderingContext2D!=='undefined'&&!CanvasRenderingContext2D.prototype.roundRect)   // Safari < 16, Firefox < 112
+    CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){r=Math.max(0,Math.min(Array.isArray(r)?(+r[0]||0):(+r||0),Math.abs(w)/2,Math.abs(h)/2));
+      this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath()};
+  const bt=$('buildtag');if(bt)bt.textContent='Build '+BUILD}
 const cv=$('game');
 let ctx=cv.getContext('2d');
 let W=0,H=0,DPR=1,Z=1,ZU=1.5,ZZ=1,shake=0,kick=0,dz=0,hitstop=0;
@@ -397,7 +423,6 @@ const flash=()=>restart($('flash'),'go');
 function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU;}
 addEventListener('resize',resize);resize();
 
-const BUILD='r28';
 const INK='#2b2140', GOLD='#ffc93c', CAPE='#d62839', SHOE='#3a2a22';
 const WORLD=13600, BASE=175, DASH_CD=2.2, RAD=18;
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -1067,6 +1092,7 @@ addEventListener('keydown',e=>{
   if(e.key==='Escape'&&game==='play'&&!duel&&$('guide').hidden){e.preventDefault();askLeave(true);return}
   if(game==='dead'&&e.key==='Enter'){e.preventDefault();playAgain();return}
   if(game!=='play')return;
+  if(e.key==='/'||e.key==="'")e.preventDefault();   // Firefox: these open Quick Find and steal all following keys
   if(duel){handleTyping(e);return}
   if(e.key==='Shift')shift=true;
   const slot=e.code==='KeyQ'?0:e.code==='KeyW'?1:e.code==='KeyE'?2:-1;
@@ -1687,10 +1713,11 @@ function handleTyping(e){
   if(duel.phase!=='type'||duel.waiting)return;
   if(e.key==='Backspace'){duel.typed=(e.ctrlKey||e.altKey)?duel.typed.replace(/\S*\s*$/,''):duel.typed.slice(0,-1)}
   else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){e.preventDefault();
+    const k=e.key.toLowerCase();   // phrases are lowercase only: Caps Lock or Shift must not count as typos
     if(duel.typed.length<duel.text.length){const i=duel.typed.length,P=duel.p;
-      if(e.key!==duel.text[i]&&duel.forgive>0){duel.forgive--;floater(P.x,P.y-70,'SAVED!','#9fdcff');sfx.tick(1);burst(P.x,P.y-28,4,['#9fdcff','#fff'],90);return}
-      duel.typed+=e.key;
-      if(e.key===duel.text[i]){duel.streak++;sfx.key(duel.streak);P.sqv+=1.3;burst(P.x+rand(-10,10),P.y-28,2,[GOLD,'#fff'],80)}
+      if(k!==duel.text[i]&&duel.forgive>0){duel.forgive--;floater(P.x,P.y-70,'SAVED!','#9fdcff');sfx.tick(1);burst(P.x,P.y-28,4,['#9fdcff','#fff'],90);return}
+      duel.typed+=k;
+      if(k===duel.text[i]){duel.streak++;sfx.key(duel.streak);P.sqv+=1.3;burst(P.x+rand(-10,10),P.y-28,2,[GOLD,'#fff'],80)}
       else{duel.streak=0;sfx.err();shake=Math.max(shake,4);restart($('duel'),'shake');burst(P.x,P.y-28,4,['#e8475f'],90)}}}
   else return;
   renderTyping();
@@ -1975,17 +2002,21 @@ const peerIdFor=slot=>'snackdown-'+(($('room').value||'public').toLowerCase().re
 const peerOpts=()=>Object.assign({},(typeof window!=='undefined'&&window.SNACK_PEER)||{});
 const WORKER_PRE='self.__SERVER__=true;self.window=self;const __stub=()=>{const f=function(){};return new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>"";if(k==="then")return undefined;if(k in t)return t[k];return __stub()},set(t,k,v){t[k]=v;return true},apply(){return __stub()},construct(){return __stub()}})};self.document=__stub();self.Audio=__stub();self.localStorage={getItem:()=>null,setItem(){}};self.innerWidth=1280;self.innerHeight=720;self.devicePixelRatio=1;self.requestAnimationFrame=()=>0;self.matchMedia=()=>({matches:false});\n';
 const WORKER_POST=`
-;(()=>{const sim=self.__sim;let last=performance.now();
-setInterval(()=>{const n=performance.now(),dt=Math.min(.05,(n-last)/1000);last=n;let out;try{out=sim.step(dt)}catch(e){return}
+;(()=>{const sim=self.__sim;let last=performance.now(),ms=0,errT=-1e9;
+const err=(e,w)=>{const n=performance.now();if(n-errT<5000)return;errT=n;postMessage({err:{m:w+': '+String(e&&e.message||e).slice(0,200),st:String(e&&e.stack||'')}})};
+setInterval(()=>{const n=performance.now(),dt=Math.min(.05,(n-last)/1000);last=n;let out;try{out=sim.step(dt)}catch(e){err(e,'host server');return}
+ ms=ms*.95+(performance.now()-n)*.05;
  const a=[];for(const [cid,obj] of out)a.push([cid,JSON.stringify(obj)]);if(a.length)postMessage({out:a})},1000/60);
-onmessage=e=>{const d=e.data;try{if(d.join)sim.join(d.cid,d.name,d.look,d.near);else if(d.leave)sim.leave(d.cid);else if(d.msg)sim.msg(d.cid,d.msg);else if(d.q)postMessage({players:sim.players()})}catch(err){}}})();`;
+onmessage=e=>{const d=e.data;try{if(d.join)sim.join(d.cid,d.name,d.look,d.near);else if(d.leave)sim.leave(d.cid);else if(d.msg)sim.msg(d.cid,d.msg);else if(d.q)postMessage({players:sim.players(),ms})}catch(e2){err(e2,'host server message')}}})();`;
 function fromClient(cid,m,st){if(m.t==='join'&&!st.joined){st.joined=true;P2P.worker.postMessage({join:1,cid,name:m.name,look:m.look,near:m.near})}else if(st.joined)P2P.worker.postMessage({cid,msg:m})}
 function startWorker(){
   const w=new Worker(URL.createObjectURL(new Blob([WORKER_PRE+SELF_CODE+WORKER_POST],{type:'text/javascript'})));
   P2P.worker=w;P2P.isHost=true;
   w.onmessage=e=>{const d=e.data;
     if(d.out)for(const [cid,str] of d.out){const c=P2P.conns.get(cid);if(!c)continue;if(c.local){if(c.sock.onmessage)c.sock.onmessage({data:str})}else if(c.conn.open){try{c.conn.send(str)}catch(_){}}}
-    if(d.players)P2P.players=d.players};
+    if(d.players){P2P.players=d.players;P2P.ms=d.ms}
+    if(d.err)reportErr({message:d.err.m,stack:d.err.st},'host')};   // errors of the game server in the worker were silent before
+  w.onerror=ev=>{reportErr({message:'host server crashed: '+(ev&&ev.message||'unknown'),stack:ev&&ev.lineno?'worker:'+ev.lineno+':'+(ev.colno||0):''},'host')};
   P2P.poll=setInterval(()=>w.postMessage({q:1}),2000)}
 function bindPeer(p){const w=P2P.worker;
   p.on('connection',conn=>{const cid=P2P.nextCid++,st={joined:false};P2P.conns.set(cid,{conn});
@@ -2041,7 +2072,7 @@ function scoutLobbies(){return new Promise(res=>{
   if(scout){try{scout.destroy()}catch(_){}}
   const sc0=scout=new PeerC(undefined,peerOpts());let opened=false;
   sc0.on('open',()=>{opened=true;run()});sc0.on('error',e=>{if(!opened){P2P.state='down';res(null)}})})}
-function onNet(m){
+function onNet(m){lastNet=now();
   switch(m.t){
     case 'full':{const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();$('mpstatus').textContent='That game is full. Pick another one or press Play to start your own.';return}
     case 'welcome':
@@ -2621,16 +2652,58 @@ function render(t){
     ctx.lineWidth=5;ctx.strokeStyle=INK;ctx.strokeText(f.text,f.x,f.y);ctx.fillStyle=f.c;ctx.fillText(f.text,f.x,f.y)}ctx.globalAlpha=1;
   drawSight(v,v2)}
 
+/* ---------- bug reports (playtests) ----------
+   Errors are kept in ERRLOG; "Report a problem" (menu), F8 (in game) and the red error bar copy a plain-text report to the clipboard.
+   Nothing is sent anywhere. File paths are cut from stack lines (they can contain the Windows user name). */
+function errFrames(e){return String(e&&e.stack||'').split('\n').filter(s=>/:\d+:\d+/.test(s)).slice(0,2)
+  .map(s=>s.trim().replace(/^at /,'').replace(/(blob|file|https?):[^\s)]*\//g,'').replace(/[()]/g,'').slice(0,90)).join(' < ')}
+function logErr(e,src){const m=String(e&&e.message||e).slice(0,200),l=ERRLOG[ERRLOG.length-1];src=src||'game';
+  if(l&&l.m===m&&l.src===src){l.n++;return}
+  ERRLOG.push({t:new Date(),m,at:errFrames(e),src,n:1});if(ERRLOG.length>10)ERRLOG.shift()}
+function reportErr(e,src){console.error(e);logErr(e,src);const t=performance.now()/1000;if(t-errShown<5)return;errShown=t;const b=$('errbar');if(!b)return;
+  b.hidden=false;b.textContent='Something went wrong ('+BUILD+'): '+String(e&&e.message||e).slice(0,140)+'. The game keeps running; if the screen stays dark press Esc and Play again.';
+  const k=document.createElement('button');k.type='button';k.textContent='Copy bug report';k.addEventListener('click',quickReport);b.appendChild(k);
+  clearTimeout(reportErr.h);reportErr.h=setTimeout(()=>{b.hidden=true},12000)}
+function perfLine(){const h=PERF.hist;if(h.length<30)return 'not measured yet';const s=h.reduce((a,b)=>a+b,0),lo=h.slice().sort((a,b)=>b-a)[Math.floor(h.length/100)];
+  return Math.round(h.length/s)+' fps avg (last '+Math.round(s)+' s) · 1% low '+Math.round(1/lo)+' fps · while playing: '+PERF.slow+(PERF.slow===1?' frame':' frames')+' over 50 ms, worst '+Math.round(PERF.worst*1000)+' ms'}
+function bugReport(note){const o=[],tr=f=>{try{return f()}catch(_){return '?'}},p2=n=>String(n).padStart(2,'0'),hms=d=>p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()),d=new Date();
+  o.push('Snackdown bug report · Build '+BUILD+' · '+d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+hms(d));
+  if(note)o.push('What happened: '+note.replace(/\s+/g,' '));
+  o.push('Browser: '+tr(()=>navigator.userAgent));
+  o.push('Screen: '+tr(()=>screen.width+'x'+screen.height+' @'+(+(devicePixelRatio||1).toFixed(2))+'x · window '+innerWidth+'x'+innerHeight+' · zoom '+Math.round(ZU*100)+'%'));
+  o.push('Mode: '+tr(()=>(P2P.isHost?'host':role)+' · room '+($('room').value.trim()||'public')+(P2P.slot?' · lobby '+P2P.slot:'')+' · humans '+(P2P.isHost?P2P.players.length:ents.filter(e=>e.human).length)
+    +' · broker '+P2P.state+(P2P.isHost&&P2P.ms?' · host step '+P2P.ms.toFixed(1)+' ms':'')+(role==='client'&&lastNet?' · last host message '+(now()-lastNet).toFixed(2)+' s ago':'')));
+  o.push('Game: '+tr(()=>game+(player?' · Lv '+L(player)+' · '+player.state:'')+(duel?' · in a duel':'')));
+  o.push('Speed: '+tr(perfLine));
+  o.push(ERRLOG.length?'Errors ('+ERRLOG.length+'):':'Errors: none');
+  for(const e of ERRLOG)o.push(' '+hms(e.t)+' ['+e.src+'] '+e.m+(e.n>1?' (x'+e.n+')':'')+(e.at?' @ '+e.at:''));
+  return o.join('\n')}
+function tryCopy(s){const fb=()=>{let ok=false;try{const ta=document.createElement('textarea');ta.value=s;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:0;top:0;opacity:0';
+    document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(_){}return ok};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(s).then(()=>true,()=>fb())}catch(_){}
+  return Promise.resolve(fb())}
+function openReport(){$('buginfo').value=bugReport('');$('bugmsg').textContent='';$('bugrep').hidden=false;$('bugtxt').focus()}
+function quickReport(){tryCopy(bugReport('')).then(ok=>{if(!ok){openReport();return}
+  if(game==='play')showToast('Bug report copied!','#9be564');else{const b=$('errbar');b.hidden=false;b.textContent='Bug report copied. Paste it into your chat with the developer.';clearTimeout(reportErr.h);reportErr.h=setTimeout(()=>{b.hidden=true},5000)}})}
+if(role!=='server'){
+  $('bugbtn').addEventListener('click',openReport);
+  $('bugclose').addEventListener('click',()=>{$('bugrep').hidden=true});
+  $('bugcopy').addEventListener('click',()=>{const s=bugReport($('bugtxt').value.trim());$('buginfo').value=s;
+    tryCopy(s).then(ok=>{if(ok){$('bugmsg').textContent='Copied! Paste it into your chat with the developer.';return}
+      const ta=$('buginfo');ta.focus();ta.select();$('bugmsg').textContent='Copying is blocked here. The report is selected: press Ctrl+C (Cmd+C on a Mac).'})});
+  addEventListener('keydown',e=>{if(e.key==='F8'){e.preventDefault();if(game==='play'&&$('bugrep').hidden)quickReport();else openReport()}
+    else if(e.key==='Escape'&&!$('bugrep').hidden){e.preventDefault();e.stopImmediatePropagation();$('bugrep').hidden=true}
+    else if(!$('bugrep').hidden)e.stopPropagation()},true)}   // typing in the report box must not use items, dash or zoom (default action still types)
+
 let last=now();
-let errShown=0;
-function reportErr(e){console.error(e);if(now()-errShown<5)return;errShown=now();const b=$('errbar');b.hidden=false;b.textContent='Something went wrong ('+BUILD+'): '+String(e&&e.message||e).slice(0,140)+'. The game keeps running; if the screen stays dark press Esc and Play again.';setTimeout(()=>{b.hidden=true},9000)}
 function loop(){requestAnimationFrame(loop);   // always schedule the next frame first: one error must never freeze the game
-  const t=now();let dt=Math.min(.05,t-last);last=t;if(!(dt>=0))dt=.016;
+  const t=now(),raw=t-last;let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
+  if(raw>0&&raw<1&&document.visibilityState==='visible'){const h=PERF.hist;h.push(raw);if(h.length>600)h.shift();if(game==='play'){if(raw>.05)PERF.slow++;if(raw>PERF.worst)PERF.worst=raw}}
   if(hitstop>0){hitstop-=dt;dt*=.12}
   shake*=Math.pow(.02,dt);kick*=Math.pow(.06,dt);
-  try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e)}
+  try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e,'update')}
   if(!isFinite(cam.x)||!isFinite(cam.y)||!isFinite(kick)||!isFinite(ZZ)){cam.x=player&&isFinite(player.x)?player.x:WORLD/2;cam.y=player&&isFinite(player.y)?player.y:WORLD/2;if(!isFinite(kick))kick=0;if(!isFinite(dz))dz=0;if(!isFinite(shake))shake=0;if(!isFinite(hitstop))hitstop=0}
-  try{render(t)}catch(e){reportErr(e)}}
+  try{render(t)}catch(e){reportErr(e,'render')}}
 requestAnimationFrame(loop);
 })();
 </script>
