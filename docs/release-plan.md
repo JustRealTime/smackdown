@@ -22,3 +22,18 @@ Plan des Entwicklers: 1. Balancing, 2. eigene Webseite mit vielen Spielern, 3. W
 - Der Host im Browser reicht für Freundesgruppen, nicht für Hunderte. Für die eigene Seite: Node-Server (`server/server.js`) auf einem VPS (z. B. Hetzner), mehrere Räume/Prozesse (je Raum ca. 20-40 Spieler), WebSocket hinter Reverse-Proxy (Caddy/nginx) mit TLS, statische Dateien über ein CDN.
 - Serverseitig prüfen: Tippgeschwindigkeit plausibel (WPM-Grenze), Anfragenrate, Namensfilter.
 - Steam: Verpackung als Desktop-App (Electron/NW.js + Steamworks), Steam-Direct-Gebühr, Steuerformulare, eigene Musikrechte nachweisbar.
+
+## Beste und günstigste Technik für den Start (Preise: Stand meines Wissens, vor dem Kauf prüfen)
+- **Dateien ausliefern:** Cloudflare Pages (kostenlos, keine Trafficgrenze für statische Dateien) oder Netlify/GitHub Pages. Eigene Domain (.com oder .at) ca. 10-15 EUR/Jahr.
+- **Vermittler (PeerJS-Server, Open Source `peer`):** ein kleiner VPS, z. B. Hetzner Cloud CX-Klasse ca. 4-6 EUR/Monat, mit Caddy für TLS. Auf demselben Server läuft später die Lobby-Verwaltung.
+- **TURN-Relay für strenge Router:** am günstigsten ein verwalteter Dienst mit Gratisvolumen (z. B. Cloudflare Realtime TURN oder Metered), erst bei Bedarf coturn auf dem eigenen VPS (Hetzner hat viel Inklusivtraffic).
+- Gesamt: grob 5-10 EUR pro Monat, solange Spieler in Browser-Lobbys hosten. Erst für Ranglisten, Konten und bezahlte Skins braucht es einen eigenen Spielserver, der entscheidet (`server/server.js`, mehrere Räume, ca. 6 ms pro Rechenschritt bei 160 Bots).
+
+## Nächste Schritte bis "release ready"
+1. **Name, Domain, Marke:** Namen festlegen, Domain sichern, Recherche beim Patentamt/EUIPO.
+2. **Spieltests:** 5-10 Leute spielen lassen (auch Firefox, Safari, Edge, schwache Laptops), Balancing nach Rückmeldung, Fehler sammeln. Fehlerüberwachung einbauen (z. B. Sentry-Gratisstufe, mit Zustimmung), `reportErr` ist schon vorbereitet.
+3. **Technik fertigstellen:** eigener Vermittler + TURN + TLS, Musik in kleinere Dateien (Ogg/MP3 96 kbit/s) und nachladen statt alles in einer 8-MB-Datei, Lobby-Registry, Begrenzung/Anti-Missbrauch, Namensfilter gegen Beleidigungen.
+4. **Plattformen:** entscheiden ob Handy-Steuerung kommt (aktuell nur PC mit Tastatur). Webseite mit Startseite, Vorschaubild, Favicon, Open-Graph-Bild, Datenschutz-freundlicher Statistik (z. B. Plausible/Umami).
+5. **Recht auf der Seite:** Impressum, Datenschutzerklärung (Vermittler/TURN, Spielername, IP), Cookie-/Einwilligungsbanner (CMP) bevor Werbung kommt. Einmal Anwalt oder Erstberatung drüberschauen lassen.
+6. **Gewerbe anmelden**, sobald Einnahmen kommen (Werbung zählt auch), SVS/Steuerberater klären.
+7. **Danach:** Werbung testen, dann Konten + Zahlungsanbieter als "Merchant of Record" (Paddle oder Lemon Squeezy übernehmen EU-Umsatzsteuer), nur direkte Kosmetik-Käufe, dann Steam (Electron-Verpackung mit Steamworks, Steam-Direct-Gebühr).

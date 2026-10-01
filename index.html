@@ -298,7 +298,7 @@ kbd{font:700 12px var(--mono);background:#fff;border:2px solid var(--ink);border
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small" style="opacity:.6">Build r29</p>
+    <p class="small" style="opacity:.6">Build r30</p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -946,9 +946,9 @@ function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
     ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(.25,.9),brave:rand(0,1),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0,itemAt:0}};
   calcStats(e);return e}
 function botLevel(){const r=Math.random();return r<.7?rand(1,5):r<.93?rand(5,12):rand(12,22)}
-function spawnBot(t){const used=new Set(ents.map(e=>e.name));const free=NAMES.filter(n=>!used.has(n));
+function spawnBot(t){const used=new Set(ents.map(e=>e.name.replace(/ \(BOT\)$/,'')));const free=NAMES.filter(n=>!used.has(n));
   let nm=free.length?pick(free):pick(NAMES)+' '+(2+((Math.random()*8)|0));   // more bots than names: add a number
-  const e=makeEnt(nm,botLevel(),false,t);
+  const e=makeEnt(nm+' (BOT)',botLevel(),false,t);
   if(player){for(let i=0;i<10&&Math.hypot(e.x-player.x,e.y-player.y)<700;i++){const p=freeSpot(40);e.x=p.x;e.y=p.y}}
   ents.push(e);return e}
 const BOTS=160;
@@ -1318,35 +1318,37 @@ $('gclose').addEventListener('click',()=>{$('guide').hidden=true});
 $('gtabs').addEventListener('click',e=>{const b=e.target.closest('.gtab');if(b)openGuide(b.dataset.t)});
 $('gbody').addEventListener('click',e=>{const b=e.target.closest('[data-tree]');if(b){guideTree=b.dataset.tree;openGuide('perks')}});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden)$('guide').hidden=true});
-$('startform').addEventListener('submit',e=>{e.preventDefault();if(onlineAddr)joinGame(onlineAddr);else if(PeerC&&P2P.state!=='down')playP2P();else startGame()});   // Play joins a game that is running, or starts one for friends; solo when offline
+$('startform').addEventListener('submit',e=>{e.preventDefault();const nl=pickLobby('node'),pl=pickLobby('p2p');if(nl)joinGame(nl.addr);else if(pl)playP2P(pl.host,pl);else if(PeerC&&P2P.state!=='down')playP2P();else startGame()});   // Play joins a game that is running, or starts one for friends; solo when offline
 const playAgain=()=>role==='client'?respawnNet():startGame();
 $('again').addEventListener('click',playAgain);
 $('leavestay').addEventListener('click',()=>askLeave(false));
 $('leavego').addEventListener('click',()=>{askLeave(false);toMenu()});
 $('joinbtn').addEventListener('click',()=>joinGame());
 /* ---------- find running games: list who is playing, each with a Join button ---------- */
-let onlineAddr=null;
+let lobbies=[];   // every game found: dedicated servers {kind:'node'} and browser-hosted lobbies {kind:'p2p'}
+const pickLobby=kind=>lobbies.filter(l=>l.kind===kind&&!(l.max&&l.players.length>=l.max)).sort((a,b)=>b.players.length-a.players.length)[0];
 async function probeServer(addr){try{const c=new AbortController(),to=setTimeout(()=>c.abort(),1500);
     const r=await fetch((typeof location!=='undefined'&&location.protocol==='https:'?'https://':'http://')+addr+'/status',{signal:c.signal,cache:'no-store'});clearTimeout(to);
     if(!r.ok)return null;const j=await r.json();return j&&Array.isArray(j.players)?j:null}catch(_){return null}}
-function showOnline(j,addr){onlineAddr=addr;$('online').hidden=false;$('lobbyinfo').textContent='';
-  $('olhead').textContent='● Online · '+j.players.length+(j.players.length===1?' player':' players')+(addr==='p2p'?'':' on '+addr);
-  $('ollist').innerHTML=j.players.length?j.players.map(p=>'<div class="olrow"><span>'+esc2(p.name)+' is playing <small>Lv '+p.lvl+'</small></span><button type="button" class="btn alt" data-join="'+esc2(p.name)+'">Join</button></div>').join(''):'<div class="olrow"><small>Nobody yet. Press Play to be the first.</small></div>'}
+function showLobbies(){const el=$('online');
+  if(!lobbies.length){el.hidden=true;$('lobbyinfo').textContent=!PeerC?'':P2P.state==='up'?'No game is running yet. Press Play to start one your friends can join.':P2P.state==='down'?'Offline: Play starts a solo game.':'Looking for games…';return}
+  el.hidden=false;$('lobbyinfo').textContent='';const n=lobbies.reduce((a,l)=>a+l.players.length,0);
+  $('olhead').textContent='● Online · '+lobbies.length+(lobbies.length===1?' game':' games')+' · '+n+(n===1?' player':' players');
+  $('ollist').innerHTML=lobbies.map((l,i)=>{const names=l.players.slice(0,4).map(p=>esc2(String(p.name))).join(', ')+(l.players.length>4?' …':''),full=l.max&&l.players.length>=l.max;
+    return '<div class="olrow"><span><b>'+esc2(String(l.host||'Server'))+(l.kind==='node'?' (server)':"'s game")+'</b> <small>'+l.players.length+' playing</small><br><small>'+(names||'nobody yet')+'</small></span>'+(full?'<small>full</small>':'<button type="button" class="btn alt" data-i="'+i+'">Join</button>')+'</div>'}).join('')}
 let polling=false;
 async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||document.hidden)return;polling=true;
-  try{const cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
+  try{const found=[],cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
     const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);cand.push('localhost:8080');
-    for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){showOnline(j,a);return}}
-    if(PeerC&&!P2P.isHost){const r=await scoutAsk();
-      if(r&&r.players){P2P.state='up';showOnline(r,'p2p');return}
-      if(r&&r.none){P2P.state='up'}}
-    onlineAddr=null;$('online').hidden=true;
-    $('lobbyinfo').textContent=!PeerC?'':P2P.state==='up'?'Nobody is playing yet. Press Play to start a game your friends can join.':P2P.state==='down'?'Offline: Play starts a solo game.':'Looking for games…'}finally{polling=false}}
-$('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-join]');if(b&&onlineAddr)joinGame(onlineAddr,b.dataset.join)});
-$('solobtn').addEventListener('click',()=>{onlineAddr=null;startGame()});
+    for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){found.push({kind:'node',addr:a,host:'Dedicated',players:j.players});break}}
+    if(PeerC&&!P2P.isHost){const r=await scoutLobbies();if(r){P2P.state='up';found.push(...r)}}
+    lobbies=found;showLobbies()}finally{polling=false}}
+$('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-i]');const l=b&&lobbies[+b.dataset.i];if(!l)return;
+  if(l.kind==='node')joinGame(l.addr);else playP2P(l.host,l)});
+$('solobtn').addEventListener('click',()=>{lobbies=[];startGame()});
 setInterval(pollOnline,5000);setTimeout(pollOnline,300);
 try{const sv=localStorage.getItem('snackdown-server');if(sv)$('server').value=sv;const rm=localStorage.getItem('snackdown-room');if(rm)$('room').value=rm}catch(_){}
-$('room').addEventListener('change',()=>{try{localStorage.setItem('snackdown-room',$('room').value)}catch(_){}scout=null;onlineAddr=null;P2P.state='unknown';pollOnline()});
+$('room').addEventListener('change',()=>{try{localStorage.setItem('snackdown-room',$('room').value)}catch(_){}if(scout){try{scout.destroy()}catch(_){}}scout=null;lobbies=[];P2P.state='unknown';pollOnline()});
 if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host&&!$('server').value)$('server').value=location.host;
 try{const n=localStorage.getItem('snackdown-name');if(n)$('name').value=n}catch(_){}
 if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(pointer:fine)').matches)$('touchwarn').hidden=false;
@@ -1975,8 +1977,9 @@ function attachSock(sock,name,near){
    The first player who presses Play becomes the host: their tab runs the game server inside a Web Worker (the very same code
    as server/server.js) and the others connect to it over WebRTC. The free PeerJS broker only introduces the browsers to each other. */
 const PeerC=typeof Peer!=='undefined'?Peer:null;
-const P2P={peer:null,worker:null,conns:new Map(),nextCid:1,isHost:false,players:[],poll:0,state:'unknown'};
-const peerId=()=>'snackdown-'+(($('room').value||'public').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20)||'public');
+const P2P={peer:null,worker:null,conns:new Map(),nextCid:1,isHost:false,players:[],poll:0,state:'unknown',hostName:'',slot:0};
+const LOBBY_SLOTS=8, LOBBY_MAX=12;   // up to 8 games per room name, 12 players per browser-hosted game (the host's upload is the limit)
+const peerIdFor=slot=>'snackdown-'+(($('room').value||'public').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20)||'public')+'-'+slot;
 const peerOpts=()=>Object.assign({},(typeof window!=='undefined'&&window.SNACK_PEER)||{});
 const WORKER_PRE='self.__SERVER__=true;self.window=self;const __stub=()=>{const f=function(){};return new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>"";if(k==="then")return undefined;if(k in t)return t[k];return __stub()},set(t,k,v){t[k]=v;return true},apply(){return __stub()},construct(){return __stub()}})};self.document=__stub();self.Audio=__stub();self.localStorage={getItem:()=>null,setItem(){}};self.innerWidth=1280;self.innerHeight=720;self.devicePixelRatio=1;self.requestAnimationFrame=()=>0;self.matchMedia=()=>({matches:false});\n';
 const WORKER_POST=`
@@ -1995,24 +1998,25 @@ function startWorker(){
 function bindPeer(p){const w=P2P.worker;
   p.on('connection',conn=>{const cid=P2P.nextCid++,st={joined:false};P2P.conns.set(cid,{conn});
     conn.on('data',d=>{let m;try{m=JSON.parse(d)}catch(_){return}
-      if(m.t==='hello'){try{conn.send(JSON.stringify({t:'status',players:P2P.players}))}catch(_){}return}
+      if(m.t==='hello'){try{conn.send(JSON.stringify({t:'status',host:P2P.hostName,players:P2P.players.map(p=>({name:String(p.name).slice(0,14),lvl:p.lvl})),max:LOBBY_MAX}))}catch(_){}return}
+      if(m.t==='join'&&!st.joined&&P2P.players.length>=LOBBY_MAX){try{conn.send(JSON.stringify({t:'full'}));setTimeout(()=>conn.close(),300)}catch(_){}return}
       fromClient(cid,m,st)});
     conn.on('close',()=>{P2P.conns.delete(cid);if(st.joined)w.postMessage({leave:1,cid})});conn.on('error',()=>{})})}
 function localSocket(){const cid=P2P.nextCid++,st={joined:false};
   const sock={readyState:1,send(str){let m;try{m=JSON.parse(str)}catch(_){return}fromClient(cid,m,st)},close(){P2P.conns.delete(cid);if(st.joined&&P2P.worker)P2P.worker.postMessage({leave:1,cid})}};
   P2P.conns.set(cid,{local:true,sock});setTimeout(()=>sock.onopen&&sock.onopen(),0);return sock}
 // the game starts at once; the lobby name is claimed in the background so friends can find it as soon as that works
-function registerHost(tries){if(!P2P.isHost||!PeerC)return;tries=tries||0;const p=new PeerC(peerId(),peerOpts());let opened=false;
-  p.on('open',()=>{opened=true;if(!P2P.isHost){try{p.destroy()}catch(_){}return}if(P2P.peer){try{P2P.peer.destroy()}catch(_){}}P2P.peer=p;P2P.state='up';bindPeer(p)});
+function registerHost(slot,tries){if(!P2P.isHost||!PeerC)return;slot=slot||1;tries=tries||0;const p=new PeerC(peerIdFor(slot),peerOpts());let opened=false;
+  p.on('open',()=>{opened=true;if(!P2P.isHost){try{p.destroy()}catch(_){}return}if(P2P.peer){try{P2P.peer.destroy()}catch(_){}}P2P.peer=p;P2P.slot=slot;P2P.state='up';bindPeer(p)});
   p.on('error',e=>{if(opened)return;try{p.destroy()}catch(_){}
-    if(e.type==='unavailable-id'){if(P2P.isHost&&game==='play')showToast('Another game with this room name is already running. Press Esc and use its Join button to play together.','#ffc93c');return}
-    if(tries<4&&P2P.isHost)setTimeout(()=>registerHost(tries+1),6000+tries*4000)})}
+    if(e.type==='unavailable-id'){if(slot<LOBBY_SLOTS)registerHost(slot+1,0);else if(game==='play')showToast('All game slots of this room are taken. Use another room name.','#ffc93c');return}
+    if(tries<4&&P2P.isHost)setTimeout(()=>registerHost(slot,tries+1),6000+tries*4000)})}
 function startHostLocal(name,near){try{startWorker()}catch(e){P2P.isHost=false;return false}
-  attachSock(localSocket(),name,near);registerHost();return true}
-function p2pConnect(){return new Promise((res,rej)=>{let done=false;const p=new PeerC(undefined,peerOpts());
+  P2P.hostName=name;attachSock(localSocket(),name,near);registerHost(1);return true}
+function p2pConnect(slot){return new Promise((res,rej)=>{let done=false;const p=new PeerC(undefined,peerOpts());
   const fail=r=>{if(done)return;done=true;clearTimeout(to);try{p.destroy()}catch(_){}rej(r)},to=setTimeout(()=>fail('timeout'),9000);
   p.on('error',e=>fail(e.type||'error'));
-  p.on('open',()=>{const conn=p.connect(peerId(),{reliable:true,serialization:'json'});
+  p.on('open',()=>{const conn=p.connect(peerIdFor(slot||1),{reliable:true,serialization:'json'});
     conn.on('open',()=>{if(done)return;done=true;clearTimeout(to);
       const sock={readyState:1,send:s=>{try{conn.send(s)}catch(_){}},close:()=>{try{conn.close();p.destroy()}catch(_){}}};
       conn.on('data',d=>{if(sock.onmessage)sock.onmessage({data:d})});conn.on('close',()=>{if(sock.onclose)sock.onclose()});
@@ -2020,28 +2024,34 @@ function p2pConnect(){return new Promise((res,rej)=>{let done=false;const p=new 
     conn.on('error',()=>fail('conn'))})})}
 function p2pCleanup(){clearInterval(P2P.poll);if(scout){try{scout.destroy()}catch(_){}scout=null}if(P2P.worker){try{P2P.worker.terminate()}catch(_){}P2P.worker=null}
   if(P2P.peer){try{P2P.peer.destroy()}catch(_){}P2P.peer=null}P2P.conns.clear();P2P.isHost=false}
-async function playP2P(near){
+async function playP2P(near,lobby){
   const name=($('name').value.trim()||'Player').slice(0,14);
   if(scout){try{scout.destroy()}catch(_){}scout=null}
-  if(onlineAddr==='p2p'){   // a game is running: join it
-    $('mpstatus').textContent='Joining…';
-    try{attachSock(await p2pConnect(),name,near);$('mpstatus').textContent='';return}catch(r){$('mpstatus').textContent=''}}
+  lobby=lobby||pickLobby('p2p');
+  if(lobby){$('mpstatus').textContent='Joining…';   // a game is running: join it
+    try{attachSock(await p2pConnect(lobby.slot),name,near||lobby.host);$('mpstatus').textContent='';return}catch(r){$('mpstatus').textContent=''}}
   if(!startHostLocal(name,near)){$('mpstatus').textContent='Could not start an online game, so this is a solo game.';startGame()}}
-// the menu asks the host who is playing, through one long-lived scout connection
+// the menu asks every lobby slot of the room who is playing, through one long-lived scout connection
 let scout=null;
-function scoutAsk(){return new Promise(res=>{
+function scoutLobbies(){return new Promise(res=>{
   if(!PeerC){res(null);return}
-  const go=()=>{const sc=scout;if(!sc){res(null);return}let done=false;const fin=v=>{if(done)return;done=true;clearTimeout(to);try{sc.off('error',onErr)}catch(_){}try{conn.close()}catch(_){}res(v)};
-    const onErr=e=>fin(e.type==='peer-unavailable'?{none:true}:null),to=setTimeout(()=>fin(null),5000);sc.on('error',onErr);
-    const conn=sc.connect(peerId(),{serialization:'json'});
-    conn.on('open',()=>conn.send(JSON.stringify({t:'hello'})));
-    conn.on('data',d=>{let m;try{m=JSON.parse(d)}catch(_){return}if(m.t==='status')fin({players:m.players})})};
-  if(scout&&scout.open){go();return}
+  const run=()=>{const sc=scout;if(!sc){res(null);return}
+    const out=[];let pending=LOBBY_SLOTS,done=false;
+    const finish=v=>{if(done)return;done=true;clearTimeout(to);try{sc.off('error',onErr)}catch(_){}res(v===undefined?out.sort((a,b)=>a.slot-b.slot):v)};
+    const settle=()=>{if(--pending<=0)finish()};
+    const onErr=e=>{if(e.type==='peer-unavailable')settle();else{P2P.state='down';finish(null)}};   // every empty slot answers with one such error
+    const to=setTimeout(()=>finish(out.length?undefined:null),6000);
+    sc.on('error',onErr);
+    for(let i=1;i<=LOBBY_SLOTS;i++){const conn=sc.connect(peerIdFor(i),{serialization:'json'});let got=false;
+      conn.on('open',()=>conn.send(JSON.stringify({t:'hello'})));
+      conn.on('data',d=>{let m;try{m=JSON.parse(d)}catch(_){return}if(m.t==='status'&&!got){got=true;out.push({kind:'p2p',slot:i,host:String(m.host||'').slice(0,14),players:Array.isArray(m.players)?m.players.slice(0,40):[],max:+m.max||LOBBY_MAX});try{conn.close()}catch(_){}settle()}})}};
+  if(scout&&scout.open){run();return}
   if(scout){try{scout.destroy()}catch(_){}}
   const sc0=scout=new PeerC(undefined,peerOpts());let opened=false;
-  sc0.on('open',()=>{opened=true;go()});sc0.on('error',e=>{if(!opened){P2P.state='down';res(null)}})})}
+  sc0.on('open',()=>{opened=true;run()});sc0.on('error',e=>{if(!opened){P2P.state='down';res(null)}})})}
 function onNet(m){
   switch(m.t){
+    case 'full':{const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();$('mpstatus').textContent='That game is full. Pick another one or press Play to start your own.';return}
     case 'welcome':
       if(m.build!==BUILD){const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();
         $('mpstatus').textContent='This game runs a different version ('+(m.build||'older')+' instead of '+BUILD+'). Everyone needs the same index.html: download the newest one.';return}

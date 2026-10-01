@@ -243,3 +243,8 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 
 - Entfernt: personaxmother, peronamorhwr, minecraft, sadmarioinb4, sadmariosda (Menü hat jetzt 3 Lieder, Todesbildschirm 1, König 1). 
 - Schriften (Lilita One, Nunito, JetBrains Mono) liegen in fonts/ und sind in index.html eingebettet, es gibt keinen Google-Aufruf mehr. Build r29.
+
+## Runde 30: Lobby-Liste und (BOT)-Namen
+
+- Bots heißen jetzt "Name (BOT)" in der Rangliste, über den Köpfen und im Duell.
+- Browser-Lobbys haben bis zu 8 Plätze pro Raumname (snackdown-<raum>-1 bis -8). Das Menü fragt alle Plätze ab und listet jedes laufende Spiel mit Host, Spielerzahl und Join-Knopf. Play tritt dem vollsten Spiel mit Platz bei, sonst startet es ein neues. Maximal 12 Spieler pro Lobby. Build r30.
