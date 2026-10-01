@@ -18,7 +18,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 - `tools/build.py`, `tools/peerjs.min.js` (PeerJS 1.5.5, MIT), `fonts/` (OFL fonts, bundled, no Google calls), `music/` (24 mp3, all the owner's own), `THIRD_PARTY.md`.
 - `server/server.js` - optional dedicated Node server (no npm deps, hand-written WebSocket). Loads the same game code in a `vm` sandbox with Proxy DOM stubs.
   `node server/server.js [port]`; `start-server.bat/.sh`. Serves game.html/index.html and `/status` (players list, CORS open).
-- `docs/konzept.md` - decision log, one section per round (rounds 1-51). Append a new round for every feature batch. `docs/konfiguration.md` - how the owner edits `site/config.js` (German).
+- `docs/konzept.md` - decision log, one section per round (rounds 1-51). Append a new round for every feature batch. `docs/konfiguration.md` - how the owner edits `site/config.js` (German). `docs/lokal-weiterarbeiten.md` - handoff from the cloud session to local work (setup, open points).
 - `docs/release-plan.md` - legal notes, cheapest hosting plan, ordered release checklist. `docs/spieltest.md` - playtest guide for the owner and testers. `docs/fehler-upload.md` - error upload setup (German). `docs/sitzung-2026-10-01.md` - detailed log of the 2026-10-01 session (r30 -> r33, error upload setup, why index.html shrank, open points; read it for context).
 - `tools/error-relay/worker.js` - Cloudflare Worker that receives error reports and appends them to `errors/YYYY-MM-DD.jsonl` in the PRIVATE repo `JustRealTime/smackdown-errors` (token only in the worker). `README.md` - German user readme.
 
