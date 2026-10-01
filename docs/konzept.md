@@ -342,3 +342,9 @@ Feedback nach dem Spielen: Wer oben ist, verliert kaum noch. Level 1000 war schn
 - Home-Bildschirm-App (iPhone): Canvas-Höhe wird auf die Bildschirmhöhe gesetzt, damit unten kein Streifen bleibt (nur wenn `navigator.standalone`/display-mode standalone und der Unterschied < 140 px). NICHT auf dem Gerät geprüft.
 - Passive Items (Piano usw.): Antippen bzw. Q/W/E zeigt "passive, used automatically in your next duel" (auch im Client-Modus, vorher nur Solo), Slot trägt am Handy das Label "auto".
 - BUILD r45.
+
+## Runde 46 - Bild bis zum Rand (Handy)
+- Neues unsichtbares Element `#vp` (100lvh x 100vw) misst den größten Viewport; `resize()` nimmt daraus Breite/Höhe, der Canvas wird in Pixeln darauf gesetzt. Dadurch reicht das Spielbild am Handy unter die Browserleiste und den Home-Indikator (statt einer einfarbigen Fläche). UI (fixed, bottom/top mit safe-area) bleibt an ihrem Platz. Ersetzt den Standalone-Höhen-Trick aus r45.
+- Hintergrund von `html` und theme-color/Manifest sind jetzt das Gras-Grün statt Weiß/Dunkellila.
+- Bekannt, nicht änderbar: iOS 26 legt am oberen/unteren Rand von Web-Apps einen Unschärfe-Effekt über den Inhalt; der Spielinhalt bleibt aber sichtbar. Figur sitzt durch die größere Fläche etwas tiefer als die Mitte des sichtbaren Bereichs.
+- BUILD r46. Nur in der Emulation geprüft (dort ist lvh = innerHeight, es ändert sich nichts), echtes iPhone steht aus.
