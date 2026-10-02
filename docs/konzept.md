@@ -443,3 +443,31 @@ Wunsch: Der Editor ist langweilig, vor allem Oberteil, Hose und Accessoire. Viel
 - Node-Server: `cleanLook` mit gültigen, ungültigen, alten und kaputten Daten; Beitritt per WebSocket aus dem Browser, der Client bekommt die neuen Felder und zeichnet sie.
 - NICHT getestet: Mehrspieler über PeerJS (nutzt dieselben Funktionen wie der Node-Server, aber nicht extra geprüft), echte Handys, Firefox/Safari. Wie die Teile im Spiel bei 150 % Zoom wirken, nur auf Screenshots gesehen.
 - BUILD r52.
+
+## Runde 53 - Menü-Sounds, Ton trotz iPhone-Lautlos-Schalter, Test-Musik als MIDI (Chopin-Stil)
+Wunsch: Klick-Sounds im Menü und beim Ändern der Figur ("tob dich aus"); am iPhone 14 Pro kam mit dem Lautlos-Schalter kein Ton; eine Test-Musik als MIDI im Stil von Chopin, nur in den Einstellungen.
+
+**Menü-Sounds** (alle über die normale Effekt-Lautstärke, "Sound off" schaltet sie mit ab)
+- Jeder Knopf klickt leise. Eigene Sounds für: Fenster öffnen/schließen (auch mit Esc), Fertig/Kopieren/Nochmal, Tabs im Guide und Blättern in der Anleitung, Ein/Aus (Häkchen, Musik, Online-Frage), Schieberegler (Tonhöhe folgt dem Wert), Tippen im Namensfeld, leises Ticken beim Überfahren mit der Maus (nicht am Handy).
+- Figuren-Editor: jede Zeile klingt anders, die Tonhöhe folgt der Position in der Liste. Haare schnipp-schnapp, Haut "blubb", Oberteil/Hose Stoff-Wischen, Schuhe zwei Schritte, Hut Korken-Plopp, Gesicht "boing", Extra Glöckchen. Farbfelder spielen Marimba-Töne (pentatonisch, jedes Feld ein Ton), der Farbwähler gibt die Tonhöhe nach dem Farbton. Vorne/Seite/Hinten macht ein Dreh-Geräusch. Der Vorschau-Level-Regler klingelt metallisch, wenn man über eine Freischaltung (Rüstung usw.) zieht.
+- Randomize dreht jetzt wie ein Spielautomat: neun schnelle Zufalls-Looks mit Ticken, dann ein Ta-da.
+- Technik: `sfx.ui*`-Funktionen; ein Klick-Zuhörer am Dokument spielt den Standard-Klick nur, wenn für dasselbe Ereignis noch kein eigener Sound lief (`sfx.uiSince(e.timeStamp)`). Perk-Karten und die Dash/Run-Knöpfe bleiben ausgenommen.
+
+**iPhone-Lautlos-Schalter**
+- Web Audio (alle Effekte) folgt am iPhone dem Lautlos-Schalter. Jetzt fragt die Seite beim ersten Tippen nach "playback"-Audio (`navigator.audioSession.type`, Safari 16.4+). Ältere iOS-Versionen bekommen eine stumme, endlos laufende Audio-Datei, die denselben Effekt hat (pausiert, wenn die Seite im Hintergrund ist).
+- Bei "Sound off" geht die Seite zurück auf "auto".
+- Nebenwirkung: "playback" ist am iPhone nicht mischbar. Läuft z. B. Spotify im Hintergrund, stoppt es, sobald das Spiel Ton macht. Wer Spotify hören will, schaltet "Sound off". Falls das stört: Option in den Einstellungen nachrüsten.
+
+**Test-Musik (MIDI, Chopin-Stil)**
+- `tools/nocturne.py` schreibt `music/test/nocturne_test.mid` (kein Paket nötig): eine eigene Komposition, kein Chopin-Werk. Stil: Nocturne in Des-Dur, 6/8, weite Arpeggien links, singende Melodie rechts mit Doppelschlägen und Läufen, Mittelteil in b-Moll mit Sechzehnteln und Oktaven, Kadenz-Lauf zurück, verzierte Wiederkehr, Coda über Des-Orgelpunkt mit Moll-Subdominante, Rubato als Tempo-Kurve, Pedal (CC64) bei jedem Akkordwechsel. 39 Takte, 522 Noten, etwa 1:30.
+- Im Spiel: Einstellungen > Sound > "Test music" (▶ Nocturne / ■ Stop, mit Zeitanzeige). Nicht in den Playlists. Die normale Musik pausiert, solange der Test läuft. Lautstärke folgt dem Musik-Regler.
+- Abgespielt mit einem kleinen Klavier-Synth im Spiel (MIDI-Leser für Typ 0/1 mit Tempo-Karte und Pedal; pro Note zwei leicht verstimmte Saiten, ein dunkler werdender Filter, ein Hammer-Klick und etwas Raumhall). Klingt nach Synth-Klavier, nicht nach Flügel. In einer DAW mit einem echten Klavier-Instrument klingt die MIDI-Datei deutlich besser.
+- `tools/build.py` bettet `music/test/*.mid` in `index.html` ein (wie die mp3s).
+
+**Getestet** (Chromium headless, Node)
+- Alle Menü-Sounds per Klick, Tastatur, Regler und Häkchen ausgelöst und mitgeschrieben: der richtige Sound kommt, nichts doppelt. Anfangs schluckte ein schneller zweiter Klick seinen Sound, behoben.
+- iPhone-Weg simuliert: mit `audioSession` geht der Typ auf "playback", bei Sound off auf "auto" und zurück. Ohne `audioSession` (iPhone-Gerät emuliert) startet die stumme Schleife.
+- MIDI: Datei geladen, 522 Noten, 1:30 Dauer, Start/Stop/Zeitanzeige. Das ganze Stück einmal offline mit dem Spiel-Synth gerendert: keine Fehler, Spitze 0,46 (keine Übersteuerung; vorher 1,13, Lautstärke gesenkt).
+- Solo-Spiel, Host-Worker und Node-Server laufen ohne Fehler.
+- NICHT getestet: echtes iPhone (Lautlos-Schalter, Spotify-Verhalten), Firefox/Safari. Wie die Sounds klingen, habe ich nicht gehört, nur geprüft, dass sie ausgelöst werden.
+- BUILD r53.

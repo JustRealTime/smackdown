@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the single-file game: game.html + music/*.mp3 -> index.html (music embedded as data URIs)."""
+"""Builds the single-file game: game.html + music/*.mp3 (+ music/test/*.mid) -> index.html (embedded as data URIs)."""
 import base64, os, re, sys
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 src = open(os.path.join(root, 'game.html'), encoding='utf-8').read()
@@ -21,5 +21,7 @@ def embed_font(m):
     return 'data:font/woff2;base64,' + base64.b64encode(open(os.path.join(root, 'fonts', m.group(1)), 'rb').read()).decode()
 src = re.sub(r'fonts/([A-Za-z0-9_-]+\.woff2)', embed_font, src)
 out = re.sub(r'music/([A-Za-z0-9_-]+\.mp3)', embed, src)
+# test music in MIDI form (Settings > Test music)
+out = re.sub(r'music/(test/[A-Za-z0-9_-]+\.mid)', lambda m: 'data:audio/midi;base64,' + base64.b64encode(open(os.path.join(root, 'music', m.group(1)), 'rb').read()).decode(), out)
 open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(out)
 print('index.html', len(out) // 1024, 'KB')

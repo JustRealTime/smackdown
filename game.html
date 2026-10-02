@@ -425,7 +425,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r52</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r53</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -448,6 +448,8 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <h3>Sound</h3>
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
+    <div class="srow"><span>Test music</span><button class="btn alt" type="button" id="mtest">&#9654; Nocturne</button><output id="mtesto"></output></div>
+    <p class="small">Test only: a short piano piece in the style of Chopin, played from a MIDI file (music/test). It is not in the game's playlists.</p>
     <h3>Graphics</h3>
     <label class="srow chk"><input type="checkbox" id="fpsauto"><span style="width:auto">Match monitor refresh rate <b id="hzinfo"></b></span></label>
     <label class="srow"><span>Frame rate limit</span><input type="range" id="fpsr" min="0" max="1000"><output id="fpso"></output></label>
@@ -579,7 +581,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r52';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r53';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1657,8 +1659,19 @@ if(role!=='server')document.addEventListener('visibilitychange',()=>{FPSC.due=0;
 const sfx=(()=>{
   let ac=null,master=null,noiseBuf=null,muted=false;
   try{muted=localStorage.getItem('snackdown-mute')==='1'}catch(_){}
+  // iPhone: Web Audio follows the ring/silent switch unless the page asks for 'playback' audio (Safari 16.4+);
+  // older iOS: a silent looping <audio> element switches the page to playback audio
+  let ka=null;
+  function session(){try{const s=navigator.audioSession;if(s){const t=muted?'auto':'playback';if(s.type!==t)s.type=t;return}
+    if(!(/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)))return;
+    if(!ka){const n=800,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)};
+      w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+      let str='';for(const x of b)str+=String.fromCharCode(x);ka=new Audio('data:audio/wav;base64,'+btoa(str));ka.loop=true;ka.setAttribute('playsinline','');ka.setAttribute('x-webkit-airplay','deny');
+      document.addEventListener('visibilitychange',()=>{if(document.hidden)ka.pause()})}
+    if(muted)ka.pause();else if(ka.paused&&!document.hidden)ka.play().catch(()=>{})}catch(_){}}
   function init(){
-    if(ac){if(ac.state==='suspended')ac.resume();return}
+    session();
+    if(ac){if(ac.state!=='running')ac.resume();return}
     const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
     ac=new C();master=ac.createGain();master.gain.value=muted?0:.8*SET.sv;
     const comp=ac.createDynamicsCompressor();master.connect(comp);comp.connect(ac.destination);
@@ -1679,10 +1692,41 @@ const sfx=(()=>{
     if(voices>=44)return;voices++;s.onended=()=>{voices--};s.connect(fl);fl.connect(g);g.connect(master);s.start(t0,Math.random()*.5);s.stop(t0+d+.05)}
   const arp=(notes,gap,o)=>notes.forEach((f,i)=>tone(f,o.d||.22,{...o,at:i*gap}));
   const SCALE=[523,587,659,784,880,1047,1175,1319];
+  let uiAt=0;const ui=()=>{if(!ok(1))return false;uiAt=performance.now();return true};
+  const mar=(f,at=0,v=.16)=>{tone(f,.35,{v,at,a:.002});tone(f*4,.08,{v:v*.35,at,a:.001});tone(f*2.01,.18,{v:v*.2,at,a:.002})};   // marimba-ish: tone plus a bright knock
+  const pop=(f,v=.16,at=0)=>tone(f,.07,{f2:f*1.9,v,at,a:.002});
+  const PENTA=[0,2,4,7,9,12,14,16,19,21,24,26,28,31,33,36],pen=(b,i)=>b*Math.pow(2,PENTA[((i%16)+16)%16]/12);
   return{
     init,
     get muted(){return muted},
     toggle(){muted=!muted;try{localStorage.setItem('snackdown-mute',muted?'1':'0')}catch(_){}if(master)master.gain.value=muted?0:.8*SET.sv;init();return muted},
+    ctx(){init();return ac},
+    // menu sounds: every ui* call marks itself, so the generic click sound knows a special one already played
+    uiSince:t=>uiAt>=t,   // did a special sound already play for the event that started at t?
+    uiTap(){if(!ui())return;pop(700,.13);noise(.02,{f:3000,q:2,v:.05})},
+    uiHover(){if(!ac||muted||!gate('hov',45))return;tone(1900,.025,{v:.022,a:.001})},
+    uiOpen(){if(!ui())return;noise(.18,{f:500,f2:2400,q:.9,v:.09});mar(659,.05,.12);mar(988,.12,.12)},
+    uiClose(){if(!ui())return;noise(.16,{f:2200,f2:500,q:.9,v:.07});mar(784,0,.1);mar(523,.07,.1)},
+    uiToggle(on){if(!ui())return;if(on){pop(600,.12);pop(900,.13,.06)}else{pop(700,.11);tone(450,.08,{f2:300,v:.11,at:.06})}},
+    uiNote(i){if(!ui())return;mar(pen(523,i),0,.14)},
+    uiColor(h){if(!ac||muted||!gate('col',70))return;uiAt=performance.now();mar(262*Math.pow(2,h/180),0,.08)},
+    uiPart(k,i){if(!ui())return;const f=b=>pen(b,i);
+      if(k==='hs'){noise(.03,{type:'highpass',f:5000,v:.12});noise(.03,{type:'highpass',f:6200,v:.1,at:.07});tone(f(1047),.05,{v:.05,at:.07})}
+      else if(k==='skin')tone(f(262),.12,{f2:f(262)*2,v:.16});
+      else if(k==='sty'||k==='pst'){noise(.14,{f:700,f2:2600,q:.7,v:.13});mar(f(392),.04,.09)}
+      else if(k==='shoes'){for(const at of[0,.09]){tone(170,.05,{f2:105,v:.24,at});noise(.03,{type:'lowpass',f:900,v:.12,at})}}
+      else if(k==='acc'){tone(f(440),.06,{f2:f(440)*2.4,v:.2,a:.001});noise(.025,{f:1800,q:1.5,v:.12})}
+      else if(k==='face'){tone(f(220),.18,{f2:f(220)*2.2,type:'triangle',v:.13});tone(f(660),.08,{v:.05,at:.12})}
+      else if(k==='ex'){[0,1,2].forEach(j=>tone(pen(1319,i+j*2),.12,{type:'triangle',v:.08,at:j*.045}));noise(.08,{type:'highpass',f:7000,v:.04})}
+      else pop(700,.13)},
+    uiRoll(i){if(!ui())return;tone(700+(i*137)%500,.035,{type:'square',v:.035,a:.001});noise(.015,{f:2500,q:2,v:.05})},
+    uiTada(){if(!ui())return;arp([523,659,784,1047],.06,{type:'triangle',v:.17,d:.3});noise(.3,{type:'highpass',f:6000,v:.07,at:.18});tone(2093,.4,{v:.05,at:.24})},
+    uiDone(){if(!ui())return;mar(784,0,.13);mar(1175,.08,.13);noise(.2,{type:'highpass',f:7000,v:.05,at:.08})},
+    uiTurn(){if(!ui())return;noise(.12,{f:1200,f2:3000,q:1.2,v:.08});pop(520,.08,.03)},
+    uiSlide(x){if(!ac||muted||!gate('sld',40))return;uiAt=performance.now();tone(300+x*900,.04,{type:'triangle',v:.07,a:.002})},
+    uiShing(){if(!ui())return;tone(2637,.5,{v:.07});tone(3520,.4,{v:.045,at:.02});noise(.25,{type:'highpass',f:8000,v:.06});tone(220,.12,{f2:110,v:.12})},
+    uiType(){if(!ac||muted||!gate('typ',25))return;noise(.02,{f:2500+Math.random()*1500,q:3,v:.07});tone(1400+Math.random()*300,.02,{v:.022})},
+    uiTab(){if(!ui())return;noise(.12,{type:'highpass',f:1500,f2:5000,v:.07});pop(880,.06,.02)},
     vol(){if(master)master.gain.value=muted?0:.8*SET.sv},
     click(){if(!ok(1))return;tone(600,.07,{f2:900,type:'triangle',v:.25})},
     start(){if(!ok(1))return;arp([392,523,659,784],.07,{type:'triangle',v:.28,d:.25});noise(.25,{type:'highpass',f:5000,v:.08,at:.2})},
@@ -1722,7 +1766,7 @@ const music=(()=>{
   // which songs fit which moment: calm for the menu, sad for the death screen, groove while playing, hype in duels, epic for the king
   const MODES={menu:['chillactually','untitled','geige'],dead:['dead_inside'],play:['happy','artilerja','bassline_besser','vass3_0','fonky','rat','guitar','whoinvitedthiskid','xd','master3_0','basslineloopkinda','sankokna'],duel:['i_kinda_like_this_omegalul','chase_action','weirdaf','kindasentihard','lkfjslkfsjdlkfsdjlkfjdfrap','goofy','fh'],king:['africa']};
   const MASTER=.55, REF=-25;
-  let on=false,unlocked=false,mode='',cur=null,duckT=0,dead={},lastOf={},queued=null,qT=0;   // music is off until the player turns it on
+  let on=false,unlocked=false,mode='',cur=null,duckT=0,dead={},lastOf={},queued=null,qT=0,held=false;   // music is off until the player turns it on; held = the MIDI test plays
   try{on=localStorage.getItem('snackdown-music')==='1'}catch(_){}
   const el={};
   const get=k=>{if(el[k])return el[k];const a=new Audio(TRACKS[k][0]);a.preload='auto';a.volume=0;a._v=0;
@@ -1744,15 +1788,78 @@ const music=(()=>{
       if(k)startTrack(k,m!=='play')},
     toggle(){on=!on;try{localStorage.setItem('snackdown-music',on?'1':'0')}catch(_){}if(on&&unlocked&&cur)get(cur).play().catch(()=>{});return on},
     duck(sec){duckT=Math.max(duckT,sec)},
+    hold(b){held=!!b},
     tick(dt){duckT=Math.max(0,duckT-dt);
       if(queued){qT+=dt;let busy=false;for(const k in el)if(k!==queued.k){const a=el[k];if(!a.paused&&!a.ended&&a._v>.003)busy=true}
         if(!busy||qT>4)go()}
-      for(const k in el){const a=el[k],lv=Math.max(.05,level(k)),want=on&&k===cur&&unlocked?lv*(duckT>0?.4:1):0;
+      for(const k in el){const a=el[k],lv=Math.max(.05,level(k)),want=on&&k===cur&&unlocked&&!held?lv*(duckT>0?.4:1):0;
         if(want>a._v)a._v=Math.min(want,a._v+dt*lv/3.5);else a._v=Math.max(want,a._v-dt*lv/(duckT>0?.6:1.8));
         if(a._v<=.002&&want===0){a._v=0;if(!a.paused)a.pause()}
         a.volume=clamp(a._v,0,1)}}
   }})();
 setInterval(()=>music.tick(.05),50);
+
+/* ---------- test music from a MIDI file (Settings > Test music): MIDI parser and a small piano synth ---------- */
+const midiTest=(()=>{
+  const SRC='music/test/nocturne_test.mid',GAIN=.38;   // GAIN: about as loud as the other music, peaks stay well below clipping
+  let song=null,ac=null,out=null,bus=null,wave=null,nbuf=null,ir=null,made=null,t0=0,idx=0,timer=0,busy=false;
+  // type 0/1 MIDI -> notes in seconds {t,d,p,v,r}; the sustain pedal (CC64) keeps released notes ringing until it comes up (r = real release)
+  function parse(buf){const d=new DataView(buf);let p=0;const u32=()=>{const v=d.getUint32(p);p+=4;return v},u16=()=>{const v=d.getUint16(p);p+=2;return v};
+    const vlq=()=>{let v=0,b;do{b=d.getUint8(p++);v=v*128+(b&127)}while(b&128);return v};
+    if(u32()!==0x4d546864)throw Error('not a MIDI file');const hl=u32(),fmt=u16(),nt=u16(),div=u16();p=8+hl;
+    if(fmt>1||div&0x8000)throw Error('unsupported MIDI file');
+    const ev=[];   // [tick, order, kind, a, b]: at the same tick tempo first, then note off, pedal, note on
+    for(let k=0;k<nt&&p<d.byteLength;k++){const id=u32(),len=u32(),end=p+len;if(id!==0x4d54726b){p=end;continue}let tk=0,run=0;
+      while(p<end){tk+=vlq();let st=d.getUint8(p);if(st<128)st=run;else p++;
+        if(st===0xff){const ty=d.getUint8(p++),l=vlq();if(ty===0x51)ev.push([tk,0,2,(d.getUint8(p)<<16)|(d.getUint8(p+1)<<8)|d.getUint8(p+2)]);p+=l}
+        else if(st===0xf0||st===0xf7)p+=vlq();
+        else{run=st;const hi=st&0xf0,a=d.getUint8(p++),b=hi===0xc0||hi===0xd0?0:d.getUint8(p++);
+          if(hi===0x90&&b>0)ev.push([tk,3,0,a,b]);else if(hi===0x80||hi===0x90)ev.push([tk,1,0,a,0]);else if(hi===0xb0&&a===64)ev.push([tk,2,1,b>=64])}}
+      p=end}
+    ev.sort((x,y)=>x[0]-y[0]||x[1]-y[1]);
+    let us=500000,lt=0,ls=0;const notes=[],open={},ped=[];
+    for(const e of ev){const t=ls+(e[0]-lt)*us/1e6/div;
+      if(e[2]===2){ls=t;lt=e[0];us=e[3]}else if(e[2]===1)ped.push([t,e[3]]);
+      else if(e[4]>0)(open[e[3]]=open[e[3]]||[]).push([t,e[4]]);else{const o=open[e[3]]&&open[e[3]].shift();if(o)notes.push({t:o[0],d:t-o[0],p:e[3],v:o[1]/127})}}
+    for(const n of notes){const off=n.t+n.d;let i=-1;for(let j=0;j<ped.length&&ped[j][0]<=off;j++)i=j;
+      n.r=off;if(i>=0&&ped[i][1]){const up=ped.slice(i+1).find(x=>!x[1]);n.r=up?up[0]:off+4}}
+    notes.sort((a,b)=>a.t-b.t);return{notes,len:notes.reduce((m,n)=>Math.max(m,n.r),0)}}
+  function setup(c){made=c;
+    const amp=[0,1,.52,.34,.24,.17,.12,.09,.07,.05,.04,.03,.02];wave=c.createPeriodicWave(new Float32Array(amp.length),new Float32Array(amp));
+    nbuf=c.createBuffer(1,c.sampleRate/4|0,c.sampleRate);{const x=nbuf.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1}
+    const L=Math.floor(c.sampleRate*2.6);ir=c.createBuffer(2,L,c.sampleRate);   // a soft room: decaying, slightly dark noise
+    for(let ch=0;ch<2;ch++){const x=ir.getChannelData(ch);let y=0;for(let i=0;i<L;i++){y+=.3*((Math.random()*2-1)-y);x[i]=y*Math.pow(1-i/L,3)}}}
+  // one piano note: two strings a hair apart, a filter that darkens as the note fades, a small hammer knock
+  function voice(c,dst,t,p,v,rel){
+    const f=440*Math.pow(2,(p-69)/12),g=c.createGain(),lp=c.createBiquadFilter(),o1=c.createOscillator(),o2=c.createOscillator();
+    o1.setPeriodicWave(wave);o2.setPeriodicWave(wave);o1.frequency.value=f;o2.frequency.value=f;o2.detune.value=p<45?.8:2.2;
+    const T=Math.max(.45,3.6*Math.pow(2,-(p-36)/20)),pk=(.05+.2*v*v)*(1.15-(p-60)/110);
+    lp.type='lowpass';lp.Q.value=.4;lp.frequency.setValueAtTime(Math.min(16000,f*(2.5+v*9)),t);lp.frequency.setTargetAtTime(Math.max(f*1.4,260),t+.01,T*.35);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(pk,t+.005);g.gain.setTargetAtTime(pk*.42,t+.005,.11);
+    const s2=t+.3;if(rel>s2)g.gain.setTargetAtTime(0,s2,T);g.gain.setTargetAtTime(0,Math.max(rel,t+.01),.1);
+    const end=Math.min(rel+.7,s2+T*7);
+    o1.connect(lp);o2.connect(lp);lp.connect(g);g.connect(dst);o1.start(t);o2.start(t);o1.stop(end);o2.stop(end);
+    const s=c.createBufferSource(),hf=c.createBiquadFilter(),hg=c.createGain();s.buffer=nbuf;hf.type='bandpass';hf.frequency.value=Math.min(5000,f*3);hf.Q.value=.8;
+    hg.gain.setValueAtTime(pk*.2,t);hg.gain.exponentialRampToValueAtTime(.0001,t+.035);s.connect(hf);hf.connect(hg);hg.connect(dst);s.start(t);s.stop(t+.05)}
+  // output: dry + room, a gentle compressor, volume from the music slider
+  function chain(c,dst){if(made!==c)setup(c);const o=c.createGain(),b=c.createGain(),cv=c.createConvolver(),wet=c.createGain(),cp=c.createDynamicsCompressor();
+    cv.buffer=ir;wet.gain.value=.32;b.connect(cp);b.connect(cv);cv.connect(wet);wet.connect(cp);cp.threshold.value=-12;cp.ratio.value=3;cp.connect(o);o.connect(dst);return{o,b}}
+  function pump(){if(!busy)return;const now=ac.currentTime-t0,N=song.notes;
+    while(idx<N.length&&N[idx].t<now+.6){const n=N[idx++];voice(ac,bus,t0+n.t,n.p,n.v,t0+n.r)}
+    if(idx>=N.length&&now>song.len+1.5)api.stop()}
+  const api={
+    get playing(){return busy},
+    parse,voice,chain,GAIN,
+    get song(){return song},
+    progress(){return busy?[Math.max(0,ac.currentTime-t0),song.len]:null},
+    vol(){if(out&&busy)out.gain.value=GAIN*SET.mv},
+    async play(){if(busy)return;ac=sfx.ctx();if(!ac)throw Error('no Web Audio');
+      if(!song){const r=await fetch(SRC);if(!r.ok)throw Error('HTTP '+r.status);song=parse(await r.arrayBuffer())}
+      const ch=chain(ac,ac.destination);out=ch.o;bus=ch.b;out.gain.value=GAIN*SET.mv;
+      busy=true;idx=0;t0=ac.currentTime+.15;music.hold(true);pump();timer=setInterval(pump,80)},
+    stop(){if(!busy)return;busy=false;clearInterval(timer);music.hold(false);const o=out,b=bus,t=ac.currentTime;
+      o.gain.cancelScheduledValues(t);o.gain.setValueAtTime(o.gain.value,t);o.gain.linearRampToValueAtTime(0,t+.3);setTimeout(()=>{try{b.disconnect();o.disconnect()}catch(_){}},500)}};
+  return api})();
 
 /* ---------- input ---------- */
 // browsers may pause audio until the page gets a click or key press, so wake it up on any of them
@@ -1905,19 +2012,24 @@ function buildCustom(){
 function openCustom(){buildCustom();$('custom').hidden=false}
 function closeCustom(){$('custom').hidden=true;saveLook()}
 $('custbtn').addEventListener('click',openCustom);$('cdone').addEventListener('click',closeCustom);
-$('crand').addEventListener('click',()=>{LOOK=randomLook();buildCustom()});
+let rolling=false;   // randomize spins like a slot machine: a few quick random looks, then it lands
+$('crand').addEventListener('click',()=>{if(rolling)return;rolling=true;let i=0;
+  const step=()=>{LOOK=randomLook();buildCustom();if(++i<9){sfx.uiRoll(i);setTimeout(step,30+i*i*4)}else{sfx.uiTada();rolling=false}};step()});
 $('copts').addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;
-  if(b.dataset.d){const L2=COPTS.find(x=>x.k===k).list,i=(L2.indexOf(LOOK[k])+ +b.dataset.d+L2.length)%L2.length;LOOK[k]=L2[i]}
-  else LOOK[k]=b.dataset.c;
+  if(b.dataset.d){const L2=COPTS.find(x=>x.k===k).list,i=(L2.indexOf(LOOK[k])+ +b.dataset.d+L2.length)%L2.length;LOOK[k]=L2[i];sfx.uiPart(k,i)}
+  else{LOOK[k]=b.dataset.c;sfx.uiNote([...b.parentNode.querySelectorAll('.sw')].indexOf(b))}
   buildCustom()});
-$('copts').addEventListener('change',e=>{const b=e.target;if(b.tagName==='SELECT'){LOOK[b.dataset.k]=b.value;buildCustom()}});
-$('copts').addEventListener('input',e=>{const b=e.target;if(b.type==='color'&&HEX.test(b.value)){LOOK[b.dataset.k]=b.value;for(const sw of b.parentNode.querySelectorAll('.sw'))sw.classList.remove('on')}});
+$('copts').addEventListener('change',e=>{const b=e.target;if(b.tagName==='SELECT'){const k=b.dataset.k;LOOK[k]=b.value;sfx.uiPart(k,COPTS.find(x=>x.k===k).list.indexOf(b.value));buildCustom()}});
+const hueOf=h=>{const r=parseInt(h.slice(1,3),16)/255,g=parseInt(h.slice(3,5),16)/255,b=parseInt(h.slice(5,7),16)/255,mx=Math.max(r,g,b),d=mx-Math.min(r,g,b);
+  if(!d)return 0;const x=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;return(x*60+360)%360};
+$('copts').addEventListener('input',e=>{const b=e.target;if(b.type==='color'&&HEX.test(b.value)){LOOK[b.dataset.k]=b.value;sfx.uiColor(hueOf(b.value));for(const sw of b.parentNode.querySelectorAll('.sw'))sw.classList.remove('on')}});
 $('cprev').addEventListener('click',e=>{const b=e.target.closest('[data-dir]');if(b)cDir=b.dataset.dir});
-$('clevel').addEventListener('input',e=>{cLvl=+e.target.value;$('clevelv').textContent=cLvl});
+$('clevel').addEventListener('input',e=>{const v=+e.target.value;   // sliding past a level that unlocks armour etc. rings
+  if(UNLOCKS.some(([l])=>(l>cLvl&&l<=v)||(l>v&&l<=cLvl)))sfx.uiShing();else sfx.uiSlide(Math.log(v)/Math.log(1000));cLvl=v;$('clevelv').textContent=cLvl});
 (function cloop(){if(!$('custom').hidden){const c=$('ccanvas'),g=c.getContext('2d');g.clearRect(0,0,240,300);g.imageSmoothingEnabled=false;
     const fr=1+Math.floor(performance.now()/260)%2;g.drawImage(sprite(Object.assign({},LOOK),lookOf(cLvl),cDir,fr),40,50,160,208);}
   requestAnimationFrame(cloop)})();
-addEventListener('keydown',e=>{if(!$('custom').hidden&&e.key==='Escape')closeCustom()});
+addEventListener('keydown',e=>{if(!$('custom').hidden&&e.key==='Escape'){closeCustom();sfx.uiClose()}});
 /* ---------- how to play: short animated demos drawn with the game's own sprites ---------- */
 /* ---------- how to play: vector scenes (inline SVG with SMIL animation), crisp at every size ---------- */
 const VI='#2b2140';
@@ -2062,13 +2174,26 @@ $('howbtn').addEventListener('click',openHow);$('hclose').addEventListener('clic
 $('hprev').addEventListener('click',()=>showHow(howStep-1));
 $('hnext').addEventListener('click',()=>{if(howStep===DEMOS.length-1)closeHow();else showHow(howStep+1)});
 $('hdots').addEventListener('click',e=>{const d=e.target.closest('[data-i]');if(d)showHow(+d.dataset.i)});
-addEventListener('keydown',e=>{if($('howto').hidden)return;if(e.key==='Escape')closeHow();else if(e.key==='ArrowRight')showHow(howStep+1);else if(e.key==='ArrowLeft')showHow(howStep-1)});
+addEventListener('keydown',e=>{if($('howto').hidden)return;if(e.key==='Escape'){closeHow();sfx.uiClose()}else if(e.key==='ArrowRight'){showHow(howStep+1);sfx.uiTab()}else if(e.key==='ArrowLeft'){showHow(howStep-1);sfx.uiTab()}});
 function openGuide(tab){buildGuide(tab||'items');$('guide').hidden=false;for(const b of document.querySelectorAll('.gtab'))b.classList.toggle('on',b.dataset.t===(tab||'items'))}
 $('guidebtn').addEventListener('click',()=>openGuide());
 $('gclose').addEventListener('click',()=>{$('guide').hidden=true});
 $('gtabs').addEventListener('click',e=>{const b=e.target.closest('.gtab');if(b)openGuide(b.dataset.t)});
 $('gbody').addEventListener('click',e=>{const b=e.target.closest('[data-tree]');if(b){guideTree=b.dataset.tree;openGuide('perks')}});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden)$('guide').hidden=true});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden){$('guide').hidden=true;sfx.uiClose()}});
+/* ---------- menu sounds: every button clicks; some get their own sound (open, close, done, tabs, toggles) ---------- */
+{const SND={custbtn:'uiOpen',howbtn:'uiOpen',guidebtn:'uiOpen',setbtn:'uiOpen',gear:'uiOpen',bugbtn:'uiOpen',menubtn:'uiOpen',setclose:'uiClose',gclose:'uiClose',hclose:'uiClose',bugclose:'uiClose',leavestay:'uiClose',loadcancel:'uiClose',
+    cdone:'uiDone',bugcopy:'uiDone',again:'uiDone',hprev:'uiTab',hnext:'uiTab',mute:'',mtest:'',btnSprint:'',btnDash:''};
+  const skip=b=>b.id==='btnSprint'||b.id==='btnDash'||b.classList.contains('pcard');
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button,summary');if(!b||skip(b)||sfx.uiSince(e.timeStamp))return;
+    if(b.id==='consentyes'||b.id==='consentno'||b.id==='onlinetoggle'){sfx.uiToggle(b.id!=='consentno');return}
+    if(b.id==='musicbtn'){sfx.uiToggle(music.on);return}
+    const k=b.id in SND?SND[b.id]:b.type==='submit'?'':b.classList.contains('gtab')?'uiTab':b.dataset.dir?'uiTurn':'uiTap';if(k)sfx[k]()});
+  let hov=null;   // a soft tick when the mouse moves onto a button (not on touch screens)
+  document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const b=e.target.closest&&e.target.closest('button,summary,select,.sw');if(b===hov)return;hov=b;if(b&&!skip(b))sfx.uiHover()});
+  document.addEventListener('input',e=>{const i=e.target;if(i.type==='range'&&i.id!=='clevel')sfx.uiSlide((i.value-i.min)/((i.max-i.min)||1))});
+  document.addEventListener('change',e=>{const i=e.target;if(i.type==='checkbox')sfx.uiToggle(i.checked)});
+  document.addEventListener('keydown',e=>{const t=e.target;if(t&&t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'&&t.closest('#start')&&(e.key.length===1||e.key==='Backspace'))sfx.uiType()})}
 $('startform').addEventListener('submit',e=>{e.preventDefault();const nl=pickLobby('node'),pl=pickLobby('p2p');if(nl)joinGame(nl.addr);else if(pl)playP2P(pl.host,pl);else if(PeerC&&onlineOk()&&P2P.state!=='down')playP2P();else startGame()});   // Play joins a game that is running, or starts one for friends; solo when offline
 const playAgain=()=>role==='client'?respawnNet():startGame();
 $('again').addEventListener('click',playAgain);
@@ -2587,11 +2712,11 @@ const esc2=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&q
 /* ---------- sound toggle & minimap ---------- */
 const muteBtn=$('mute');
 const showMute=()=>{muteBtn.textContent=sfx.muted?'Sound off':'Sound on'};showMute();
-muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(!sfx.muted)sfx.click()});
+muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(!sfx.muted)sfx.uiToggle(true)});
 const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
-function applySet(){sfx.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
+function applySet(){sfx.vol();midiTest.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
 function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
 const FPS_SNAP=[30,60,90,120,144,165,240,360,500,1000];
 const fpsPos=f=>1000*Math.log(clamp(f,30,1000)/30)/Math.log(1000/30), fpsAt=p=>Math.round(30*Math.pow(1000/30,p/1000));   // the slider is logarithmic, so 30..144 gets as much room as 144..1000
@@ -2604,7 +2729,11 @@ $('fpsr').addEventListener('input',e=>{const r=e.target;let p=+r.value,f=null;co
   if(f===null)f=clamp(fpsAt(p),30,1000);else p=fpsPos(f);
   r.value=Math.round(p);r.dataset.p=r.value;SET.fps=f;saveSet();applySet()});
 $('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
-  if(k==='sv'&&!sfx.muted)sfx.click();applySet();saveSet()});
+  applySet();saveSet()});
+{const b=$('mtest'),o=$('mtesto'),mm=x=>Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0');
+  const show=()=>{const pr=midiTest.progress();b.innerHTML=pr?'&#9632; Stop':'&#9654; Nocturne';o.textContent=pr?mm(pr[0])+' / '+mm(pr[1]):''};
+  b.addEventListener('click',()=>{if(midiTest.playing){midiTest.stop();show()}else{o.textContent='loading';midiTest.play().then(show,e=>{o.textContent='could not play ('+e.message+')'})}});
+  setInterval(()=>{if(!$('settings').hidden&&(midiTest.playing||b.textContent.indexOf('Stop')>=0))show()},250)}
 {const fb=$('fsbtn'),de=document.documentElement;if(!(de.requestFullscreen||de.webkitRequestFullscreen))fb.hidden=true;
   else fb.addEventListener('click',()=>{try{(document.fullscreenElement||document.webkitFullscreenElement)?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(de.requestFullscreen||de.webkitRequestFullscreen).call(de)}catch(_){}})}
 $('setbtn').addEventListener('click',()=>openSettings(true));$('gear').addEventListener('click',()=>openSettings(true));$('setclose').addEventListener('click',()=>openSettings(false));
