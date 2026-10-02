@@ -471,3 +471,32 @@ Wunsch: Klick-Sounds im Menü und beim Ändern der Figur ("tob dich aus"); am iP
 - Solo-Spiel, Host-Worker und Node-Server laufen ohne Fehler.
 - NICHT getestet: echtes iPhone (Lautlos-Schalter, Spotify-Verhalten), Firefox/Safari. Wie die Sounds klingen, habe ich nicht gehört, nur geprüft, dass sie ausgelöst werden.
 - BUILD r53.
+
+## Runde 54 - Ganze Musik als MIDI: Menü, Spiel, Metal ab Level 30, Duell, Game Over
+Wunsch: Die Nocturne (Chopin-Stil) gefällt, sie soll automatisch laufen, solange die Einstellungen offen sind. Die eigene Musik (mp3) ersetzen und entfernen, damit das Spiel klein bleibt; MIDI ist perfekt. Stile: Menü abwechselnd Rachmaninow (Klavierkonzert 2, 2. Satz), Liszt (Liebestraum) und FF7 "Forested Temple"; im Spiel Takanaka und T-Square (5 Stücke); ab höherem Level japanischer Symphonic Metal wie Imperial Circus Dead Decadence (mehrere); Duell Persona 3 bis 5; Game Over wie "Alleycat" (Persona 5). Instrumente sollen passen, der Klavierklang bleibt.
+
+**Stücke** (alle eigene Kompositionen im jeweiligen Stil, keine übernommenen Melodien; `music/*.mid`, zusammen ca. 400 KB)
+- Einstellungen: `nocturne` (Chopin, Des-Dur) läuft, solange das Fenster offen ist; danach geht die vorherige Musik an derselben Stelle weiter.
+- Menü (wechseln sich ab): `menu_adagio` (Rachmaninow: E-Dur, Klavier-Triolen, Flöten- und Klarinettensolo, Streicher-Höhepunkt mit Horn und Pauke), `menu_dream` (Liszt: As-Dur 6/4, Melodie in der Mitte, Arpeggien rundherum, zwei Kadenzen, Mittelteil in H-Dur), `menu_temple` (FF7: d-Moll, Harfen-Ostinato, Panflöte, Oboe, Chor im Mittelteil, Glockenspiel).
+- Spiel: `play_coast`, `play_tropic` (Samba), `play_twilight` (Ballade) im Takanaka-Stil mit singender Overdrive-Gitarre, Slap-/Fingerbass, Rhodes, Congas/Percussion, Bläsern; `play_skyline`, `play_runway` im T-Square-Stil mit Lyricon-Lead, Synth-Brass, Klavier, Glocken und Rückung nach oben im letzten Refrain.
+- Ab Level 30 (zurück erst unter 25) und als König: `high_circus` (d-Moll, Cembalo-Intro, Blastbeats, Tremolo-Gitarren, Chor, Refrain mit "Royal Road"-Akkorden, zweistimmiges Solo), `high_requiem` (e-Moll, Klavier-Prélude, 7/8-Riff mit Orgel und Chor), `high_carnival` (a-Moll, Zirkus-Walzer im 3/4, der später als Metal-Walzer zurückkommt).
+- Duell: `duel_moonlit` (Persona 3: Klavier-Hook über Hip-Hop-Beat, Rock-Gitarre), `duel_fog` (Persona 4: Disco-Funk-Rock, Streicherläufe, Oktav-Slapbass), `duel_heist` (Persona 5: Acid-Jazz-Rock, Rhodes-Stabs, Altsax).
+- Game Over: `dead_alley` (Alleycat-Stil: d-Moll, Rhodes, Altsax, gebürstetes Schlagzeug), läuft als Schleife.
+- Die mp3s sind gelöscht (`index.html` 8,4 MB -> 1,1 MB). In der Git-Historie stecken sie noch (Umschreiben nur auf Wunsch).
+- Musik ist jetzt standardmäßig AN (der Knopf "Music off" schaltet aus und merkt sich das).
+
+**Werkzeug** (`tools/compose.py`, `tools/musiclib.py`, ohne Pakete): Akkorde mit Namen (Cmaj9, G#7/C ...), Voicings mit Stimmführung, Melodie-Notation mit Taktprüfung (ein Fehler in einer Notenlänge bricht ab), Schlagzeug-Raster, Bass-/Begleit-/Pad-/Arpeggio-Generatoren, Powerchords, Bends. `python3 tools/compose.py` schreibt alle Stücke neu, `python3 tools/compose.py play_coast` nur eins. Die Dateien sind normales General MIDI und gehen in jeder DAW auf.
+
+**Synth im Spiel**: Ein General-MIDI-Synth ersetzt den mp3-Player: Klavier (unverändert aus r53), Rhodes (FM), Cembalo, Mallets, Orgel, Gitarren (clean, Overdrive-Lead, verzerrte Rhythmusgitarre mit Amp pro Kanal), Bässe (finger, slap, synth), Streicher, Solo-Streicher, Chor (Vokal-Formanten), Bläser, Sax, Holz, Flöten, Synth-Leads, Pads, Pauke, Schlagzeug. Lautstärke, Expression, Panorama, Pedal und Pitch-Bend kommen aus der MIDI-Datei. Wechsel mit Ausblenden, Spiel-/Menümusik läuft nach Duell oder Einstellungen an derselben Stelle weiter, im Hintergrund-Tab pausiert die Musik.
+
+**Rechenlast** (wichtig, gefunden beim Testen): Die erste Fassung schaffte beim Metal-Stück offline nur 0,73-fache Echtzeit, hätte also live geknackst. Umgebaut: Schlagzeug wird einmal vorberechnet und dann als Sample abgespielt, Powerchords sind ein Oszillator mit passender Wellenform, Streicher/Chor/Pads/Clean-Gitarre ohne Filter pro Stimme, Vibrato nur bei Solo-Instrumenten, Filter "k-rate", kürzere unhörbare Ausklänge. Danach (offline, 48 kHz, Alis PC): Metal 3,2x, Fusion 3,4x, Duell 2,6x, Klavierstücke 8x Echtzeit.
+
+**Lautstärke**: Alle Stücke offline gerendert und pro Kanal gemessen; Lead-Instrumente angehoben (vorher teils 9 dB unter dem Klavier), Chor im Metal gesenkt, pro Stück ein Ausgleich (`DB`), damit Menü, Spiel, Metal und Duell ähnlich laut sind (Metal bleibt etwas lauter).
+
+**Getestet** (Chromium headless, Node)
+- Alle 16 MIDI-Dateien gebaut (Taktprüfung bestanden), geparst und mit dem Spiel-Synth offline gerendert: keine Fehler, keine Übersteuerung (Spitzen 0,14 bis 0,41).
+- Live im Browser: Menü startet nach dem ersten Klick mit `menu_adagio`, Einstellungen -> Nocturne, schließen -> Adagio an derselben Stelle, Spielstart -> Fusion, Level 40 (König) -> Metal, Duell -> Persona-Stil, Musik aus/an. Keine Fehler.
+- Behoben beim Testen: negative Startzeit beim Fortsetzen nach Duell/Einstellungen (hätte die Musik abgebrochen).
+- Gebaute `index.html` (1,1 MB), Host-Worker und Node-Server laufen ohne Fehler.
+- NICHT getestet: wie es klingt (ich höre nichts, nur Messwerte); Last auf Handys und schwachen PCs; Hintergrund-Tab und Rückkehr; Rückkehr ins Spiel nach einem echten Duell-Ende (gleiche Logik wie Einstellungen -> Menü, das geprüft ist); Firefox/Safari.
+- BUILD r54.

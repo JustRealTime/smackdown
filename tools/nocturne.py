@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Writes music/test/nocturne_test.mid: a short original piano nocturne in the style of Chopin (test for MIDI music in the game).
+"""Writes music/nocturne.mid: a short original piano nocturne in the style of Chopin (the music of the settings screen).
 
 Not a Chopin work: own melody and harmony, only the style (6/8, D-flat major, wide left-hand arpeggios,
 singing right hand with turns and runs, a stormier middle part in B-flat minor, rubato, sustain pedal).
-Run: python3 tools/nocturne.py   (no packages needed). The game plays the file in Settings > Test music.
+Run: python3 tools/nocturne.py   (no packages needed). The game plays it while the settings are open.
 """
 import os, random, struct
 
 random.seed(7)
 TPQ = 480                 # ticks per quarter
 E = TPQ // 2              # one eighth
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'music', 'test', 'nocturne_test.mid')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'music', 'nocturne.mid')
 
 PC = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
 def n(s):   # 'Db5' -> 73

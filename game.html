@@ -425,7 +425,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r53</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r54</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -448,8 +448,6 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <h3>Sound</h3>
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
-    <div class="srow"><span>Test music</span><button class="btn alt" type="button" id="mtest">&#9654; Nocturne</button><output id="mtesto"></output></div>
-    <p class="small">Test only: a short piano piece in the style of Chopin, played from a MIDI file (music/test). It is not in the game's playlists.</p>
     <h3>Graphics</h3>
     <label class="srow chk"><input type="checkbox" id="fpsauto"><span style="width:auto">Match monitor refresh rate <b id="hzinfo"></b></span></label>
     <label class="srow"><span>Frame rate limit</span><input type="range" id="fpsr" min="0" max="1000"><output id="fpso"></output></label>
@@ -581,7 +579,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r53';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r54';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1759,107 +1757,206 @@ const sfx=(()=>{
     king(){if(!ok(1))return;music.duck(1.6);arp([392,392,392,523,659,784],.1,{type:'square',v:.1,d:.3});tone(196,.7,{type:'triangle',v:.3});noise(.5,{type:'highpass',f:5000,v:.1,at:.3})}
   }})();
 
-/* ---------- background music (files live in the music folder) ---------- */
-const music=(()=>{
-  // [file, measured loudness in dB]: every track is scaled to the same perceived level
-  const TRACKS={chillactually:['music/chillactually.mp3',-21.1],untitled:['music/untitled.mp3',-27.2],geige:['music/geige.mp3',-30.5],dead_inside:['music/dead_inside.mp3',-32.2],happy:['music/happy.mp3',-21.1],artilerja:['music/artilerja.mp3',-25.1],bassline_besser:['music/bassline_besser.mp3',-21.5],vass3_0:['music/vass3_0.mp3',-18.6],fonky:['music/fonky.mp3',-16.3],rat:['music/rat.mp3',-20.8],guitar:['music/guitar.mp3',-15.7],whoinvitedthiskid:['music/whoinvitedthiskid.mp3',-14.2],xd:['music/xd.mp3',-21.0],master3_0:['music/master3_0.mp3',-21.2],basslineloopkinda:['music/basslineloopkinda.mp3',-19.5],sankokna:['music/sankokna.mp3',-26.6],i_kinda_like_this_omegalul:['music/i_kinda_like_this_omegalul.mp3',-11.3],chase_action:['music/chase_action.mp3',-12.2],weirdaf:['music/weirdaf.mp3',-15.7],kindasentihard:['music/kindasentihard.mp3',-11.2],lkfjslkfsjdlkfsdjlkfjdfrap:['music/lkfjslkfsjdlkfsdjlkfjdfrap.mp3',-15.5],goofy:['music/goofy.mp3',-16.1],fh:['music/fh.mp3',-27.0],africa:['music/africa.mp3',-11.5],};
-  // which songs fit which moment: calm for the menu, sad for the death screen, groove while playing, hype in duels, epic for the king
-  const MODES={menu:['chillactually','untitled','geige'],dead:['dead_inside'],play:['happy','artilerja','bassline_besser','vass3_0','fonky','rat','guitar','whoinvitedthiskid','xd','master3_0','basslineloopkinda','sankokna'],duel:['i_kinda_like_this_omegalul','chase_action','weirdaf','kindasentihard','lkfjslkfsjdlkfsdjlkfjdfrap','goofy','fh'],king:['africa']};
-  const MASTER=.55, REF=-25;
-  let on=false,unlocked=false,mode='',cur=null,duckT=0,dead={},lastOf={},queued=null,qT=0,held=false;   // music is off until the player turns it on; held = the MIDI test plays
-  try{on=localStorage.getItem('snackdown-music')==='1'}catch(_){}
-  const el={};
-  const get=k=>{if(el[k])return el[k];const a=new Audio(TRACKS[k][0]);a.preload='auto';a.volume=0;a._v=0;
-    a.addEventListener('error',()=>{dead[k]=true;if(cur===k)next()});a.addEventListener('ended',()=>{if(cur===k)next()});
-    return el[k]=a};
-  const level=k=>Math.min(1,SET.mv*MASTER*Math.pow(10,(REF-TRACKS[k][1])/20));
-  function pickTrack(m){const list=MODES[m].filter(k=>!dead[k]);if(!list.length)return null;
-    const opts=list.length>1?list.filter(k=>k!==lastOf[m]):list;return opts[(Math.random()*opts.length)|0]}
-  // a song change is: the old song fades out completely, then the next one starts and fades in slowly
-  function startTrack(k,fromStart){lastOf[mode]=k;cur=null;queued={k,fromStart,loop:MODES[mode].length===1};qT=0}
-  function go(){const q=queued;queued=null;const a=get(q.k);if(q.fromStart||a.ended)a.currentTime=0;a.loop=q.loop;cur=q.k;if(unlocked&&on)a.play().catch(()=>{})}
-  function next(){const k=pickTrack(mode);if(k)startTrack(k,true)}
-  return{
-    get on(){return on},
-    unlock(){if(unlocked)return;unlocked=true;this.mode(mode||'menu',true)},
-    mode(m,force){if(m===mode&&!force)return;const prev=mode;mode=m;
-      // after a duel, carry on with the song that was playing before; every duel starts a fresh song
-      const k=m==='play'&&lastOf.play&&!dead[lastOf.play]&&!force?lastOf.play:pickTrack(m);
-      if(k)startTrack(k,m!=='play')},
-    toggle(){on=!on;try{localStorage.setItem('snackdown-music',on?'1':'0')}catch(_){}if(on&&unlocked&&cur)get(cur).play().catch(()=>{});return on},
-    duck(sec){duckT=Math.max(duckT,sec)},
-    hold(b){held=!!b},
-    tick(dt){duckT=Math.max(0,duckT-dt);
-      if(queued){qT+=dt;let busy=false;for(const k in el)if(k!==queued.k){const a=el[k];if(!a.paused&&!a.ended&&a._v>.003)busy=true}
-        if(!busy||qT>4)go()}
-      for(const k in el){const a=el[k],lv=Math.max(.05,level(k)),want=on&&k===cur&&unlocked&&!held?lv*(duckT>0?.4:1):0;
-        if(want>a._v)a._v=Math.min(want,a._v+dt*lv/3.5);else a._v=Math.max(want,a._v-dt*lv/(duckT>0?.6:1.8));
-        if(a._v<=.002&&want===0){a._v=0;if(!a.paused)a.pause()}
-        a.volume=clamp(a._v,0,1)}}
-  }})();
-setInterval(()=>music.tick(.05),50);
-
-/* ---------- test music from a MIDI file (Settings > Test music): MIDI parser and a small piano synth ---------- */
-const midiTest=(()=>{
-  const SRC='music/test/nocturne_test.mid',GAIN=.38;   // GAIN: about as loud as the other music, peaks stay well below clipping
-  let song=null,ac=null,out=null,bus=null,wave=null,nbuf=null,ir=null,made=null,t0=0,idx=0,timer=0,busy=false;
-  // type 0/1 MIDI -> notes in seconds {t,d,p,v,r}; the sustain pedal (CC64) keeps released notes ringing until it comes up (r = real release)
+/* ---------- music: MIDI songs in music/ (written by tools/compose.py and tools/nocturne.py), played by a small built-in synth ---------- */
+const synth=(()=>{
+  // MIDI file -> {notes:[{t,d,r,p,v,c}],ch:[{prog,vol,ex,pan,bend,ped}],len}; r = real release (the channel's sustain pedal holds notes), len = end of the song
   function parse(buf){const d=new DataView(buf);let p=0;const u32=()=>{const v=d.getUint32(p);p+=4;return v},u16=()=>{const v=d.getUint16(p);p+=2;return v};
     const vlq=()=>{let v=0,b;do{b=d.getUint8(p++);v=v*128+(b&127)}while(b&128);return v};
     if(u32()!==0x4d546864)throw Error('not a MIDI file');const hl=u32(),fmt=u16(),nt=u16(),div=u16();p=8+hl;
     if(fmt>1||div&0x8000)throw Error('unsupported MIDI file');
-    const ev=[];   // [tick, order, kind, a, b]: at the same tick tempo first, then note off, pedal, note on
+    const ev=[];let eot=0;   // [tick, order, kind, ...]: at the same tick tempo and programs first, then note off, controllers, note on
     for(let k=0;k<nt&&p<d.byteLength;k++){const id=u32(),len=u32(),end=p+len;if(id!==0x4d54726b){p=end;continue}let tk=0,run=0;
       while(p<end){tk+=vlq();let st=d.getUint8(p);if(st<128)st=run;else p++;
-        if(st===0xff){const ty=d.getUint8(p++),l=vlq();if(ty===0x51)ev.push([tk,0,2,(d.getUint8(p)<<16)|(d.getUint8(p+1)<<8)|d.getUint8(p+2)]);p+=l}
+        if(st===0xff){const ty=d.getUint8(p++),l=vlq();if(ty===0x51)ev.push([tk,0,9,(d.getUint8(p)<<16)|(d.getUint8(p+1)<<8)|d.getUint8(p+2)]);else if(ty===0x2f)eot=Math.max(eot,tk);p+=l}
         else if(st===0xf0||st===0xf7)p+=vlq();
-        else{run=st;const hi=st&0xf0,a=d.getUint8(p++),b=hi===0xc0||hi===0xd0?0:d.getUint8(p++);
-          if(hi===0x90&&b>0)ev.push([tk,3,0,a,b]);else if(hi===0x80||hi===0x90)ev.push([tk,1,0,a,0]);else if(hi===0xb0&&a===64)ev.push([tk,2,1,b>=64])}}
+        else{run=st;const hi=st&0xf0,c=st&15,a=d.getUint8(p++),b=hi===0xc0||hi===0xd0?0:d.getUint8(p++);
+          if(hi===0x90&&b>0)ev.push([tk,3,0,c,a,b]);else if(hi===0x80||hi===0x90)ev.push([tk,1,0,c,a]);
+          else if(hi===0xb0)ev.push([tk,2,1,c,a,b]);else if(hi===0xc0)ev.push([tk,0,2,c,a]);else if(hi===0xe0)ev.push([tk,2,3,c,(b*128+a-8192)/8192*200])}}
       p=end}
-    ev.sort((x,y)=>x[0]-y[0]||x[1]-y[1]);
-    let us=500000,lt=0,ls=0;const notes=[],open={},ped=[];
-    for(const e of ev){const t=ls+(e[0]-lt)*us/1e6/div;
-      if(e[2]===2){ls=t;lt=e[0];us=e[3]}else if(e[2]===1)ped.push([t,e[3]]);
-      else if(e[4]>0)(open[e[3]]=open[e[3]]||[]).push([t,e[4]]);else{const o=open[e[3]]&&open[e[3]].shift();if(o)notes.push({t:o[0],d:t-o[0],p:e[3],v:o[1]/127})}}
-    for(const n of notes){const off=n.t+n.d;let i=-1;for(let j=0;j<ped.length&&ped[j][0]<=off;j++)i=j;
-      n.r=off;if(i>=0&&ped[i][1]){const up=ped.slice(i+1).find(x=>!x[1]);n.r=up?up[0]:off+4}}
-    notes.sort((a,b)=>a.t-b.t);return{notes,len:notes.reduce((m,n)=>Math.max(m,n.r),0)}}
-  function setup(c){made=c;
-    const amp=[0,1,.52,.34,.24,.17,.12,.09,.07,.05,.04,.03,.02];wave=c.createPeriodicWave(new Float32Array(amp.length),new Float32Array(amp));
-    nbuf=c.createBuffer(1,c.sampleRate/4|0,c.sampleRate);{const x=nbuf.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1}
-    const L=Math.floor(c.sampleRate*2.6);ir=c.createBuffer(2,L,c.sampleRate);   // a soft room: decaying, slightly dark noise
-    for(let ch=0;ch<2;ch++){const x=ir.getChannelData(ch);let y=0;for(let i=0;i<L;i++){y+=.3*((Math.random()*2-1)-y);x[i]=y*Math.pow(1-i/L,3)}}}
-  // one piano note: two strings a hair apart, a filter that darkens as the note fades, a small hammer knock
-  function voice(c,dst,t,p,v,rel){
-    const f=440*Math.pow(2,(p-69)/12),g=c.createGain(),lp=c.createBiquadFilter(),o1=c.createOscillator(),o2=c.createOscillator();
-    o1.setPeriodicWave(wave);o2.setPeriodicWave(wave);o1.frequency.value=f;o2.frequency.value=f;o2.detune.value=p<45?.8:2.2;
-    const T=Math.max(.45,3.6*Math.pow(2,-(p-36)/20)),pk=(.05+.2*v*v)*(1.15-(p-60)/110);
-    lp.type='lowpass';lp.Q.value=.4;lp.frequency.setValueAtTime(Math.min(16000,f*(2.5+v*9)),t);lp.frequency.setTargetAtTime(Math.max(f*1.4,260),t+.01,T*.35);
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(pk,t+.005);g.gain.setTargetAtTime(pk*.42,t+.005,.11);
-    const s2=t+.3;if(rel>s2)g.gain.setTargetAtTime(0,s2,T);g.gain.setTargetAtTime(0,Math.max(rel,t+.01),.1);
-    const end=Math.min(rel+.7,s2+T*7);
-    o1.connect(lp);o2.connect(lp);lp.connect(g);g.connect(dst);o1.start(t);o2.start(t);o1.stop(end);o2.stop(end);
-    const s=c.createBufferSource(),hf=c.createBiquadFilter(),hg=c.createGain();s.buffer=nbuf;hf.type='bandpass';hf.frequency.value=Math.min(5000,f*3);hf.Q.value=.8;
-    hg.gain.setValueAtTime(pk*.2,t);hg.gain.exponentialRampToValueAtTime(.0001,t+.035);s.connect(hf);hf.connect(hg);hg.connect(dst);s.start(t);s.stop(t+.05)}
-  // output: dry + room, a gentle compressor, volume from the music slider
-  function chain(c,dst){if(made!==c)setup(c);const o=c.createGain(),b=c.createGain(),cv=c.createConvolver(),wet=c.createGain(),cp=c.createDynamicsCompressor();
-    cv.buffer=ir;wet.gain.value=.32;b.connect(cp);b.connect(cv);cv.connect(wet);wet.connect(cp);cp.threshold.value=-12;cp.ratio.value=3;cp.connect(o);o.connect(dst);return{o,b}}
-  function pump(){if(!busy)return;const now=ac.currentTime-t0,N=song.notes;
-    while(idx<N.length&&N[idx].t<now+.6){const n=N[idx++];voice(ac,bus,t0+n.t,n.p,n.v,t0+n.r)}
-    if(idx>=N.length&&now>song.len+1.5)api.stop()}
+    ev.push([eot,4,8]);ev.sort((x,y)=>x[0]-y[0]||x[1]-y[1]);
+    const ch=[];for(let c=0;c<16;c++)ch.push({prog:0,vol:[[0,100/127]],ex:[[0,1]],pan:64,bend:[],ped:[]});
+    let us=500000,lt=0,ls=0,len=0,last=0;const notes=[],open={};
+    for(const e of ev){const t=ls+(e[0]-lt)*us/1e6/div,C=ch[e[3]];
+      if(e[2]===9){ls=t;lt=e[0];us=e[3]}else if(e[2]===8)len=eot?t:0;
+      else if(e[2]===2){if(!C.pset){C.prog=e[4];C.pset=1}}
+      else if(e[2]===3)C.bend.push([t,e[4]]);
+      else if(e[2]===1){if(e[4]===64)C.ped.push([t,e[5]>=64]);else if(e[4]===7)C.vol.push([t,e[5]/127]);else if(e[4]===11)C.ex.push([t,e[5]/127]);else if(e[4]===10)C.pan=e[5]}
+      else{const k=e[3]*128+e[4];if(e[1]===3)(open[k]=open[k]||[]).push([t,e[5]]);else{const o=open[k]&&open[k].shift();if(o)notes.push({t:o[0],d:t-o[0],p:e[4],v:o[1]/127,c:e[3]})}}}
+    for(const n of notes){const P=ch[n.c].ped,off=n.t+n.d;n.r=off;let i=-1;for(let j=0;j<P.length&&P[j][0]<=off;j++)i=j;if(i>=0&&P[i][1]){const up=P.slice(i+1).find(x=>!x[1]);n.r=up?up[0]:off+4}
+      last=Math.max(last,off)}
+    notes.sort((a,b)=>a.t-b.t);
+    for(let i=0;i<notes.length;i++){const n=notes[i];if(ch[n.c].prog!==30||n.skip)continue;const sib=[];
+      for(let j=i+1;j<notes.length&&notes[j].t-n.t<.004;j++){const m=notes[j];if(m.c===n.c&&(m.p===n.p+7||m.p===n.p+12))sib.push(m)}
+      if(sib.length===2&&sib[0].p!==sib[1].p){n.pw=1;for(const m of sib)m.skip=1}}
+    return{notes,ch,len:len||last}}
+  // waves, noise and a soft room, made once per audio context
+  const KITS=new WeakMap(),kr=p=>{try{if(p.automationRate)p.automationRate='k-rate'}catch(_){}};   // k-rate: filters and pitches change per block, not per sample (much cheaper)
+  function kit(A){let k=KITS.get(A);if(k)return k;
+    const pw=a=>A.createPeriodicWave(new Float32Array(a.length),new Float32Array(a)),H=(n,f)=>{const a=[0];for(let i=1;i<=n;i++)a.push(f(i));return a};
+    k={piano:pw([0,1,.52,.34,.24,.17,.12,.09,.07,.05,.04,.03,.02]),soft:pw(H(16,i=>Math.pow(i,-1.6))),odd:pw(H(15,i=>i%2?1/i:.03/i)),
+      organ:pw([0,1,.9,.55,.45,0,.3,0,.25,0,0,0,.12]),str:pw(H(14,i=>Math.pow(i,-1.25))),mute:pw(H(10,i=>Math.pow(i,-2.2))),
+      power:pw(H(60,j=>(j%2?0:2/j)+(j%3?0:3/j)+(j%4?0:3.2/j))),bass:pw([0,1,.62,.33,.2,.12,.08,.05,.03]),harpsi:pw(H(20,i=>(i%4?1:.2)/Math.pow(i,.7))),pulse:pw(H(20,i=>Math.abs(Math.sin(i*Math.PI*.18))/i))};
+    const nb=A.createBuffer(1,A.sampleRate,A.sampleRate),x=nb.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;k.noise=nb;
+    const L=Math.floor(A.sampleRate*2);k.ir=A.createBuffer(2,L,A.sampleRate);
+    for(let q=0;q<2;q++){const y=k.ir.getChannelData(q);let s=0;for(let i=0;i<L;i++){s+=.3*((Math.random()*2-1)-s);y[i]=s*Math.pow(1-i/L,3)}}
+    k.dist=new Float32Array(1024);for(let i=0;i<1024;i++)k.dist[i]=Math.tanh((i/511.5-1)*3);   // guitar amp: soft clipping, the pre-gain sets how hard
+    KITS.set(A,k);return k}
+  // General MIDI program -> [kind, level, reverb send, vibrato in cents]
+  function patch(g,c){if(c===9)return['drum',1,.1,0];
+    if(g<=3)return['piano',1,.3,0];if(g<=5)return['ep',.7,.18,0];if(g<=7)return['harpsi',.8,.22,0];
+    if(g<=15)return[g===12||g===13?'marimba':g===11?'vibes':'bell',.75,.3,0];if(g<=23)return['organ',.4,.2,0];
+    if(g<=25)return['pluck',.75,.25,0];if(g<=28)return['egtr',.6,.18,0];if(g<=31)return['dist',.55,.14,g===29?14:0];
+    if(g===36||g===37)return['slap',.85,.03,0];if(g===38||g===39)return['sbass',.7,.03,0];if(g<=39)return['bass',.95,.03,g===35?8:0];
+    if(g<=43)return['solo',.5,.32,14];if(g===44)return['strings',.5,.36,0];if(g===45)return['pizz',.7,.3,0];if(g===46)return['harp',.75,.35,0];if(g===47)return['timp',1,.3,0];
+    if(g<=51)return['strings',.48,.38,0];if(g<=54)return['choir',.45,.42,0];if(g===55)return['hit',.6,.25,0];
+    if(g<=63)return['brass',.5,.25,g===60?4:6];if(g<=67)return['sax',.9,.24,12];if(g<=71)return['reed',.95,.28,9];if(g<=79)return['flute',.9,.32,10];
+    if(g<=87)return['lead',1,.22,16];if(g<=103)return['pad',.38,.4,0];if(g<=107)return['pluck',.7,.25,0];if(g===108)return['marimba',.7,.28,0];
+    if(g===109||g===111)return['reed',.45,.25,8];if(g===110)return['solo',.5,.3,14];if(g<=114)return['bell',.65,.3,0];if(g<=117)return['timp',.9,.25,0];return['bell',.5,.3,0]}
+  // one instance of a song: every channel gets volume, pan, a reverb send, a pitch-bend + vibrato input and (guitars) an amp
+  function start(A,S,dst,verb,t0){const K=kit(A),F=A.createGain(),W=A.createGain();F.connect(dst);W.connect(verb);const C=[],stops=[];
+    for(let c=0;c<16;c++){const s=S.ch[c];if(!S.notes.some(n=>n.c===c)){C.push(null);continue}
+      const P=patch(s.prog,c),x={k:P[0],lv:P[1],g:s.prog},vol=A.createGain();vol.gain.value=0;
+      const sch=(L,f)=>{for(const [t,v] of L)f(t,v)},ve=[...s.vol.map(e=>[e[0],0,e[1]]),...s.ex.map(e=>[e[0],1,e[1]])].sort((a,b)=>a[0]-b[0]);let cv=100/127,ce=1;
+      for(const e of ve){if(e[1])ce=e[2];else cv=e[2];vol.gain.setValueAtTime(cv*ce,Math.max(0,t0+e[0]))}
+      let out=vol;if(A.createStereoPanner){const pn=A.createStereoPanner();pn.pan.value=(s.pan-64)/64;vol.connect(pn);out=pn}
+      x.out=out;out.connect(F);const sd=A.createGain();sd.gain.value=P[2];out.connect(sd);sd.connect(W);
+      if(x.k==='dist'){const pre=A.createGain(),ws=A.createWaveShaper(),hp=A.createBiquadFilter(),cab=A.createBiquadFilter(),mid=A.createBiquadFilter(),post=A.createGain();
+        pre.gain.value=s.prog===29?2.5:5;ws.curve=K.dist;ws.oversample=s.prog===29?'2x':'none';hp.type='highpass';hp.frequency.value=90;cab.type='lowpass';cab.frequency.value=5200;mid.type='peaking';mid.frequency.value=2200;mid.gain.value=3;post.gain.value=s.prog===29?.28:.15;
+        pre.connect(ws);ws.connect(hp);hp.connect(cab);cab.connect(mid);mid.connect(post);post.connect(vol);x.in=pre}else x.in=vol;
+      x.mod=A.createGain();x.vib=!!(P[3]||s.bend.length);const bs=s.bend.length&&A.createConstantSource?A.createConstantSource():null;
+      if(bs){bs.offset.value=0;sch(s.bend,(t,v)=>bs.offset.setValueAtTime(v,Math.max(0,t0+t)));bs.connect(x.mod);bs.start(Math.max(0,t0));stops.push(bs)}
+      if(P[3]){const lf=A.createOscillator(),lg=A.createGain();lf.frequency.value=5.2+Math.random()*.6;lg.gain.value=P[3];lf.connect(lg);lg.connect(x.mod);lf.start(Math.max(0,t0));stops.push(lf)}
+      C.push(x)}
+    return{F,W,C,stops,t0}}
+  function drumSynth(A,K,x,t,p,v){const a=x.lv*.25*(.15+.85*v*v),o=x.in;
+    const nz=(f,ty,q,amp,T,at=0)=>{const s=A.createBufferSource(),b=A.createBiquadFilter(),g=A.createGain();s.buffer=K.noise;b.type=ty;kr(b.frequency);b.frequency.value=f;b.Q.value=q;
+      g.gain.setValueAtTime(amp,t+at);g.gain.setTargetAtTime(0,t+at+.001,T);s.connect(b);b.connect(g);g.connect(o);s.start(t+at,Math.random()*.5);s.stop(t+at+T*7+.02)};
+    const tn=(f0,f1,amp,T,ty)=>{const s=A.createOscillator(),g=A.createGain();s.type=ty||'sine';kr(s.frequency);s.frequency.setValueAtTime(f0,t);if(f1)s.frequency.exponentialRampToValueAtTime(f1,t+Math.min(.1,T));
+      g.gain.setValueAtTime(amp,t);g.gain.setTargetAtTime(0,t+.001,T);s.connect(g);g.connect(o);s.start(t);s.stop(t+T*7+.02)};
+    if(p===35||p===36){tn(150,46,a*1.25,.17);nz(3500,'highpass',.7,a*.2,.006)}
+    else if(p===37){tn(1700,0,a*.25,.022,'triangle');nz(4000,'bandpass',2,a*.25,.012)}
+    else if(p===38||p===40){tn(205,165,a*.4,.06,'triangle');nz(2600,'bandpass',.6,a*.7,v<.35?.05:.11);nz(6500,'highpass',.7,a*.22,.05)}
+    else if(p===39){for(const at of[0,.011,.022])nz(1300,'bandpass',1.4,a*.45,at<.02?.008:.09,at)}
+    else if(p===42||p===44){nz(8500,'highpass',.7,a*.28,p===44?.018:.032)}
+    else if(p===46){nz(7800,'highpass',.7,a*.26,.2)}
+    else if(p===41||p===43||p===45||p===47||p===48||p===50){const f0={41:82,43:98,45:116,47:136,48:158,50:184}[p];tn(f0*1.7,f0,a*.85,.24);nz(1500,'bandpass',.8,a*.12,.04)}
+    else if(p===49||p===57||p===52||p===55){nz(5200,'highpass',.5,a*.32,p===55?.32:1.1);nz(9500,'bandpass',1,a*.12,p===55?.25:.7)}
+    else if(p===51||p===59){nz(7000,'highpass',.9,a*.11,.32);tn(3600,0,a*.025,.5,'square')}
+    else if(p===53){tn(2250,0,a*.12,.8);tn(3380,0,a*.06,.5)}
+    else if(p===54){nz(7200,'highpass',.8,a*.22,.11)}
+    else if(p===56){tn(562,0,a*.16,.11,'square');tn(845,0,a*.12,.09,'square')}
+    else if(p===69||p===70||p===82){nz(6500,'highpass',.7,a*.18,.045)}
+    else if(p>=75&&p<=77){tn(p===75?2500:p===76?1050:800,0,a*.25,.035)}
+    else if(p>=60&&p<=64){const f0={60:420,61:310,62:340,63:255,64:195}[p];tn(f0*1.4,f0,a*.55,p===62?.04:.17);nz(3000,'bandpass',1,a*.12,.015)}
+    else if(p===65||p===66){tn(p===65?430:330,0,a*.3,.22,'triangle');nz(4200,'bandpass',1,a*.2,.03)}
+    else if(p===80||p===81){tn(4200,0,a*.1,p===81?1:.12)}
+    else nz(3000,'bandpass',.8,a*.18,.05)}
+  const DRB=new Map();
+  async function prep(A,S){const sr=A.sampleRate,need=[...new Set(S.notes.filter(n=>n.c===9).map(n=>n.p))].filter(p=>!DRB.has(sr+':'+p));
+    await Promise.all(need.map(async p=>{const L=[49,57,52,81].includes(p)?2.4:[51,59,53,46].includes(p)?1.3:.7,oc=new OfflineAudioContext(1,Math.ceil(sr*L),sr);
+      drumSynth(oc,kit(oc),{lv:1,in:oc.destination},0,p,1);DRB.set(sr+':'+p,await oc.startRendering())}))}
+  function drum(A,x,t,p,v){const b=DRB.get(A.sampleRate+':'+p);if(!b)return;const s=A.createBufferSource(),g=A.createGain();s.buffer=b;g.gain.value=x.lv*(.15+.85*v*v);s.connect(g);g.connect(x.in);s.start(t)}
+  // one note of a pitched instrument
+  function note(A,x,t,p,v,r,d,pw){const K=kit(A);if(x.k==='drum')return drum(A,x,t,p,v),t+1.5;
+    const f=440*Math.pow(2,(p-69)/12),k=x.k,a=x.lv*(.05+.2*v*v),g=A.createGain(),gn=g.gain,src=[];let end=r+.5;
+    const osc=(w,fr,det,to)=>{const o=A.createOscillator();if(typeof w==='string')o.type=w;else o.setPeriodicWave(w);o.frequency.value=fr;if(det)o.detune.value=det;if(x.vib)x.mod.connect(o.detune);o.connect(to||g);src.push(o);return o};
+    const flt=(ty,f0,q,to)=>{const b=A.createBiquadFilter();b.type=ty;kr(b.frequency);b.frequency.value=f0;b.Q.value=q||.7;b.connect(to||g);return b};
+    const env=(at,pk,dt,sus,rt,T2)=>{const ra=Math.max(r,t+at);gn.setValueAtTime(0,t);gn.linearRampToValueAtTime(pk,t+at);gn.setTargetAtTime(pk*sus,t+at,dt);
+      if(T2&&ra>t+at+dt)gn.setTargetAtTime(0,t+at+dt,T2);gn.setTargetAtTime(0,ra,rt);end=ra+rt*5;if(T2)end=Math.min(end,t+at+dt+T2*6)};
+    const breath=(fc,amp)=>{const s=A.createBufferSource(),b=A.createBiquadFilter(),bg=A.createGain();s.buffer=K.noise;b.type='bandpass';b.frequency.value=fc;b.Q.value=1.5;
+      bg.gain.setValueAtTime(amp,t);bg.gain.setTargetAtTime(amp*.25,t+.04,.08);s.connect(b);b.connect(bg);bg.connect(g);src.push(s)};
+    if(k==='piano'){const T=Math.max(.45,3.6*Math.pow(2,-(p-36)/20)),pk=(.05+.2*v*v)*(1.15-(p-60)/110)*x.lv,b=flt('lowpass',Math.min(16000,f*(2.5+v*9)),.4);
+      b.frequency.setTargetAtTime(Math.max(f*1.4,260),t+.01,T*.35);osc(K.piano,f,0,b);osc(K.piano,f,p<45?.8:2.2,b);
+      gn.setValueAtTime(0,t);gn.linearRampToValueAtTime(pk,t+.005);gn.setTargetAtTime(pk*.42,t+.005,.11);const s2=t+.3;if(r>s2)gn.setTargetAtTime(0,s2,T);gn.setTargetAtTime(0,Math.max(r,t+.01),.1);end=Math.min(r+.6,s2+T*6);
+      const s=A.createBufferSource(),hf=A.createBiquadFilter(),hg=A.createGain();s.buffer=K.noise;hf.type='bandpass';hf.frequency.value=Math.min(5000,f*3);hf.Q.value=.8;
+      hg.gain.setValueAtTime(pk*.2,t);hg.gain.exponentialRampToValueAtTime(.0001,t+.035);s.connect(hf);hf.connect(hg);hg.connect(x.in);s.start(t,Math.random()*.5);s.stop(t+.05)}
+    else if(k==='ep'){const cr=osc('sine',f),md=A.createOscillator(),mg=A.createGain();md.frequency.value=f;if(x.vib)x.mod.connect(md.detune);mg.gain.setValueAtTime(f*(.3+1.3*v),t);mg.gain.setTargetAtTime(f*.05,t,.28);md.connect(mg);mg.connect(cr.frequency);src.push(md);
+      const tg=A.createGain();tg.gain.setValueAtTime(.1*v,t);tg.gain.setTargetAtTime(0,t,.03);osc('sine',f*7.02,0,tg).end=t+.2;tg.connect(g);env(.003,a*1.2,.6,.55,.14,Math.max(.6,2.8*Math.pow(2,-(p-48)/24)))}
+    else if(k==='harpsi'){const b=flt('lowpass',Math.min(12000,f*14),.3);osc(K.harpsi,f,0,b);osc(K.harpsi,f*2,3,b);env(.002,a,.08,.5,.06,Math.max(.25,1.4*Math.pow(2,-(p-48)/18)))}
+    else if(k==='marimba'||k==='vibes'||k==='bell'){osc('sine',f);const hg=A.createGain();hg.gain.setValueAtTime(k==='bell'?.45:.3,t);hg.gain.setTargetAtTime(0,t,k==='bell'?.4:.03);osc('sine',f*(k==='bell'?2.76:3.99),0,hg);hg.connect(g);
+      if(k==='bell'){const h2=A.createGain();h2.gain.setValueAtTime(.2,t);h2.gain.setTargetAtTime(0,t,.15);osc('sine',f*5.4,0,h2);h2.connect(g)}
+      const T=k==='vibes'?2.4:k==='bell'?1.3:Math.max(.12,.55*Math.pow(2,-(p-60)/24));gn.setValueAtTime(0,t);gn.linearRampToValueAtTime(a*1.2,t+.002);gn.setTargetAtTime(0,t+.002,T);
+      if(r<t+T*3)gn.setTargetAtTime(0,r,k==='vibes'?.25:T);end=Math.min(t+T*7,Math.max(r,t)+T*3)+.05}
+    else if(k==='organ'){osc(K.organ,f);osc(K.organ,f,4);env(.01,a*.8,.1,.9,.06)}
+    else if(k==='pluck'||k==='harp'||k==='pizz'){const b=flt('lowpass',Math.min(14000,f*(k==='harp'?6:9)),.5);b.frequency.setTargetAtTime(f*2,t+.005,k==='pizz'?.05:.3);osc(K.soft,f,0,b);
+      const T=(k==='harp'?2:k==='pizz'?.2:1.1)*Math.pow(2,-(p-55)/30);env(.003,a*1.2,T,0,.12)}
+    else if(k==='egtr'){osc(x.g===28?K.mute:K.soft,f);if(x.g!==28)osc(K.soft,f,5);const T=x.g===28?.15:1.3;env(.003,a*.8,.4,.55,.08,T)}
+    else if(k==='dist'){if(x.g===29){const b=flt('lowpass',1700+v*3200,.8);osc('sawtooth',f,-6,b);osc('sawtooth',f,6,b);env(.003,a*1.3,.3,.85,.04)}
+      else{const pm=d<.12,two=pw&&!pm;osc(pm?K.mute:two?K.power:'sawtooth',two?f/2:f);env(.003,a*(two?2.6:1.8),.3,.85,.04)}}
+    else if(k==='bass'){const b=flt('lowpass',420+v*1600,1);b.frequency.setTargetAtTime(260+f*2,t+.005,.18);osc(K.bass,f,0,b);env(.005,a*1.1,.6,.72,.05,2.2)}
+    else if(k==='slap'){const b=flt('lowpass',2200+v*4200,1.2);b.frequency.setTargetAtTime(480+f,t+.004,.1);osc(K.bass,f,0,b);
+      const s=A.createBufferSource(),hp=A.createBiquadFilter(),cg=A.createGain();s.buffer=K.noise;hp.type='highpass';hp.frequency.value=2500;cg.gain.setValueAtTime(a*.5*v,t);cg.gain.setTargetAtTime(0,t,.008);s.connect(hp);hp.connect(cg);cg.connect(x.in);s.start(t,Math.random()*.5);s.stop(t+.05);
+      env(.002,a*1.2,.25,.6,.05,1.4)}
+    else if(k==='sbass'){const b=flt('lowpass',200,7);b.frequency.setValueAtTime(200,t);b.frequency.linearRampToValueAtTime(400+v*2600,t+.01);b.frequency.setTargetAtTime(240+f,t+.012,.12);osc('sawtooth',f,0,b);osc('square',f,7,b);env(.004,a*.8,.3,.8,.05)}
+    else if(k==='strings'){osc(K.str,f,-9);osc(K.str,f,8);env(.12+(1-v)*.35,a*.85,.4,.9,.35)}
+    else if(k==='solo'){const b=flt('lowpass',1800+v*3000,.4);osc('sawtooth',f,0,b);osc('sawtooth',f,4,b);env(.07,a,.4,.9,.2)}
+    else if(k==='choir'){const w=K['ch'+p]||(K['ch'+p]=A.createPeriodicWave(new Float32Array(41),new Float32Array([0,...Array.from({length:40},(_,j)=>{const h=(j+1)*f;
+        return h>9000?0:[[750,110,1],[1150,130,.55],[2700,250,.3]].reduce((s,[c,bw,gv])=>s+gv/(1+((h-c)/bw)**2),.02)/(j+1)})])));
+      osc(w,f,-10);osc(w,f,10);env(.25,a*1.4,.5,.9,.5)}
+    else if(k==='hit'){for(const [m,dt] of[[1,0],[1.5,4],[2,-4]])osc('sawtooth',f*m,dt);env(.004,a*.9,.15,0,.1)}
+    else if(k==='timp'){const o=osc('sine',f*1.04);o.frequency.setTargetAtTime(f,t,.05);const hg=A.createGain();hg.gain.value=.3;osc('sine',f*1.5,0,hg);hg.connect(g);breath(300,a*.5);env(.003,a*1.6,1.3,0,.5)}
+    else if(k==='brass'){const hn=x.g===60,b=flt('lowpass',450,.9);b.frequency.setValueAtTime(450,t);b.frequency.linearRampToValueAtTime((hn?900:1700)+v*(hn?1200:3600),t+.05);b.frequency.setTargetAtTime((hn?700:1300)+v*(hn?900:2200),t+.06,.25);
+      osc('sawtooth',f,0,b);if(x.g===61||x.g>=62)osc('sawtooth',f,9,b);env(hn?.06:.025,a,.3,.85,.1)}
+    else if(k==='sax'){const pk=A.createBiquadFilter();pk.type='peaking';pk.frequency.value=1400;pk.gain.value=6;pk.Q.value=1;const b=flt('lowpass',2400+v*2600,.8);pk.connect(b);osc('sawtooth',f,0,pk);breath(2200,a*.25);env(.03,a*.9,.3,.85,.08)}
+    else if(k==='reed'){const b=flt('lowpass',x.g===71?2000+v*2200:3200,.7);osc(x.g===71?K.odd:K.pulse,f,0,b);breath(1800,a*.12);env(.035,a,.3,.9,.08)}
+    else if(k==='flute'){osc('sine',f);const hg=A.createGain();hg.gain.value=.12;osc('triangle',f*2,0,hg);hg.connect(g);breath(Math.min(9000,f*2),a*(x.g===75?.6:.3));env(x.g===75?.03:.06,a*1.4,.3,.9,.12)}
+    else if(k==='lead'){const b=flt('lowpass',2400+v*2600,1.4);if(x.g===80)osc('square',f,0,b);else{osc('sawtooth',f,-7,b);osc('sawtooth',f,7,b)}env(.008,a*.9,.3,.85,.08)}
+    else{osc(K.mute,f,-12);osc(K.mute,f,12);env(.5,a*.9,.8,.9,.9)}   // pads
+    g.connect(x.in);for(const o of src){o.start(t);o.stop(Math.min(end,o.end||end))}return end}
+  return{parse,start,note,patch,kit,prep}})();
+
+const music=(()=>{
+  // every moment of the game has its own songs; menu songs take turns, the others are picked at random
+  const MODES={settings:['nocturne'],menu:['menu_adagio','menu_dream','menu_temple'],play:['play_coast','play_skyline','play_tropic','play_twilight','play_runway'],
+    high:['high_circus','high_requiem','high_carnival'],duel:['duel_moonlit','duel_fog','duel_heist'],dead:['dead_alley']};
+  MODES.king=MODES.high;
+  const FILES={nocturne:'music/nocturne.mid',menu_adagio:'music/menu_adagio.mid',menu_dream:'music/menu_dream.mid',menu_temple:'music/menu_temple.mid',
+    play_coast:'music/play_coast.mid',play_skyline:'music/play_skyline.mid',play_tropic:'music/play_tropic.mid',play_twilight:'music/play_twilight.mid',play_runway:'music/play_runway.mid',
+    high_circus:'music/high_circus.mid',high_requiem:'music/high_requiem.mid',high_carnival:'music/high_carnival.mid',
+    duel_moonlit:'music/duel_moonlit.mid',duel_fog:'music/duel_fog.mid',duel_heist:'music/duel_heist.mid',dead_alley:'music/dead_alley.mid'};
+  const DB={nocturne:.6,menu_adagio:1.5,menu_dream:1.5,menu_temple:2,play_skyline:.8,play_twilight:1.7,play_runway:1,high_circus:-1.9,high_requiem:-1,high_carnival:-2.2,duel_fog:1,duel_heist:1.4,dead_alley:3};   // loudness correction per song in dB (measured offline with tools: mix render)
+  const MASTER=.38,LOOK=.5;
+  let on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
+  try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
+  const load=k=>cache[k]||(cache[k]=fetch(FILES[k]).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>synth.parse(b)).catch(e=>{logErr(e,'music '+k);return null}));
+  function setup(){if(mg)return true;A=sfx.ctx();if(!A)return false;mg=A.createGain();mg.gain.value=0;const cp=A.createDynamicsCompressor();cp.threshold.value=-10;cp.ratio.value=3;mg.connect(cp);cp.connect(A.destination);
+    verb=A.createConvolver();verb.buffer=synth.kit(A).ir;verb.connect(mg);return true}
+  const vol=()=>on&&unlocked&&!document.hidden?MASTER*SET.mv*(duckT>0?.45:1):0;
+  function pick(m){const L=MODES[m];if(m==='menu'){turn[m]=((turn[m]??-1)+1)%L.length;return L[turn[m]]}
+    const o=L.length>1?L.filter(k=>k!==last[m]):L;return o[(Math.random()*o.length)|0]}
+  function fade(s,sec){const t=A.currentTime;for(const n of[s.I.F.gain,s.I.W.gain]){n.cancelScheduledValues(t);n.setValueAtTime(n.value,t);n.linearRampToValueAtTime(0,t+sec)}s.dead=t+sec;old.push(s)}
+  // start a song (at = seconds into it, to carry on after a duel); a loop restarts it right at its end
+  function play(k,at,m,fadeIn,when){const g=++gen;load(k).then(S=>S&&synth.prep(A,S).then(()=>S)).then(S=>{if(!S||g!==gen||!mg)return;last[m]=k;
+    const t0=Math.max(when||0,A.currentTime+.08)-(at||0),I=synth.start(A,S,mg,verb,t0),lv=Math.pow(10,(DB[k]||0)/20);
+    for(const n of[I.F.gain,I.W.gain]){n.setValueAtTime(0,A.currentTime);n.linearRampToValueAtTime(lv,A.currentTime+(fadeIn||.05))}
+    let i=0;while(i<S.notes.length&&S.notes[i].t<(at||0)-.01)i++;cur={k,S,I,i,t0,m,lv}})}
+  function pump(){if(!cur||!mg)return;const now=A.currentTime,N=cur.S.notes;
+    while(cur.i<N.length&&cur.t0+N[cur.i].t<now+LOOK){const n=N[cur.i++],x=cur.I.C[n.c];if(x&&!n.skip&&cur.t0+n.t>=now-.05)synth.note(A,x,cur.t0+n.t,n.p,n.v,cur.t0+n.r,n.d,n.pw)}
+    if(cur.i>=N.length&&now+LOOK>=cur.t0+cur.S.len){const s=cur,m=s.m;   // the song is over: loop it (one song in this mode) or go on with the next
+      if(MODES[m].length===1){const I=synth.start(A,s.S,mg,verb,s.t0+s.S.len);for(const n of[I.F.gain,I.W.gain])n.value=s.lv;old.push({I:s.I,dead:s.t0+s.S.len+6});cur={...s,I,i:0,t0:s.t0+s.S.len}}
+      else{old.push({I:s.I,dead:s.t0+s.S.len+6});cur=null;play(pick(m),0,m,.05,s.t0+s.S.len+.6)}}
+    old=old.filter(s=>{if(now<s.dead)return true;for(const st of s.I.stops)try{st.stop()}catch(_){}try{s.I.F.disconnect();s.I.W.disconnect()}catch(_){}return false})}
+  function change(m){const prev=cur;if(prev&&(prev.m==='play'||prev.m==='high'||prev.m==='menu'))pos[prev.m]={k:prev.k,at:A.currentTime-prev.t0};
+    if(prev){fade(prev,m==='duel'?.35:1.2);cur=null}gen++;
+    if(!m||!on||!unlocked||document.hidden)return;
+    const back=pos[m]&&MODES[m].includes(pos[m].k)?pos[m]:null;delete pos[m];
+    const k=back?back.k:pick(m),g=gen;setTimeout(()=>{if(g===gen)play(k,back?back.at:0,m,m==='duel'?.15:back?1.5:.8)},m==='duel'?120:prev?700:0)}
   const api={
-    get playing(){return busy},
-    parse,voice,chain,GAIN,
-    get song(){return song},
-    progress(){return busy?[Math.max(0,ac.currentTime-t0),song.len]:null},
-    vol(){if(out&&busy)out.gain.value=GAIN*SET.mv},
-    async play(){if(busy)return;ac=sfx.ctx();if(!ac)throw Error('no Web Audio');
-      if(!song){const r=await fetch(SRC);if(!r.ok)throw Error('HTTP '+r.status);song=parse(await r.arrayBuffer())}
-      const ch=chain(ac,ac.destination);out=ch.o;bus=ch.b;out.gain.value=GAIN*SET.mv;
-      busy=true;idx=0;t0=ac.currentTime+.15;music.hold(true);pump();timer=setInterval(pump,80)},
-    stop(){if(!busy)return;busy=false;clearInterval(timer);music.hold(false);const o=out,b=bus,t=ac.currentTime;
-      o.gain.cancelScheduledValues(t);o.gain.setValueAtTime(o.gain.value,t);o.gain.linearRampToValueAtTime(0,t+.3);setTimeout(()=>{try{b.disconnect();o.disconnect()}catch(_){}},500)}};
+    get on(){return on},
+    unlock(){if(unlocked)return;if(!setup())return;unlocked=true;setInterval(pump,90);const m=mode;mode='';api.mode(m||'menu')},
+    mode(m){if(m===mode)return;const pm=mode;mode=m;if(!unlocked)return;
+      if(cur&&MODES[m]&&MODES[m].includes(cur.k)&&pm!=='settings'&&m!=='settings'){cur.m=m;return}   // the same songs (king and high level): keep playing
+      change(m)},
+    toggle(){on=!on;try{localStorage.setItem('snackdown-music',on?'1':'0')}catch(_){}const m=mode;mode='';if(on)api.mode(m);else{if(cur){fade(cur,.6);cur=null}gen++;mode=m}return on},
+    duck(sec){duckT=Math.max(duckT,sec)},
+    tick(dt){duckT=Math.max(0,duckT-dt);if(!mg)return;const hid=document.hidden;
+      if(hid&&cur){pos[cur.m]={k:cur.k,at:A.currentTime-cur.t0};fade(cur,.2);cur=null;gen++}   // hidden tab: stop (timers are slow there), carry on when it comes back
+      else if(!hid&&!cur&&on&&unlocked&&mode&&!waiting&&!old.some(s=>s.dead>A.currentTime+.3)){waiting=true;setTimeout(()=>{waiting=false;if(!cur&&on&&!document.hidden){const m=mode;mode='';api.mode(m)}},250)}
+      const t=A.currentTime,v=vol();mg.gain.setTargetAtTime(v,t,duckT>0?.08:.25)},
+    // tests and tools
+    get state(){return cur?{k:cur.k,m:cur.m,at:A.currentTime-cur.t0,len:cur.S.len}:null},FILES,MODES,DB,load};
   return api})();
+setInterval(()=>music.tick(.05),50);
 
 /* ---------- input ---------- */
 // browsers may pause audio until the page gets a click or key press, so wake it up on any of them
@@ -2183,7 +2280,7 @@ $('gbody').addEventListener('click',e=>{const b=e.target.closest('[data-tree]');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden){$('guide').hidden=true;sfx.uiClose()}});
 /* ---------- menu sounds: every button clicks; some get their own sound (open, close, done, tabs, toggles) ---------- */
 {const SND={custbtn:'uiOpen',howbtn:'uiOpen',guidebtn:'uiOpen',setbtn:'uiOpen',gear:'uiOpen',bugbtn:'uiOpen',menubtn:'uiOpen',setclose:'uiClose',gclose:'uiClose',hclose:'uiClose',bugclose:'uiClose',leavestay:'uiClose',loadcancel:'uiClose',
-    cdone:'uiDone',bugcopy:'uiDone',again:'uiDone',hprev:'uiTab',hnext:'uiTab',mute:'',mtest:'',btnSprint:'',btnDash:''};
+    cdone:'uiDone',bugcopy:'uiDone',again:'uiDone',hprev:'uiTab',hnext:'uiTab',mute:'',btnSprint:'',btnDash:''};
   const skip=b=>b.id==='btnSprint'||b.id==='btnDash'||b.classList.contains('pcard');
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button,summary');if(!b||skip(b)||sfx.uiSince(e.timeStamp))return;
     if(b.id==='consentyes'||b.id==='consentno'||b.id==='onlinetoggle'){sfx.uiToggle(b.id!=='consentno');return}
@@ -2665,6 +2762,7 @@ function update(dt,t){
   if(role==='server'){parts.length=0;floaters.length=0;skids.length=0;return}
   updateVisuals(dt,t)}
 let advT=0;
+const MUSIC_HIGH=30;let hiMus=false;   // from this level on the play music turns into metal
 function updateVisuals(dt,t){
   if(role==='solo'&&player&&game==='play'){advT-=dt;if(advT<=0){advT=.2;
     for(const e of ents){if(e===player||(e.state!=='move'&&e.state!=='eat')||Math.abs(e.x-player.x)>700||Math.abs(e.y-player.y)>700){e.adv=undefined;continue}e.adv=advOf(player,e,t)}}}
@@ -2675,7 +2773,8 @@ function updateVisuals(dt,t){
   for(const h of houses){const inside=player&&game==='play'&&houseAt(player.x,player.y)===h;h.alpha+=((inside?0:1)-h.alpha)*Math.min(1,dt*8)}
   if(toastT>0){toastT-=dt;if(toastT<=0)$('toast').style.opacity=0;if(toastT<-.5)$('toast').hidden=true}
   if(player&&game==='play'){const ih=houseAt(player.x,player.y);if(ih&&ih!==player.inHouse)sfx.door();player.inHouse=ih;updateHud(t);drawMini()}
-  music.mode(game==='dead'?'dead':game!=='play'?'menu':duel?'duel':king===player&&player?'king':'play');
+  if(player){const l=L(player);if(l>=MUSIC_HIGH)hiMus=true;else if(l<MUSIC_HIGH-5)hiMus=false}   // a bit of slack, so one lost duel does not flip the music back and forth
+  music.mode(!$('settings').hidden?'settings':game==='dead'?'dead':game!=='play'?'menu':duel?'duel':king===player&&player?'king':hiMus?'high':'play');
   if(role==='solo'){boardT-=dt;if(boardT<=0&&game==='play'){boardT=.5;updateBoard()}}}
 function showDeath(){game='dead';
   $('deadby').textContent='Eaten by '+(player.eater?player.eater.name:'someone')+'. '+(respawnLvl>1?'Last Stand: you will restart at level '+respawnLvl+'.':'Snack, dash and duel your way back up.');
@@ -2716,7 +2815,7 @@ muteBtn.addEventListener('click',()=>{sfx.toggle();showMute();muteBtn.blur();if(
 const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
-function applySet(){sfx.vol();midiTest.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
+function applySet(){sfx.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
 function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
 const FPS_SNAP=[30,60,90,120,144,165,240,360,500,1000];
 const fpsPos=f=>1000*Math.log(clamp(f,30,1000)/30)/Math.log(1000/30), fpsAt=p=>Math.round(30*Math.pow(1000/30,p/1000));   // the slider is logarithmic, so 30..144 gets as much room as 144..1000
@@ -2730,10 +2829,6 @@ $('fpsr').addEventListener('input',e=>{const r=e.target;let p=+r.value,f=null;co
   r.value=Math.round(p);r.dataset.p=r.value;SET.fps=f;saveSet();applySet()});
 $('settings').addEventListener('input',e=>{const i=e.target,k=i.dataset.k;if(i.dataset.z){setZoom(i.value/100,true);i.nextElementSibling.textContent=i.value+'%';return}if(!k)return;SET[k]=i.type==='checkbox'?(i.checked?1:0):i.value/100;
   applySet();saveSet()});
-{const b=$('mtest'),o=$('mtesto'),mm=x=>Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0');
-  const show=()=>{const pr=midiTest.progress();b.innerHTML=pr?'&#9632; Stop':'&#9654; Nocturne';o.textContent=pr?mm(pr[0])+' / '+mm(pr[1]):''};
-  b.addEventListener('click',()=>{if(midiTest.playing){midiTest.stop();show()}else{o.textContent='loading';midiTest.play().then(show,e=>{o.textContent='could not play ('+e.message+')'})}});
-  setInterval(()=>{if(!$('settings').hidden&&(midiTest.playing||b.textContent.indexOf('Stop')>=0))show()},250)}
 {const fb=$('fsbtn'),de=document.documentElement;if(!(de.requestFullscreen||de.webkitRequestFullscreen))fb.hidden=true;
   else fb.addEventListener('click',()=>{try{(document.fullscreenElement||document.webkitFullscreenElement)?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(de.requestFullscreen||de.webkitRequestFullscreen).call(de)}catch(_){}})}
 $('setbtn').addEventListener('click',()=>openSettings(true));$('gear').addEventListener('click',()=>openSettings(true));$('setclose').addEventListener('click',()=>openSettings(false));

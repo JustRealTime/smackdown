@@ -40,4 +40,4 @@ Alle Zahlen des Spiels (Kartengröße, Anzahl Bots, wie viel herumliegt, Seltenh
 
 ## Entwickeln
 
-Bearbeitet wird `game.html` (Musik liegt in `music/`). Danach `python3 tools/build.py` ausführen, das erzeugt `index.html`.
+Bearbeitet wird `game.html` (Musik liegt als MIDI in `music/`, erzeugt von `tools/compose.py`). Danach `python3 tools/build.py` ausführen, das erzeugt `index.html`.
