@@ -265,14 +265,14 @@ perks: {
     phase:       { tier: 3, weight: 1, max: 1 },                                      // nobody can duel you while you dash
     double:      { tier: 3, weight: 1, max: 1, charges: 2 },                          // dash charges
     // --- Typist ---
-    short:       { tier: 0, weight: 1, max: 2, perRank: 1 },                          // your phrase is 1 word shorter
-    forgive:     { tier: 1, weight: 1, max: 3, perRank: 1 },                          // first typos per duel are ignored
-    head:        { tier: 1, weight: 1, max: 3, perRank: 0.5 },                        // opponent starts 0.5 s late
-    plunder:     { tier: 1, weight: 1, max: 3, perRank: 0.15 },                       // +15% levels from duel wins
-    curse:       { tier: 2, weight: 1, max: 2, perRank: 1 },                          // opponent's phrase is 1 word longer
-    underdog:    { tier: 1, weight: 1, max: 2, perRank: 1 },                          // against a higher level: phrase 1 word shorter
+    short:       { tier: 2, weight: 0.5, max: 1, perRank: 1 },                          // your phrase is 1 word shorter
+    forgive:     { tier: 2, weight: 0.7, max: 2, perRank: 1 },                          // first typos per duel are ignored
+    head:        { tier: 2, weight: 0.6, max: 2, perRank: 0.5 },                        // opponent starts 0.5 s late
+    plunder:     { tier: 2, weight: 0.8, max: 3, perRank: 0.15 },                       // +15% levels from duel wins
+    curse:       { tier: 3, weight: 1, max: 1, perRank: 1 },                          // opponent's phrase is 1 word longer
+    underdog:    { tier: 2, weight: 0.5, max: 1, perRank: 1 },                          // against a higher level: phrase 1 word shorter
     bounty:      { tier: 0, weight: 1, max: 2, perRank: 0.5 },                        // +50% bounty for beating the King
-    warm:        { tier: 0, weight: 1, max: 2, perRank: 1 },                          // first word(s) already typed
+    warm:        { tier: 2, weight: 0.5, max: 1, perRank: 1 },                          // first word(s) already typed
     flow:        { tier: 3, weight: 1, max: 1, streak: 20, slowdown: 0.7 },           // after 20 correct letters in a row the opponent types at 70% speed
     // --- Guard ---
     afterwin:    { tier: 0, weight: 1, max: 3, perRank: 1.5 },                        // seconds of protection after a win

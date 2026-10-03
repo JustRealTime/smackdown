@@ -7,7 +7,7 @@ Only the instruments (programs) and drum notes that appear in music/*.mid are ke
 Format (read by game.html, `SFK`): 'TBSF', u32 length of the JSON, JSON, then the ADPCM data of all samples.
   JSON {"s": [[byteOffset, sampleCount, rate, firstSample], ...],
         "p": {"bank:program": [[keyLo, keyHi, velLo, velHi, sample, rootKey, cents, loopMode, attenuationCb, pan, filterFcCents, filterQcb,
-                                delay, attack, hold, decay, sustainCb, release (timecents), exclusiveClass, keyScale, keyToHold, keyToDecay, loopStart, loopEnd, startOffset], ...]}}
+                                delay, attack, hold, decay, sustainCb, release (timecents), exclusiveClass, keyScale, keyToHold, keyToDecay, loopStart, loopEnd, startOffset, modEnvToFilterFc, modAttack, modHold, modDecay, modSustain, modRelease, keyToModHold, keyToModDecay, mods], ...]}}
 Licence of the default font: see THIRD_PARTY.md.
 """
 import glob, json, os, struct, sys
@@ -46,6 +46,16 @@ def midi_use():
                     if hi == 0x90 and v > 0 and ch == 9: drums.add(a)
             p = end
     return sorted(progs), sorted(drums)
+
+
+def mods(r):
+    """the modulators that depend on velocity or key and change attenuation (48), filter cutoff (8), resonance (9) or the filter envelope depth (11): [source, destination, amount, amount source]."""
+    out = []
+    for src, dest, amt, src2, trans in r['mods']:
+        if dest not in (48, 8, 9, 11) or trans or (src & 128) or (src & 127) not in (2, 3): continue
+        if src2 and ((src2 & 128) or (src2 & 127) not in (2, 3)): continue
+        out.append([src, dest, amt, src2])
+    return out
 
 
 def encode(pcm, lo, hi):
@@ -95,7 +105,8 @@ def main(sf2path):
             mode = r['sampleModes'] & 3
             regs.append([r['keyRange'][0], r['keyRange'][1], r['velRange'][0], r['velRange'][1], used[sid], root, cents, mode, r['initialAttenuation'], r['pan'],
                          r['initialFilterFc'], r['initialFilterQ'], r['delayVolEnv'], r['attackVolEnv'], r['holdVolEnv'], r['decayVolEnv'], r['sustainVolEnv'],
-                         r['releaseVolEnv'], r['exclusiveClass'], r['scaleTuning'], r['keynumToVolEnvHold'], r['keynumToVolEnvDecay'], ls, le, st0])
+                         r['releaseVolEnv'], r['exclusiveClass'], r['scaleTuning'], r['keynumToVolEnvHold'], r['keynumToVolEnvDecay'], ls, le, st0,
+                         r['modEnvToFilterFc'], r['attackModEnv'], r['holdModEnv'], r['decayModEnv'], r['sustainModEnv'], r['releaseModEnv'], r['keynumToModEnvHold'], r['keynumToModEnvDecay'], mods(r)])
         presets['%d:%d' % (bank, prog)] = regs
     order = sorted(used, key=lambda k: used[k]); samples = []; blob = bytearray(); raw = 0
     for k, sid in enumerate(order):

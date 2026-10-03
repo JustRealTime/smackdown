@@ -295,7 +295,7 @@ def play_skyline():
     for b0, nb, k in sec:
         t0 = S.bar(b0)
         bassline(bs, t0, tl, {'V': 'S.xO..S.x.O.S5.A', 'P': 'R-.R-.R-.R-.O-5-', 'C': 'R-.R-.R-.R-.O-5-', 'S': 'S.OxS.OxS.Ox5.A.', 'O': 'R---R---R---R---'}[k], nb, v=96)
-        comp(pn, t0, tl, {'V': 'x-.x-.x-..x-.x-.', 'P': 'x---x---x---x---', 'C': 'x---.x--x---.x--', 'S': 'x-.x-.x-..x-.x-.', 'O': 'x---------------'}[k], nb, 66, False, 64)
+        comp(pn, t0, tl, {'V': 'x-.x-.x-..x-.x-.', 'P': 'x---x---x---x---', 'C': 'x---.x--x---.x--', 'S': 'x-.x-.x-..x-.x-.', 'O': 'x---------------'}[k], nb, 55, False, 58)
         if k in 'PC': comp(br, t0, tl, '....x.....x.....' if k == 'P' else 'x.......x...x...', nb, 64, False, 70, k=4)
         if k in 'CS': pad(sy, timeline(t0, prog_of(H[b0:b0 + nb])), 60, True, 46, 4); comp(gt, t0, tl, '..x...x...x...x.', nb, 70, False, 54, k=3)
         g = {'V': {'k': 'x.....x...x.....', 's': '....X..g....X..g', 'h': 'x.x.x.x.x.x.x.x.'},
@@ -308,7 +308,7 @@ def play_skyline():
         if k == 'C':
             for j in range(0, nb, 2): dr.note(S.bar(b0 + j), TPQ, 49, 110)
     beat(dr, 0, 4, {'k': 'x.....x.x.......', 's': '....X.......X..X', 'c': 'x.......x.......'}); fill(dr, S.bar(3, 2), 2, 'toms')
-    comp(pn, 0, tl, 'x-.x-.x-..x-.x-.', 4, 66, False, 66); bassline(bs, 0, tl, 'S.xO..S.x.O.S5.A', 4, v=94)
+    comp(pn, 0, tl, 'x-.x-.x-..x-.x-.', 4, 55, False, 60); bassline(bs, 0, tl, 'S.xO..S.x.O.S5.A', 4, v=94)
     beat(dr, S.bar(63), 1, {'k': 'X...............', 'c': 'X...............', 'C': 'X...............'})
     return S
 
@@ -317,7 +317,7 @@ def play_skyline():
 def play_tropic():
     """Samba fusion in D in the style of Takanaka: percussion, partido alto Rhodes, guitar lead with bends, horn hits."""
     S = Song('play_tropic', 116, seed=23, title='Tropic (play) - in the style of Takanaka'); S.bars(49); BAR = S.barlen(0)
-    ld = S.track('Lead guitar', 29, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 92, 44); bs = S.track('Bass', 33, 2, 106, 64)
+    ld = S.track('Lead guitar', 29, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 92, 44); bs = S.track('Slap bass', 36, 2, 106, 64)
     gt = S.track('Guitar', 27, 3, 76, 94); br = S.track('Brass', 61, 4, 86, 76); dr = S.track('Drums', 0, 9, 104, 64)
     In = [[('Dmaj9', 4)], [('Dmaj9', 4)], [('Cmaj9/D', 4)], [('Em9', 2), ('A13', 2)]]
     A = [[('Dmaj9', 4)], [('Cmaj9/D', 4)], [('Bm9', 4)], [('Em9', 2), ('A13', 2)], [('Dmaj9', 4)], [('F#m7', 2), ('B7b9', 2)], [('Em9', 4)], [('A13sus4', 2), ('A7b9', 2)]]
@@ -406,7 +406,7 @@ def play_runway():
     for b0, nb, k in [(0, 4, 'I'), (4, 8, 'V'), (12, 8, 'C'), (20, 8, 'V'), (28, 8, 'C'), (36, 4, 'B'), (40, 8, 'C'), (48, 4, 'O')]:
         t0 = S.bar(b0)
         bassline(bs, t0, tl, {'I': 'R---R---R---R---', 'V': 'R.xO.xR.R.xO.5.A', 'C': 'R-OR-OR-OR-OR-O5', 'B': 'R-.R-.R-.R-.O-5-', 'O': 'R-OR-OR-OR-OR-O5'}[k], nb, v=96)
-        comp(pn, t0, tl, {'I': 'x---x---x---x---', 'V': 'x-.x-.x-x-.x-...', 'C': 'x-x-.x-x-x-.x-x-', 'B': 'x---x---x---x---', 'O': 'x-x-.x-x-x-.x-x-'}[k], nb, 66, False, 62)
+        comp(pn, t0, tl, {'I': 'x---x---x---x---', 'V': 'x-.x-.x-x-.x-...', 'C': 'x-x-.x-x-x-.x-x-', 'B': 'x---x---x---x---', 'O': 'x-x-.x-x-x-.x-x-'}[k], nb, 55, False, 56)
         if k in 'CO': comp(br, t0, tl, 'x.......x...x...', nb, 64, False, 70, k=4); pad(sy, timeline(t0, prog_of(H[b0:b0 + nb])), 58, True, 40, 4)
         g = {'I': {'k': 'x.......x.......', 'r': 'x.x.x.x.x.x.x.x.'}, 'V': {'k': 'x.....x.x.......', 's': '....X.......X...', 'h': 'x.x.x.x.x.x.x.x.'},
              'C': {'k': 'x...x.x.x...x.x.', 's': '....X.......X...', 'o': '..x...x...x...x.', 'h': 'x...x...x...x...'}, 'B': {'k': 'x.......x.......', 's': '....X.......X...', 'r': 'x.x.x.x.x.x.x.x.'},
@@ -651,7 +651,7 @@ def duel_fog():
     for b0, nb, k in ((0, 4, 'I'), (4, 8, 'V'), (12, 4, 'P'), (16, 8, 'C'), (24, 4, 'I')):
         t0 = S.bar(b0)
         bassline(bs, t0, tl, 'R.O.R.O.R.O.R.OA', nb, v=98)
-        comp(pn, t0, tl, '..x-..x-..x-..x-' if k in 'CI' else 'x-.x-.x-..x-.x-.', nb, 66, False, 64)
+        comp(pn, t0, tl, '..x-..x-..x-..x-' if k in 'CI' else 'x-.x-.x-..x-.x-.', nb, 55, False, 58)
         comp(gt, t0, tl, '.x.x.x.x.x.x.x.x', nb, 72, False, 46, k=2)
         if k == 'C': pad(st, timeline(t0, prog_of(Ch)), 60, True, 40, 3)
         g = dict(disco) if k != 'P' else {'k': 'x...x...x...x...', 's': '....X.......X..x', 'r': 'x.x.x.x.x.x.x.x.'}
@@ -664,7 +664,7 @@ def duel_fog():
 def duel_heist():
     """F minor acid-jazz rock battle theme in the style of Persona 5: Rhodes stabs, busy bass, ghost-note drums, alto sax lead, brass hits."""
     S = Song('duel_heist', 172, seed=43, title='Heist (duel) - in the style of Persona 5'); S.bars(40); BAR = S.barlen(0)
-    sx = S.track('Lead', 81, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 84, 46); bs = S.track('Bass', 33, 2, 106, 64)
+    sx = S.track('Lead', 81, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 84, 46); bs = S.track('Slap bass', 36, 2, 106, 64)
     br = S.track('Brass', 61, 3, 86, 80); st = S.track('Strings', 48, 4, 80, 54); gt = S.track('Guitar', 27, 5, 76, 100); dr = S.track('Drums', 0, 9, 108, 64)
     In = [[('Fm9', 4)], [('Dbmaj7', 4)], [('Bbm9', 4)], [('C7#9', 4)]]
     A = [[('Fm9', 4)], [('Dbmaj7', 4)], [('Bbm9', 4)], [('C7#9', 4)], [('Fm9', 4)], [('Dbmaj7', 4)], [('Gm7b5', 4)], [('C7#9', 4)]]
@@ -679,7 +679,7 @@ def duel_heist():
     for b0 in (12, 32): mel(sx, S.bar(b0), tb, bar=BAR, v=100); mel(br, S.bar(b0), tb, bar=BAR, v=66, oct=-1)
     for b0, nb, k in ((0, 4, 'I'), (4, 8, 'A'), (12, 8, 'B'), (20, 4, 'K'), (24, 8, 'A'), (32, 8, 'B')):
         t0 = S.bar(b0)
-        bassline(bs, t0, tl, 'R.R5.RO.R.75.RA.' if k != 'K' else 'R..R..R.R..R.5A.', nb, v=98)
+        bassline(bs, t0, tl, 'R.R5.RO.R.75.RA.' if k != 'K' else 'R..R..R.R..R.5A.', nb, v=95)
         comp(ep, t0, tl, 'X..x..X..x..X.x.' if k != 'B' else 'x-.x-.x-..x-.x-.', nb, 63, False, 66)
         comp(gt, t0, tl, '.x.xx.x..x.xx.x.', nb, 70, False, 50, k=2)
         if k == 'B': comp(br, t0, tl, ['X..X......X.....', '................'], nb, 66, False, 76, k=4); pad(st, timeline(t0, prog_of(Bc)), 62, True, 46, 4)
@@ -749,7 +749,7 @@ def play_sunrise():
     for b0, nb, k in [(0, 4, 'I'), (4, 8, 'V'), (12, 8, 'C'), (20, 8, 'V'), (28, 8, 'C'), (36, 8, 'S'), (44, 8, 'C'), (52, 3, 'O')]:
         t0 = S.bar(b0)
         bassline(bs, t0, tl, {'I': 'R---R---R---R---', 'V': 'S.xO..S.x.O.S5.A', 'C': 'R-OR-OR-OR-OR-O5', 'S': 'S.OxS.OxS.Ox5.A.', 'O': 'R---R---R---R---'}[k], nb, v=96)
-        comp(pn, t0, tl, {'I': 'x---x---x---x---', 'V': 'x-.x-.x-x-.x-...', 'C': 'x-x-.x-x-x-.x-x-', 'S': 'x-.x-.x-..x-.x-.', 'O': 'x---------------'}[k], nb, 66, False, 62)
+        comp(pn, t0, tl, {'I': 'x---x---x---x---', 'V': 'x-.x-.x-x-.x-...', 'C': 'x-x-.x-x-x-.x-x-', 'S': 'x-.x-.x-..x-.x-.', 'O': 'x---------------'}[k], nb, 55, False, 56)
         if k in 'CO': comp(br, t0, tl, 'x.......x...x...', nb, 64, False, 68, k=4); pad(sy, timeline(t0, prog_of(H[b0:b0 + nb])), 58, True, 40, 4)
         if k in 'VS': comp(gt, t0, tl, '..x...x...x...x.', nb, 70, False, 52, k=3)
         g = {'I': {'k': 'x.......x.......', 'r': 'x.x.x.x.x.x.x.x.'}, 'V': {'k': 'x.....x.x.......', 's': '....X.......X...', 'h': 'x.x.x.x.x.x.x.x.'},
@@ -768,7 +768,7 @@ def play_sunrise():
 def play_harbor():
     """Funky G major / E minor fusion in the style of Takanaka: overdrive guitar lead, Rhodes, finger bass, congas, brass hits."""
     S = Song('play_harbor', 108, seed=62, title='Harbor (play) - in the style of Takanaka'); S.bars(55); BAR = S.barlen(0)
-    ld = S.track('Lead guitar', 29, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 92, 44); bs = S.track('Bass', 33, 2, 106, 64)
+    ld = S.track('Lead guitar', 29, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 92, 44); bs = S.track('Slap bass', 36, 2, 106, 64)
     gt = S.track('Funk guitar', 27, 3, 76, 94); br = S.track('Brass', 61, 4, 86, 76); dr = S.track('Drums', 0, 9, 104, 64)
     In = [[('Gmaj9', 4)], [('Em9', 4)], [('Am9', 4)], [('D13', 4)]]
     Ve = [[('Gmaj9', 4)], [('Em9', 4)], [('Am9', 4)], [('D13', 4)]] * 2

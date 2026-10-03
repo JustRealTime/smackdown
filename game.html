@@ -425,7 +425,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r57</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r59</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -449,17 +449,16 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
     <h3>Graphics</h3>
-    <label class="srow chk"><input type="checkbox" id="fpsauto"><span style="width:auto">Match monitor refresh rate <b id="hzinfo"></b></span></label>
+    <label class="srow chk"><input type="checkbox" id="vsync"><span style="width:auto">V-Sync <b id="hzinfo"></b></span></label>
     <label class="srow"><span>Frame rate limit</span><input type="range" id="fpsr" min="0" max="1000"><output id="fpso"></output></label>
-    <p class="small">The number is what your browser hands to the game. With monitors of different speeds, or Low Power Mode on a phone, it can be lower than your screen can do.</p>
     <p class="small" id="fpsnote" hidden>Above your monitor's refresh rate the game draws extra frames you cannot see. That can lower input lag a little but needs much more power.</p>
     <label class="srow tonly"><span>Zoom</span><input type="range" min="80" max="250" data-z="1"><output></output></label>
     <label class="srow"><span>Render distance</span><input type="range" min="30" max="100" data-k="rd"><output></output></label>
     <label class="srow chk"><input type="checkbox" data-k="potato"><span style="width:auto">Potato PC mode (low resolution, fewer effects, short render distance)</span></label>
     <h3>Metrics</h3>
     <label class="srow chk"><input type="checkbox" data-k="mfps"><span style="width:auto">FPS</span></label>
-    <label class="srow chk"><input type="checkbox" data-k="mping"><span style="width:auto">Network delay</span></label>
-    <label class="srow chk"><input type="checkbox" data-k="mmore"><span style="width:auto">Details (players, resolution, host step time)</span></label>
+    <label class="srow chk"><input type="checkbox" data-k="mping"><span style="width:auto">Ping (delay to the host)</span></label>
+    <label class="srow chk"><input type="checkbox" data-k="mmore"><span style="width:auto">Details (players, resolution)</span></label>
     <div class="row" style="justify-content:center"><button class="btn alt" type="button" id="setclose">Close</button></div>
   </div>
 </div>
@@ -580,7 +579,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r57';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r59';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -606,7 +605,9 @@ function resize(){DPR=Math.max(.5,Math.min(2,window.devicePixelRatio||1)*QS);W=i
    cv.style.width=W===innerWidth?'':W+'px';cv.style.height=H===innerHeight?'':H+'px';
    document.documentElement.classList.toggle('tall',H>innerHeight+4&&st);
    VPDBG='inner '+innerWidth+'x'+innerHeight+' · lvh '+Math.round(r.height)+' · screen '+screen.width+'x'+screen.height+' · canvas '+W+'x'+H+' · app '+(st?'yes':'no')+(H>innerHeight+4&&st?' tall':'')+' · safe '+cs.paddingTop+'/'+cs.paddingBottom+(window.visualViewport?' · visual '+Math.round(visualViewport.height):'')}
-  cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU;}
+  const nw=Math.round(W*DPR),nh=Math.round(H*DPR);if(cv.width!==nw)cv.width=nw;if(cv.height!==nh)cv.height=nh;   // setting the size clears the picture: only when it really changed
+  calcZ()}
+function calcZ(){Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU}
 addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,250));setTimeout(resize,400);resize();
 
 const INK='#2b2140', GOLD='#ffc93c', CAPE='#d62839', SHOE='#3a2a22';
@@ -1622,10 +1623,10 @@ function floater(x,y,text,c='#fff',big=false){floaters.push({x,y,text,c,life:1.4
 /* ---------- sound: everything is synthesized, no files ---------- */
 const TOUCH=role!=='server'&&(()=>{try{return matchMedia('(pointer:coarse)').matches||/[?&]touch=1/.test(location.search)}catch(_){return false}})();
 if(TOUCH)document.body.classList.add('touch');
-const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0,fps:0};   // fps: 0 = follow the monitor, otherwise a limit from 30 to 1000
+const SET={mv:1,sv:1,rd:1,potato:0,mfps:0,mping:0,mmore:0,fps:TOUCH?120:240,vsync:0};   // fps: the frame rate limit (30..1000); vsync: 1 = one frame per screen refresh instead
 try{const o=JSON.parse(localStorage.getItem('snackdown-settings')||'{}');for(const k in SET)if(typeof o[k]==='number')SET[k]=o[k]}catch(_){}
 const MET={f:60,t:0,ping:-1,sent:0},metEl=$('metrics');
-if(SET.fps&&(SET.fps<30||SET.fps>1000))SET.fps=0;
+if(!(SET.fps>=30&&SET.fps<=1000))SET.fps=TOUCH?120:240;   // older saves used 0 for "match the monitor"
 const saveSet=()=>{try{localStorage.setItem('snackdown-settings',JSON.stringify(SET))}catch(_){}};
 /* ---------- frame pacing ----------
    SET.fps 0 = one frame per screen refresh (requestAnimationFrame as is). A number is a limit; a limit above the monitor rate also runs the
@@ -1633,7 +1634,7 @@ const saveSet=()=>{try{localStorage.setItem('snackdown-settings',JSON.stringify(
 const HZM={t:0,d:[],hz:60,wins:[],quiet:0,q:[],set:false}, FPSC={due:0,gen:0,run:false,mc:null};
 const HZ_STD=[30,48,50,60,72,75,90,100,120,144,165,180,200,240,280,300,360,480,540];
 const snapHz=h=>{for(const v of HZ_STD)if(Math.abs(h-v)<=v*.045)return v;return Math.round(h)};
-const capFps=()=>SET.fps>=30?Math.min(1000,SET.fps):0;
+const capFps=()=>SET.vsync?0:Math.min(1000,Math.max(30,SET.fps));
 const fastWanted=()=>capFps()>HZM.hz*1.03;
 function gateOk(t){const f=capFps();if(!f)return true;const per=1/f,half=fastWanted()?.0003:.5/HZM.hz;   // a frame is due when its time has come, give or take half a screen refresh
   if(t+half<FPSC.due)return false;FPSC.due=FPSC.due<t-per*2?t+per:FPSC.due+per;return true}
@@ -1883,20 +1884,29 @@ const synth=(()=>{
       drumSynth(oc,kit(oc),{lv:1,in:oc.destination},0,p,1);DRB.set(sr+':'+p,await oc.startRendering())}))}
   function drum(A,x,t,p,v){const b=DRB.get(A.sampleRate+':'+p);if(!b)return;const s=A.createBufferSource(),g=A.createGain();s.buffer=b;g.gain.value=x.lv*(.15+.85*v*v);s.connect(g);g.connect(x.in);s.start(t)}
   // one note from the samples: every region that matches key and velocity plays (stereo pairs and velocity layers are regions of their own)
-  const TRIM={0:2.6,4:4.6,6:13.9,9:2.0,11:-9.0,12:1.9,19:0.7,24:-0.9,26:-4.6,27:-2.9,29:0.3,30:10.6,33:-4.6,34:4.5,36:-2.4,38:-2.1,42:-4.9,45:-1.2,46:-7.2,47:-1.7,48:3.1,49:3.6,50:-1.3,52:4.0,60:10.5,61:-1.8,62:0.2,68:-5.4,71:-0.9,73:-6.1,75:0.2,80:6.3,81:4.7,89:-8.5,128:-8.3};   // dB per program so that every instrument is about equally loud (measured with a fixed phrase); drums are 128
+  const TRIM={0:0.1,4:2.6,6:12.7,9:1.3,11:-10.9,12:1.2,19:-0.5,24:-1.6,26:-4.9,27:-3.7,29:-0.5,30:-4.4,33:-6,34:-0.1,36:-6,38:-7,42:-5.6,45:-1.9,46:-7.9,47:-2.4,48:2.4,49:2.9,50:-2.8,52:3.3,60:1,61:-3.2,62:-0.6,68:-6.1,71:-2.4,73:-6.8,75:-0.1,80:5.6,81:4,89:-9.2,128:-8.4};   // dB per program so that every instrument is about equally loud (measured with a fixed phrase); drums are 128
   const TC=tc=>Math.pow(2,tc/1200),KOF=(n=0)=>Math.pow(2,n/1200);
+  // SoundFont modulators that follow velocity or key (the sample font relies on them for its brightness and dynamics): 0..1, or -1..1 for bipolar sources
+  const MODF=(sc,key,vel)=>{const x=(sc&127)===2?vel:key,ty=(sc>>10)&63,v=sc&256?127-x:x;
+    const y=ty===1?(v>=127?1:v<=0?0:-.41667*Math.log10((127-v)/127)):ty===2?(v<=0?0:1+.41667*Math.log10(v/127)):ty===3?(v>=64?1:0):v/127;return sc&512?2*y-1:y};
+  const HZ=c=>8.176*TC(Math.max(1500,Math.min(13500,c)));
   function sfNote(A,x,t,key,v,r,drum){const vel=Math.max(1,Math.round(v*127));let end=t;
     for(const g of x.sf){if(key<g[0]||key>g[1]||vel<g[2]||vel>g[3])continue;
+      const md={48:0,8:0,9:0,11:0};for(const m of g[33]){let a=m[2]*MODF(m[0],key,vel);if(m[3])a*=MODF(m[3],key,vel);md[m[1]]+=a}
       const ab=SFK.buf(g[4]),rate=ab.sampleRate,src=A.createBufferSource(),gn=A.createGain(),gp=gn.gain;src.buffer=ab;
       src.detune.value=(key-g[5])*g[19]+g[6];if(x.vib)x.mod.connect(src.detune);
       const lp=g[7]&1&&g[23]>g[22]+8;if(lp){src.loop=true;src.loopStart=g[22]/rate;src.loopEnd=Math.min(g[23],ab.length)/rate}
       const t1=t+TC(g[12]),att=Math.max(.002,TC(g[13])),hold=TC(g[14])*KOF((60-key)*g[20]),dec=TC(g[15])*KOF((60-key)*g[21]),sus=Math.pow(10,-g[16]/200),tau=Math.max(.012,TC(g[17])/11.5);
-      const amp=vel*vel/16129*Math.pow(10,-g[8]/200)*.9*x.trim;
+      const amp=Math.pow(10,-Math.max(0,Math.min(1440,g[8]+md[48]))/200)*.9*x.trim;
       gp.setValueAtTime(0,t);gp.setValueAtTime(0,t1);gp.linearRampToValueAtTime(amp,t1+att);
       if(g[16]>0)gp.setTargetAtTime(amp*sus,t1+att+hold,Math.max(.01,dec/11.5));
       let stop;if(drum&&!lp)stop=t+(ab.length-(g[24]||0))/rate+.05;
       else{const rr=Math.max(r,t1+att+.003);gp.setTargetAtTime(0,rr,tau);stop=rr+Math.min(tau*7,7)+.05;if(!lp)stop=Math.min(stop,t+(ab.length-(g[24]||0))/rate+.05)}
-      let node=src;if(g[10]<12800){const f=A.createBiquadFilter();f.type='lowpass';kr(f.frequency);f.frequency.value=Math.min(20000,8.176*TC(g[10]));f.Q.value=Math.max(0,g[11]/10);src.connect(f);node=f}
+      let node=src;const fc=g[10]+md[8],mef=g[25]+md[11];
+      if(fc<13300||mef>150){const f=A.createBiquadFilter(),fr=f.frequency;f.type='lowpass';kr(fr);f.Q.value=Math.max(0,(g[11]+md[9])/10);fr.setValueAtTime(HZ(fc),t);
+        if(mef>150){const a=Math.max(.004,TC(g[26])),h=TC(g[27])*KOF((60-key)*g[31]),d=TC(g[28])*KOF((60-key)*g[32]),su=Math.max(0,Math.min(1,1-g[29]/1000)),ta=t1+a;   // the filter opens along the modulation envelope, then closes again
+          fr.setValueAtTime(HZ(fc),t1);fr.exponentialRampToValueAtTime(HZ(fc+mef),ta);if(su<1){fr.setValueAtTime(HZ(fc+mef),ta+h);fr.exponentialRampToValueAtTime(HZ(fc+mef*su),ta+h+Math.max(.01,d*(1-su)))}}
+        src.connect(f);node=f}
       node.connect(gn);
       const q=Math.round(Math.max(-1,Math.min(1,g[9]/500))*4)/4;let pb=x.pan[q];
       if(!pb){if(q&&A.createStereoPanner){pb=A.createStereoPanner();pb.pan.value=q;pb.connect(x.in)}else pb=x.in;x.pan[q]=pb}
@@ -1964,12 +1974,14 @@ const music=(()=>{
     play_coast:'music/play_coast.mid',play_skyline:'music/play_skyline.mid',play_tropic:'music/play_tropic.mid',play_twilight:'music/play_twilight.mid',play_runway:'music/play_runway.mid',play_sunrise:'music/play_sunrise.mid',play_harbor:'music/play_harbor.mid',menu_welcome:'music/menu_welcome.mid',
     high_circus:'music/high_circus.mid',high_requiem:'music/high_requiem.mid',high_carnival:'music/high_carnival.mid',
     duel_moonlit:'music/duel_moonlit.mid',duel_fog:'music/duel_fog.mid',duel_heist:'music/duel_heist.mid',dead_alley:'music/dead_alley.mid'};
-  const DB={nocturne:11,menu_adagio:8.1,menu_dream:13.7,menu_temple:11.4,play_coast:4.4,play_skyline:4.7,play_tropic:5.6,play_twilight:8.3,play_runway:4.7,high_circus:1.2,high_requiem:2.6,high_carnival:1.8,duel_moonlit:5.5,duel_fog:5,duel_heist:5.7,dead_alley:10.5,play_sunrise:4.7,play_harbor:5.2,menu_welcome:4.7};   // loudness correction per song in dB (measured offline with tools: mix render)
+  const DB={nocturne:5.6,menu_adagio:4.1,menu_dream:8.9,menu_temple:7.8,play_coast:-2.5,play_skyline:-7,play_tropic:1.9,play_twilight:5.7,play_runway:1.2,play_sunrise:0.5,play_harbor:-3.6,menu_welcome:2,high_circus:-0.8,high_requiem:-2.9,high_carnival:-3.7,duel_moonlit:3.3,duel_fog:-0.3,duel_heist:1.8,dead_alley:7.8};   // loudness correction per song in dB (measured offline with tools: mix render)
   const MASTER=.38,LOOK=.5,XFADE=1,FADEIN=.5;   // a song change: the old song fades out for XFADE seconds, then the next fades in for FADEIN seconds
   let on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
   try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
   const load=k=>cache[k]||(cache[k]=fetch(FILES[k]).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>synth.parse(b)).catch(e=>{logErr(e,'music '+k);return null}));
-  function setup(){if(mg)return true;A=sfx.ctx();if(!A)return false;mg=A.createGain();mg.gain.value=0;const cp=A.createDynamicsCompressor();cp.threshold.value=-10;cp.ratio.value=3;mg.connect(cp);cp.connect(A.destination);
+  function setup(){if(mg)return true;A=sfx.ctx();if(!A)return false;mg=A.createGain();mg.gain.value=0;const cp=A.createDynamicsCompressor();cp.threshold.value=-10;cp.ratio.value=3;mg.connect(cp);
+    const lim=A.createDynamicsCompressor();lim.threshold.value=-4;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.002;lim.release.value=.1;cp.connect(lim);lim.connect(A.destination);   // a limiter, so that loud moments (crash cymbals, slap) never clip
+    
     verb=A.createConvolver();verb.buffer=synth.kit(A).ir;verb.connect(mg);return true}
   const vol=()=>on&&unlocked&&!document.hidden?MASTER*SET.mv*(duckT>0?.45:1):0;
   function pick(m){const L=MODES[m];if(m==='menu'){turn[m]=((turn[m]??-1)+1)%L.length;return L[turn[m]]}
@@ -2081,7 +2093,7 @@ let lastZMin=1.5;
 if(TOUCH)ZU=1;
 try{const z=+localStorage.getItem('snackdown-zoom');if(z>=CAM.minZoomHighLevel&&z<=ZOOM_MAX)ZU=z}catch(_){}
 let zoomTagT=0;
-function setZoom(v,quiet){const mn=zoomMin();ZU=clamp(Math.round(v*100)/100,mn,ZOOM_MAX);resize();try{localStorage.setItem('snackdown-zoom',ZU)}catch(_){}
+function setZoom(v,quiet){const mn=zoomMin();ZU=clamp(Math.round(v*100)/100,mn,ZOOM_MAX);calcZ();try{localStorage.setItem('snackdown-zoom',ZU)}catch(_){}
   const el=$('zoomtag');if(quiet===true)return;el.textContent='Zoom '+Math.round(ZU*100)+'%'+(ZU<=mn+.001&&mn>.8?' · level up to zoom out more':'');el.hidden=false;el.style.opacity=1;clearTimeout(zoomTagT);zoomTagT=setTimeout(()=>{el.style.opacity=0},1600)}
 addEventListener('wheel',e=>{if(game!=='play'||e.target.closest('#perks,#hud,#guide,#settings'))return;e.preventDefault();setZoom(ZU*Math.exp(-e.deltaY*.0012))},{passive:false});
 addEventListener('keydown',e=>{if(game!=='play'||duel)return;if(e.key==='+'||e.key==='=')setZoom(ZU*1.1);else if(e.key==='-'||e.key==='_')setZoom(ZU/1.1);else if(e.key==='0')setZoom(1)});
@@ -2868,13 +2880,13 @@ const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
 function applySet(){sfx.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
-function openSettings(on){$('settings').hidden=!on;if(on){calibHz();applySet()}else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
+function openSettings(on){$('settings').hidden=!on;if(on){if(SET.vsync)calibHz();applySet()}else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
 const FPS_SNAP=[30,60,90,120,144,165,240,360,500,1000];
 const fpsPos=f=>1000*Math.log(clamp(f,30,1000)/30)/Math.log(1000/30), fpsAt=p=>Math.round(30*Math.pow(1000/30,p/1000));   // the slider is logarithmic, so 30..144 gets as much room as 144..1000
-function syncFps(){const a=$('fpsauto'),r=$('fpsr');if(!a)return;
-  a.checked=!SET.fps;const f=SET.fps||HZM.hz;if(fpsAt(+r.value)!==f||!r.dataset.p)r.value=Math.round(fpsPos(f));r.dataset.p=r.value;r.style.opacity=SET.fps?1:.5;
-  $('fpso').textContent=SET.fps?SET.fps+' fps'+(SET.fps>=1000?' (max)':''):'= monitor';$('hzinfo').textContent=HZM.quiet?'(measuring...)':'('+HZM.hz+' Hz detected)';$('fpsnote').hidden=!fastWanted()}
-$('fpsauto').addEventListener('change',e=>{SET.fps=e.target.checked?0:Math.max(30,Math.min(1000,HZM.hz));saveSet();applySet()});
+function syncFps(){const a=$('vsync'),r=$('fpsr');if(!a)return;
+  a.checked=!!SET.vsync;const f=SET.vsync?HZM.hz:SET.fps;if(fpsAt(+r.value)!==f||!r.dataset.p)r.value=Math.round(fpsPos(f));r.dataset.p=r.value;r.style.opacity=SET.vsync?.4:1;r.disabled=!!SET.vsync;
+  $('fpso').textContent=SET.vsync?'= V-Sync':SET.fps+' fps'+(SET.fps>=1000?' (max)':'');$('hzinfo').textContent=SET.vsync?(HZM.quiet?'(measuring...)':'(your screen: '+HZM.hz+' fps)'):'';$('fpsnote').hidden=!fastWanted()}
+$('vsync').addEventListener('change',e=>{SET.vsync=e.target.checked?1:0;if(SET.vsync)calibHz();saveSet();applySet()});
 $('fpsr').addEventListener('input',e=>{const r=e.target;let p=+r.value,f=null;const prev=+(r.dataset.p||p);
   if(Math.abs(p-prev)>1.5)for(const v of FPS_SNAP.concat([HZM.hz]))if(Math.abs(fpsPos(v)-p)<=12){f=v;break}   // snaps to the usual rates; one-step keyboard moves do not snap
   if(f===null)f=clamp(fpsAt(p),30,1000);else p=fpsPos(f);
@@ -3343,11 +3355,12 @@ function groundChunk(ci,cj){if(chunkEpoch!==worldEpoch){chunks.clear();chunkEpoc
   if(c){chunks.delete(key);chunks.set(key,c);return c}   // keep the most recently used at the end
   c=document.createElement('canvas');c.width=c.height=CH;const g=c.getContext('2d'),main=ctx;ctx=g;g.translate(-ci*CH,-cj*CH);
   try{paintTiles(ci*CH/GT,(ci+1)*CH/GT-1,cj*CH/GT,(cj+1)*CH/GT-1)}finally{ctx=main}
-  chunks.set(key,c);if(chunks.size>60)chunks.delete(chunks.keys().next().value);return c}
+  chunks.set(key,c);if(chunks.size>72)chunks.delete(chunks.keys().next().value);return c}
 function drawGround(x0,y0,x1,y1){
+  ctx.save();ctx.beginPath();ctx.rect(0,0,WORLD,WORLD);ctx.clip();   // the last tiles stick out over the edge: nothing of the ground may show outside the border line
   for(let ci=Math.max(0,Math.floor(x0/CH));ci<=Math.min(WORLD/CH|0,Math.floor(x1/CH));ci++)for(let cj=Math.max(0,Math.floor(y0/CH));cj<=Math.min(WORLD/CH|0,Math.floor(y1/CH));cj++){
     if(ci*CH>=WORLD||cj*CH>=WORLD)continue;ctx.drawImage(groundChunk(ci,cj),ci*CH,cj*CH,CH+1,CH+1)}
-  ctx.strokeStyle=INK;ctx.lineWidth=6;ctx.strokeRect(0,0,WORLD,WORLD);}
+  ctx.restore();ctx.strokeStyle=INK;ctx.lineWidth=6;ctx.strokeRect(0,0,WORLD,WORLD);}
 // the minimap background is the same biome blend, painted once per world
 let miniBg=null,miniSeed=-1;
 function makeMiniBg(){miniBg=document.createElement('canvas');miniBg.width=miniBg.height=300;const g=miniBg.getContext('2d'),N=60,c=300/N,w=new Float32Array(9);
@@ -3775,7 +3788,7 @@ function diag(){const tr=f=>{try{return f()}catch(_){return '?'}};return{
   ua:tr(()=>navigator.userAgent),
   screen:tr(()=>screen.width+'x'+screen.height+' @'+(+(devicePixelRatio||1).toFixed(2))+'x · window '+innerWidth+'x'+innerHeight+' · zoom '+Math.round(ZU*100)+'% · view '+VPDBG),
   mode:tr(()=>(P2P.isHost?'host':role)+' · room '+($('room').value.trim()||'public')+(P2P.slot?' · lobby '+P2P.slot:'')+' · humans '+(P2P.isHost?P2P.players.length:ents.filter(e=>e.human).length)
-    +' · broker '+P2P.state+(P2P.isHost&&P2P.ms?' · host step '+P2P.ms.toFixed(1)+' ms':'')+(role==='client'&&lastNet?' · last host message '+(now()-lastNet).toFixed(2)+' s ago':'')),
+    +' · broker '+P2P.state+''+(role==='client'&&lastNet?' · last host message '+(now()-lastNet).toFixed(2)+' s ago':'')),
   game:tr(()=>game+(player?' · Lv '+L(player)+' · '+player.state:'')+(duel?' · in a duel':'')),
   speed:tr(perfLine),
   cfg:CFGID+(CFGW.length?' · '+CFGW.length+' problem(s) in config.js':''),
@@ -3816,8 +3829,7 @@ function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||S
   const l=[];if(SET.mfps)l.push('FPS  '+Math.round(MET.f));
   if(SET.mping)l.push('Delay '+(role==='client'&&MET.ping>=0?Math.round(MET.ping)+' ms':role==='client'?'...':'- (solo)'));
   if(SET.mmore&&TOUCH)l.push(VPDBG.replace(/ · /g,'\n'));
-  if(SET.mmore)l.push('Monitor '+HZM.hz+' Hz'+(SET.fps?' · limit '+SET.fps:''));
-  if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''),P2P.isHost&&P2P.ms?'Host step '+P2P.ms.toFixed(1)+' ms':'');
+  if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''));
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
 setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1&&SET.mping){MET.sent=performance.now();netSend({t:'ping',c:MET.sent})}},2000);
 function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);if(!HZM.quiet)frame()}   // always schedule the next frame first: one error must never freeze the game
@@ -3834,7 +3846,7 @@ function frame(){
   try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e,'update')}
   if(!isFinite(cam.x)||!isFinite(cam.y)||!isFinite(kick)||!isFinite(ZZ)){cam.x=player&&isFinite(player.x)?player.x:WORLD/2;cam.y=player&&isFinite(player.y)?player.y:WORLD/2;if(!isFinite(kick))kick=0;if(!isFinite(dz))dz=0;if(!isFinite(shake))shake=0;if(!isFinite(hitstop))hitstop=0}
   try{render(t)}catch(e){reportErr(e,'render')}}
-requestAnimationFrame(rafLoop);setTimeout(calibHz,1500);
+requestAnimationFrame(rafLoop);if(SET.vsync)setTimeout(calibHz,1500);
 })();
 </script>
 </body>

@@ -11,7 +11,12 @@ GEN = {0: 'startAddrsOffset', 1: 'endAddrsOffset', 2: 'startloopAddrsOffset', 3:
 DEFAULT = {'initialFilterFc': 13500, 'initialFilterQ': 0, 'delayVolEnv': -12000, 'attackVolEnv': -12000, 'holdVolEnv': -12000, 'decayVolEnv': -12000,
            'sustainVolEnv': 0, 'releaseVolEnv': -12000, 'scaleTuning': 100, 'overridingRootKey': -1, 'keyRange': (0, 127), 'velRange': (0, 127),
            'pan': 0, 'initialAttenuation': 0, 'coarseTune': 0, 'fineTune': 0, 'sampleModes': 0, 'reverbEffectsSend': 0, 'exclusiveClass': 0, 'keynumToVolEnvHold': 0, 'keynumToVolEnvDecay': 0,
+           'modEnvToFilterFc': 0, 'attackModEnv': -12000, 'holdModEnv': -12000, 'decayModEnv': -12000, 'sustainModEnv': 0, 'releaseModEnv': -12000, 'keynumToModEnvHold': 0, 'keynumToModEnvDecay': 0,
            'vibLfoToPitch': 0, 'freqVibLFO': 0, 'delayVibLFO': -12000, 'modEnvToPitch': 0, 'modEnvToFilterFc': 0, 'modLfoToPitch': 0, 'modLfoToFilterFc': 0, 'modLfoToVolume': 0}
+
+
+# default modulators that matter here (SF2 2.01 8.4): velocity -> attenuation (concave, negative), velocity -> filter cutoff
+DEFAULT_MODS = [(0x0502, 48, 960, 0, 0), (0x0102, 8, -2400, 0, 0)]
 
 
 def chunks(b, o, end):
@@ -37,15 +42,16 @@ class SF2:
             return [struct.unpack_from(fmt, b, o + i * n) for i in range(sz // n)]
         s.phdr = rec(b'phdr', '<20sHHHIII'); s.pbag = rec(b'pbag', '<HH'); s.pgen = rec(b'pgen', '<Hh')
         s.inst = rec(b'inst', '<20sH'); s.ibag = rec(b'ibag', '<HH'); s.igen = rec(b'igen', '<Hh')
+        s.pmod = rec(b'pmod', '<HHhHH'); s.imod = rec(b'imod', '<HHhHH')   # (source, destination generator, amount, amount source, transform)
         s.shdr = rec(b'shdr', '<20sIIIIIBbHH')
 
     @staticmethod
     def name(x): return x.split(b'\0')[0].decode('latin-1')
 
-    def zones(s, bags, gens, a, z):
+    def zones(s, bags, gens, a, z, mods):
         out = []
         for i in range(a, z):
-            g0, g1 = bags[i][0], bags[i + 1][0]; d = {}
+            g0, g1 = bags[i][0], bags[i + 1][0]; d = {'mods': mods[bags[i][1]:bags[i + 1][1]]}
             for op, amt in gens[g0:g1]:
                 nm = GEN.get(op)
                 if nm in ('keyRange', 'velRange'): d[nm] = (amt & 255, (amt >> 8) & 255)
@@ -64,24 +70,33 @@ class SF2:
     def regions(s, pi):
         """flat regions of preset index pi: dicts with generator values already merged (instrument + preset), plus 'sample' (shdr index)."""
         p0, p1 = s.phdr[pi], s.phdr[pi + 1]
-        pz = s.zones(s.pbag, s.pgen, p0[3], p1[3]); out = []
+        pz = s.zones(s.pbag, s.pgen, p0[3], p1[3], s.pmod); out = []
         pglob = pz[0] if pz and 'instrument' not in pz[0] else {}
         for z in pz:
             if 'instrument' not in z: continue
             ii = z['instrument']; i0, i1 = s.inst[ii], s.inst[ii + 1]
-            iz = s.zones(s.ibag, s.igen, i0[1], i1[1]); iglob = iz[0] if iz and 'sampleID' not in iz[0] else {}
+            iz = s.zones(s.ibag, s.igen, i0[1], i1[1], s.imod); iglob = iz[0] if iz and 'sampleID' not in iz[0] else {}
             for q in iz:
                 if 'sampleID' not in q: continue
                 r = dict(DEFAULT)
                 r.update(iglob); r.update(q)
                 for src in (pglob, z):   # preset level generators add up (ranges intersect)
                     for k, v in src.items():
-                        if k in ('instrument', 'sampleID'): continue
+                        if k in ('instrument', 'sampleID', 'mods'): continue
                         if k in ('keyRange', 'velRange'):
                             lo, hi = r[k]; r[k] = (max(lo, v[0]), min(hi, v[1]))
                         elif k in ('sampleModes', 'overridingRootKey', 'exclusiveClass'): pass
                         else: r[k] = r.get(k, DEFAULT.get(k, 0)) + v
                 if r['keyRange'][0] > r['keyRange'][1] or r['velRange'][0] > r['velRange'][1]: continue
+                # modulators: defaults, then instrument (global, local), then preset (global, local) which add up on equal identity
+                mm = {}
+                for m in DEFAULT_MODS: mm[(m[0], m[1], m[3], m[4])] = m[2]
+                for src in (iglob, q):
+                    for m in src.get('mods', []): mm[(m[0], m[1], m[3], m[4])] = m[2]
+                for src in (pglob, z):
+                    for m in src.get('mods', []):
+                        k = (m[0], m[1], m[3], m[4]); mm[k] = mm.get(k, 0) + m[2]
+                r['mods'] = [[k[0], k[1], v, k[2], k[3]] for k, v in mm.items() if v]
                 out.append(r)
         return out
 
