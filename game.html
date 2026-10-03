@@ -425,7 +425,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r54</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r55</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -451,6 +451,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <h3>Graphics</h3>
     <label class="srow chk"><input type="checkbox" id="fpsauto"><span style="width:auto">Match monitor refresh rate <b id="hzinfo"></b></span></label>
     <label class="srow"><span>Frame rate limit</span><input type="range" id="fpsr" min="0" max="1000"><output id="fpso"></output></label>
+    <p class="small">The number is what your browser hands to the game. With monitors of different speeds, or Low Power Mode on a phone, it can be lower than your screen can do.</p>
     <p class="small" id="fpsnote" hidden>Above your monitor's refresh rate the game draws extra frames you cannot see. That can lower input lag a little but needs much more power.</p>
     <label class="srow tonly"><span>Zoom</span><input type="range" min="80" max="250" data-z="1"><output></output></label>
     <label class="srow"><span>Render distance</span><input type="range" min="30" max="100" data-k="rd"><output></output></label>
@@ -579,7 +580,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r54';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r55';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1629,19 +1630,25 @@ const saveSet=()=>{try{localStorage.setItem('snackdown-settings',JSON.stringify(
 /* ---------- frame pacing ----------
    SET.fps 0 = one frame per screen refresh (requestAnimationFrame as is). A number is a limit; a limit above the monitor rate also runs the
    game from a timer loop, because requestAnimationFrame can never be faster than the screen. The refresh rate is measured from rAF. */
-const HZM={t:0,d:[],hz:60,wins:[]}, FPSC={due:0,gen:0,run:false,mc:null};
-const HZ_STD=[30,48,50,60,72,75,90,100,120,144,165,180,240,360,480];
+const HZM={t:0,d:[],hz:60,wins:[],quiet:0,q:[],set:false}, FPSC={due:0,gen:0,run:false,mc:null};
+const HZ_STD=[30,48,50,60,72,75,90,100,120,144,165,180,200,240,280,300,360,480,540];
 const snapHz=h=>{for(const v of HZ_STD)if(Math.abs(h-v)<=v*.045)return v;return Math.round(h)};
 const capFps=()=>SET.fps>=30?Math.min(1000,SET.fps):0;
 const fastWanted=()=>capFps()>HZM.hz*1.03;
 function gateOk(t){const f=capFps();if(!f)return true;const per=1/f,half=fastWanted()?.0003:.5/HZM.hz;   // a frame is due when its time has come, give or take half a screen refresh
   if(t+half<FPSC.due)return false;FPSC.due=FPSC.due<t-per*2?t+per:FPSC.due+per;return true}
+// the page can only measure what the browser gives it (mixed-refresh monitors, Low Power Mode and power saving can lower that). The game itself makes frames slow, so
+// the exact measurement is a short run with a bare rAF loop (the game skips its frames for about a second)
+function calibHz(){if(role==='server'||HZM.quiet)return;HZM.quiet=performance.now()+2500;HZM.q.length=0;HZM.t=0}
 function probeHz(ts){const p=HZM;
+  if(p.quiet){const q=p.q;if(p.t&&document.visibilityState==='visible'){const d=ts-p.t;if(d>1.5&&d<70)q.push(d)}p.t=ts;
+    if(q.length>=70||performance.now()>p.quiet){p.quiet=0;if(q.length>=30){const a=q.slice().sort((x,y)=>x-y),m=a[a.length>>1];p.wins.length=0;p.d.length=0;p.set=true;
+      const hz=snapHz(1000/m);if(hz!==p.hz){p.hz=hz;fastSync();if(typeof syncFps==='function')syncFps()}}p.t=0;if(typeof syncFps==='function')syncFps()}return}
   if(p.t&&document.visibilityState==='visible'){const d=ts-p.t;
     if(d>1.5&&d<70){p.d.push(d);
       if(p.d.length>=100){const a=p.d.slice().sort((x,y)=>x-y),q=a[Math.floor(a.length*.15)];p.d.length=0;   // the quick frames show the real refresh rate, slow ones are just a busy PC
         p.wins.push(snapHz(1000/q));if(p.wins.length>5)p.wins.shift();
-        const hz=Math.max(...p.wins);if(hz!==p.hz){p.hz=hz;fastSync();if(typeof syncFps==='function')syncFps()}}}}
+        const hz=Math.max(...p.wins,p.set?p.hz:0);if(hz!==p.hz){p.hz=hz;fastSync();if(typeof syncFps==='function')syncFps()}}}}
   p.t=ts}
 function fastSync(){if(role==='server'||typeof MessageChannel==='undefined')return;
   const want=fastWanted()&&document.visibilityState==='visible';
@@ -1651,7 +1658,7 @@ function fastTick(g){if(g!==FPSC.gen||!FPSC.run)return;
   if(!fastWanted()||document.visibilityState!=='visible'){FPSC.run=false;return}
   const wait=FPSC.due-now();
   if(wait>.004){setTimeout(()=>fastTick(g),(wait-.0025)*1000);return}   // long wait: sleep; the last milliseconds are spun through message events
-  if(wait<=.0004)frame();
+  if(wait<=.0004&&!HZM.quiet)frame();
   FPSC.mc.port2.postMessage(g)}
 if(role!=='server')document.addEventListener('visibilitychange',()=>{FPSC.due=0;fastSync()});
 const sfx=(()=>{
@@ -1915,7 +1922,7 @@ const music=(()=>{
     high_circus:'music/high_circus.mid',high_requiem:'music/high_requiem.mid',high_carnival:'music/high_carnival.mid',
     duel_moonlit:'music/duel_moonlit.mid',duel_fog:'music/duel_fog.mid',duel_heist:'music/duel_heist.mid',dead_alley:'music/dead_alley.mid'};
   const DB={nocturne:.6,menu_adagio:1.5,menu_dream:1.5,menu_temple:2,play_skyline:.8,play_twilight:1.7,play_runway:1,high_circus:-1.9,high_requiem:-1,high_carnival:-2.2,duel_fog:1,duel_heist:1.4,dead_alley:3};   // loudness correction per song in dB (measured offline with tools: mix render)
-  const MASTER=.38,LOOK=.5;
+  const MASTER=.38,LOOK=.5,XFADE=1,FADEIN=.5;   // a song change: the old song fades out for XFADE seconds, then the next fades in for FADEIN seconds
   let on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
   try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
   const load=k=>cache[k]||(cache[k]=fetch(FILES[k]).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>synth.parse(b)).catch(e=>{logErr(e,'music '+k);return null}));
@@ -1937,10 +1944,11 @@ const music=(()=>{
       else{old.push({I:s.I,dead:s.t0+s.S.len+6});cur=null;play(pick(m),0,m,.05,s.t0+s.S.len+.6)}}
     old=old.filter(s=>{if(now<s.dead)return true;for(const st of s.I.stops)try{st.stop()}catch(_){}try{s.I.F.disconnect();s.I.W.disconnect()}catch(_){}return false})}
   function change(m){const prev=cur;if(prev&&(prev.m==='play'||prev.m==='high'||prev.m==='menu'))pos[prev.m]={k:prev.k,at:A.currentTime-prev.t0};
-    if(prev){fade(prev,m==='duel'?.35:1.2);cur=null}gen++;
+    if(prev){fade(prev,XFADE);cur=null}gen++;
     if(!m||!on||!unlocked||document.hidden)return;
     const back=pos[m]&&MODES[m].includes(pos[m].k)?pos[m]:null;delete pos[m];
-    const k=back?back.k:pick(m),g=gen;setTimeout(()=>{if(g===gen)play(k,back?back.at:0,m,m==='duel'?.15:back?1.5:.8)},m==='duel'?120:prev?700:0)}
+    const k=back?back.k:pick(m),g=gen;if(prev)load(k).then(S=>S&&synth.prep(A,S));   // get the next song ready while the old one fades out
+    setTimeout(()=>{if(g===gen)play(k,back?back.at:0,m,prev?FADEIN:.8)},prev?XFADE*1000:0)}
   const api={
     get on(){return on},
     unlock(){if(unlocked)return;if(!setup())return;unlocked=true;setInterval(pump,90);const m=mode;mode='';api.mode(m||'menu')},
@@ -1954,6 +1962,7 @@ const music=(()=>{
       else if(!hid&&!cur&&on&&unlocked&&mode&&!waiting&&!old.some(s=>s.dead>A.currentTime+.3)){waiting=true;setTimeout(()=>{waiting=false;if(!cur&&on&&!document.hidden){const m=mode;mode='';api.mode(m)}},250)}
       const t=A.currentTime,v=vol();mg.gain.setTargetAtTime(v,t,duckT>0?.08:.25)},
     // tests and tools
+    dbg:()=>({cur:cur&&[cur.k,+cur.I.F.gain.value.toFixed(2)],old:old.map(o=>+o.I.F.gain.value.toFixed(2))}),
     get state(){return cur?{k:cur.k,m:cur.m,at:A.currentTime-cur.t0,len:cur.S.len}:null},FILES,MODES,DB,load};
   return api})();
 setInterval(()=>music.tick(.05),50);
@@ -2816,12 +2825,12 @@ const musicBtn=$('musicbtn');
 const showMusic=()=>{musicBtn.textContent=music.on?'Music on':'Music off'};showMusic();
 musicBtn.addEventListener('click',()=>{music.toggle();showMusic();musicBtn.blur()});
 function applySet(){sfx.vol();FPSC.due=0;fastSync();if(role!=='server')syncFps();{const z=document.querySelector('#settings [data-z]');if(z){z.value=Math.round(ZU*100);z.nextElementSibling.textContent=z.value+'%'}}QS=SET.potato?.55:1;resize();drawMetrics();if(role!=='server')for(const i of document.querySelectorAll('#settings [data-k]')){const k=i.dataset.k;if(i.type==='checkbox')i.checked=!!SET[k];else{i.value=Math.round(SET[k]*100);i.nextElementSibling.textContent=i.value+'%'}}}
-function openSettings(on){$('settings').hidden=!on;if(on)applySet();else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
+function openSettings(on){$('settings').hidden=!on;if(on){calibHz();applySet()}else{saveSet();for(const b of ['gear','setbtn'])$(b).blur()}}
 const FPS_SNAP=[30,60,90,120,144,165,240,360,500,1000];
 const fpsPos=f=>1000*Math.log(clamp(f,30,1000)/30)/Math.log(1000/30), fpsAt=p=>Math.round(30*Math.pow(1000/30,p/1000));   // the slider is logarithmic, so 30..144 gets as much room as 144..1000
 function syncFps(){const a=$('fpsauto'),r=$('fpsr');if(!a)return;
   a.checked=!SET.fps;const f=SET.fps||HZM.hz;if(fpsAt(+r.value)!==f||!r.dataset.p)r.value=Math.round(fpsPos(f));r.dataset.p=r.value;r.style.opacity=SET.fps?1:.5;
-  $('fpso').textContent=SET.fps?SET.fps+' fps'+(SET.fps>=1000?' (max)':''):'= monitor';$('hzinfo').textContent='('+HZM.hz+' Hz detected)';$('fpsnote').hidden=!fastWanted()}
+  $('fpso').textContent=SET.fps?SET.fps+' fps'+(SET.fps>=1000?' (max)':''):'= monitor';$('hzinfo').textContent=HZM.quiet?'(measuring...)':'('+HZM.hz+' Hz detected)';$('fpsnote').hidden=!fastWanted()}
 $('fpsauto').addEventListener('change',e=>{SET.fps=e.target.checked?0:Math.max(30,Math.min(1000,HZM.hz));saveSet();applySet()});
 $('fpsr').addEventListener('input',e=>{const r=e.target;let p=+r.value,f=null;const prev=+(r.dataset.p||p);
   if(Math.abs(p-prev)>1.5)for(const v of FPS_SNAP.concat([HZM.hz]))if(Math.abs(fpsPos(v)-p)<=12){f=v;break}   // snaps to the usual rates; one-step keyboard moves do not snap
@@ -3768,7 +3777,7 @@ function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||S
   if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''),P2P.isHost&&P2P.ms?'Host step '+P2P.ms.toFixed(1)+' ms':'');
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
 setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1&&SET.mping){MET.sent=performance.now();netSend({t:'ping',c:MET.sent})}},2000);
-function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);frame()}   // always schedule the next frame first: one error must never freeze the game
+function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);if(!HZM.quiet)frame()}   // always schedule the next frame first: one error must never freeze the game
 function frame(){
   const t=now(),raw=t-last;if(!gateOk(t))return;   // frame rate limit: skip this one
   let dt=Math.min(.05,raw);last=t;if(!(dt>=0))dt=.016;
@@ -3782,7 +3791,7 @@ function frame(){
   try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e,'update')}
   if(!isFinite(cam.x)||!isFinite(cam.y)||!isFinite(kick)||!isFinite(ZZ)){cam.x=player&&isFinite(player.x)?player.x:WORLD/2;cam.y=player&&isFinite(player.y)?player.y:WORLD/2;if(!isFinite(kick))kick=0;if(!isFinite(dz))dz=0;if(!isFinite(shake))shake=0;if(!isFinite(hitstop))hitstop=0}
   try{render(t)}catch(e){reportErr(e,'render')}}
-requestAnimationFrame(rafLoop);
+requestAnimationFrame(rafLoop);setTimeout(calibHz,1500);
 })();
 </script>
 </body>
