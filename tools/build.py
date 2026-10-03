@@ -4,7 +4,8 @@ import base64, os, re, sys
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 src = open(os.path.join(root, 'game.html'), encoding='utf-8').read()
 def embed(m):
-    return 'data:audio/midi;base64,' + base64.b64encode(open(os.path.join(root, 'music', m.group(1)), 'rb').read()).decode()
+    mime = 'audio/midi' if m.group(1).endswith('.mid') else 'application/octet-stream'   # .sf = the instrument samples (tools/sfbuild.py)
+    return 'data:' + mime + ';base64,' + base64.b64encode(open(os.path.join(root, 'music', m.group(1)), 'rb').read()).decode()
 lib = open(os.path.join(root, 'tools', 'peerjs.min.js'), encoding='utf-8').read()
 # settings: the game ships with a copy of site/config.js (the defaults); a config.js next to the page overrides it at runtime
 cfg = open(os.path.join(root, 'site', 'config.js'), encoding='utf-8').read()
@@ -20,6 +21,6 @@ def embed_font(m):
     return 'data:font/woff2;base64,' + base64.b64encode(open(os.path.join(root, 'fonts', m.group(1)), 'rb').read()).decode()
 src = re.sub(r'fonts/([A-Za-z0-9_-]+\.woff2)', embed_font, src)
 # the music is MIDI (written by tools/compose.py and tools/nocturne.py)
-out = re.sub(r'music/([A-Za-z0-9_-]+\.mid)', embed, src)
+out = re.sub(r'music/([A-Za-z0-9_-]+\.(?:mid|sf))', embed, src)
 open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(out)
 print('index.html', len(out) // 1024, 'KB')

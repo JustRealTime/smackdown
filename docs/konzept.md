@@ -517,3 +517,14 @@ Ali hat alle Stücke in Windows' eingebautem MIDI-Synth (Microsoft GS Wavetable,
 - Die Nocturne ("komische Wirbel") bleibt vorerst, Stelle erfragt.
 - **Offen: Soundfont.** Das Spiel hat einen selbstgebauten Synth, Windows hat Roland-Samples (`gm.dls`, 3,4 MB, nicht weitergebbar). Optionen sind in der Antwort an Ali beschrieben.
 - Bewertungsordner `bewerten/` neu sortiert. BUILD r56.
+
+## Runde 57 - Echte Instrument-Samples (SoundFont) und drei neue Stücke
+Ali hört die MIDI-Dateien mit dem Windows-Synth (Roland-Samples, `gm.dls`), im Spiel klang der eigene Synth schlechter. Windows' Klänge dürfen nicht mitgeliefert werden und gibt es auf iPhone/Mac nicht. Entscheidung: ein freies SoundFont mitliefern.
+- **Soundfont:** GeneralUser GS 2.0.3 (S. Christian Collins), klingt dem GS-Klang von Windows ähnlich. Aus den 32 MB sind nur die von den Songs genutzten Instrumente (34 Programme) und Schlagzeug-Töne (22) übrig, 385 Samples, als 4-Bit-ADPCM (SNR bei Klavier/Flöte/Streicher 37-47 dB, bei verzerrter Gitarre und Klick-Trommeln um 14 dB, was bei rauschartigen Klängen nicht stört): **4,2 MB** (`music/gm.sf`). `index.html` ist damit 6,6 MB (vorher 1,1 MB). Gebaut mit `tools/sfbuild.py`, das die MIDI-Dateien nach den benutzten Instrumenten durchsucht.
+- **Lizenz:** frei auch kommerziell nutzbar, aber der Autor schreibt, dass er die Herkunft einiger Samples nicht zu 100 % belegen kann (bisher nie eine Beschwerde). Für Werbung/Shop/Steam muss Ali entscheiden, ob er das Risiko eingeht (Eintrag in `THIRD_PARTY.md`, Lizenz in `tools/LICENSE-GeneralUser-GS.txt`).
+- **Spieler im Browser:** SoundFont-Sampler mit Tastenzonen und Anschlagstärke-Schichten, Schleifen, Hüllkurve, Tiefpass, Stereo, Pedal und Pitch-Bend. Der alte eingebaute Synth bleibt als Notlösung, falls die Datei nicht lädt. Lautstärke: jedes Instrument auf gleiche Lautheit gemessen (`TRIM`), jedes Stück auf ähnliche Gesamtlautstärke (`DB`); Bass und Schlagzeug etwas leiser im MIDI-Mix, Leads vorn.
+- **Rechenlast:** Metal rechnet jetzt 3,3x Echtzeit (Offline, Alis PC), Duell 7x, Menü bis 15x; dafür spielt die Metal-Rhythmusgitarre nur noch einmal (das SoundFont liefert die Breite selbst), das halbiert die Stimmen.
+- **Drei neue Stücke:** `play_sunrise` (T-Square-Stil, A-Dur, 140 BPM), `play_harbor` (Takanaka-Stil, G-Dur, funky, 108 BPM), beide im Spiel; `menu_welcome` (ruhig und hell, C-Dur, Nylon-Gitarre, Flöte, Vibraphon) im Hauptmenü, abwechselnd mit der Samba. Im Spiel laufen jetzt 5 Stücke.
+- Beim Testen gefunden und behoben: Meine Messung lief beim ersten Stück noch mit dem alten Synth, deshalb waren zwei Lautstärkewerte falsch.
+- **Getestet:** Sampler offline gerendert (alle 19 Stücke, Pegel und Geschwindigkeit), Moduswechsel live im Browser. NICHT getestet: wie es klingt; Handy-Speicher (alle Samples decodiert ca. 33 MB); echtes iPhone.
+- BUILD r57.

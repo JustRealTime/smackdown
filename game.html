@@ -425,7 +425,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r56</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r57</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -580,7 +580,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r56';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r57';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1765,6 +1765,21 @@ const sfx=(()=>{
   }})();
 
 /* ---------- music: MIDI songs in music/ (written by tools/compose.py and tools/nocturne.py), played by a small built-in synth ---------- */
+/* ---------- the instrument samples: a small SoundFont (the gm.sf file in the music folder, built by tools/sfbuild.py from GeneralUser GS, 4-bit ADPCM) ---------- */
+const SFK=(()=>{
+  const STEP=[7,8,9,10,11,12,13,14,16,17,19,21,23,25,28,31,34,37,41,45,50,55,60,66,73,80,88,97,107,118,130,143,157,173,190,209,230,253,279,307,337,371,408,449,494,544,598,658,724,796,876,963,1060,1166,1282,1411,1552,1707,1878,2066,2272,2499,2749,3024,3327,3660,4026,4428,4871,5358,5894,6484,7132,7845,8630,9493,10442,11487,12635,13899,15289,16818,18500,20350,22385,24623,27086,29794,32767],IDX=[-1,-1,-1,-1,2,4,6,8];
+  let D=null,blob=null,ready=null;const bufs=new Map();
+  const api={ok:false,
+    load(){return ready||(ready=fetch('music/gm.sf').then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>{const v=new DataView(b);if(v.getUint32(0)!==0x54425346)throw Error('not a TBSF file');
+      const n=v.getUint32(4,true);D=JSON.parse(new TextDecoder().decode(new Uint8Array(b,8,n)));blob=new Uint8Array(b,8+n);return api.ok=true}).catch(e=>{logErr(e,'soundfont');return false}))},
+    regions:(prog,drum)=>D&&D.p[(drum?128:0)+':'+(drum?0:prog)],
+    // 4-bit IMA ADPCM -> an AudioBuffer (made once per sample, shared by all audio contexts)
+    buf(id){let ab=bufs.get(id);if(ab)return ab;const s=D.s[id],n=s[1];ab=new AudioBuffer({length:Math.max(2,n),sampleRate:Math.max(3000,s[2])});const o=ab.getChannelData(0);let p=s[3],idx=0,q=s[0],hi=false,cur=0;o[0]=p/32768;
+      for(let i=1;i<n;i++){let c;if(hi)c=cur>>4;else{cur=blob[q++];c=cur&15}hi=!hi;const st=STEP[idx];let d=st>>3;if(c&4)d+=st;if(c&2)d+=st>>1;if(c&1)d+=st>>2;
+        p+=c&8?-d:d;if(p>32767)p=32767;else if(p<-32768)p=-32768;idx+=IDX[c&7];if(idx<0)idx=0;else if(idx>88)idx=88;o[i]=p/32768}
+      bufs.set(id,ab);return ab},
+    rate:id=>D.s[id][2]};
+  return api})();
 const synth=(()=>{
   // MIDI file -> {notes:[{t,d,r,p,v,c}],ch:[{prog,vol,ex,pan,bend,ped}],len}; r = real release (the channel's sustain pedal holds notes), len = end of the song
   function parse(buf){const d=new DataView(buf);let p=0;const u32=()=>{const v=d.getUint32(p);p+=4;return v},u16=()=>{const v=d.getUint16(p);p+=2;return v};
@@ -1827,12 +1842,13 @@ const synth=(()=>{
       for(const e of ve){if(e[1])ce=e[2];else cv=e[2];vol.gain.setValueAtTime(cv*ce,Math.max(0,t0+e[0]))}
       let out=vol;if(A.createStereoPanner){const pn=A.createStereoPanner();pn.pan.value=(s.pan-64)/64;vol.connect(pn);out=pn}
       x.out=out;out.connect(F);const sd=A.createGain();sd.gain.value=P[2];out.connect(sd);sd.connect(W);
-      if(x.k==='dist'){const pre=A.createGain(),ws=A.createWaveShaper(),hp=A.createBiquadFilter(),cab=A.createBiquadFilter(),mid=A.createBiquadFilter(),post=A.createGain();
+      x.sf=SFK.ok&&SFK.regions(s.prog,c===9)||null;x.pan={};x.trim=Math.pow(10,(TRIM[c===9?128:s.prog]||0)/20);
+      if(x.k==='dist'&&!x.sf){const pre=A.createGain(),ws=A.createWaveShaper(),hp=A.createBiquadFilter(),cab=A.createBiquadFilter(),mid=A.createBiquadFilter(),post=A.createGain();
         pre.gain.value=s.prog===29?2.5:5;ws.curve=K.dist;ws.oversample=s.prog===29?'2x':'none';hp.type='highpass';hp.frequency.value=90;cab.type='lowpass';cab.frequency.value=5200;mid.type='peaking';mid.frequency.value=2200;mid.gain.value=3;post.gain.value=s.prog===29?.28:.15;
         pre.connect(ws);ws.connect(hp);hp.connect(cab);cab.connect(mid);mid.connect(post);post.connect(vol);x.in=pre}else x.in=vol;
-      x.mod=A.createGain();x.vib=!!(P[3]||s.bend.length);const bs=s.bend.length&&A.createConstantSource?A.createConstantSource():null;
+      x.mod=A.createGain();x.vib=!!((P[3]&&!x.sf)||s.bend.length);const bs=s.bend.length&&A.createConstantSource?A.createConstantSource():null;
       if(bs){bs.offset.value=0;sch(s.bend,(t,v)=>bs.offset.setValueAtTime(v,Math.max(0,t0+t)));bs.connect(x.mod);bs.start(Math.max(0,t0));stops.push(bs)}
-      if(P[3]){const lf=A.createOscillator(),lg=A.createGain();lf.frequency.value=5.2+Math.random()*.6;lg.gain.value=P[3];lf.connect(lg);lg.connect(x.mod);lf.start(Math.max(0,t0));stops.push(lf)}
+      if(P[3]&&!x.sf){const lf=A.createOscillator(),lg=A.createGain();lf.frequency.value=5.2+Math.random()*.6;lg.gain.value=P[3];lf.connect(lg);lg.connect(x.mod);lf.start(Math.max(0,t0));stops.push(lf)}
       C.push(x)}
     return{F,W,C,stops,t0}}
   function drumSynth(A,K,x,t,p,v){const a=x.lv*.25*(.15+.85*v*v),o=x.in;
@@ -1859,12 +1875,37 @@ const synth=(()=>{
     else if(p===80||p===81){tn(4200,0,a*.1,p===81?1:.12)}
     else nz(3000,'bandpass',.8,a*.18,.05)}
   const DRB=new Map();
-  async function prep(A,S){const sr=A.sampleRate,need=[...new Set(S.notes.filter(n=>n.c===9).map(n=>n.p))].filter(p=>!DRB.has(sr+':'+p));
+  async function prep(A,S){await SFK.load();
+    if(SFK.ok){const keys={};for(const n of S.notes)(keys[n.c]=keys[n.c]||new Set()).add(n.p);
+      for(const c in keys){const R=SFK.regions(S.ch[c].prog,+c===9);if(!R)continue;for(const g of R)for(const k of keys[c])if(k>=g[0]&&k<=g[1]){SFK.buf(g[4]);break}}return}
+    const sr=A.sampleRate,need=[...new Set(S.notes.filter(n=>n.c===9).map(n=>n.p))].filter(p=>!DRB.has(sr+':'+p));
     await Promise.all(need.map(async p=>{const L=[49,57,52,81].includes(p)?2.4:[51,59,53,46].includes(p)?1.3:.7,oc=new OfflineAudioContext(1,Math.ceil(sr*L),sr);
       drumSynth(oc,kit(oc),{lv:1,in:oc.destination},0,p,1);DRB.set(sr+':'+p,await oc.startRendering())}))}
   function drum(A,x,t,p,v){const b=DRB.get(A.sampleRate+':'+p);if(!b)return;const s=A.createBufferSource(),g=A.createGain();s.buffer=b;g.gain.value=x.lv*(.15+.85*v*v);s.connect(g);g.connect(x.in);s.start(t)}
+  // one note from the samples: every region that matches key and velocity plays (stereo pairs and velocity layers are regions of their own)
+  const TRIM={0:2.6,4:4.6,6:13.9,9:2.0,11:-9.0,12:1.9,19:0.7,24:-0.9,26:-4.6,27:-2.9,29:0.3,30:10.6,33:-4.6,34:4.5,36:-2.4,38:-2.1,42:-4.9,45:-1.2,46:-7.2,47:-1.7,48:3.1,49:3.6,50:-1.3,52:4.0,60:10.5,61:-1.8,62:0.2,68:-5.4,71:-0.9,73:-6.1,75:0.2,80:6.3,81:4.7,89:-8.5,128:-8.3};   // dB per program so that every instrument is about equally loud (measured with a fixed phrase); drums are 128
+  const TC=tc=>Math.pow(2,tc/1200),KOF=(n=0)=>Math.pow(2,n/1200);
+  function sfNote(A,x,t,key,v,r,drum){const vel=Math.max(1,Math.round(v*127));let end=t;
+    for(const g of x.sf){if(key<g[0]||key>g[1]||vel<g[2]||vel>g[3])continue;
+      const ab=SFK.buf(g[4]),rate=ab.sampleRate,src=A.createBufferSource(),gn=A.createGain(),gp=gn.gain;src.buffer=ab;
+      src.detune.value=(key-g[5])*g[19]+g[6];if(x.vib)x.mod.connect(src.detune);
+      const lp=g[7]&1&&g[23]>g[22]+8;if(lp){src.loop=true;src.loopStart=g[22]/rate;src.loopEnd=Math.min(g[23],ab.length)/rate}
+      const t1=t+TC(g[12]),att=Math.max(.002,TC(g[13])),hold=TC(g[14])*KOF((60-key)*g[20]),dec=TC(g[15])*KOF((60-key)*g[21]),sus=Math.pow(10,-g[16]/200),tau=Math.max(.012,TC(g[17])/11.5);
+      const amp=vel*vel/16129*Math.pow(10,-g[8]/200)*.9*x.trim;
+      gp.setValueAtTime(0,t);gp.setValueAtTime(0,t1);gp.linearRampToValueAtTime(amp,t1+att);
+      if(g[16]>0)gp.setTargetAtTime(amp*sus,t1+att+hold,Math.max(.01,dec/11.5));
+      let stop;if(drum&&!lp)stop=t+(ab.length-(g[24]||0))/rate+.05;
+      else{const rr=Math.max(r,t1+att+.003);gp.setTargetAtTime(0,rr,tau);stop=rr+Math.min(tau*7,7)+.05;if(!lp)stop=Math.min(stop,t+(ab.length-(g[24]||0))/rate+.05)}
+      let node=src;if(g[10]<12800){const f=A.createBiquadFilter();f.type='lowpass';kr(f.frequency);f.frequency.value=Math.min(20000,8.176*TC(g[10]));f.Q.value=Math.max(0,g[11]/10);src.connect(f);node=f}
+      node.connect(gn);
+      const q=Math.round(Math.max(-1,Math.min(1,g[9]/500))*4)/4;let pb=x.pan[q];
+      if(!pb){if(q&&A.createStereoPanner){pb=A.createStereoPanner();pb.pan.value=q;pb.connect(x.in)}else pb=x.in;x.pan[q]=pb}
+      gn.connect(pb);
+      if(g[18]){const o=x.ex&&x.ex[g[18]];if(o&&o.t<=t){o.g.cancelScheduledValues(t);o.g.setTargetAtTime(0,t,.006);try{o.s.stop(t+.05)}catch(_){}}(x.ex=x.ex||{})[g[18]]={g:gp,s:src,t}}
+      src.start(t,(g[24]||0)/rate);src.stop(stop);end=Math.max(end,stop)}
+    return end}
   // one note of a pitched instrument
-  function note(A,x,t,p,v,r,d,pw){const K=kit(A);if(x.k==='drum')return drum(A,x,t,p,v),t+1.5;
+  function note(A,x,t,p,v,r,d,pw){if(x.sf)return sfNote(A,x,t,p,v,r,x.k==='drum');const K=kit(A);if(x.k==='drum')return drum(A,x,t,p,v),t+1.5;
     const f=440*Math.pow(2,(p-69)/12),k=x.k,a=x.lv*(.05+.2*v*v),g=A.createGain(),gn=g.gain,src=[];let end=r+.5;
     const osc=(w,fr,det,to)=>{const o=A.createOscillator();if(typeof w==='string')o.type=w;else o.setPeriodicWave(w);o.frequency.value=fr;if(det)o.detune.value=det;if(x.vib)x.mod.connect(o.detune);o.connect(to||g);src.push(o);return o};
     const flt=(ty,f0,q,to)=>{const b=A.createBiquadFilter();b.type=ty;kr(b.frequency);b.frequency.value=f0;b.Q.value=q||.7;b.connect(to||g);return b};
@@ -1916,14 +1957,14 @@ const music=(()=>{
   // every moment of the game has its own songs; menu songs take turns, the others are picked at random
   // where which song plays: settings, the main menu, the character editor, the how-to-play pages, the overworld (play, and high = metal from level 30 and as king),
   // fights, and the game over screen
-  const MODES={settings:['nocturne'],menu:['play_tropic','play_runway'],custom:['play_coast'],howto:['play_twilight'],play:['play_tropic','play_skyline','play_runway'],
+  const MODES={settings:['nocturne'],menu:['menu_welcome','play_tropic'],custom:['play_coast'],howto:['play_twilight'],play:['play_tropic','play_skyline','play_runway','play_sunrise','play_harbor'],
     high:['high_requiem','high_carnival'],duel:['high_circus','duel_moonlit','duel_fog','duel_heist'],dead:['dead_alley','menu_adagio','menu_dream','menu_temple']};
   MODES.king=MODES.high;
   const FILES={nocturne:'music/nocturne.mid',menu_adagio:'music/menu_adagio.mid',menu_dream:'music/menu_dream.mid',menu_temple:'music/menu_temple.mid',
-    play_coast:'music/play_coast.mid',play_skyline:'music/play_skyline.mid',play_tropic:'music/play_tropic.mid',play_twilight:'music/play_twilight.mid',play_runway:'music/play_runway.mid',
+    play_coast:'music/play_coast.mid',play_skyline:'music/play_skyline.mid',play_tropic:'music/play_tropic.mid',play_twilight:'music/play_twilight.mid',play_runway:'music/play_runway.mid',play_sunrise:'music/play_sunrise.mid',play_harbor:'music/play_harbor.mid',menu_welcome:'music/menu_welcome.mid',
     high_circus:'music/high_circus.mid',high_requiem:'music/high_requiem.mid',high_carnival:'music/high_carnival.mid',
     duel_moonlit:'music/duel_moonlit.mid',duel_fog:'music/duel_fog.mid',duel_heist:'music/duel_heist.mid',dead_alley:'music/dead_alley.mid'};
-  const DB={nocturne:.6,menu_adagio:1.5,menu_dream:1.5,menu_temple:2,play_skyline:.8,play_twilight:1.7,play_runway:1,high_circus:-1.9,high_requiem:-1,high_carnival:-2.2,duel_fog:1,duel_heist:1.4,dead_alley:3};   // loudness correction per song in dB (measured offline with tools: mix render)
+  const DB={nocturne:11,menu_adagio:8.1,menu_dream:13.7,menu_temple:11.4,play_coast:4.4,play_skyline:4.7,play_tropic:5.6,play_twilight:8.3,play_runway:4.7,high_circus:1.2,high_requiem:2.6,high_carnival:1.8,duel_moonlit:5.5,duel_fog:5,duel_heist:5.7,dead_alley:10.5,play_sunrise:4.7,play_harbor:5.2,menu_welcome:4.7};   // loudness correction per song in dB (measured offline with tools: mix render)
   const MASTER=.38,LOOK=.5,XFADE=1,FADEIN=.5;   // a song change: the old song fades out for XFADE seconds, then the next fades in for FADEIN seconds
   let on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
   try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
@@ -1940,7 +1981,7 @@ const music=(()=>{
     for(const n of[I.F.gain,I.W.gain]){n.setValueAtTime(0,A.currentTime);n.linearRampToValueAtTime(lv,A.currentTime+(fadeIn||.05))}
     let i=0;while(i<S.notes.length&&S.notes[i].t<(at||0)-.01)i++;cur={k,S,I,i,t0,m,lv}})}
   function pump(){if(!cur||!mg)return;const now=A.currentTime,N=cur.S.notes;
-    while(cur.i<N.length&&cur.t0+N[cur.i].t<now+LOOK){const n=N[cur.i++],x=cur.I.C[n.c];if(x&&!n.skip&&cur.t0+n.t>=now-.05)synth.note(A,x,cur.t0+n.t,n.p,n.v,cur.t0+n.r,n.d,n.pw)}
+    while(cur.i<N.length&&cur.t0+N[cur.i].t<now+LOOK){const n=N[cur.i++],x=cur.I.C[n.c];if(x&&(!n.skip||x.sf)&&cur.t0+n.t>=now-.05)synth.note(A,x,cur.t0+n.t,n.p,n.v,cur.t0+n.r,n.d,x.sf?0:n.pw)}
     if(cur.i>=N.length&&now+LOOK>=cur.t0+cur.S.len){const s=cur,m=s.m;   // the song is over: loop it (one song in this mode) or go on with the next
       if(MODES[m].length===1){const I=synth.start(A,s.S,mg,verb,s.t0+s.S.len);for(const n of[I.F.gain,I.W.gain])n.value=s.lv;old.push({I:s.I,dead:s.t0+s.S.len+6});cur={...s,I,i:0,t0:s.t0+s.S.len}}
       else{old.push({I:s.I,dead:s.t0+s.S.len+6});cur=null;play(pick(m),0,m,.05,s.t0+s.S.len+.6)}}

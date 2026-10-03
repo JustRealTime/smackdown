@@ -423,7 +423,7 @@ def play_runway():
 # =============================== HIGH LEVEL (symphonic metal) ===============================
 
 def metal_kit(S):
-    return dict(gl=S.track('Guitar L', 30, 0, 90, 16), gr=S.track('Guitar R', 30, 1, 90, 112), ld=S.track('Lead guitar', 29, 2, 120, 64),
+    return dict(gl=S.track('Guitar', 30, 0, 100, 64), ld=S.track('Lead guitar', 29, 2, 120, 64),
                 bs=S.track('Bass', 34, 3, 88, 64), st=S.track('Strings', 48, 4, 94, 50), ch=S.track('Choir', 52, 5, 92, 78),
                 hc=S.track('Harpsichord', 6, 6, 96, 86), pn=S.track('Piano', 0, 7, 96, 42), l2=S.track('Lead guitar 2', 29, 8, 92, 84), dr=S.track('Drums', 0, 9, 110, 64))
 
@@ -435,7 +435,7 @@ def trem(trk, tl, t0, t1, lo=38, v=90, step=TPQ // 4):
         t += step; i += 1
 
 def guitars(T, f):
-    for g in (T['gl'], T['gr']): f(g)
+    f(T['gl'])   # one rhythm guitar: the sample font's own stereo pairs give the width (two guitars cost twice the CPU)
 
 BLAST = {'k': 'mmmmmmmmmmmmmmmm', 's': 'x.x.x.x.x.x.x.x.', 'r': 'x.x.x.x.x.x.x.x.'}
 SKANK = {'k': 'x...x...x...x...', 's': '..X...X...X...X.', 'c': 'm...m...m...m...'}
@@ -717,6 +717,122 @@ def dead_alley():
     beat(dr, S.bar(2), 20, {'k': 'm......m..m.....', 'x': '....x.......x...'}, vel=.8)
     beat(dr, S.bar(2), 20, {'h': 'xmxmxmxm', 'p': '..x...x.'}, steps=8, swing=.3, vel=.55)
     beat(dr, 0, 2, {'h': 'x.m.x.m.'}, steps=8, swing=.3, vel=.45)
+    return S
+
+
+# =============================== NEW (r57) ===============================
+
+@song
+def play_sunrise():
+    """Driving A major fusion in the style of T-Square: lyricon lead, piano, synth brass, slap bass, big chorus and a solo."""
+    S = Song('play_sunrise', 140, seed=61, title='Sunrise (play) - in the style of T-Square'); S.bars(55); BAR = S.barlen(0)
+    ld = S.track('Lyricon lead', 81, 0, 112, 64); pn = S.track('Piano', 0, 1, 66, 50); bs = S.track('Slap bass', 36, 2, 104, 64)
+    br = S.track('Synth brass', 62, 3, 84, 76); sy = S.track('Synth strings', 50, 4, 70, 56); gt = S.track('Guitar', 27, 5, 72, 96); dr = S.track('Drums', 0, 9, 106, 64)
+    In = [[('Amaj9', 4)], [('F#m9', 4)], [('Dmaj9', 4)], [('E9sus4', 2), ('E7', 2)]]
+    Ve = [[('Amaj7', 4)], [('C#m7', 4)], [('Dmaj7', 4)], [('Bm7', 2), ('E7', 2)], [('Amaj7', 4)], [('F#m7', 4)], [('Bm7', 4)], [('E7sus4', 2), ('E7', 2)]]
+    Ch = [[('Dmaj7', 4)], [('C#m7', 4)], [('Bm7', 4)], [('E7', 4)], [('Dmaj7', 4)], [('C#m7', 2), ('F#7', 2)], [('Bm7', 4)], [('E7sus4', 2), ('E7', 2)]]
+    So = [[('Amaj9', 4)], [('F#m9', 4)], [('Bm9', 4)], [('E7#9', 4)]] * 2
+    Ou = [[('Dmaj7', 4)], [('E7sus4', 4)], [('Amaj9', 4)]]
+    H = In + Ve + Ch + Ve + Ch + So + Ch + Ou; tl = timeline(0, prog_of(H))
+    intro = "E5:4 A5:4 C#6:4 E6:4 | D6:6 C#6:2 B5:8 | A5:4 C#6:4 F#6:4 E6:4 | G#6:8 B5:4 E6:4 |"
+    ve = ("E5:4 A5:4 C#6:4 B5:2 A5:2 | G#5:6 E5:2 G#5:4 B5:4 | A5:4 F#5:4 A5:4 C#6:4 | B5:6 A5:2 G#5:4 E5:4 |"
+          " E5:4 A5:4 C#6:4 E6:4 | D6:6 C#6:2 A5:8 | B5:4 D6:4 F#6:4 D6:4 | E6:8 G#5:4 B5:4 |")
+    ch = ("F#6:6 E6:2 D6:4 A5:4 | E6:6 C#6:2 G#5:8 | D6:4 F#6:4 A6:6 F#6:2 | G#6:8 E6:4 B5:4 |"
+          " F#6:6 E6:2 D6:4 F#6:4 | E6:4 C#6:4 A#5:4 C#6:4 | D6:6 B5:2 F#5:4 B5:4 | G#5:4 B5:4 E6:8 |")
+    so = ("C#6:2 E6:2 A6:4 G#6:2 E6:2 C#6:4 | A5:2 C#6:2 F#6:4 E6:2 C#6:2 A5:4 | D6:2 F#6:2 B6:4 A6:2 F#6:2 D6:4 | G6:4 E6:2 D6:2 B5:4^ G#5:4 |"
+          " E6:2 C#6:2 A5:2 E5:2 A5:4 C#6:4 | C#6:2 A5:2 F#5:2 A5:2 C#6:4 E6:4 | F#6:2 D6:2 B5:2 D6:2 F#6:4 B6:4^ | A6:4 G#6:4 E6:4 B5:4 |")
+    mel(ld, 0, intro, bar=BAR, v=94); mel(br, 0, intro, bar=BAR, v=70, oct=-1)
+    for b0 in (4, 20): mel(ld, S.bar(b0), ve, bar=BAR, v=92)
+    for b0 in (12, 28, 44): mel(ld, S.bar(b0), ch, bar=BAR, v=100); mel(sy, S.bar(b0), ch, bar=BAR, v=52, oct=-1)
+    mel(ld, S.bar(36), so, bar=BAR, v=98)
+    mel(ld, S.bar(52), "F#6:6 E6:2 D6:4 A5:4 | E6:8 C#6:4 B5:4 | [A5,E6]:16 |", bar=BAR, v=94)
+    for b0, nb, k in [(0, 4, 'I'), (4, 8, 'V'), (12, 8, 'C'), (20, 8, 'V'), (28, 8, 'C'), (36, 8, 'S'), (44, 8, 'C'), (52, 3, 'O')]:
+        t0 = S.bar(b0)
+        bassline(bs, t0, tl, {'I': 'R---R---R---R---', 'V': 'S.xO..S.x.O.S5.A', 'C': 'R-OR-OR-OR-OR-O5', 'S': 'S.OxS.OxS.Ox5.A.', 'O': 'R---R---R---R---'}[k], nb, v=96)
+        comp(pn, t0, tl, {'I': 'x---x---x---x---', 'V': 'x-.x-.x-x-.x-...', 'C': 'x-x-.x-x-x-.x-x-', 'S': 'x-.x-.x-..x-.x-.', 'O': 'x---------------'}[k], nb, 66, False, 62)
+        if k in 'CO': comp(br, t0, tl, 'x.......x...x...', nb, 64, False, 68, k=4); pad(sy, timeline(t0, prog_of(H[b0:b0 + nb])), 58, True, 40, 4)
+        if k in 'VS': comp(gt, t0, tl, '..x...x...x...x.', nb, 70, False, 52, k=3)
+        g = {'I': {'k': 'x.......x.......', 'r': 'x.x.x.x.x.x.x.x.'}, 'V': {'k': 'x.....x.x.......', 's': '....X.......X...', 'h': 'x.x.x.x.x.x.x.x.'},
+             'C': {'k': 'x...x.x.x...x.x.', 's': '....X.......X...', 'o': '..x...x...x...x.', 'h': 'x...x...x...x...'}, 'S': {'k': 'x..x..x...x..x..', 's': '....X..g.g..X..g', 'h': 'xmxmxmxmxmxmxmxm'},
+             'O': {'k': 'x...x...x...x...', 's': '....X.......X...', 'r': 'x.x.x.x.x.x.x.x.'}}[k]
+        if k == 'O': nb -= 1
+        beat(dr, t0, nb - 1, g); beat(dr, S.bar(b0 + nb - 1), 1, {kk: v[:12] + '....' for kk, v in g.items()})
+        fill(dr, S.bar(b0 + nb - 1, 3), 1, 'toms' if k in 'CS' else 'snare')
+        if k == 'C':
+            for j in range(0, nb, 2): dr.note(S.bar(b0 + j), TPQ, 49, 108)
+    br.chord(S.bar(54), BAR, [57, 61, 64, 68, 71, 76], 92); bs.note(S.bar(54), BAR, 33, 110); beat(dr, S.bar(54), 1, {'k': 'X...............', 'c': 'X...............', 'C': 'X...............'})
+    return S
+
+
+@song
+def play_harbor():
+    """Funky G major / E minor fusion in the style of Takanaka: overdrive guitar lead, Rhodes, finger bass, congas, brass hits."""
+    S = Song('play_harbor', 108, seed=62, title='Harbor (play) - in the style of Takanaka'); S.bars(55); BAR = S.barlen(0)
+    ld = S.track('Lead guitar', 29, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 92, 44); bs = S.track('Bass', 33, 2, 106, 64)
+    gt = S.track('Funk guitar', 27, 3, 76, 94); br = S.track('Brass', 61, 4, 86, 76); dr = S.track('Drums', 0, 9, 104, 64)
+    In = [[('Gmaj9', 4)], [('Em9', 4)], [('Am9', 4)], [('D13', 4)]]
+    Ve = [[('Gmaj9', 4)], [('Em9', 4)], [('Am9', 4)], [('D13', 4)]] * 2
+    Ch = [[('Cmaj9', 4)], [('Bm7', 4)], [('Am9', 4)], [('D13', 4)], [('Cmaj9', 4)], [('Bm7b5', 2), ('E7', 2)], [('Am9', 4)], [('D13sus4', 2), ('D13', 2)]]
+    So = [[('Gmaj9', 4)], [('Em9', 4)], [('Cmaj9', 4)], [('D13', 4)]] * 2
+    Ou = [[('Cmaj9', 4)], [('D13', 4)], [('Gmaj9', 4)]]
+    H = In + Ve + Ch + Ve + Ch + So + Ch + Ou; tl = timeline(0, prog_of(H))
+    intro = "G5:4 B5:4 D6:4 G6:4 | F#6:6 E6:2 D6:8 | E6:4 D6:4 B5:4 G5:4 | A5:8 D6:8 |"
+    ve = ("D5:3 E5:1 G5:4 B5:4 A5:2 G5:2 | G5:6 E5:2 B4:4 D5:4 | C5:3 D5:1 E5:4 G5:4 E5:2 D5:2 | C5:2 D5:2 F#5:4 A5:6 r:2 |"
+          " D5:3 E5:1 G5:4 B5:4 D6:4 | C6:6 B5:2 G5:4 E5:4 | A5:4 C6:4 E6:6 D6:2 | C6:4 A5:4 F#5:4 A5:4 |")
+    ch = ("E6:6 D6:2 C6:4 G5:4 | D6:6 B5:2 F#5:8 | C6:4 E6:4 G6:6 E6:2 | F#6:8 D6:4 A5:4 |"
+          " E6:6 G6:2 E6:4 C6:4 | D6:4 B5:4 G#5:4 B5:4 | C6:4 E6:4 A6:4 G6:4 | F#6:6 A5:2 D6:8 |")
+    so = ("B5:2 D6:2 G6:4 F#6:2 D6:2 B5:4 | G5:2 B5:2 E6:4 D6:2 B5:2 G5:4 | E5:2 G5:2 C6:4 B5:2 G5:2 E5:4 | A5:2 C6:2 F#6:4^ E6:2 D6:2 A5:4 |"
+          " D6:2 G6:2 B6:4 A6:2 G6:2 D6:4 | B5:2 E6:2 G6:4 F#6:2 E6:2 B5:4 | G5:2 C6:2 E6:4 D6:2 C6:2 G5:4 | C6:4 A5:4 F#5:4 A5:4 |")
+    mel(ld, 0, intro, bar=BAR, v=94); mel(br, 0, intro, bar=BAR, v=66, oct=-1)
+    for b0 in (4, 20): mel(ld, S.bar(b0), ve, bar=BAR, v=90)
+    for b0 in (12, 28, 44): mel(ld, S.bar(b0), ch, bar=BAR, v=98); mel(br, S.bar(b0), ch, bar=BAR, v=62, oct=-1)
+    mel(ld, S.bar(36), so, bar=BAR, v=96)
+    mel(ld, S.bar(52), "E6:6 D6:2 C6:4 G5:4 | A5:8 F#5:8 | [G5,D6]:16 |", bar=BAR, v=92)
+    groove = {'k': 'x..x..x...x.....', 's': '....X..g.g..X..g', 'h': 'xgxgxgxgxgxgxgxg', 'cgo': '..x...x...x..x..', 'cgl': 'x.......x.....x.', 'cb': 'x.....x.....x...'}
+    for b0, nb, k in [(0, 4, 'I'), (4, 8, 'V'), (12, 8, 'C'), (20, 8, 'V'), (28, 8, 'C'), (36, 8, 'S'), (44, 8, 'C'), (52, 3, 'O')]:
+        t0 = S.bar(b0)
+        bassline(bs, t0, tl, 'R..R.5R..R.7.A..' if k in 'VIS' else 'R-.R.5R-.5R.O-.A', nb, v=96)
+        comp(ep, t0, tl, 'x--.x-.x--.x-...' if k != 'C' else 'x---x-.x---.x---', nb, 63, False, 60)
+        comp(gt, t0, tl, '.x.xx.x..x.xx.x.', nb, 70, False, 50, k=2)
+        if k in 'CO': comp(br, t0, tl, ['x.....x.....x...', '................'], nb, 66, False, 70, k=4)
+        g = dict(groove) if k != 'O' else {'k': 'x...x...x...x...', 's': '....X.......X...', 'h': 'x.x.x.x.x.x.x.x.'}
+        if k == 'C': g.update({'s': '....X.......X...', 'o': '..x...x...x...x.'})
+        if k == 'O': nb -= 1
+        beat(dr, t0, nb - 1, g); beat(dr, S.bar(b0 + nb - 1), 1, {kk: v[:12] + '....' for kk, v in g.items()})
+        fill(dr, S.bar(b0 + nb - 1, 3), 1, 'mix')
+        if k == 'C':
+            for j in range(0, nb, 4): dr.note(S.bar(b0 + j), TPQ, 49, 104)
+    br.chord(S.bar(54), BAR, [55, 59, 62, 66, 69, 74], 92); bs.note(S.bar(54), BAR, 31, 110); beat(dr, S.bar(54), 1, {'k': 'X...............', 'c': 'X...............'})
+    return S
+
+
+@song
+def menu_welcome():
+    """Relaxed, bright C major for the main menu: nylon guitar, Rhodes, flute and vibraphone over a soft bossa groove."""
+    S = Song('menu_welcome', 92, seed=63, title='Welcome (menu)'); S.bars(36); BAR = S.barlen(0)
+    ny = S.track('Nylon guitar', 24, 0, 127, 50); ep = S.track('Rhodes', 4, 1, 110, 76); fl = S.track('Flute', 73, 2, 96, 64)
+    bs = S.track('Bass', 33, 3, 112, 64); vb = S.track('Vibraphone', 11, 4, 110, 40); st = S.track('Strings', 49, 5, 66, 64); dr = S.track('Percussion', 0, 9, 96, 64)
+    A = [[('Cmaj9', 4)], [('Em7', 4)], [('Fmaj9', 4)], [('G13', 4)], [('Am9', 4)], [('Em7', 4)], [('Dm9', 4)], [('G7sus4', 2), ('G7', 2)]]
+    B = [[('Fmaj9', 4)], [('Em7', 4)], [('Dm9', 4)], [('Cmaj7', 4)], [('Fmaj9', 4)], [('G13', 4)], [('Em7', 2), ('Am7', 2)], [('Dm9', 2), ('G7', 2)]]
+    Tg = [[('Fmaj9', 4)], [('G13', 4)], [('Cmaj9', 4)], [('Cmaj9', 4)]]
+    H = A + B + A + B + Tg; tl = timeline(0, prog_of(H))
+    ma = ("E5:4 G5:4 C6:6 B5:2 | G5:6 E5:2 B5:4 G5:4 | A5:4 C6:4 E6:6 D6:2 | B5:8 D6:4 G5:4 |"
+          " C6:4 E6:4 A5:6 B5:2 | G5:4 B5:4 E6:8 | F5:4 A5:4 D6:6 C6:2 | B5:8 G5:8 |")
+    mb = ("C6:6 A5:2 F5:8 | B5:4 G5:4 E5:8 | D6:6 C6:2 A5:8 | B5:4 E6:4 G6:8 |"
+          " A5:4 C6:4 F6:6 E6:2 | D6:6 B5:2 G5:8 | E6:4 G6:4 A6:4 E6:4 | F6:6 D6:2 B5:8 |")
+    for b0 in (0, 16): mel(fl, S.bar(b0), ma, bar=BAR, v=84)
+    for b0 in (8, 24): mel(fl, S.bar(b0), mb, bar=BAR, v=88); mel(vb, S.bar(b0), mb, bar=BAR, v=50, oct=1)
+    mel(fl, S.bar(32), "A5:4 C6:4 E6:8 | D6:4 B5:4 G5:8 | E6:6 D6:2 C6:8 | [C5,G5,E6]:16 |", bar=BAR, v=80)
+    arp(ny, tl, [0, 1, 2, 3, 2, 1, 2, 3], TPQ // 2, 58, True, 84, 4, span=2)
+    for b0, nb, k in [(0, 8, 'A'), (8, 8, 'B'), (16, 8, 'A'), (24, 8, 'B'), (32, 4, 'T')]:
+        t0 = S.bar(b0)
+        comp(ep, t0, tl, 'x--.....x-.x....' if k != 'T' else 'x---------------', nb, 66, False, 76)
+        bassline(bs, t0, tl, 'R---..5.R-..A...' if k != 'T' else 'R---------------', nb, v=104)
+        if k == 'B': pad(st, timeline(t0, prog_of(H[b0:b0 + nb])), 62, True, 40, 4)
+        if k != 'T':
+            beat(dr, t0, nb, {'k': 'x.....x...x.....', 'x': '....x.......x...', 'sh': 'xgxgxgxgxgxgxgxg'}, vel=.7)
+        else:
+            beat(dr, t0, 2, {'k': 'x.......x.......', 'sh': 'xgxgxgxgxgxgxgxg'}, vel=.6)
     return S
 
 

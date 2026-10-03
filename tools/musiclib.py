@@ -110,6 +110,9 @@ class Song:
         for i in range(steps + 1): s.set_tempo(t0 + (t1 - t0) * i / steps, bpm0 + (bpm1 - bpm0) * i / steps)
 
     def track(s, name, prog, ch, vol=100, pan=64):
+        # mix for the sample font (r57): bass sits lower, drums a little lower; the lead stays on top
+        if ch != 9 and 32 <= prog <= 39: vol = int(vol * .5)
+        elif ch == 9: vol = int(vol * .9)
         t = Track(s, name, prog, ch, vol, pan); s.tracks.append(t); return t
 
     def bpm_at(s, t):
