@@ -64,6 +64,7 @@ body{margin:0;background:var(--grass);color:var(--ink);font-family:var(--body);f
 .mk{width:1.15em;height:1.15em;flex:none;overflow:visible;vertical-align:-.2em;margin-right:.12em;-webkit-text-stroke:0;paint-order:normal}
 #minilogo .mk{margin:0}
 .tag{margin:0;font-weight:800;color:var(--muted)}
+.alpha{margin:0;font:700 12.5px/1.4 var(--body);color:var(--ink);background:#fff3c4;border:3px solid var(--ink);border-radius:12px;padding:7px 10px}.alpha b{background:var(--tomato);color:#fff;border-radius:6px;padding:1px 6px;margin-right:4px;letter-spacing:.5px}
 .row{display:flex;gap:10px}
 input#name{flex:1;min-width:0;font:800 17px var(--body);color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:12px;padding:10px 12px}
 input#server{flex:1;min-width:0;font:700 14px var(--body);color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:12px;padding:8px 10px}
@@ -416,6 +417,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
   <form class="panel card" id="startform">
     <h1 class="logo"><svg class="mk"><use href="#mk"/></svg>Typebite</h1>
     <p class="tag">Eat snacks, level up, and win typing duels to eat everyone else.</p>
+    <p class="alpha"><b>ALPHA</b> This game is still being built: expect bugs, and new items, perks, maps and skins are coming. Online games connect through a matchmaking service (PeerJS, USA): it sees your IP address, and so do the other players of your game (<a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">privacy</a>).</p>
     <div class="row">
       <input id="name" maxlength="14" placeholder="Your name" autocomplete="off" spellcheck="false">
       <button class="btn" type="submit">Play</button>
@@ -425,12 +427,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
       <div id="ollist"></div>
       <button class="lnk" type="button" id="solobtn">or play alone (offline)</button>
     </div>
-    <div id="consent" hidden>
-      <b>Play online with friends?</b>
-      <p class="small">Online games use a matchmaking service (PeerJS, USA). Your IP address is sent to it and to the other players of your game, and the other players see your name and look. We store nothing about you. You can change this at any time. <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Privacy details</a></p>
-      <div class="row"><button class="btn" type="button" id="consentyes">Yes, go online</button><button class="btn alt" type="button" id="consentno">No, offline only</button></div>
-    </div>
-    <details id="mpadv"><summary>Friends: room and server options</summary>
+    <div id="mpadv" hidden>
       <button class="lnk" type="button" id="onlinetoggle"></button>
       <p class="small">Everyone who opens the game sees who is playing and can join. To play in a private group use the same room name:</p>
       <div class="row"><input id="room" maxlength="20" placeholder="Room name (optional)" autocomplete="off" spellcheck="false"></div>
@@ -439,11 +436,11 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
         <input id="server" placeholder="e.g. 192.168.1.20:8080" autocomplete="off" spellcheck="false">
         <button class="btn alt" type="button" id="joinbtn">Join</button>
       </div>
-    </details>
+    </div>
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r62</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r63</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -977,7 +974,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r62';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r63';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -986,7 +983,7 @@ if(role!=='server'){
   if(typeof CanvasRenderingContext2D!=='undefined'&&!CanvasRenderingContext2D.prototype.roundRect)   // Safari < 16, Firefox < 112
     CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){r=Math.max(0,Math.min(Array.isArray(r)?(+r[0]||0):(+r||0),Math.abs(w)/2,Math.abs(h)/2));
       this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath()};
-  const bt=$('buildtag');if(bt)bt.textContent='Build '+BUILD}
+  const bt=$('buildtag');if(bt)bt.textContent='Alpha · Build '+BUILD}
 const cv=$('game');
 let ctx=cv.getContext('2d');
 let W=0,H=0,DPR=1,Z=1,ZU=CFG.camera.startZoom,ZZ=1,shake=0,kick=0,dz=0,hitstop=0;
@@ -2747,7 +2744,6 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('guide').hidden){$('guide
     cdone:'uiDone',bugcopy:'uiDone',again:'uiDone',hprev:'uiTab',hnext:'uiTab',mute:'',btnSprint:'',btnDash:''};
   const skip=b=>b.id==='btnSprint'||b.id==='btnDash'||b.classList.contains('pcard');
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button,summary');if(!b||skip(b)||sfx.uiSince(e.timeStamp))return;
-    if(b.id==='consentyes'||b.id==='consentno'||b.id==='onlinetoggle'){sfx.uiToggle(b.id!=='consentno');return}
     if(b.id==='musicbtn'){sfx.uiToggle(music.on);return}
     const k=b.id in SND?SND[b.id]:b.type==='submit'?'':b.classList.contains('gtab')?'uiTab':b.dataset.dir?'uiTurn':'uiTap';if(k)sfx[k]()});
   let hov=null;   // a soft tick when the mouse moves onto a button (not on touch screens)
@@ -2763,9 +2759,9 @@ $('leavego').addEventListener('click',()=>{askLeave(false);toMenu()});
 $('joinbtn').addEventListener('click',()=>joinGame());
 /* ---------- find running games: list who is playing, each with a Join button ---------- */
 // online play is opt-in: nothing is sent to the matchmaking service before the player agrees
-let ONLINE=null;try{ONLINE=localStorage.getItem('snackdown-online')}catch(_){}
+let ONLINE=(typeof SNACK_OFFLINE!=='undefined'&&SNACK_OFFLINE)||/[?&]offline=1/.test(location.search)?'no':'yes';   // online play is always on (r63); the offline switch is only for tests
 const onlineOk=()=>ONLINE==='yes';
-function showConsent(){const c=$('consent');if(c)c.hidden=!!ONLINE||!PeerC;const t=$('onlinetoggle');if(t)t.textContent=!PeerC?'':onlineOk()?'Online play is ON (click to turn off)':'Online play is OFF (click to turn on)'}
+function showConsent(){}
 function setOnline(v){ONLINE=v;try{localStorage.setItem('snackdown-online',v)}catch(_){}
   if(v!=='yes'){if(scout){try{scout.destroy()}catch(_){}}scout=null;lobbies=[];P2P.state='unknown';showLobbies()}
   showConsent();if(v==='yes'){showLobbies();pollOnline()}}
@@ -2790,8 +2786,7 @@ async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||docume
     lobbies=found;showLobbies();if(!scanned||P2P.state!=='unknown'){scanned=true;resolveScan()}}finally{polling=false}}
 $('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-i]');const l=b&&lobbies[+b.dataset.i];if(!l)return;
   if(l.kind==='node')joinGame(l.addr);else playP2P(l.host,l)});
-$('consentyes').addEventListener('click',()=>setOnline('yes'));$('consentno').addEventListener('click',()=>setOnline('no'));
-$('onlinetoggle').addEventListener('click',()=>setOnline(onlineOk()?'no':'yes'));setTimeout(showConsent,0);   // PeerC is defined further down
+setTimeout(showConsent,0);   // PeerC is defined further down
 $('solobtn').addEventListener('click',()=>{lobbies=[];startGame()});
 setInterval(pollOnline,5000);setTimeout(pollOnline,300);
 try{const sv=localStorage.getItem('snackdown-server');if(sv)$('server').value=sv;const rm=localStorage.getItem('snackdown-room');if(rm)$('room').value=rm}catch(_){}

@@ -557,3 +557,9 @@ Feedback von Ali: Klavier nervig wie ein hoher Synth, Bass schwammig statt knack
 
 ## Runde 61 (BUILD r62) - Bass lauter
 Ali: Bass sehr gut, aber lauter. `TRIM` für alle Bässe (Finger 33, Pick 34, Slap 36, Synth 38) um 7 dB angehoben (etwa 2,2-fache Amplitude); der Limiter am Ende der Musik-Kette fängt Spitzen ab. Die Gesamtlautstärke pro Stück (`DB`) bleibt, die Stücke werden dadurch insgesamt etwas lauter. Wenn es zu viel ist: die Zahlen in `TRIM` senken.
+
+## Runde 62 (BUILD r63) - Vorbereitung öffentliche Alpha
+- Online-Spiel ist immer an. Entfernt: Einwilligungsfeld "Play online with friends?", "Friends: room and server options" (Raum, Server-Adresse, Online-Schalter; die Elemente bleiben versteckt im Code). Der alte Test-Schalter ist jetzt `window.SNACK_OFFLINE=1` bzw. `?offline=1` (die Tests setzen ihn).
+- Im Menü steht ein gelber ALPHA-Hinweis (Fehler möglich, neue Items/Perks/Karten/Skins kommen, PeerJS sieht die IP, Link zur Datenschutzseite), unten "Alpha · Build r63".
+- `site/datenschutz.html` angepasst: kein "nur nach Einwilligung" mehr, Rechtsgrundlage Art. 6 Abs. 1 lit. b und f DSGVO, Widerspruch per Schließen oder E-Mail. VON MIR UMGESCHRIEBEN, NICHT VON EINEM ANWALT GEPRÜFT. Offene Frage (Datenschutz): Das Spiel meldet sich beim Öffnen des Menüs beim PeerJS-Dienst (USA). Wer das ohne Zustimmung vermeiden will, braucht einen eigenen Vermittlungsserver (steht in docs/release-plan.md).
+- Getestet: Menü ohne die entfernten Teile, Spielstart bei nicht erreichbarem Vermittlungsdienst (Spiel startet sofort und hostet selbst), Worker/Musik/Modi. NICHT getestet: echtes Mehrspiel über den öffentlichen PeerJS-Dienst (aus der Sandbox nicht erreichbar), Beitritt von zwei echten Geräten.
