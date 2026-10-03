@@ -507,3 +507,13 @@ Wunsch: Die Nocturne (Chopin-Stil) gefällt, sie soll automatisch laufen, solang
   - Getestet mit simulierter Bildwiederholrate (60, 120, 144 genau erkannt, 280 wurde als 240 erkannt, vermutlich Grenze des Timer-Simulators, nicht des Spiels). NICHT getestet: echtes iPhone 14 Pro, echte 280-Hz-Monitore. Wenn der Browser wirklich nur 100 Hz liefert (Windows mit gemischten Monitoren richtet sich oft nach dem Hauptmonitor), kann das Spiel das nicht ändern: Spiel-Fenster auf den 280-Hz-Monitor und diesen als Hauptmonitor setzen, oder in Windows beide gleich einstellen. Am iPhone: Stromsparmodus aus.
 - **Bewertung**: Ordner `bewerten/` (nicht im Git) mit den 16 MIDI-Stücken nummeriert und `bewertung.md` als Tabelle für Note und Änderungswünsche.
 - BUILD r55.
+
+## Runde 56 - Feedback zu den 16 Stücken
+Ali hat alle Stücke in Windows' eingebautem MIDI-Synth (Microsoft GS Wavetable, `gm.dls`) angehört. Dort klingen sie gut, im Spiel mit dem eigenen Synth schlechter.
+- **Neue Zuordnung:** Charakter-Editor `play_coast`; Anleitung `play_twilight`; Spiel `play_tropic`, `play_skyline`, `play_runway` (die beiden "perfekten"); Hauptmenü bis auf Weiteres `play_tropic`, `play_runway`; Game Over `dead_alley` + die drei traurigen Menüstücke (Adagio, Liebestraum, Tempel); Duell `high_circus` + Moonlit + Fog + Heist; ab Level 30 / König `high_requiem`, `high_carnival`.
+- **Overworld-Metal langsamer:** Requiem 184 -> 138 BPM, Carnival 208 -> 150 BPM, Blastbeats durch Double-Bass-Beat ersetzt, Melodien unverändert.
+- **Kampfmusik beginnt sofort:** Die ersten 4 Takte (Intro) von `high_circus`, `duel_moonlit`, `duel_fog` sind abgeschnitten, ab der ersten Note spielen 4-8 Stimmen. Heist behält das Bass-Intro (gefiel).
+- **Sax ersetzt:** In `duel_heist` und `dead_alley` spielt statt des Saxofons der Lead (GM 81), den Ali bei Skyline/Runway mochte. Das Saxofon des Spiel-Synths war nicht gut genug.
+- Die Nocturne ("komische Wirbel") bleibt vorerst, Stelle erfragt.
+- **Offen: Soundfont.** Das Spiel hat einen selbstgebauten Synth, Windows hat Roland-Samples (`gm.dls`, 3,4 MB, nicht weitergebbar). Optionen sind in der Antwort an Ali beschrieben.
+- Bewertungsordner `bewerten/` neu sortiert. BUILD r56.

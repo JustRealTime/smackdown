@@ -505,7 +505,7 @@ def high_requiem():
     """E minor symphonic metal: a piano prelude, a 7/8 riff with organ and choir, thrash verse, royal-road chorus, harmonised solo."""
     S = Song('high_requiem', 92, seed=32, title='Requiem (high level) - in the style of Imperial Circus Dead Decadence')
     S.bars(4); S.bars(8, 7, 8); S.bars(36, 4, 4); S.bars(5); T = metal_kit(S); org = S.track('Organ', 19, 10, 84, 64)
-    S.set_tempo(S.bar(4), 184)
+    S.set_tempo(S.bar(4), 138)
     PI = [[('Em', 4)], [('Cmaj7', 4)], [('Am9', 4)], [('B7', 4)]]
     RF = [[('Em', 3.5)], [('Em', 3.5)], [('Em', 3.5)], [('B', 3.5)]] * 2
     VE = [[('Em', 4)], [('Em', 4)], [('C', 4)], [('D', 4)], [('Em', 4)], [('Em', 4)], [('Am', 4)], [('B7', 4)]]
@@ -543,7 +543,7 @@ def high_requiem():
     T['pn'].chord(S.bar(51), B44 * 2, [40, 52, 59, 64, 67, 71, 76], 80, 20)
     dr = T['dr']; dr.note(S.bar(4), TPQ, 49, 120)
     beat(dr, S.bar(4), 8, {'k': 'x...x.x...x...', 's': '........X.....', 'h': 'x.x.x.x.x.x.x.', 'c': 'x.............'}, steps=14, barlen=B7)
-    drumsec(dr, S, 12, 8, {'k': 'x.x.x.x.x.x.x.x.', 's': '....X.......X...', 'h': 'x.x.x.x.x.x.x.x.'}); drumsec(dr, S, 20, 8, SKANK); drumsec(dr, S, 28, 4, BLAST)
+    drumsec(dr, S, 12, 8, {'k': 'x.x.x.x.x.x.x.x.', 's': '....X.......X...', 'h': 'x.x.x.x.x.x.x.x.'}); drumsec(dr, S, 20, 8, SKANK); drumsec(dr, S, 28, 4, DOUBLE)
     drumsec(dr, S, 32, 8, DOUBLE); drumsec(dr, S, 40, 8, SKANK); drumsec(dr, S, 48, 3, SKANK, fillkind='snare')
     for b in (12, 20, 24, 32, 40, 44): dr.note(S.bar(b), TPQ, 57, 118)
     beat(dr, S.bar(51), 1, {'k': 'X...............', 'c': 'X...............', 'C': 'X...............'})
@@ -553,7 +553,7 @@ def high_requiem():
 @song
 def high_carnival():
     """A minor symphonic metal with a dark circus waltz (3/4) that comes back as a heavy metal waltz."""
-    S = Song('high_carnival', 208, 3, 4, seed=33, title='Carnival (high level) - in the style of Imperial Circus Dead Decadence')
+    S = Song('high_carnival', 150, 3, 4, seed=33, title='Carnival (high level) - in the style of Imperial Circus Dead Decadence')
     S.bars(8); S.bars(24, 4, 4); S.bars(8, 3, 4); S.bars(21, 4, 4); T = metal_kit(S); pz = S.track('Pizzicato', 45, 10, 96, 40); gk = S.track('Glockenspiel', 9, 11, 80, 92)
     WI = [[('Am', 3)], [('E7', 3)], [('Am', 3)], [('E7', 3)], [('Dm', 3)], [('Am', 3)], [('B7', 3)], [('E7', 3)]]
     EX = [[('Am', 4)], [('F', 4)], [('Dm', 4)], [('E', 4)], [('Am', 4)], [('F', 4)], [('Dm', 4)], [('E7', 4)]]
@@ -581,7 +581,7 @@ def high_carnival():
     pad(T['ch'], timeline(S.bar(32), prog_of(WI)), 62, True, 76, 3)
     beat(T['dr'], S.bar(32), 8, {'k': 'x.......x.x.', 's': '....x...x...', 'ch': 'x...........', 'c': 'x...........' + '.' * 36}, steps=12, barlen=B3)
     guitars(T, lambda g: trem(g, tl, S.bar(8), S.bar(16), v=86)); bassline(T['bs'], S.bar(8), tl, 'R' * 16, 8, lo=28, v=100)
-    sub = timeline(S.bar(8), prog_of(EX)); pad(T['st'], sub, 64, True, 72, 4); pad(T['ch'], sub, 60, True, 76, 3); drumsec(T['dr'], S, 8, 8, BLAST)
+    sub = timeline(S.bar(8), prog_of(EX)); pad(T['st'], sub, 64, True, 72, 4); pad(T['ch'], sub, 60, True, 76, 3); drumsec(T['dr'], S, 8, 8, DOUBLE)
     guitars(T, lambda g: pchords(g, tl, S.bar(16), 8, ['X-mm m-mm m-mm m-mm', 'x-mm m-mm m-mm m-mm', 'X-mm m-mm X-mm m-mm', 'x-mm m-mm m-mm m-mm'], 40, v=92))
     bassline(T['bs'], S.bar(16), tl, 'R-RR' * 4, 8, lo=28, v=100); drumsec(T['dr'], S, 16, 8, DOUBLE)
     arp(T['hc'], tl, [0, 2, 1, 3, 2, 4, 3, 5], TPQ // 4, 64, True, 48, t0=S.bar(16), t1=S.bar(24))
@@ -591,10 +591,10 @@ def high_carnival():
              " D6:1 E6:1 F6:1 G#6:1 A6:1 G#6:1 F6:1 E6:1 D6:1 C6:1 B5:1 A5:1 G#5:2 B5:2 | E6:8^ G#6:4 B6:4 |")
     mel(T['ld'], S.bar(40), solo + ' ' + solo2, bar=B44, v=100); mel(T['l2'], S.bar(44), shift_text(solo2, AHM, -2), bar=B44, v=86)
     guitars(T, lambda g: trem(g, tl, S.bar(40), S.bar(44), v=84)); guitars(T, lambda g: pchords(g, tl, S.bar(44), 4, 'x-x-x-x-x-x-x-x-', 40, v=88))
-    bassline(T['bs'], S.bar(40), tl, ['R' * 16] * 4 + ['R-' * 8] * 4, 8, lo=28, v=100); drumsec(T['dr'], S, 40, 4, BLAST, fillkind=None); drumsec(T['dr'], S, 44, 4, DOUBLE)
+    bassline(T['bs'], S.bar(40), tl, ['R' * 16] * 4 + ['R-' * 8] * 4, 8, lo=28, v=100); drumsec(T['dr'], S, 40, 4, DOUBLE, fillkind=None); drumsec(T['dr'], S, 44, 4, DOUBLE)
     mel(T['ld'], S.bar(56), "E6:2 F6:1 E6:1 D#6:2 E6:2 | C6:4 F6:4 | E6:4 G#5:4 | A5:8 | r:8 |", E8, 104, 1.0, 3, B44)
     guitars(T, lambda g: trem(g, tl, S.bar(56), S.bar(59), v=88)); guitars(T, lambda g: pchords(g, tl, S.bar(59), 1, 'X---------------', 40, v=100))
-    bassline(T['bs'], S.bar(56), tl, ['R' * 16] * 3 + ['R---------------'], 4, lo=28, v=100); drumsec(T['dr'], S, 56, 3, BLAST)
+    bassline(T['bs'], S.bar(56), tl, ['R' * 16] * 3 + ['R---------------'], 4, lo=28, v=100); drumsec(T['dr'], S, 56, 3, DOUBLE)
     gk.note(S.bar(59), B44, 81, 70); T['hc'].chord(S.bar(59), B44, [57, 60, 64, 69], 80, 20)
     for b in (8, 16, 24, 40, 48, 56): T['dr'].note(S.bar(b), TPQ, 57, 118)
     beat(T['dr'], S.bar(59), 1, {'k': 'X...............', 'c': 'X...............', 'C': 'X...............'})
@@ -664,7 +664,7 @@ def duel_fog():
 def duel_heist():
     """F minor acid-jazz rock battle theme in the style of Persona 5: Rhodes stabs, busy bass, ghost-note drums, alto sax lead, brass hits."""
     S = Song('duel_heist', 172, seed=43, title='Heist (duel) - in the style of Persona 5'); S.bars(40); BAR = S.barlen(0)
-    sx = S.track('Alto sax', 65, 0, 116, 64); ep = S.track('Rhodes', 4, 1, 84, 46); bs = S.track('Bass', 33, 2, 106, 64)
+    sx = S.track('Lead', 81, 0, 100, 64); ep = S.track('Rhodes', 4, 1, 84, 46); bs = S.track('Bass', 33, 2, 106, 64)
     br = S.track('Brass', 61, 3, 86, 80); st = S.track('Strings', 48, 4, 80, 54); gt = S.track('Guitar', 27, 5, 76, 100); dr = S.track('Drums', 0, 9, 108, 64)
     In = [[('Fm9', 4)], [('Dbmaj7', 4)], [('Bbm9', 4)], [('C7#9', 4)]]
     A = [[('Fm9', 4)], [('Dbmaj7', 4)], [('Bbm9', 4)], [('C7#9', 4)], [('Fm9', 4)], [('Dbmaj7', 4)], [('Gm7b5', 4)], [('C7#9', 4)]]
@@ -696,7 +696,7 @@ def duel_heist():
 def dead_alley():
     """D minor late-night acid jazz in the style of Persona 5's Alleycat: Rhodes, laid-back bass, brushed groove, alto sax line."""
     S = Song('dead_alley', 84, seed=51, title='Alley (game over) - in the style of Persona 5'); S.bars(22); BAR = S.barlen(0)
-    sx = S.track('Alto sax', 65, 0, 108, 64); ep = S.track('Rhodes', 4, 1, 100, 52); bs = S.track('Bass', 33, 2, 104, 64)
+    sx = S.track('Lead', 81, 0, 96, 64); ep = S.track('Rhodes', 4, 1, 100, 52); bs = S.track('Bass', 33, 2, 104, 64)
     gt = S.track('Jazz guitar', 26, 3, 80, 92); st = S.track('Strings', 49, 4, 70, 60); vb = S.track('Vibraphone', 11, 5, 76, 36); dr = S.track('Drums', 0, 9, 92, 64)
     In = [[('Dm9', 4)], [('Gm9', 2), ('A7b13', 2)]]
     A = [[('Dm9', 4)], [('G13', 4)], [('Bbmaj7', 4)], [('A7b13', 4)], [('Dm9', 4)], [('Fmaj7/C', 4)], [('Ebmaj7#11', 4)], [('A7sus4', 2), ('A7b9', 2)]]
@@ -720,10 +720,12 @@ def dead_alley():
     return S
 
 
+SKIP = {'high_circus': 4, 'duel_moonlit': 4, 'duel_fog': 4}   # fight music: no slow intro, it starts where the band is in
+
 def main(names):
     os.makedirs(OUT, exist_ok=True)
     for nm in names or SONGS:
-        S = SONGS[nm](); path = os.path.join(OUT, nm + '.mid'); cnt = S.write(path)
+        S = SONGS[nm](); path = os.path.join(OUT, nm + '.mid'); cnt = S.write(path, SKIP.get(nm, 0))
         print('%-15s %3d bars  %5d notes  %6.1f KB' % (nm, len(S.starts) - 1, cnt, os.path.getsize(path) / 1024))
 
 if __name__ == '__main__':

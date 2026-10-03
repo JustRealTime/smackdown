@@ -118,23 +118,35 @@ class Song:
             if tt <= t: b = bb
         return b
 
-    def write(s, path):
+    def write(s, path, skip=0):
+        """skip = number of bars to cut from the start (fight music has to begin right away): everything shifts, the tempo in force stays."""
+        off = s.starts[skip]; end = s.end - off
         def vlq(x):
             out = [x & 127]; x >>= 7
             while x: out.insert(0, (x & 127) | 128); x >>= 7
             return bytes(out)
+        def shift(evs):
+            out = []; i = 0
+            while i < len(evs):
+                t, k, b = evs[i]
+                if k == 3:   # a note on is directly followed by its note off
+                    if t >= off: out.append((t - off, k, b)); out.append((evs[i + 1][0] - off, evs[i + 1][1], evs[i + 1][2]))
+                    i += 2; continue
+                out.append((max(0, t - off), k, b)); i += 1
+            return out
         def chunk(evs, name):
             evs = sorted(evs, key=lambda e: (e[0], e[1]))
             d = b'\x00\xff\x03' + vlq(len(name)) + name.encode(); last = 0
             for t, _, b in evs:
-                t = min(t, s.end)   # a loop ends exactly at the last bar line
+                t = min(t, end)   # a loop ends exactly at the last bar line
                 d += vlq(max(0, t - last)) + b; last = max(last, t)
-            d += vlq(max(0, s.end - last)) + b'\xff\x2f\x00'
+            d += vlq(max(0, end - last)) + b'\xff\x2f\x00'
             return b'MTrk' + struct.pack('>I', len(d)) + d
         cond = []
         for t, num, den in s.sig: cond.append((t, 0, bytes([0xff, 0x58, 4, num, {2: 1, 4: 2, 8: 3, 16: 4}[den], 24, 8])))
         for t, bpm in s.tempo: cond.append((int(t), 0, b'\xff\x51\x03' + int(round(60e6 / bpm)).to_bytes(3, 'big')))
-        out = [chunk(cond, s.title)] + [chunk(t.events(), t.name) for t in s.tracks]
+        cond = [(max(0, t - off), k, b) for t, k, b in sorted(cond, key=lambda e: e[0])]
+        out = [chunk(cond, s.title)] + [chunk(shift(t.events()), t.name) for t in s.tracks]
         with open(path, 'wb') as f: f.write(b'MThd' + struct.pack('>IHHH', 6, 1, len(out), TPQ) + b''.join(out))
         return sum(len(t.ev) for t in s.tracks) // 2
 

@@ -425,7 +425,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r55</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r56</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -580,7 +580,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r55';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r56';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1914,8 +1914,10 @@ const synth=(()=>{
 
 const music=(()=>{
   // every moment of the game has its own songs; menu songs take turns, the others are picked at random
-  const MODES={settings:['nocturne'],menu:['menu_adagio','menu_dream','menu_temple'],play:['play_coast','play_skyline','play_tropic','play_twilight','play_runway'],
-    high:['high_circus','high_requiem','high_carnival'],duel:['duel_moonlit','duel_fog','duel_heist'],dead:['dead_alley']};
+  // where which song plays: settings, the main menu, the character editor, the how-to-play pages, the overworld (play, and high = metal from level 30 and as king),
+  // fights, and the game over screen
+  const MODES={settings:['nocturne'],menu:['play_tropic','play_runway'],custom:['play_coast'],howto:['play_twilight'],play:['play_tropic','play_skyline','play_runway'],
+    high:['high_requiem','high_carnival'],duel:['high_circus','duel_moonlit','duel_fog','duel_heist'],dead:['dead_alley','menu_adagio','menu_dream','menu_temple']};
   MODES.king=MODES.high;
   const FILES={nocturne:'music/nocturne.mid',menu_adagio:'music/menu_adagio.mid',menu_dream:'music/menu_dream.mid',menu_temple:'music/menu_temple.mid',
     play_coast:'music/play_coast.mid',play_skyline:'music/play_skyline.mid',play_tropic:'music/play_tropic.mid',play_twilight:'music/play_twilight.mid',play_runway:'music/play_runway.mid',
@@ -2783,7 +2785,7 @@ function updateVisuals(dt,t){
   if(toastT>0){toastT-=dt;if(toastT<=0)$('toast').style.opacity=0;if(toastT<-.5)$('toast').hidden=true}
   if(player&&game==='play'){const ih=houseAt(player.x,player.y);if(ih&&ih!==player.inHouse)sfx.door();player.inHouse=ih;updateHud(t);drawMini()}
   if(player){const l=L(player);if(l>=MUSIC_HIGH)hiMus=true;else if(l<MUSIC_HIGH-5)hiMus=false}   // a bit of slack, so one lost duel does not flip the music back and forth
-  music.mode(!$('settings').hidden?'settings':game==='dead'?'dead':game!=='play'?'menu':duel?'duel':king===player&&player?'king':hiMus?'high':'play');
+  music.mode(!$('settings').hidden?'settings':!$('custom').hidden?'custom':!$('howto').hidden?'howto':game==='dead'?'dead':game!=='play'?'menu':duel?'duel':king===player&&player?'king':hiMus?'high':'play');
   if(role==='solo'){boardT-=dt;if(boardT<=0&&game==='play'){boardT=.5;updateBoard()}}}
 function showDeath(){game='dead';
   $('deadby').textContent='Eaten by '+(player.eater?player.eater.name:'someone')+'. '+(respawnLvl>1?'Last Stand: you will restart at level '+respawnLvl+'.':'Snack, dash and duel your way back up.');
