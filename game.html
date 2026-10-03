@@ -443,7 +443,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Build r61</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Build r62</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -597,7 +597,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r61';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r62';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
 if(role!=='server'){
@@ -1903,7 +1903,7 @@ const synth=(()=>{
       drumSynth(oc,kit(oc),{lv:1,in:oc.destination},0,p,1);DRB.set(sr+':'+p,await oc.startRendering())}))}
   function drum(A,x,t,p,v){const b=DRB.get(A.sampleRate+':'+p);if(!b)return;const s=A.createBufferSource(),g=A.createGain();s.buffer=b;g.gain.value=x.lv*(.15+.85*v*v);s.connect(g);g.connect(x.in);s.start(t)}
   // one note from the samples: every region that matches key and velocity plays (stereo pairs and velocity layers are regions of their own)
-  const TRIM={0:0.1,4:2.6,6:12.7,9:1.3,11:-10.9,12:1.2,19:-0.5,24:-1.6,26:-4.9,27:-3.7,29:-0.5,30:-4.4,33:-6,34:-0.1,36:-6,38:-7,42:-5.6,45:-1.9,46:-7.9,47:-2.4,48:2.4,49:2.9,50:-2.8,52:3.3,60:1,61:-3.2,62:-0.6,68:-6.1,71:-2.4,73:-6.8,75:-0.1,80:5.6,81:4,89:-9.2,128:-8.4};   // dB per program so that every instrument is about equally loud (measured with a fixed phrase); drums are 128
+  const TRIM={0:0.1,4:2.6,6:12.7,9:1.3,11:-10.9,12:1.2,19:-0.5,24:-1.6,26:-4.9,27:-3.7,29:-0.5,30:-4.4,33:1.0,34:6.9,36:1.0,38:0.0,42:-5.6,45:-1.9,46:-7.9,47:-2.4,48:2.4,49:2.9,50:-2.8,52:3.3,60:1.0,61:-3.2,62:-0.6,68:-6.1,71:-2.4,73:-6.8,75:-0.1,80:5.6,81:4.0,89:-9.2,128:-8.4};   // dB per program so that every instrument is about equally loud (measured with a fixed phrase); drums are 128
   const NOFILT=false;
   const TC=tc=>Math.pow(2,tc/1200),KOF=(n=0)=>Math.pow(2,n/1200);
   // SoundFont modulators that follow velocity or key (the sample font relies on them for its brightness and dynamics): 0..1, or -1..1 for bipolar sources
