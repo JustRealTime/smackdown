@@ -41,8 +41,8 @@ world: {
    2. PLAYERS AND BOTS
    ============================================================================================= */
 players: {
-  bots: 240,                         // the most computer players there can be. More bots = busier map (and a slower game on weak PCs)
-  botRespawn: 2,                     // eaten bots are replaced at about this many per second. Bots eat each other, so the map is never completely full:
+  bots: 100,                         // the most computer players there can be. More bots = busier map (and a slower game on weak PCs)
+  botRespawn: 1,                     // eaten bots are replaced at about this many per second. Bots eat each other, so the map is never completely full:
                                      // 0.8 = about 115 bots around, 2 = about 165, 4 = about 220 (with bots: 240)
   botLevels: [[70, 1, 5], [23, 5, 12], [7, 12, 22]],   // level of a new bot: [chance in %, lowest level, highest level]
   botSkill: [-8, 14],                // typing speed of bots: this many words per minute more or less than the base (see duel.botWpm)
