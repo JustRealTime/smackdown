@@ -147,6 +147,7 @@ duel: {
   fleeMemory: 3,             // seconds somebody counts as "caught running" after running away
   touchDistance: 34,         // how close two players must be for a duel
   timeout: 90,               // a duel nobody finishes ends after this many seconds
+  maxWpm: 230,               // the server holds back typing faster than this (about 19 letters a second): nobody types that fast, so it can only be a program
   // typing speed of a bot in a duel with you:  botWpm + skill + level * botWpmPerLevel (at most +botWpmMaxLevelBonus)
   botWpm: 32, botWpmPerLevel: 0.1, botWpmMaxLevelBonus: 14, botWpmMin: 18, botWpmMax: 100,
   botVsBot: [1.8, 3],        // how long a duel between two bots lasts (seconds)

@@ -453,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r76</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r77</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -737,6 +737,7 @@ duel: {
   fleeMemory: 3,             // seconds somebody counts as "caught running" after running away
   touchDistance: 34,         // how close two players must be for a duel
   timeout: 90,               // a duel nobody finishes ends after this many seconds
+  maxWpm: 230,               // the server holds back typing faster than this (about 19 letters a second): nobody types that fast, so it can only be a program
   // typing speed of a bot in a duel with you:  botWpm + skill + level * botWpmPerLevel (at most +botWpmMaxLevelBonus)
   botWpm: 32, botWpmPerLevel: 0.1, botWpmMaxLevelBonus: 14, botWpmMin: 18, botWpmMax: 100,
   botVsBot: [1.8, 3],        // how long a duel between two bots lasts (seconds)
@@ -994,7 +995,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r76';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r77';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -2007,6 +2008,20 @@ const NAME_B=['Alex','Bea','Cole','Dana','Eli','Fay','Gus','Hana','Ivo','Jo','Ki
 const NAMES=(()=>{const set=new Set();while(set.size<500)set.add(NAME_A[(Math.random()*NAME_A.length)|0]+' '+NAME_B[(Math.random()*NAME_B.length)|0]);return[...set]})();
 // the player's look (Terraria style: pick every part yourself); the server checks what it receives
 const LOOK_KEYS=['skin','shirt','hair','pants','shoes','acol','fcol','ecol'],HEX=/^#[0-9a-fA-F]{6}$/;
+function myName(def){const v=$('name').value,r=safeName(v,def||'Player');if(r.changed&&v.trim()){$('name').value=r.name;if(r.bad)try{$('mpstatus').textContent='That name is not allowed, you play as '+r.name+'.'}catch(_){}}return r.name||def||'Player'}   // the name field is corrected, so everybody sees what the server will use
+/* ---------- names: no insults, no links, no look-alikes of bots. The same function runs on the page (what the player sees) and in the server (what counts). ---------- */
+const BAD_SUB=['fuck','shit','bitch','biatch','faggot','whore','slut','pussy','dickhead','asshole','motherfuck','arschloch','scheiss','wichs','hurensohn','fotze','schwuchtel','missgeburt','spasti','kanake','hitler','siegheil','heilhitler','killyourself','vergewalt','judensau','abschaum','nigger','nigga'];   // found anywhere in the letters of a name
+const BAD_TOK=['ass','arse','cum','cock','dick','tit','tits','anus','porn','porno','fag','coon','hoe','nazi','nazis','heil','kkk','kys','rape','fick','ficker','ficken','nutte','nutten','hure','huren','kacke','pisse','sex','sau','spast','mongo','schlampe','bastard','retard','nigger','nigga','niggers','nigg','cunt','cunts','neger','negerin'];   // found only as a whole word
+const LEET={'0':'o','1':'i','3':'e','4':'a','5':'s','$':'s','@':'a','!':'i','|':'i','+':'t','7':'t'};
+const collapse=s=>s.replace(/(.)\1+/g,'$1'),BAD_RE=BAD_SUB.map(w=>new RegExp(w.split('').map(c=>c+'+').join('')));   // BAD_RE: every letter of an insult may be repeated (fuuuck), nothing else is merged (Niger, Night and Scunthorpe stay)
+function nameNorm(s){return String(s).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\u00df/g,'ss').replace(/[013457$@!|+]/g,c=>LEET[c])}
+function nameBad(raw){const n=nameNorm(raw),squash=n.replace(/[^a-z]/g,'');
+  for(const re of BAD_RE)if(re.test(squash))return true;   // "f u c k", "fuuuck", "f_u_c_k", leetspeak
+  for(const t of n.split(/[^a-z]+/))if(t&&(BAD_TOK.includes(t)||BAD_TOK.includes(t.replace(/(.){2,}/g,'$1$1'))))return true;   // short words only as a whole word, so Class or Massimo stay
+  return /https?|www\.|\.com|\.io|\.net|\.org|\.de|\.at|\.gg|discord|tiktok|youtube|insta(gram)?\b|1488/i.test(String(raw))}
+function safeName(raw,def){const base=String(raw==null?'':raw).trim();let n=base.normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss').replace(/[^\w .\-]/g,'').replace(/\s+/g,' ').trim().slice(0,14);if(!n&&!base)n=def||'';
+  const bad=!!base&&(!n||nameBad(base)||nameBad(n)),name=bad?'Snacker'+(1000+Math.floor(Math.random()*9000)):n;
+  return{name,bad,changed:bad||(!!base&&n!==base.slice(0,14))}}
 function cleanLook(l){if(!l||typeof l!=='object')return null;const o={};
   for(const k of LOOK_KEYS)if(typeof l[k]==='string'&&HEX.test(l[k]))o[k]=l[k];
   if(HS_ALL.includes(l.hs))o.hs=l.hs;if(ACC_ALL.includes(l.acc))o.acc=l.acc;if(STY_ALL.includes(l.sty))o.sty=l.sty;
@@ -2549,7 +2564,7 @@ const stats={won:0,snacks:0,best:0,top:1};
 function startGame(){
   PERF.grace=now()+2.5;
   sfx.init();sfx.start();
-  const t=now();const nm=($('name').value.trim()||'You').slice(0,14);
+  const t=now();const nm=myName('You');
   try{localStorage.setItem('snackdown-name',nm)}catch(_){}
   if(player)ents=ents.filter(e=>e!==player);
   player=makeEnt(nm,respawnLvl,true,t);if(LOOK)Object.assign(player,LOOK);ents.push(player);   // Last Stand can bring levels back
@@ -3204,7 +3219,7 @@ function handleTyping(e){
   else return;
   renderTyping();
   if(duel.net){let ok=0;for(let i=0;i<duel.typed.length;i++)if(duel.typed[i]===duel.text[i])ok++;else break;
-    netSend({t:'prog',n:ok,s:duel.streak});
+    netSend({t:'prog',n:ok,s:duel.streak,x:duel.typed});
     if(duel.typed===duel.text){netSend({t:'done'});duel.waiting=true}}
   else if(duel.typed===duel.text)endTypingDuel(true);}
 function liveWpm(t){if(!duel||duel.phase!=='type')return 0;let ok=0;for(let i=0;i<duel.typed.length;i++)if(duel.typed[i]===duel.text[i])ok++;else break;
@@ -3458,7 +3473,7 @@ function srvRestore(ck){ck=typeof ck==='string'?JSON.parse(ck):ck;
   orbs=[];botDuels=[];king=null;
   setTimeout(()=>{ents=ents.filter(e=>!(e.human&&!e.h))},25000)}   // whoever did not return within 25 s is gone
 function srvJoin(cid,name,look,near,resume){
-  const nm=String(name||'').replace(/[^\w .\-]/g,'').trim().slice(0,14)||'Player';
+  const nm=safeName(name,'Player').name||'Player';
   const h={cid,name:nm,look:cleanLook(look),near:String(near||'').slice(0,14),alive:true,e:null,known:new Set(),inp:{ux:0,uy:0,f:0,sp:false},dashQ:false,useQ:false,offer:null,dead:false,perksDirty:true};
   h.key=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);humans.set(cid,h);
   const old=resume?ents.find(e=>e.hkey===resume&&e.human&&!e.h&&!e.gone):null;
@@ -3469,15 +3484,22 @@ function srvLeave(cid){
   const h=humans.get(cid);if(!h)return;h.alive=false;humans.delete(cid);const e=h.e;if(!e)return;
   const sd=e.sd;if(sd&&!sd.done){const o=sd.a===e?sd.b:sd.a;sd.done=true;o.sd=null;o.state='move';o.protect=now()+2;if(o.human)send(o.h,{t:'dend',win:true,gain:0,left:true})}
   e.gone=true;ents=ents.filter(x=>x!==e)}
+const srvNote=ev=>{try{if(typeof postMessage==='function')postMessage({note:ev});else if(typeof console!=='undefined')console.warn('suspect',JSON.stringify(ev))}catch(_){}};   // the host's page (and the stats) hear about suspicious behaviour
 function srvMsg(cid,m){
   const h=humans.get(cid);if(!h||!m)return;
+  const tn=now();h.rl=Math.min(200,(h.rl===undefined?200:h.rl)+(tn-(h.rlt||tn))*100);h.rlt=tn;if(--h.rl<0){h.abuse=(h.abuse||0)+1;if(h.abuse===200)srvNote({type:'flood',name:h.name});return}   // about 100 messages a second are allowed (movement, typing), more is dropped
   switch(m.t){
     case 'in':{const i=h.inp,l=Math.hypot(+m.ux||0,+m.uy||0)||1;i.ux=(+m.ux||0)/l;i.uy=(+m.uy||0)/l;i.f=clamp(+m.f||0,0,1);i.sp=!!m.sp;if(m.da)h.dashQ=true;break}
     case 'use':h.useQ=1+clamp(m.s|0,0,SLOTS-1);break;
     case 'choose':srvChoose(h,m.i|0);break;
     case 'ping':send(h,{t:'pong',c:+m.c||0});break;
-    case 'prog':{const e=h.e;if(e&&e.sd&&!e.sd.done){const sd=e.sd,s=sd.a===e?'a':'b';sd['p'+s]=clamp(+m.n||0,0,sd['t'+s].length);sd['s'+s]=+m.s||0}break}
-    case 'done':{const e=h.e;if(e&&e.sd&&!e.sd.done&&e.sd.phase==='type')e.sd['d'+(e.sd.a===e?'a':'b')]=true;break}
+    case 'prog':{const e=h.e;if(e&&e.sd&&!e.sd.done&&e.sd.phase==='type'&&typeof m.x==='string'){const sd=e.sd,s=sd.a===e?'a':'b',txt=sd['t'+s],x=m.x.slice(0,txt.length+20);
+      // the player sends what it has typed; the server compares it with the phrase it handed out. Claims of progress or of being finished are not believed.
+      let ok=0;while(ok<x.length&&ok<txt.length&&x.charCodeAt(ok)===txt.charCodeAt(ok))ok++;
+      const allow=(now()-sd.start)*(DU.maxWpm||230)*5/60+4;   // nobody types faster than maxWpm: what is beyond that is held back and counted
+      if(ok>allow){ok=Math.floor(allow);sd['f'+s]=(sd['f'+s]||0)+1}
+      sd['p'+s]=ok;sd['s'+s]=clamp(+m.s||0,0,500);if(ok>=txt.length&&x.length===txt.length)sd['d'+s]=true}break}
+    case 'done':break;   // older clients said so when they were finished: the server works it out itself now
     case 'respawn':if(!h.e)srvSpawn(h,h.respawnLvl||1,now()),h.respawnLvl=1;break}}
 function srvApplyInputs(t){
   for(const h of humans.values()){const e=h.e;if(!e||e.gone)continue;
@@ -3506,6 +3528,7 @@ function srvStartDuel(a,b,aC,bC,ka,kb,t){
   if(a.human)send(a.h,{t:'duel',opp:b.id,text:ta,myN:ps.n,oppN:os.n,oLen:tb.length,banner:duelBanner(aC,bC,ps,os,b.name)});
   if(b.human)send(b.h,{t:'duel',opp:a.id,text:tb,myN:os.n,oppN:ps.n,oLen:ta.length,banner:duelBanner(bC,aC,os,ps,a.name)})}
 function srvEndDuel(sd,ws,t){
+  if(sd['f'+ws]>=3)srvNote({type:'duel-speed',name:sd[ws].name,held:sd['f'+ws]});
   const w=sd[ws],l=sd[ws==='a'?'b':'a'];sd.done=true;w.sd=l.sd=null;const lv0=w.lvl;
   finishDuel(w,l,t);
   if(w.human){w.won=(w.won||0)+1;send(w.h,{t:'dend',win:true,gain:+(w.lvl-lv0).toFixed(2)})}
@@ -3566,7 +3589,7 @@ function srvStep(dt){
   if(tickN%SNAP_EVERY===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={ckpt:srvCheckpoint,restore:srvRestore,join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,boxes,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
+if(role==='server')globalThis.__sim={startDuel:srvStartDuel,msg0:srvMsg,ckpt:srvCheckpoint,restore:srvRestore,join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,boxes,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
@@ -3574,7 +3597,7 @@ const DIRS=['down','up','left','right'], STATES=['move','eat','duel','eaten'];
 const netSend=o=>{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))};
 function joinGame(addrArg,near){
   sfx.init();music.unlock();
-  const name=($('name').value.trim()||'Player').slice(0,14);
+  const name=myName();
   try{localStorage.setItem('snackdown-name',name)}catch(_){}
   let addr=typeof addrArg==='string'?addrArg:$('server').value.trim();
   if(!addr&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)addr=location.host;
@@ -3624,6 +3647,7 @@ function startWorker(){
   w.onmessage=e=>{const d=e.data;
     if(d.out)for(const [cid,str] of d.out){const c=P2P.conns.get(cid);if(!c)continue;if(c.local){if(c.sock.onmessage)c.sock.onmessage({data:str})}else if(c.conn.open){try{c.conn.send(str);DG.tx.b+=str.length}catch(_){}}}
     if(d.players){P2P.players=d.players;P2P.ms=d.ms}
+    if(d.note){DG.ev.push(Object.assign({t:Date.now()},d.note));if(DG.ev.length>20)DG.ev.shift()}
     if(d.ckpt)sendCkpt(P2P.ckTargets||[],d.ckpt);
     if(d.err)reportErr({message:d.err.m,stack:d.err.st},'host')};   // errors of the game server in the worker were silent before
   w.onerror=ev=>{reportErr({message:'host server crashed: '+(ev&&ev.message||'unknown'),stack:ev&&ev.lineno?'worker:'+ev.lineno+':'+(ev.colno||0):''},'host')};
@@ -3688,7 +3712,7 @@ function sendCkpt(targets,str){if(!targets.length)return;const id=(P2P.ckId=(P2P
   for(const c of targets)for(let i=0;i<n;i++){try{c.conn.send(JSON.stringify({t:'ckpt',id,i,n,d:str.slice(i*N,(i+1)*N)}))}catch(_){}}}
 function bindPeer(p){const w=P2P.worker;
   const onConn=(conn,pre)=>{const cid=P2P.nextCid++,st={joined:false},ent={conn,st,rtt:-1};P2P.conns.set(cid,ent);   // pre: what the player already sent over its standby link
-    const onData=d=>{let m;try{m=JSON.parse(d)}catch(_){return}
+    const onData=d=>{if(typeof d!=='string'||d.length>8000)return;let m;try{m=JSON.parse(d)}catch(_){return}   // nothing a player sends is bigger than a join with its look
       if(m.t==='hello'){try{conn.send(JSON.stringify({t:'status',host:P2P.hostName,players:P2P.players.map(p=>({name:String(p.name).slice(0,14),lvl:p.lvl})),max:LOBBY_MAX}))}catch(_){}return}
       if(m.t==='join'&&!st.joined&&P2P.players.length>=LOBBY_MAX){try{conn.send(JSON.stringify({t:'full'}));setTimeout(()=>conn.close(),300)}catch(_){}return}
       if(m.t==='ping'){if(m.rtt>=0)ent.rtt=m.rtt;if(m.q&&typeof m.q==='object')ent.q={m:+m.q.m||0,j:+m.q.j||0,l:+m.q.l||0,n:+m.q.n||0,p:+m.q.p||0}}
@@ -3730,7 +3754,7 @@ function p2pCleanup(){clearInterval(P2P.poll);clearInterval(P2P.mig);if(scout){t
     setTimeout(()=>{for(const c of rc){try{c.conn.send(JSON.stringify({t:'bye'}))}catch(_){}}},180);setTimeout(fin,650)}else fin();
   P2P.lobbyInfo=null;P2P.worker=null;P2P.peer=null;P2P.lobbyPeer=null;P2P.conns=new Map();P2P.isHost=false;P2P.succ=[];MIG.succ=[];MIG.ck=null;MIG.active=false;MIG.key='';standbyClose();MIG.in.clear()}
 async function playP2P(near,lobby){
-  const my=++playTok,name=($('name').value.trim()||'Player').slice(0,14);if(!lobby)P2P.joinTried=false;
+  const my=++playTok,name=myName();if(!lobby)P2P.joinTried=false;
   JT.length=0;applySnap.f=0;jmark('click');loadingShow('Looking for a game…');
   if(!lobby&&!pickLobby('p2p')){   // nothing known yet (or the list is old): look right now, and once more before starting our own, so Play joins a running game instead of opening a second one
     const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -3799,7 +3823,7 @@ function standbyLink(list){const peer=P2P.peer;if(role!=='client'||P2P.isHost||M
 // the candidate side: links from the other clients are kept (what they send waits) until this client becomes the host
 function standbyIn(conn){if(P2P.isHost)return;const e={conn,q:[],fn:d=>{e.q.push(d);if(e.q.length>40)e.q.shift()}};MIG.in.set(conn,e);
   conn.on('data',e.fn);conn.on('close',()=>MIG.in.delete(conn));conn.on('error',()=>{})}
-function standbySwitch(conn,list,mine,t0){const name=($('name').value.trim()||'Player').slice(0,14);
+function standbySwitch(conn,list,mine,t0){const name=myName();
   const sock={readyState:1,conn,send:s=>{try{conn.send(s)}catch(_){}},close:()=>{try{conn.close()}catch(_){}}};
   conn.on('data',d=>{if(sock.onmessage)sock.onmessage({data:d})});conn.on('close',()=>{if(sock.onclose)sock.onclose()});
   MIG.sb={id:'',conn:null,open:false,dead:false};   // the link carries the game now
@@ -3816,14 +3840,14 @@ function migStep(list,i,mine,t0){
   if(!MIG.active)return;if(i>=list.length||performance.now()-t0>40000){MIG.active=false;netLost('The host left and nobody could take over.');return}
   if(list[i]===mine)becomeHost();else connectSucc(list,i,mine,performance.now(),t0)}
 function becomeHost(){
-  const name=($('name').value.trim()||'Player').slice(0,14);
+  const name=myName();
   try{startWorker()}catch(e){MIG.active=false;netLost();return}
   P2P.isHost=true;P2P.hostName=name;if(MIG.ck)P2P.worker.postMessage({restore:MIG.ck});
   P2P.lastHandover=now();const onConn=bindPeer(P2P.peer);for(const [conn,e] of MIG.in){try{conn.off('data',e.fn)}catch(_){}if(conn.open)onConn(conn,e.q)}MIG.in.clear();   // the players that were already linked to us come in at once, with what they sent
   registerHost(1,0,true);attachSock(localSocket(),name,'',MIG.key)}
 function connectSucc(list,i,mine,t1,t0){
   if(!MIG.active)return;const peer=P2P.peer;if(performance.now()-t1>9000){migStep(list,i+1,mine,t0);return}
-  let settled=false;const id=list[i],name=($('name').value.trim()||'Player').slice(0,14);
+  let settled=false;const id=list[i],name=myName();
   const conn=peer.connect(id,{reliable:true,serialization:'json'});
   const again=()=>{if(settled)return;settled=true;clearTimeout(to);peer.off('error',onErr);try{conn.close()}catch(_){}setTimeout(()=>connectSucc(list,i,mine,t1,t0),400)};
   const to=setTimeout(again,2500),onErr=e=>{if(e.type==='peer-unavailable'&&!settled){settled=true;clearTimeout(to);peer.off('error',onErr);try{conn.close()}catch(_){}migStep(list,i+1,mine,t0)}};peer.on('error',onErr);   // the broker does not know that peer any more: it is gone, next candidate
