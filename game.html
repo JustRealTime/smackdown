@@ -63,6 +63,8 @@ body{margin:0;background:var(--grass);color:var(--ink);font-family:var(--body);f
   -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:0 5px 0 var(--ink);letter-spacing:.5px;text-wrap:balance}
 .mk{width:1.15em;height:1.15em;flex:none;overflow:visible;vertical-align:-.2em;margin-right:.12em;-webkit-text-stroke:0;paint-order:normal}
 #minilogo .mk{margin:0}
+#lobbytag{position:fixed;left:16px;top:calc(52px + env(safe-area-inset-top,0px));font:800 12px var(--body);color:#fff;background:rgba(43,33,64,.72);padding:3px 10px;border-radius:99px;pointer-events:none;z-index:5;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.touch #lobbytag{top:calc(6px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));font-size:10px;padding:2px 8px}
 .tag{margin:0;font-weight:800;color:var(--muted)}
 .alpha{margin:0;font:700 12.5px/1.4 var(--body);color:var(--ink);background:#fff3c4;border:3px solid var(--ink);border-radius:12px;padding:7px 10px}.alpha b{background:var(--tomato);color:#fff;border-radius:6px;padding:1px 6px;margin-right:4px;letter-spacing:.5px}
 .row{display:flex;gap:10px}
@@ -385,6 +387,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 <div id="flash"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mk" viewBox="0 0 512 512"><defs> <mask id="bite" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"> <rect width="512" height="512" fill="#fff"/> <circle cx="392" cy="128" r="84" fill="#000"/><circle cx="452" cy="206" r="54" fill="#000"/><circle cx="330" cy="86" r="48" fill="#000"/> </mask> <clipPath id="cut"><circle cx="256" cy="256" r="176"/></clipPath> </defs> <g mask="url(#bite)"> <circle cx="256" cy="276" r="176" fill="#2b2140"/> <circle cx="256" cy="256" r="176" fill="#fff5e0" stroke="#2b2140" stroke-width="18"/> </g> <defs> <mask id="o1" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="#fff"/><circle cx="452" cy="206" r="54" fill="#000"/><circle cx="330" cy="86" r="48" fill="#000"/></mask> <mask id="o2" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="#fff"/><circle cx="392" cy="128" r="84" fill="#000"/><circle cx="330" cy="86" r="48" fill="#000"/></mask> <mask id="o3" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="#fff"/><circle cx="392" cy="128" r="84" fill="#000"/><circle cx="452" cy="206" r="54" fill="#000"/></mask> </defs> <g clip-path="url(#cut)" fill="none" stroke="#2b2140" stroke-width="18"> <circle cx="392" cy="128" r="84" mask="url(#o1)"/><circle cx="452" cy="206" r="54" mask="url(#o2)"/><circle cx="330" cy="86" r="48" mask="url(#o3)"/> </g> <g fill="#2b2140"> <rect x="168" y="196" width="176" height="52" rx="14"/><rect x="230" y="196" width="52" height="170" rx="14"/> <circle cx="170" cy="330" r="13"/><circle cx="346" cy="322" r="13"/><circle cx="202" cy="150" r="12"/><circle cx="300" cy="394" r="12"/> </g> <g fill="#fff5e0" stroke="#2b2140" stroke-width="6"><circle cx="462" cy="96" r="12"/><circle cx="486" cy="148" r="8"/><circle cx="420" cy="52" r="8"/></g></symbol></svg>
 <div id="minilogo" hidden><svg class="mk"><use href="#mk"/></svg>Typebite</div>
+<div id="lobbytag" hidden></div>
 <button id="mute" class="panel" type="button" aria-label="Toggle sound">Sound on</button>
 <button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <button id="gear" class="panel" type="button" aria-label="Settings">Settings</button>
@@ -440,7 +443,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r67</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r68</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -594,7 +597,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r67';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r68';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -2399,12 +2402,13 @@ function showLobbies(){const el=$('online');
     return '<div class="olrow"><span><b>'+esc2(String(l.host||'Server'))+(l.kind==='node'?' (server)':"'s game")+'</b> <small>'+l.players.length+' playing</small><br><small>'+(names||'nobody yet')+'</small></span>'+(full?'<small>full</small>':'<button type="button" class="btn alt" data-i="'+i+'">Join</button>')+'</div>'}).join('')}
 let polling=false,scanned=false,firstScan=null,resolveScan=null;
 firstScan=new Promise(r=>{resolveScan=r});
-async function pollOnline(){if(polling||game!=='menu'||$('start').hidden||document.hidden)return;polling=true;
-  try{const found=[],cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
+let pollP=null;
+async function pollOnline(force){if(polling)return pollP;if(!force&&(game!=='menu'||$('start').hidden||document.hidden))return;polling=true;   // force: Play looks right now, also while the list is old
+  return pollP=(async()=>{try{const found=[],cand=[];if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&location.host)cand.push(location.host);
     const sv=$('server').value.trim().replace(/^(https?|wss?):\/\//,'').replace(/\/.*$/,'');if(sv)cand.push(sv);if(typeof location==='undefined'||location.protocol!=='https:')cand.push('localhost:8080');   // a public https page must not poke at the visitor's own machine (browsers ask for a permission)
     for(const a of [...new Set(cand)]){const j=await probeServer(a);if(j){found.push({kind:'node',addr:a,host:'Dedicated',players:j.players});break}}
     if(PeerC&&!P2P.isHost&&onlineOk()){const r=await scoutLobbies();if(r){P2P.state='up';found.push(...r)}}
-    lobbies=found;showLobbies();if(!scanned||P2P.state!=='unknown'){scanned=true;resolveScan()}}finally{polling=false}}
+    lobbies=found;showLobbies();if(!scanned||P2P.state!=='unknown'){scanned=true;resolveScan()}}finally{polling=false}})()}
 $('ollist').addEventListener('click',e=>{const b=e.target.closest('[data-i]');const l=b&&lobbies[+b.dataset.i];if(!l)return;
   if(l.kind==='node')joinGame(l.addr);else playP2P(l.host,l)});
 setTimeout(showConsent,0);   // PeerC is defined further down
@@ -3217,10 +3221,13 @@ function localSocket(){const cid=P2P.nextCid++,st={joined:false};
 function registerHost(slot,tries,keep){if(!P2P.isHost||!PeerC)return;slot=slot||1;tries=tries||0;const p=new PeerC(peerIdFor(slot),peerOpts());let opened=false;   // keep: the peer the players already use stays, this one is only the lobby name
   p.on('open',()=>{opened=true;if(!P2P.isHost){try{p.destroy()}catch(_){}return}if(keep){if(P2P.lobbyPeer){try{P2P.lobbyPeer.destroy()}catch(_){}}P2P.lobbyPeer=p}else{if(P2P.peer){try{P2P.peer.destroy()}catch(_){}}P2P.peer=p}P2P.slot=slot;P2P.state='up';bindPeer(p)});
   p.on('error',e=>{if(opened)return;try{p.destroy()}catch(_){}
-    if(e.type==='unavailable-id'){if(slot<LOBBY_SLOTS)registerHost(slot+1,0,keep);else if(game==='play')showToast('All game slots of this room are taken. Use another room name.','#ffc93c');return}
+    if(e.type==='unavailable-id'){if(!keep&&joinInstead(slot))return;if(slot<LOBBY_SLOTS)registerHost(slot+1,0,keep);else if(game==='play')showToast('All game slots of this room are taken. Use another room name.','#ffc93c');return}
     if(tries<4&&P2P.isHost)setTimeout(()=>registerHost(slot,tries+1,keep),6000+tries*4000)})}
+// the lobby name is taken, so a game is running there (our own look missed it, or it started a moment ago): if we are still alone and just started, give up our empty world and join it instead of opening a second game
+function joinInstead(slot){if(!P2P.isHost||P2P.joinTried||MIG.active||[...P2P.conns.values()].some(c=>!c.local)||performance.now()-(P2P.startedAt||0)>30000)return false;
+  P2P.joinTried=true;showToast('A game is already running. Joining it...','#9be564');toMenu();playP2P('',{kind:'p2p',slot,host:'',players:[],max:LOBBY_MAX});return true}
 function startHostLocal(name,near){try{startWorker()}catch(e){P2P.isHost=false;return false}
-  P2P.hostName=name;attachSock(localSocket(),name,near);registerHost(1);return true}
+  P2P.startedAt=performance.now();P2P.hostName=name;attachSock(localSocket(),name,near);registerHost(1);return true}
 function p2pConnect(slot,reuse){return new Promise((res,rej)=>{let done=false;const p=reuse||new PeerC(undefined,peerOpts());
   const fail=r=>{if(done)return;done=true;clearTimeout(to);try{p.destroy()}catch(_){}rej(r)},to=setTimeout(()=>fail('timeout'),9000);
   p.on('error',e=>fail(e.type||'error'));
@@ -3237,15 +3244,18 @@ function p2pCleanup(){clearInterval(P2P.poll);clearInterval(P2P.mig);if(scout){t
   if(had){   // leaving the host job: hand the best successor a fresh copy of the game, say goodbye, then switch off
     P2P.ckTargets=[];const best=(P2P.succ||[]).slice(0,1);let sent=false;const f=e=>{if(e.data&&e.data.ckpt&&!sent){sent=true;sendCkpt(best,e.data.ckpt)}};w.addEventListener('message',f);try{w.postMessage({ck:1})}catch(_){}
     setTimeout(()=>{for(const c of rc){try{c.conn.send(JSON.stringify({t:'bye'}))}catch(_){}}},180);setTimeout(fin,650)}else fin();
-  P2P.worker=null;P2P.peer=null;P2P.lobbyPeer=null;P2P.conns=new Map();P2P.isHost=false;P2P.succ=[];MIG.succ=[];MIG.ck=null;MIG.active=false;MIG.key=''}
+  P2P.lobbyInfo=null;P2P.worker=null;P2P.peer=null;P2P.lobbyPeer=null;P2P.conns=new Map();P2P.isHost=false;P2P.succ=[];MIG.succ=[];MIG.ck=null;MIG.active=false;MIG.key=''}
 async function playP2P(near,lobby){
-  const my=++playTok,name=($('name').value.trim()||'Player').slice(0,14);
+  const my=++playTok,name=($('name').value.trim()||'Player').slice(0,14);if(!lobby)P2P.joinTried=false;
   JT.length=0;applySnap.f=0;jmark('click');loadingShow('Looking for a game…');
-  if(!lobby&&!scanned&&firstScan){await Promise.race([firstScan,new Promise(r=>setTimeout(r,3500))]);if(my!==playTok)return}   // the first look is still running: do not start a second game by accident
+  if(!lobby&&!pickLobby('p2p')){   // nothing known yet (or the list is old): look right now, and once more before starting our own, so Play joins a running game instead of opening a second one
+    const wait=ms=>new Promise(r=>setTimeout(r,ms));
+    await Promise.race([pollOnline(true),wait(9000)]);if(my!==playTok)return;
+    if(!pickLobby('p2p')&&P2P.state!=='down'){await Promise.race([pollOnline(true),wait(6000)]);if(my!==playTok)return}}
   const sp=scout&&scout.open?scout:null;scout=null;
   lobby=lobby||pickLobby('p2p');
   if(lobby){loadingShow('Joining '+(lobby.host?lobby.host+"'s game":'a game')+'…','Connecting to the host. This usually takes a few seconds.');   // a game is running: join it
-    try{const sock=await p2pConnect(lobby.slot,sp);if(my!==playTok){try{sock.close()}catch(_){}return}attachSock(sock,name,near||lobby.host);return}
+    try{const sock=await p2pConnect(lobby.slot,sp);if(my!==playTok){try{sock.close()}catch(_){}return}P2P.lobbyInfo={slot:lobby.slot,host:lobby.host};attachSock(sock,name,near||lobby.host);return}
     catch(r){if(my!==playTok)return;$('mpstatus').textContent='Could not connect to that game ('+r+'). Starting your own.'}}
   if(sp){try{sp.destroy()}catch(_){}}
   loadingShow('Starting your game…','Building the world and the bots. Friends can join you in a moment.');await nextFrame();if(my!==playTok)return;
@@ -3982,14 +3992,27 @@ function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||S
   if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''));
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
 setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1){MET.sent=performance.now();netSend({t:'ping',c:MET.sent,rtt:MET.ping})}},2000);
-/* activity counter (r66): one anonymous heartbeat per open tab (random tab id, mode, humans in the lobby, host step time, ping) so the owner can see how many play and gets a mail when hosts struggle. The worker answers with the next interval. Not sent from localhost, test browsers or the Node server. */
-const HB={next:60,timer:0};
+/* activity counter (r66, r68): one anonymous heartbeat per open tab (random tab id, mode, humans in the lobby, host step time, ping) so the owner can see how many play and gets a mail when hosts struggle. The worker answers with the next interval. Not sent from localhost, test browsers or the Node server. */
+const HB={next:60,timer:0,key:''};
 function statsUrl(){return typeof window!=='undefined'&&window.SNACK_STATS_URL!==undefined?window.SNACK_STATS_URL:STATS_URL}
-function hbSend(){clearTimeout(HB.timer);HB.timer=setTimeout(hbSend,HB.next*1000);const u=statsUrl();if(!u||role==='server'||(document.visibilityState!=='visible'&&!P2P.isHost))return;
+function hbSend(){clearTimeout(HB.timer);HB.timer=setTimeout(hbSend,HB.next*1000);const u=statsUrl();if(!u||role==='server')return;   // background tabs count too: someone who looks at another tab is still online
   try{const host=P2P.isHost,rt=role==='client',n=host?P2P.players.length:rt?ents.filter(e=>e.human).length:1;
     fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},credentials:'omit',body:JSON.stringify({sid:ERRUP.sid,b:BUILD,r:host?'host':rt?'client':'solo',st:game==='play'?'play':'menu',h:n,ms:host&&P2P.ms>=0?+P2P.ms.toFixed(1):-1,rtt:rt&&MET.ping>=0?Math.round(MET.ping):-1})})
       .then(r=>r.ok?r.json():null).then(j=>{if(j&&j.next>=30&&j.next<=3600)HB.next=j.next}).catch(()=>{})}catch(_){}}
-if(role!=='server'&&(window.SNACK_STATS_URL!==undefined||(!navigator.webdriver&&!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname))))HB.timer=setTimeout(hbSend,4000);   // window.SNACK_STATS_URL: test hook
+if(role!=='server'&&(window.SNACK_STATS_URL!==undefined||(!navigator.webdriver&&!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)))){   // window.SNACK_STATS_URL: test hook
+  HB.timer=setTimeout(hbSend,2000);
+  setInterval(()=>{const k=game+'|'+role+'|'+(P2P.isHost?1:0);if(k!==HB.key){const first=!HB.key;HB.key=k;if(!first)hbSend()}},1000);   // pressed Play, left, became host: tell at once, not with the next minute beat
+  addEventListener('pagehide',()=>{try{navigator.sendBeacon(statsUrl(),JSON.stringify({sid:ERRUP.sid,bye:1}))}catch(_){}});
+  addEventListener('pageshow',e=>{if(e.persisted)hbSend()})}
+/* which lobby am I in: a small tag under the logo while playing */
+const lobbyEl=$('lobbytag');
+function lobbyTag(){if(role==='server')return;let t='';
+  if(game==='play'){
+    if(role==='solo'&&!P2P.isHost)t='Solo game';
+    else{const host=P2P.isHost,li=P2P.lobbyInfo||{},slot=host?P2P.slot:(MIG.slot||li.slot),who=host?'your game':li.host?li.host+"'s game":'online game',n=host?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length);   // a client only sees the players near it; the host's successor list has everyone who joined
+      t='\u25cf '+(slot?'Lobby '+slot+' \u00b7 ':'')+who+' \u00b7 '+n+(n===1?' player':' players')}}
+  if(lobbyEl.textContent!==t)lobbyEl.textContent=t;lobbyEl.hidden=!t}
+setInterval(lobbyTag,1000);
 function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);if(!HZM.quiet)frame()}   // always schedule the next frame first: one error must never freeze the game
 function frame(){
   const t=now(),raw=t-last;if(!gateOk(t))return;   // frame rate limit: skip this one

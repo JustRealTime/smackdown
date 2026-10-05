@@ -60,7 +60,7 @@ export class Stats extends DurableObject {
     await this.ready; this.roll();
     const t = Date.now(), T = this.today; T.reqs++;
     const next = nextSec(T.reqs), old = this.live.get(b.sid);
-    if (old && t - old.t < MIN_GAP) return next;
+    if (old && t - old.t < MIN_GAP && old.st === b.st && old.r === b.r) return next;   // a change of mode (Play pressed, host left) is accepted at once
     if (!old && this.live.size >= 5000) return next;
     this.live.set(b.sid, { t, exp: t + next * 2200, r: b.r, st: b.st, h: b.h, ms: b.ms, rtt: b.rtt, b: b.b });
     const w = { ['l:' + b.sid]: this.live.get(b.sid), today: { day: T.day, reqs: T.reqs, peak: T.peak } };   // rows: this tab and the day counter, written at once
@@ -83,6 +83,10 @@ export class Stats extends DurableObject {
     const host = hostMs >= 0 ? Math.round(hostMs / SLOW_MS * 100) : 0, net = netMs >= 0 ? Math.round(netMs / NET_RTT * 100) : 0, quota = Math.round(this.today.reqs / QUOTA_WARN * 100);
     const total = Math.max(host, net, quota);
     return { total, host, net, quota, hostMs, netMs, netN: rtts.length, status: total >= 100 ? 'over' : total >= 60 ? 'busy' : 'ok' };
+  }
+  async bye(sid) {   // the tab was closed: it leaves the count at once
+    await this.ready;
+    if (this.live.delete(sid)) await this.ctx.storage.delete('l:' + sid);
   }
   count() { const t = Date.now(); let n = 0, play = 0, hosts = 0; for (const e of this.live.values()) if (e.exp > t) { n++; if (e.st === 'play') play++; if (e.r === 'host') hosts++ } return { n, play, hosts } }
   async alarm() {
@@ -154,17 +158,18 @@ export default {
       if (txt.length > 600) return new Response('too big', { status: 413, headers: CORS });
       let p; try { p = JSON.parse(txt) } catch (_) { return new Response('bad', { status: 400, headers: CORS }) }
       if (!p || typeof p.sid !== 'string' || !/^[a-z0-9]{4,12}$/.test(p.sid)) return new Response('bad', { status: 400, headers: CORS });
+      if (p.bye) { await stub.bye(p.sid); return new Response('{}', { headers: { ...CORS, 'Content-Type': 'application/json' } }) }
       const b = { sid: p.sid, r: ['host', 'client', 'solo'].includes(p.r) ? p.r : 'solo', st: p.st === 'play' ? 'play' : 'menu', h: num(p.h, 99), ms: num(p.ms, 1000), rtt: num(p.rtt, 60000), b: String(p.b || '').slice(0, 12).replace(/[^\w.-]/g, '') };
       const next = await stub.hb(b);
       return new Response(JSON.stringify({ next }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
-    if (u.pathname === '/public' && req.method === 'GET') {   // for typebite.io/status: no hosts, versions or mails; cached 15 s so many viewers cost the object one request per 15 s
+    if (u.pathname === '/public' && req.method === 'GET') {   // for typebite.io/status: no hosts, versions or mails; cached 2 s so many viewers cost the object one request per 2 s
       const full = u.searchParams.get('h') !== '0', ck = new Request(u.origin + '/public?h=' + (full ? 1 : 0)), cache = caches.default;
       let r = await cache.match(ck);
       if (!r) {
         const snap = await stub.snapshot(full);
         snap.hosts = []; snap.builds = {}; snap.mail = {}; snap.mailErr = '';
-        r = new Response(JSON.stringify(snap), { headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=15' } });
+        r = new Response(JSON.stringify(snap), { headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=2' } });
         ctx.waitUntil(cache.put(ck, r.clone()));
       }
       return r;
