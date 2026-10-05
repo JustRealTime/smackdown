@@ -3,11 +3,12 @@
 // The object counts who is active, keeps daily numbers and sends a mail to the owner when something looks overloaded.
 // Not stored: IP address, name, anything that identifies a person. Setup guide (German): docs/statistik.md
 //
-// Pages (only with the key, secret KEY):   /?k=KEY   the stats page (refreshes itself)     /json?k=KEY   the same as JSON
+// Pages (only with the key, secret KEY):   /?k=KEY   the status page for the phone (page.html, fetches /json itself)     /json?k=KEY   the same as JSON (&h=0 without the history)
 //                                          /test?k=KEY   sends a test mail and shows if it worked
 // The game sends to:                       POST /hb   (text/plain JSON, answer: {next: seconds until the next heartbeat})
 import { DurableObject } from 'cloudflare:workers';
 import { EmailMessage } from 'cloudflare:email';
+import PAGE from './page.html';   // the status page (wrangler loads .html files as text)
 
 const DAILY_LIMIT = 50000;        // free plan: 100000 rows written per day (UTC) for the Durable Object, a heartbeat writes about 2 of them -> about 50000 heartbeats per day
 const QUOTA_WARN = 40000;         // mail when today's heartbeats reach this
@@ -18,27 +19,27 @@ const NET_MIN = 3;
 const MAIL_COOLDOWN = 3 * 3600e3; // the same kind of mail at most every 3 hours
 const MIN_GAP = 15000;            // one tab may not beat faster than this
 const KEEP_DAYS = 30, MAX_SEEN = 3000;
+const BUCKET = 300000, HIST_MAX = 576;   // history: one sample per 5 minutes, 48 hours
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
 const nextSec = reqs => reqs < 15000 ? 60 : reqs < 30000 ? 120 : reqs < 42000 ? 300 : 900;   // heartbeats slow down on their own when the day gets busy
 const dayOf = t => new Date(t).toISOString().slice(0, 10);
 const num = (v, hi) => { v = +v; return isFinite(v) && v >= 0 ? Math.min(hi, v) : -1 };   // -1 = not known
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const b64 = s => { const b = new TextEncoder().encode(s); let x = ''; for (let i = 0; i < b.length; i += 0x8000) x += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(x) };
 
 export class Stats extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
     this.live = new Map(); this.today = { day: dayOf(Date.now()), reqs: 0, peak: 0, seen: new Set(), played: new Set() };
-    this.days = {}; this.mail = {}; this.slow = new Map(); this.alarmSet = false; this.mailErr = ''; this.savedAt = 0;
+    this.days = {}; this.mail = {}; this.slow = new Map(); this.alarmSet = false; this.mailErr = ''; this.savedAt = 0; this.hist = [];
     // a Durable Object is thrown out of memory a few seconds after its last request: the tab, the day counter and the first sighting of a tab are written at once (about 2 rows per heartbeat), the rest by the minute alarm
     this.ready = ctx.blockConcurrencyWhile(async () => {
-      const g = await ctx.storage.get(['today', 'days', 'mail', 'slow', 'mailErr']);
+      const g = await ctx.storage.get(['today', 'days', 'mail', 'slow', 'mailErr', 'hist']);
       for (const [k, v] of await ctx.storage.list({ prefix: 'l:' })) this.live.set(k.slice(2), v);
       const t = g.get('today'); if (t) this.today = { day: t.day, reqs: t.reqs, peak: t.peak, seen: new Set(), played: new Set() };
       for (const k of (await ctx.storage.list({ prefix: 's:' })).keys()) this.today.seen.add(k.slice(2));
       for (const k of (await ctx.storage.list({ prefix: 'p:' })).keys()) this.today.played.add(k.slice(2));
-      this.days = g.get('days') || {}; this.mail = g.get('mail') || {}; this.slow = new Map(g.get('slow') || []); this.mailErr = g.get('mailErr') || '';
+      this.days = g.get('days') || {}; this.mail = g.get('mail') || {}; this.slow = new Map(g.get('slow') || []); this.mailErr = g.get('mailErr') || ''; this.hist = g.get('hist') || [];
     });
   }
   roll() {
@@ -52,7 +53,7 @@ export class Stats extends DurableObject {
   }
   async save() {
     const t = this.today;
-    await this.ctx.storage.put({ today: { day: t.day, reqs: t.reqs, peak: t.peak }, days: this.days, mail: this.mail, slow: [...this.slow], mailErr: this.mailErr });
+    await this.ctx.storage.put({ today: { day: t.day, reqs: t.reqs, peak: t.peak }, days: this.days, mail: this.mail, slow: [...this.slow], mailErr: this.mailErr, hist: this.hist });
   }
   async hb(b) {
     await this.ready; this.roll();
@@ -68,6 +69,20 @@ export class Stats extends DurableObject {
     if (!this.alarmSet) { this.alarmSet = true; if (!(await this.ctx.storage.getAlarm())) await this.ctx.storage.setAlarm(t + 60000) }
     return next;
   }
+  // how busy is it: three values in percent, 100 % = the limit where a warning mail is sent; the total is the worst of them
+  loadNow(t) {
+    let hostMs = -1, rtts = [];
+    for (const e of this.live.values()) {
+      if (e.exp <= t) continue;
+      if (e.r === 'host' && e.ms >= 0) hostMs = Math.max(hostMs, e.ms);
+      if (e.r === 'client' && e.rtt >= 0) rtts.push(e.rtt);
+    }
+    rtts.sort((a, b) => a - b);
+    const netMs = rtts.length ? Math.round(rtts[rtts.length >> 1]) : -1;
+    const host = hostMs >= 0 ? Math.round(hostMs / SLOW_MS * 100) : 0, net = netMs >= 0 ? Math.round(netMs / NET_RTT * 100) : 0, quota = Math.round(this.today.reqs / QUOTA_WARN * 100);
+    const total = Math.max(host, net, quota);
+    return { total, host, net, quota, hostMs, netMs, netN: rtts.length, status: total >= 100 ? 'over' : total >= 60 ? 'busy' : 'ok' };
+  }
   count() { const t = Date.now(); let n = 0, play = 0, hosts = 0; for (const e of this.live.values()) if (e.exp > t) { n++; if (e.st === 'play') play++; if (e.r === 'host') hosts++ } return { n, play, hosts } }
   async alarm() {
     await this.ready; this.roll(); this.alarmSet = false;
@@ -76,6 +91,11 @@ export class Stats extends DurableObject {
     for (const [k, e] of this.live) if (e.exp < t) { this.live.delete(k); gone.push('l:' + k) }
     for (let i = 0; i < gone.length; i += 120) await this.ctx.storage.delete(gone.slice(i, i + 120));
     const c = this.count(); if (c.n > this.today.peak) this.today.peak = c.n;
+    const last = this.hist[this.hist.length - 1];
+    if (!last || t - last.t >= BUCKET - 5000 || (c.n === 0 && last.n > 0)) {
+      this.hist.push({ t, n: c.n, p: c.play, l: this.loadNow(t).total });
+      if (this.hist.length > HIST_MAX) this.hist.splice(0, this.hist.length - HIST_MAX);
+    }
     const alerts = [];
     if (this.today.reqs >= QUOTA_WARN) alerts.push(['quota', 'Das Tageslimit von Cloudflare wird knapp', `Heute wurden schon ${this.today.reqs} von ${DAILY_LIMIT} Herzschlägen gezählt. Die Spiele schicken jetzt seltener (alle ${nextSec(this.today.reqs)} s). Bei ${DAILY_LIMIT} hört die Zählung für heute auf; das Spiel selbst läuft weiter.`]);
     const slow = [];
@@ -104,32 +124,25 @@ export class Stats extends DurableObject {
       this.mailErr = ''; return 'ok';
     } catch (e) { this.mailErr = String(e && e.message || e).slice(0, 300); return this.mailErr }
   }
-  async snapshot() {
+  async snapshot(withHist = true) {
     await this.ready; this.roll();
-    const t = Date.now(), c = this.count(), rows = [], builds = {};
-    for (const [sid, e] of this.live) if (e.exp > t) { rows.push({ sid, ago: Math.round((t - e.t) / 1000), r: e.r, st: e.st, h: e.h, ms: e.ms, rtt: e.rtt }); builds[e.b] = (builds[e.b] || 0) + 1 }
+    const t = Date.now(), c = this.count(), L = this.loadNow(t), rows = [], builds = {};
+    for (const [sid, e] of this.live) if (e.exp > t) { rows.push({ sid, h: e.h, ms: e.ms, load: e.ms >= 0 ? Math.round(e.ms / SLOW_MS * 100) : 0, ago: Math.round((t - e.t) / 1000), r: e.r }); builds[e.b] = (builds[e.b] || 0) + 1 }
     const T = this.today, days = Object.entries(this.days).sort().reverse().map(([d, v]) => ({ day: d, ...v }));
-    return { now: c, today: { day: T.day, reqs: T.reqs, peak: Math.max(T.peak, c.n), tabs: T.seen.size, play: T.played.size }, limit: DAILY_LIMIT, days, builds, hosts: rows.filter(r => r.r === 'host'), mail: this.mail, mailErr: this.mailErr };
+    const peak7 = Math.max(T.peak, c.n, ...days.slice(0, 6).map(d => d.peak || 0));
+    let hist;
+    if (withHist) {   // 48 hours in 5 minute steps, empty steps are 0 (nobody was online)
+      const b0 = Math.floor(t / BUCKET) - (HIST_MAX - 1), n = new Array(HIST_MAX).fill(0), p = new Array(HIST_MAX).fill(0), l = new Array(HIST_MAX).fill(0);
+      for (const h of this.hist) { const k = Math.floor(h.t / BUCKET) - b0; if (k >= 0 && k < HIST_MAX) { n[k] = Math.max(n[k], h.n); p[k] = Math.max(p[k], h.p); l[k] = Math.max(l[k], h.l) } }
+      n[HIST_MAX - 1] = Math.max(n[HIST_MAX - 1], c.n); p[HIST_MAX - 1] = Math.max(p[HIST_MAX - 1], c.play); l[HIST_MAX - 1] = Math.max(l[HIST_MAX - 1], L.total);
+      hist = { t0: b0 * BUCKET, step: BUCKET, n, p, l };
+    }
+    return { ts: t, now: c, load: L, limits: { slowMs: SLOW_MS, netRtt: NET_RTT, quotaWarn: QUOTA_WARN }, today: { day: T.day, reqs: T.reqs, peak: Math.max(T.peak, c.n), tabs: T.seen.size, play: T.played.size }, peak7, days, builds, hosts: rows.filter(r => r.r === 'host'), mail: this.mail, mailErr: this.mailErr, hist };
   }
   async testMail() { await this.ready; return this.sendMail('Typebite: Testmail', 'Wenn du das liest, funktioniert die Warn-Mail.') }
 }
 
-function page(s) {
-  const row = (a, b) => `<tr><td>${a}</td><td><b>${b}</b></td></tr>`;
-  const days = [{ day: s.today.day + ' (heute)', reqs: s.today.reqs, peak: s.today.peak, tabs: s.today.tabs, play: s.today.play }, ...s.days].map(d => `<tr><td>${esc(d.day)}</td><td>${d.peak}</td><td>${d.tabs}</td><td>${d.play}</td><td>${d.reqs}</td></tr>`).join('');
-  const hosts = s.hosts.map(h => `<tr><td>${esc(h.sid)}</td><td>${h.h}</td><td>${h.ms >= 0 ? (+h.ms).toFixed(1) + ' ms' : '-'}</td><td>${h.ago} s</td></tr>`).join('') || '<tr><td colspan=4>gerade keine</td></tr>';
-  const m = Object.entries(s.mail).map(([k, v]) => `${esc(k)}: ${new Date(v).toISOString().slice(0, 16).replace('T', ' ')} UTC`).join(' · ') || 'noch keine Warnung verschickt';
-  return `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=refresh content=20><title>Typebite live</title>
-<style>body{font:16px system-ui,sans-serif;background:#fff8e8;color:#2b2140;margin:0;padding:20px}main{max-width:640px;margin:auto}h1{margin:0 0 4px}.big{font-size:64px;font-weight:800;color:#ff6b3d;line-height:1;margin:14px 0 4px}
-table{border-collapse:collapse;width:100%;margin:8px 0 22px;background:#fff;border:2px solid #2b2140}td,th{padding:6px 10px;border-bottom:1px solid #e4dcef;text-align:left}small{opacity:.7}</style>
-<main><h1>Typebite live</h1><small>aktualisiert sich alle 20 s · ein "Tab" ist ein offenes Spielfenster, nicht unbedingt eine Person</small>
-<p class=big>${s.now.n}</p><p>offene Tabs gerade (${s.now.play} im Spiel, ${s.now.hosts} hosten)</p>
-<table>${row('Spitze heute', s.today.peak)}${row('Tabs heute insgesamt', s.today.tabs)}${row('davon im Spiel (Play gedrückt)', s.today.play)}${row('Herzschläge heute', s.today.reqs + ' von ' + s.limit)}</table>
-<h3>Hosts</h3><table><tr><th>Tab</th><th>Spieler</th><th>Schrittzeit</th><th>zuletzt</th></tr>${hosts}</table>
-<h3>Letzte Tage (UTC)</h3><table><tr><th>Tag</th><th>Spitze</th><th>Tabs</th><th>im Spiel</th><th>Herzschläge</th></tr>${days}</table>
-<h3>Versionen</h3><p>${Object.entries(s.builds).map(([b, n]) => esc(b) + ': ' + n).join(' · ') || '-'}</p>
-<h3>Warn-Mails</h3><p>${m}</p>${s.mailErr ? '<p><b>Letzter Mail-Fehler:</b> ' + esc(s.mailErr) + '</p>' : ''}</main>`;
-}
+const page = snap => PAGE.replace('__INIT__', JSON.stringify(snap).replace(/</g, '\\u003c'));
 
 export default {
   async fetch(req, env) {
@@ -146,7 +159,7 @@ export default {
     }
     const key = String(env.KEY || ''), given = u.searchParams.get('k') || '';
     if (!key || given.length !== key.length || [...key].reduce((a, c, i) => a | (c.charCodeAt(0) ^ given.charCodeAt(i)), 0)) return new Response('Typebite stats', { status: 403, headers: { 'Content-Type': 'text/plain' } });
-    if (u.pathname === '/json') return new Response(JSON.stringify(await stub.snapshot(), null, 1), { headers: { 'Content-Type': 'application/json' } });
+    if (u.pathname === '/json') return new Response(JSON.stringify(await stub.snapshot(u.searchParams.get('h') !== '0')), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
     if (u.pathname === '/test') { const r = await stub.testMail(); return new Response(r === 'ok' ? 'Testmail wurde abgeschickt: schau in dein Postfach (und Spam).' : 'Fehler beim Senden: ' + r, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }) }
     return new Response(page(await stub.snapshot()), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
   }

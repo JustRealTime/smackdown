@@ -26,7 +26,7 @@ npx wrangler secret put PUBLIC_URL
 - `PUBLIC_URL`: dein voller Link, also `https://typebite-stats.alikesan2004.workers.dev/?k=DEIN_KEY`. Er steht dann in den Warn-Mails.
 
 ## 4. Testen
-- `https://typebite-stats.alikesan2004.workers.dev/?k=DEIN_KEY` öffnen: die Seite mit "offene Tabs gerade". Als Lesezeichen speichern.
+- `https://typebite-stats.alikesan2004.workers.dev/?k=DEIN_KEY` öffnen: die Statusseite fürs Handy (Spieler online, Auslastung in Prozent, Verlauf, Hosts, letzte Tage). Als Lesezeichen speichern oder „Zum Home-Bildschirm“.
 - `.../test?k=DEIN_KEY` öffnen: schickt eine Testmail. Wenn nichts kommt: im Spam nachsehen; sonst steht auf der Seite `/` unten "Letzter Mail-Fehler", das schickst du mir.
 
 ## 5. Spiel veröffentlichen
@@ -43,3 +43,9 @@ Je Art kommt höchstens alle 3 Stunden eine Mail.
 - Ein "Tab" ist ein offenes Spielfenster, nicht eine Person. Zwei Fenster einer Person zählen doppelt.
 - Der Zähler zeigt keine Namen und keine IP-Adressen. Der Datenschutztext (`site/datenschutz.html`, Abschnitt 6) wurde angepasst, ist aber nicht von einem Anwalt geprüft.
 - Ein eigener Spielserver, der "überlastet" sein könnte, existiert nicht: Die Lobbys laufen in den Browsern der Spieler. Deshalb werden die Hosts überwacht.
+
+## Die Statusseite
+- Oben: Spieler online (offene Tabs), im Spiel / im Menü, Anzahl Lobbys und ein Ampel-Schild (Alles gut / Gut ausgelastet / Überlastet).
+- **Auslastung in Prozent** = der schlechteste von drei Werten, und **100 % ist genau die Grenze, ab der die Warn-Mail kommt**: Host-Rechenzeit (Schrittzeit des langsamsten Hosts, Grenze 14 ms), Verbindung (mittlerer Ping der Spieler, Grenze 500 ms) und Tageslimit des Zählers (Grenze 40000 Herzschläge). Unter 60 % grün, 60 bis 99 % gelb, ab 100 % rot.
+- Danach: Verlauf der Spieler und der Auslastung (6 / 24 / 48 Stunden, ein Punkt alle 5 Minuten; der Verlauf beginnt erst ab Einrichtung), Zahlen von heute, die laufenden Lobbys mit ihrer Last, die letzten Tage, Spielversionen und die letzten Warn-Mails.
+- Die Seite lädt sich selbst alle 15 Sekunden neu, ohne Flackern. Dunkel oder hell richtet sich nach deinem Handy.

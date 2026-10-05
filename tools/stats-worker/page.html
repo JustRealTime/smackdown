@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#ff6b3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Typebite Status">
+<link rel="icon" href="https://typebite.io/favicon.svg">
+<link rel="apple-touch-icon" href="https://typebite.io/apple-touch-icon.png">
+<title>Typebite Status</title>
+<style>
+:root{--bg:#fff8e8;--card:#fff;--ink:#2b2140;--mute:#7a7090;--line:#eadfcf;--tom:#ff6b3d;--ok:#2fb344;--busy:#f0a60f;--over:#e5484d;--soft:#f6efe0}
+@media (prefers-color-scheme:dark){:root{--bg:#171226;--card:#241d3a;--ink:#f3eeff;--mute:#a79dc4;--line:#352c52;--soft:#2e2646}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:max(14px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom))}
+main{max-width:760px;margin:0 auto;display:grid;gap:12px}
+header{display:flex;align-items:center;gap:10px}
+header img{width:34px;height:34px;border-radius:9px}
+header h1{font-size:20px;margin:0;flex:1}
+#upd{font-size:12px;color:var(--mute);text-align:right}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:5px;animation:p 2s infinite}
+.dot.stale{background:var(--over);animation:none}
+@keyframes p{50%{opacity:.35}}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:14px 16px;box-shadow:0 4px 0 var(--ink)}
+.card h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 8px}
+.hero{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:end}
+.big{font-size:68px;line-height:1;font-weight:800;color:var(--tom)}
+.badge{align-self:start;justify-self:end;padding:6px 12px;border-radius:99px;font-weight:700;font-size:14px;color:#fff;background:var(--ok)}
+.badge.busy{background:var(--busy);color:#2b2140}.badge.over{background:var(--over)}
+.sub{color:var(--mute);font-size:14px;grid-column:1/-1}
+.sub b{color:var(--ink)}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:560px){.row.r4{grid-template-columns:repeat(4,1fr)}}
+.kv{background:var(--soft);border-radius:12px;padding:10px 12px}
+.kv span{display:block;font-size:12px;color:var(--mute)}
+.kv b{font-size:24px}
+.load{display:flex;align-items:baseline;gap:8px}
+.load .pct{font-size:44px;font-weight:800;line-height:1}
+.bar{height:12px;border-radius:99px;background:var(--soft);overflow:hidden;position:relative;margin:6px 0 2px}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--ok);transition:width .6s}
+.bar i.busy{background:var(--busy)}.bar i.over{background:var(--over)}
+.comp{margin-top:12px}
+.comp div.h{display:flex;justify-content:space-between;font-size:14px}
+.comp small{color:var(--mute);font-size:12px}
+.note{font-size:12px;color:var(--mute);margin-top:10px}
+.tabs{display:flex;gap:6px;margin-bottom:6px}
+.tabs button{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:99px;padding:3px 12px;font:inherit;font-size:13px;font-weight:700}
+.tabs button.on{background:var(--tom);color:#fff}
+svg.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--mute);font-size:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;color:var(--mute);text-align:left;font-weight:600}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--soft);font-size:12px;margin:2px 4px 2px 0}
+.warn{color:var(--over);font-weight:700}
+footer{font-size:12px;color:var(--mute);text-align:center}
+</style>
+</head>
+<body>
+<main>
+<header><img src="https://typebite.io/icon-192.png" alt=""><h1>Typebite Status</h1><div id="upd"></div></header>
+
+<section class="card hero">
+  <div><h2>Spieler online</h2><div class="big" id="n">–</div></div>
+  <div class="badge" id="badge">…</div>
+  <div class="sub" id="sub"></div>
+</section>
+
+<section class="card">
+  <h2>Auslastung</h2>
+  <div class="load"><span class="pct" id="lt">–</span><span id="ls" style="color:var(--mute);font-size:14px"></span></div>
+  <div class="bar"><i id="lbar" style="width:0"></i></div>
+  <div class="comp"><div class="h"><span>Host-Rechenzeit</span><b id="lh">–</b></div><div class="bar"><i id="hbar" style="width:0"></i></div><small id="lhs"></small></div>
+  <div class="comp"><div class="h"><span>Verbindung (Ping)</span><b id="ln">–</b></div><div class="bar"><i id="nbar" style="width:0"></i></div><small id="lns"></small></div>
+  <div class="comp"><div class="h"><span>Tageslimit Zähler</span><b id="lq">–</b></div><div class="bar"><i id="qbar" style="width:0"></i></div><small id="lqs"></small></div>
+  <div class="note">Es gibt keinen zentralen Spielserver: Die Runden laufen in den Browsern der Spieler (Hosts). Die Auslastung ist der schlechteste der drei Werte. <b>100&nbsp;% = ab hier bekommst du eine Warn-Mail.</b></div>
+</section>
+
+<section class="card">
+  <div class="tabs" id="tabs"><button data-h="6">6 h</button><button data-h="24" class="on">24 h</button><button data-h="48">48 h</button></div>
+  <h2>Spieler (Fenster) im Verlauf</h2>
+  <svg class="chart" id="c1" viewBox="0 0 360 120" preserveAspectRatio="none"></svg>
+  <h2 style="margin-top:12px">Auslastung im Verlauf</h2>
+  <svg class="chart" id="c2" viewBox="0 0 360 100" preserveAspectRatio="none"></svg>
+</section>
+
+<section class="card">
+  <h2>Heute (UTC-Tag)</h2>
+  <div class="row r4">
+    <div class="kv"><span>Spitze heute</span><b id="tp">–</b></div>
+    <div class="kv"><span>Tabs heute</span><b id="tt">–</b></div>
+    <div class="kv"><span>davon im Spiel</span><b id="tpl">–</b></div>
+    <div class="kv"><span>Spitze 7 Tage</span><b id="p7">–</b></div>
+  </div>
+</section>
+
+<section class="card"><h2>Hosts (laufende Lobbys)</h2><div id="hosts"></div></section>
+<section class="card"><h2>Letzte Tage</h2><div id="days"></div></section>
+<section class="card"><h2>Versionen &amp; Warnungen</h2><div id="vers"></div><div id="mails" style="margin-top:8px;font-size:14px"></div></section>
+
+<footer>Ein „Tab“ ist ein offenes Spielfenster, nicht unbedingt eine Person. Die Seite aktualisiert sich selbst alle 15 s.<br>Auf dem Handy: „Zum Home-Bildschirm“ speichern.</footer>
+</main>
+<script>
+var D=__INIT__,K=new URLSearchParams(location.search).get('k')||'',H=24,HS=null,lastHist=Date.now(),lastOk=Date.now();
+var $=function(i){return document.getElementById(i)};
+var NAMES={host:'Host überlastet',net:'Verbindungen langsam',quota:'Tageslimit knapp'};
+function cls(p){return p>=100?'over':p>=60?'busy':''}
+function bar(id,p){var e=$(id);e.style.width=Math.min(100,p)+'%';e.className=cls(p)}
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+function ago(s){return s<90?s+' s':Math.round(s/60)+' min'}
+function chart(svg,v,max,opt){
+  var w=360,h=+svg.getAttribute('viewBox').split(' ')[3],pl=26,pb=14,pt=4,pw=w-pl-2,ph=h-pb-pt,n=v.length,s='';
+  max=Math.max(max,1);
+  for(var g=0;g<=2;g++){var y=pt+ph-ph*g/2;s+='<line x1="'+pl+'" x2="'+w+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width=".7"/><text x="0" y="'+(y+3)+'">'+Math.round(max*g/2)+(opt.pct?'%':'')+'</text>'}
+  if(opt.mark){var ym=pt+ph-ph*opt.mark/max;s+='<line x1="'+pl+'" x2="'+w+'" y1="'+ym+'" y2="'+ym+'" stroke="var(--over)" stroke-width=".8" stroke-dasharray="3 3"/>'}
+  var pts=[];for(var i=0;i<n;i++){pts.push((pl+pw*i/(n-1)).toFixed(1)+','+(pt+ph-ph*Math.min(v[i],max)/max).toFixed(1))}
+  s+='<polygon points="'+pl+','+(pt+ph)+' '+pts.join(' ')+' '+(pl+pw)+','+(pt+ph)+'" fill="'+opt.col+'" opacity=".22"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="'+opt.col+'" stroke-width="1.6" stroke-linejoin="round"/>';
+  var t0=D.hist.t0,step=D.hist.step,from=Math.max(0,n);
+  for(var k=0;k<=4;k++){var idx=Math.round((n-1)*k/4),tt=new Date(t0+(D.hist.n.length-n+idx)*step);s+='<text x="'+(pl+pw*idx/(n-1)).toFixed(0)+'" y="'+(h-2)+'" text-anchor="'+(k==0?'start':k==4?'end':'middle')+'">'+('0'+tt.getHours()).slice(-2)+':'+('0'+tt.getMinutes()).slice(-2)+'</text>'}
+  svg.innerHTML=s}
+function render(){
+  var d=D,L=d.load;
+  $('n').textContent=d.now.n;
+  var b=$('badge');b.className='badge '+(d.now.n==0?'':L.status);b.textContent=d.now.n==0?'Ruhig':L.status=='over'?'Überlastet':L.status=='busy'?'Gut ausgelastet':'Alles gut';
+  if(d.now.n==0)b.style.background='var(--mute)';else b.style.background='';
+  $('sub').innerHTML='<b>'+d.now.play+'</b> im Spiel · <b>'+(d.now.n-d.now.play)+'</b> im Menü · <b>'+d.now.hosts+'</b> '+(d.now.hosts==1?'Lobby':'Lobbys');
+  $('lt').textContent=L.total+' %';$('ls').textContent=L.status=='over'?'überlastet':L.status=='busy'?'ausgelastet':'entspannt';bar('lbar',L.total);
+  $('lh').textContent=L.host+' %';bar('hbar',L.host);$('lhs').textContent=L.hostMs>=0?'langsamster Host: '+L.hostMs.toFixed(1)+' ms pro Schritt (Grenze '+d.limits.slowMs+' ms)':'kein Host gemessen';
+  $('ln').textContent=L.net+' %';bar('nbar',L.net);$('lns').textContent=L.netMs>=0?'mittlerer Ping der Spieler: '+L.netMs+' ms (Grenze '+d.limits.netRtt+' ms), '+L.netN+' gemessen':'noch kein Ping gemessen';
+  $('lq').textContent=L.quota+' %';bar('qbar',L.quota);$('lqs').textContent=fmt(d.today.reqs)+' von '+fmt(d.limits.quotaWarn)+' Herzschlägen heute';
+  $('tp').textContent=d.today.peak;$('tt').textContent=d.today.tabs;$('tpl').textContent=d.today.play;$('p7').textContent=d.peak7;
+  var h=d.hosts.length?'<table><tr><th>Lobby</th><th class="n">Spieler</th><th class="n">Schritt</th><th class="n">Last</th></tr>'+d.hosts.map(function(x){return '<tr><td>'+x.sid+'</td><td class="n">'+x.h+'</td><td class="n">'+(x.ms>=0?x.ms.toFixed(1)+' ms':'–')+'</td><td class="n'+(x.load>=100?' warn':'')+'">'+(x.ms>=0?x.load+' %':'–')+'</td></tr>'}).join('')+'</table>':'<span style="color:var(--mute)">gerade keine Lobby offen</span>';
+  $('hosts').innerHTML=h;
+  var dr=[{day:d.today.day+' · heute',peak:d.today.peak,tabs:d.today.tabs,play:d.today.play,reqs:d.today.reqs}].concat(d.days.slice(0,13));
+  $('days').innerHTML='<table><tr><th>Tag</th><th class="n">Spitze</th><th class="n">Tabs</th><th class="n">im Spiel</th></tr>'+dr.map(function(x){return '<tr><td>'+x.day+'</td><td class="n">'+x.peak+'</td><td class="n">'+x.tabs+'</td><td class="n">'+x.play+'</td></tr>'}).join('')+'</table>';
+  $('vers').innerHTML=Object.keys(d.builds).length?Object.keys(d.builds).map(function(k){return '<span class="pill">'+k+' · '+d.builds[k]+'</span>'}).join(''):'<span style="color:var(--mute)">keine Tabs offen</span>';
+  var m=Object.keys(d.mail).map(function(k){return (NAMES[k]||k)+': '+new Date(d.mail[k]).toLocaleString('de-AT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})});
+  $('mails').innerHTML=(m.length?'Letzte Warn-Mails:<br>'+m.join('<br>'):'Noch keine Warn-Mail verschickt.')+(d.mailErr?'<br><span class="warn">Mail-Fehler: '+d.mailErr+'</span>':'');
+  drawCharts()}
+function drawCharts(){
+  var hs=D.hist;if(!hs)return;var n=Math.min(hs.n.length,H*12),o=hs.n.length-n;
+  var vn=hs.n.slice(o),vl=hs.l.slice(o);
+  chart($('c1'),vn,Math.max.apply(null,vn),{col:'#ff6b3d'});
+  chart($('c2'),vl,Math.max(120,Math.max.apply(null,vl)),{col:'#8a5cf5',pct:1,mark:100})}
+function tick(){
+  var full=Date.now()-lastHist>300000;
+  fetch('/json?k='+encodeURIComponent(K)+(full?'':'&h=0'),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    if(!j.hist)j.hist=D.hist;else lastHist=Date.now();D=j;lastOk=Date.now();render()}).catch(function(){});
+  var st=(Date.now()-lastOk)/1000;
+  $('upd').innerHTML='<span class="dot'+(st>45?' stale':'')+'"></span>'+(st>45?'keine Verbindung':'live')+'<br>'+new Date().toLocaleTimeString('de-AT')}
+$('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;H=+b.dataset.h;[].forEach.call($('tabs').children,function(x){x.className=x===b?'on':''});drawCharts()});
+render();setInterval(tick,15000);tick();
+</script>
+</body>
+</html>
