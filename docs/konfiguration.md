@@ -44,7 +44,7 @@ Regeln: Jede Zeile endet mit einem Komma. Klammern `{ }` und `[ ]` nicht lösche
 | 7 `duel` | Phrasenlänge, Level-Ausgleich, Beute, Orbs, Bot-Tippgeschwindigkeit, Zeitlimit |
 | 8 `quests` | Wartezeiten, Aufgabenarten, Belohnungen |
 | 9 `camera` | Start-Zoom und wie weit man herauszoomen kann |
-| 10 `network` | Sichtradius und Updates pro Sekunde im Mehrspieler |
+| 10 `network` | Sichtradius, Updates pro Sekunde im Mehrspieler, nach wie vielen Sekunden Stille der nächste Host übernimmt (`hostSilence`), wie oft er eine Kopie des Spiels bekommt (`checkpointsPerSecond`) |
 | `autoFps` | Automatische FPS-Begrenzung beim ersten Start: nach wie vielen Sekunden Spiel geschaut wird, bei welchem Durchschnitt, und worauf begrenzt wird |
 | 11 `items` | alle 24 Items: Seltenheitsstufe, Gewicht, Dauer, Stapeln, Stärke |
 | 12 `perks` | alle 38 Perks: Stufe, Gewicht, Ränge, Wert pro Rang |

@@ -190,6 +190,8 @@ network: {
   viewRadius: 1250,          // players further away than this (in units) are not sent to you
   dataRadius: 1150,          // snacks, boxes and orbs further away than this are not sent
   updatesPerSecond: 20,      // how often the host sends the world (the game itself runs at 60). Lower = less data
+  hostSilence: 1.2,          // seconds without any word from the host before the next player takes over (lower = faster change, but a short hiccup of the host can trigger it)
+  checkpointsPerSecond: 2,   // how often the host hands the next host a copy of the game (about 90 KB each with 12 players). With more than 6 players every other time
 },
 
 // Automatic frame rate limit, once per browser: after afterSeconds of play, a PC whose average is above minAvg but below maxAvg (and not already
