@@ -63,7 +63,7 @@ body{margin:0;background:var(--grass);color:var(--ink);font-family:var(--body);f
   -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:0 5px 0 var(--ink);letter-spacing:.5px;text-wrap:balance}
 .mk{width:1.15em;height:1.15em;flex:none;overflow:visible;vertical-align:-.2em;margin-right:.12em;-webkit-text-stroke:0;paint-order:normal}
 #minilogo .mk{margin:0}
-#lobbytag{position:fixed;left:16px;top:calc(52px + env(safe-area-inset-top,0px));font:800 12px var(--body);color:#fff;background:rgba(43,33,64,.72);padding:3px 10px;border-radius:99px;pointer-events:none;z-index:5;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#lobbytag{position:fixed;left:190px;top:calc(14px + env(safe-area-inset-top,0px));font:800 12px var(--body);color:#fff;background:rgba(43,33,64,.72);padding:3px 10px;border-radius:99px;pointer-events:none;z-index:5;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.touch #lobbytag{top:calc(6px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));font-size:10px;padding:2px 8px}
 .tag{margin:0;font-weight:800;color:var(--muted)}
 .alpha{margin:0;font:700 12.5px/1.4 var(--body);color:var(--ink);background:#fff3c4;border:3px solid var(--ink);border-radius:12px;padding:7px 10px}.alpha b{background:var(--tomato);color:#fff;border-radius:6px;padding:1px 6px;margin-right:4px;letter-spacing:.5px}
@@ -252,6 +252,14 @@ kbd{color:var(--ink);font:700 12px var(--mono);background:#fff;border:2px solid 
 #buffs{font-size:11px;font-weight:800;color:var(--tomato)}
 #statusbar{position:fixed;left:50%;top:calc(104px + env(safe-area-inset-top,0px));transform:translateX(-50%);padding:6px 16px;border:3px solid var(--ink);border-radius:99px;box-shadow:0 4px 0 var(--ink);font:18px var(--display);letter-spacing:.5px;color:#fff;background:#5a8dee;white-space:nowrap;pointer-events:none}
 #gear{position:fixed;left:16px;top:calc(128px + env(safe-area-inset-top,0px));font:800 12px var(--body);padding:5px 10px;border-radius:99px;box-shadow:0 3px 0 var(--ink);cursor:pointer;z-index:5}
+#diagbtn{position:fixed;left:104px;top:calc(128px + env(safe-area-inset-top,0px));font:800 12px var(--body);padding:5px 10px;border-radius:99px;box-shadow:0 3px 0 var(--ink);cursor:pointer;z-index:5}
+body.touch #diagbtn{display:none}
+#diag{position:fixed;left:8px;top:8px;width:min(600px,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;z-index:40;padding:8px 10px;background:rgba(24,18,40,.94);color:#f3eeff;border-radius:12px;font:11px/1.4 var(--mono);box-shadow:0 6px 24px rgba(0,0,0,.5)}
+#dghead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}#dghead b{font:16px var(--display);color:#ff6b3d}#dgsub{opacity:.55;font-size:10px}#dghead .sp{flex:1}
+#dghead button{font:700 11px var(--body);border:2px solid #f3eeff;background:transparent;color:#f3eeff;border-radius:99px;padding:2px 9px;cursor:pointer}#dghead button:disabled{opacity:.5}
+#dgverdict div{padding:3px 6px;margin-bottom:3px;border-radius:6px;font:700 12px/1.35 var(--body)}#dgverdict .sbad{background:#7a1f24}#dgverdict .swarn{background:#6b5311}#dgverdict .sok{background:#1d5a2b}#dgverdict .sinfo{background:#2e2646}
+#dggraph{width:100%;height:auto;display:block;margin:4px 0;border-radius:6px}#dgbody{margin:0;white-space:pre-wrap;word-break:break-word;font:11px/1.4 var(--mono)}
+body.touch #diag{font-size:10px}
 #settings{z-index:31;background:rgba(43,33,64,.6)}
 #settings .panel{width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
 #settings h2{margin:0;font:28px var(--display)}#settings h3{margin:6px 0 0;font:18px var(--display);color:var(--tomato)}
@@ -391,6 +399,8 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 <button id="mute" class="panel" type="button" aria-label="Toggle sound">Sound on</button>
 <button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <button id="gear" class="panel" type="button" aria-label="Settings">Settings</button>
+<button id="diagbtn" class="panel" type="button" aria-label="Diagnostics (F3)">Stats</button>
+<div id="diag" hidden><div id="dghead"><b>Diagnostics</b><span id="dgsub">F3 opens and closes this</span><span class="sp"></span><button type="button" id="dgpause">Pause</button><button type="button" id="dgcpu">CPU test</button><button type="button" id="dgcopy">Copy</button><button type="button" id="dgclose">Close</button></div><div id="dgverdict"></div><canvas id="dggraph" width="560" height="90"></canvas><pre id="dgbody"></pre></div>
 <div id="metrics" hidden></div>
 <div id="joy"><i id="joyk"></i></div>
 <button id="menubtn" class="tbtn round" type="button" aria-label="Menu">&#9776;</button>
@@ -443,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r70</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r71</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -477,7 +487,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <label class="srow chk"><input type="checkbox" data-k="mfps"><span style="width:auto">FPS</span></label>
     <label class="srow chk"><input type="checkbox" data-k="mping"><span style="width:auto">Ping (delay to the host)</span></label>
     <label class="srow chk"><input type="checkbox" data-k="mmore"><span style="width:auto">Details (players, resolution)</span></label>
-    <div class="row" style="justify-content:center"><button class="btn alt" type="button" id="setclose">Close</button></div>
+    <div class="row" style="justify-content:center"><button class="btn alt" type="button" id="setdiag">Stats &amp; diagnostics</button><button class="btn alt" type="button" id="setclose">Close</button></div>
   </div>
 </div>
 
@@ -597,7 +607,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r70';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r71';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -1728,7 +1738,7 @@ const sfx=(()=>{
     init,
     get muted(){return muted},
     toggle(){muted=!muted;try{localStorage.setItem('snackdown-mute',muted?'1':'0')}catch(_){}if(master)master.gain.value=muted?0:.8*SET.sv;init();return muted},
-    ctx(){init();return ac},
+    ctx(){init();return ac},peek(){return ac},
     // menu sounds: every ui* call marks itself, so the generic click sound knows a special one already played
     uiSince:t=>uiAt>=t,   // did a special sound already play for the event that started at t?
     uiTap(){if(!ui())return;pop(700,.13);noise(.02,{f:3000,q:2,v:.05})},
@@ -2000,7 +2010,7 @@ const music=(()=>{
     duel_moonlit:'music/duel_moonlit.mid',duel_fog:'music/duel_fog.mid',duel_heist:'music/duel_heist.mid',dead_alley:'music/dead_alley.mid'};
   const DB={nocturne:5.6,menu_adagio:4.1,menu_dream:8.9,menu_temple:7.8,play_coast:-2.5,play_skyline:-7,play_tropic:1.9,play_twilight:5.7,play_runway:1.2,play_sunrise:0.5,play_harbor:-3.6,menu_welcome:2,high_circus:-0.8,high_requiem:-2.9,high_carnival:-3.7,duel_moonlit:3.3,duel_fog:-0.3,duel_heist:1.8,dead_alley:7.8};   // loudness correction per song in dB (measured offline with tools: mix render)
   const MASTER=.38,LOOK=.5,XFADE=1,FADEIN=.5;   // a song change: the old song fades out for XFADE seconds, then the next fades in for FADEIN seconds
-  let on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
+  let pendT=0,on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
   try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
   const load=k=>cache[k]||(cache[k]=fetch(FILES[k]).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>synth.parse(b)).catch(e=>{logErr(e,'music '+k);return null}));
   function setup(){if(mg)return true;A=sfx.ctx();if(!A)return false;mg=A.createGain();mg.gain.value=0;const cp=A.createDynamicsCompressor();cp.threshold.value=-10;cp.ratio.value=3;mg.connect(cp);
@@ -2015,7 +2025,9 @@ const music=(()=>{
   function play(k,at,m,fadeIn,when){const g=++gen;load(k).then(S=>S&&synth.prep(A,S).then(()=>S)).then(S=>{if(!S||g!==gen||!mg)return;last[m]=k;
     const t0=Math.max(when||0,A.currentTime+.08)-(at||0),I=synth.start(A,S,mg,verb,t0),lv=Math.pow(10,(DB[k]||0)/20);
     for(const n of[I.F.gain,I.W.gain]){n.setValueAtTime(0,A.currentTime);n.linearRampToValueAtTime(lv,A.currentTime+(fadeIn||.05))}
-    let i=0;while(i<S.notes.length&&S.notes[i].t<(at||0)-.01)i++;cur={k,S,I,i,t0,m,lv}})}
+    let i=0;while(i<S.notes.length&&S.notes[i].t<(at||0)-.01)i++;cur={k,S,I,i,t0,m,lv};pendT=0;
+    if(at>0){const w=t0+at;let c=0;   // carrying on in the middle of a song: notes that were still sounding at that point (pads, held chords, bass) start now for the rest of their length
+      for(let j=i-1;j>=0&&c<64;j--){const n=S.notes[j];if(n.t+n.d<at-.0)continue;if(at-n.t>30)break;const x=I.C[n.c],rest=n.t+n.d-at;if(!x||(n.skip&&!x.sf)||rest<.25||n.t>at-.05)continue;c++;synth.note(A,x,w,n.p,n.v,t0+n.r,rest,x.sf?0:n.pw)}}})}
   function pump(){if(!cur||!mg)return;const now=A.currentTime,N=cur.S.notes;
     while(cur.i<N.length&&cur.t0+N[cur.i].t<now+LOOK){const n=N[cur.i++],x=cur.I.C[n.c];if(x&&(!n.skip||x.sf)&&cur.t0+n.t>=now-.05)synth.note(A,x,cur.t0+n.t,n.p,n.v,cur.t0+n.r,n.d,x.sf?0:n.pw)}
     if(cur.i>=N.length&&now+LOOK>=cur.t0+cur.S.len){const s=cur,m=s.m;   // the song is over: loop it (one song in this mode) or go on with the next
@@ -2025,9 +2037,10 @@ const music=(()=>{
   function change(m){const prev=cur;if(prev&&(prev.m==='play'||prev.m==='high'||prev.m==='menu'))pos[prev.m]={k:prev.k,at:A.currentTime-prev.t0};
     if(prev){fade(prev,XFADE);cur=null}gen++;
     if(!m||!on||!unlocked||document.hidden)return;
-    const back=pos[m]&&MODES[m].includes(pos[m].k)?pos[m]:null;delete pos[m];
+    const back=pos[m]&&MODES[m].includes(pos[m].k)?pos[m]:null;   // the place is forgotten only when the song really starts again
     const k=back?back.k:pick(m),g=gen;if(prev)load(k).then(S=>S&&synth.prep(A,S));   // get the next song ready while the old one fades out
-    setTimeout(()=>{if(g===gen)play(k,back?back.at:0,m,prev?FADEIN:.8)},prev?XFADE*1000:0)}
+    pendT=performance.now()+(prev?XFADE*1000:0)+4000;
+    setTimeout(()=>{if(g===gen){if(back)delete pos[m];play(k,back?back.at:0,m,prev?FADEIN:.8)}},prev?XFADE*1000:0)}
   const api={
     get on(){return on},
     unlock(){if(unlocked)return;if(!setup())return;unlocked=true;setInterval(pump,90);const m=mode;mode='';api.mode(m||'menu')},
@@ -2038,7 +2051,7 @@ const music=(()=>{
     duck(sec){duckT=Math.max(duckT,sec)},
     tick(dt){duckT=Math.max(0,duckT-dt);if(!mg)return;const hid=document.hidden;
       if(hid&&cur){pos[cur.m]={k:cur.k,at:A.currentTime-cur.t0};fade(cur,.2);cur=null;gen++}   // hidden tab: stop (timers are slow there), carry on when it comes back
-      else if(!hid&&!cur&&on&&unlocked&&mode&&!waiting&&!old.some(s=>s.dead>A.currentTime+.3)){waiting=true;setTimeout(()=>{waiting=false;if(!cur&&on&&!document.hidden){const m=mode;mode='';api.mode(m)}},250)}
+      else if(!hid&&!cur&&on&&unlocked&&mode&&!waiting&&performance.now()>pendT&&!old.some(s=>s.dead>A.currentTime+.3)){waiting=true;setTimeout(()=>{waiting=false;if(!cur&&on&&!document.hidden){const m=mode;mode='';api.mode(m)}},250)}
       const t=A.currentTime,v=vol();mg.gain.setTargetAtTime(v,t,duckT>0?.08:.25)},
     // tests and tools
     dbg:()=>({cur:cur&&[cur.k,+cur.I.F.gain.value.toFixed(2)],old:old.map(o=>+o.I.F.gain.value.toFixed(2))}),
@@ -3171,7 +3184,7 @@ $('loadcancel').addEventListener('click',()=>{playTok++;joinQ=null;loadingHide()
 function attachSock(sock,name,near,resume){
   ws=sock;
   sock.onopen=()=>sock.send(JSON.stringify({t:'join',name,look:LOOK,near:near||'',resume:resume||''}));
-  sock.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(_){return}if(ws!==sock)return;if(joinQ)joinQ.push(m);else onNet(m)};   // messages that arrive while the world is being built wait in a queue
+  sock.onmessage=ev=>{let m;DG.rx.b+=ev.data.length||0;DG.rx.m++;try{m=JSON.parse(ev.data)}catch(_){return}if(ws!==sock)return;if(joinQ)joinQ.push(m);else onNet(m)};   // messages that arrive while the world is being built wait in a queue
   sock.onclose=()=>{if(ws===sock&&role==='client')hostLost()}}
 /* ---------- play without a server file ----------
    The first player who presses Play becomes the host: their tab runs the game server inside a Web Worker (the very same code
@@ -3195,7 +3208,7 @@ function startWorker(){
   const w=new Worker(URL.createObjectURL(new Blob([WORKER_PRE+'self.TYPEBITE_CONFIG='+JSON.stringify(CFG)+';\n'+SELF_CODE+WORKER_POST],{type:'text/javascript'})));
   P2P.worker=w;P2P.isHost=true;
   w.onmessage=e=>{const d=e.data;
-    if(d.out)for(const [cid,str] of d.out){const c=P2P.conns.get(cid);if(!c)continue;if(c.local){if(c.sock.onmessage)c.sock.onmessage({data:str})}else if(c.conn.open){try{c.conn.send(str)}catch(_){}}}
+    if(d.out)for(const [cid,str] of d.out){const c=P2P.conns.get(cid);if(!c)continue;if(c.local){if(c.sock.onmessage)c.sock.onmessage({data:str})}else if(c.conn.open){try{c.conn.send(str);DG.tx.b+=str.length}catch(_){}}}
     if(d.players){P2P.players=d.players;P2P.ms=d.ms}
     if(d.ckpt)sendCkpt(P2P.ckTargets||[],d.ckpt);
     if(d.err)reportErr({message:d.err.m,stack:d.err.st},'host')};   // errors of the game server in the worker were silent before
@@ -3299,7 +3312,7 @@ function onNet(m){lastNet=now();
       joinQ=[];loadingShow('Building the world…','The map is big, this takes a moment.');
       {const tok=playTok;setTimeout(()=>{if(tok!==playTok){joinQ=null;return}try{enterClientMode(m.seed)}finally{const q=joinQ||[];joinQ=null;for(const x of q)onNet(x)}},50)}break;
     case 's':applySnap(m);break;
-    case 'pong':{const r=performance.now()-(+m.c||0);if(r>=0&&r<20000)MET.ping=MET.ping<0?r:MET.ping*.6+r*.4;break}
+    case 'pong':{const r=performance.now()-(+m.c||0);if(r>=0&&r<20000){MET.ping=MET.ping<0?r:MET.ping*.6+r*.4;DG.pings.push(r);if(DG.pings.length>60)DG.pings.shift()}break}
     case 'spawned':myId=m.id;player=null;break;
     case 'board':renderBoardNet(m);break;
     case 'offer':offer={ids:m.ids};netOwed=m.owed;showOffer();break;
@@ -3387,6 +3400,7 @@ function recToEnt(e,r,t){
   if(e.state==='eat'){e.eatFood=r.ef;e.ep=r.ep||0;e.stateT=e.eatT*(1-e.ep)}
   if(e.state==='eaten'){e.stateT=r.et||0;e.eater=cl.get(r.er)||null}}
 function applySnap(m){
+  dgSnap();
   if(!$('loading').hidden)loadingHide();
   if(JT.length&&JT[JT.length-1][0]!=='first snapshot'&&!applySnap.f){applySnap.f=1;jmark('first snapshot')}
   const t=now(),seen=new Set();
@@ -3985,6 +3999,7 @@ function bugReport(note){const o=[],p2=n=>String(n).padStart(2,'0'),hms=d=>p2(d.
   o.push('Typebite bug report · Build '+BUILD+' · '+d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+hms(d));
   if(note)o.push('What happened: '+note.replace(/\s+/g,' '));
   o.push('Browser: '+g.ua,'Screen: '+g.screen,'Mode: '+g.mode,'Game: '+g.game,'Speed: '+g.speed,'Settings: '+g.cfg,'Join steps: '+g.join);
+  try{const c=dgCompute();o.push('Diagnosis: '+c.verdict,'Lows (60 s): 1 % '+Math.round(c.l1)+' fps, 0.1 % '+Math.round(c.l01)+' fps · busy '+Math.round(c.busy)+' % (update '+c.upA.toFixed(1)+' ms, draw '+c.rnA.toFixed(1)+' ms) · '+DG.hitchN+' frames over 50 ms · ping '+Math.round(c.pAvg)+' ms')}catch(_){}
   o.push(ERRLOG.length?'Errors ('+ERRLOG.length+'):':'Errors: none');
   for(const e of ERRLOG)o.push(' '+hms(e.t)+' ['+e.src+'] '+e.m+(e.n>1?' (x'+e.n+')':'')+(e.at?' @ '+e.at:''));
   return o.join('\n')}
@@ -4046,8 +4061,146 @@ function lobbyTag(){if(role==='server')return;let t='';
     if(role==='solo'&&!P2P.isHost)t='Solo game';
     else{const host=P2P.isHost,li=P2P.lobbyInfo||{},slot=host?P2P.slot:(MIG.slot||li.slot),who=host?'your game':li.host?li.host+"'s game":'online game',n=host?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length);   // a client only sees the players near it; the host's successor list has everyone who joined
       t='\u25cf '+(slot?'Lobby '+slot+' \u00b7 ':'')+who+' \u00b7 '+n+(n===1?' player':' players')}}
-  if(lobbyEl.textContent!==t)lobbyEl.textContent=t;lobbyEl.hidden=!t}
+  if(lobbyEl.textContent!==t)lobbyEl.textContent=t;lobbyEl.hidden=!t;
+  const ml=$('minilogo');if(t&&ml&&ml.offsetWidth){const r=ml.getBoundingClientRect();lobbyEl.style.left=Math.round(r.right+10)+'px';lobbyEl.style.top=Math.round(r.top+(r.height-lobbyEl.offsetHeight)/2)+'px'}else{lobbyEl.style.left='';lobbyEl.style.top=''}}   // next to the logo; on touch (no logo) the CSS puts it at the top left
 setInterval(lobbyTag,1000);
+/* ---------- diagnostics panel (r71): the "Stats" button, F3, or Settings. The numbers are collected all the time (cheap), the panel only reads them. ----------
+   What a web page cannot read: the real CPU or GPU load. So it shows how much of every frame the game itself needed ("busy") and what the browser did in between. */
+const DG={cap:3000,iv:new Float32Array(3000),up:new Float32Array(3000),rn:new Float32Array(3000),ts:new Float64Array(3000),n:0,
+  hist:new Uint32Array(402),hn:0,hitches:[],hitchN:0,long:[],longN:0,ema:.0167,
+  rx:{b:0,m:0,snap:0,gaps:[],lastSnap:0},tx:{b:0},pings:[],prev:{t:0,rb:0,rm:0,tb:0,sn:0},rate:{rkb:0,rm:0,tkb:0,sn:0},
+  cpu:null,cpuRun:false,open:false,paused:false,gpu:'',bat:null,sw:null,startT:performance.now()};
+DG.push=function(raw,upd,rnd,t){const i=DG.n%DG.cap;DG.iv[i]=raw*1000;DG.up[i]=upd;DG.rn[i]=rnd;DG.ts[i]=performance.now();DG.n++;DG.ema+=(raw-DG.ema)*.02;
+  if(game!=='play')return;
+  DG.hist[Math.min(401,Math.floor(raw*4000))]++;DG.hn++;   // 0.25 ms steps, frames of real play only
+  if(t>PERF.grace&&raw>Math.max(.05,DG.ema*3)){DG.hitchN++;DG.hitches.push({t:Date.now(),end:performance.now(),ms:raw*1000,upd,rnd,ents:ents.length,qs:QS,st:game+(duel?' + duel':'')+(player?' / '+player.state:'')});if(DG.hitches.length>20)DG.hitches.shift()}};
+function dgCause(h){const ms=h.ms,lt=DG.long.find(l=>l.end>h.end-ms-40&&l.end<=h.end+30);
+  if(h.upd>ms*.5)return 'game logic (update) took '+h.upd.toFixed(0)+' ms';if(h.rnd>ms*.5)return 'drawing (render) took '+h.rnd.toFixed(0)+' ms';
+  if(lt)return 'a browser task of '+Math.round(lt.dur)+' ms blocked the page (garbage collection, audio, another script or the system)';
+  return 'the frame came late but the game itself was fast: the browser or system waited (GPU, power saving, another program)'}
+try{new PerformanceObserver(l=>{for(const e of l.getEntries()){DG.long.push({end:e.startTime+e.duration,dur:e.duration});DG.longN++}if(DG.long.length>40)DG.long.splice(0,DG.long.length-40)}).observe({entryTypes:['longtask']})}catch(_){}
+function dgSnap(){const t=now();if(DG.rx.lastSnap){DG.rx.gaps.push((t-DG.rx.lastSnap)*1000);if(DG.rx.gaps.length>200)DG.rx.gaps.shift()}DG.rx.lastSnap=t;DG.rx.snap++}
+const dgPct=(a,p)=>a.length?a[Math.min(a.length-1,Math.floor(a.length*p))]:0;
+function dgWin(ms){const out={iv:[],up:[],rn:[]},n=Math.min(DG.n,DG.cap),w=performance.now();
+  for(let k=0;k<n;k++){const i=(DG.n-1-k)%DG.cap;if(w-DG.ts[i]>ms)break;out.iv.push(DG.iv[i]);out.up.push(DG.up[i]);out.rn.push(DG.rn[i])}return out}   // newest first
+const dgAvg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+// 1 % and 0.1 % lows: the average frame rate of the slowest 1 % (0.1 %) of the frames
+function dgLow(iv,frac){if(iv.length<20)return 0;const s=iv.slice().sort((a,b)=>b-a),k=Math.max(1,Math.ceil(s.length*frac));return 1000/dgAvg(s.slice(0,k))}
+function dgSessionLow(frac){if(DG.hn<100)return 0;let need=Math.max(1,Math.ceil(DG.hn*frac)),sum=0,c=0;for(let b=401;b>=0&&need>0;b--){const h=DG.hist[b],take=Math.min(h,need);sum+=take*(b===401?100:(b+.5)*.25);c+=take;need-=take}return c?1000/(sum/c):0}
+function uaInfo(){const u=navigator.userAgent,m=r=>{const x=u.match(r);return x?x[1]:''};let b='?',v='';
+  if(/Edg\//.test(u)){b='Edge';v=m(/Edg\/([\d.]+)/)}else if(/OPR\//.test(u)){b='Opera';v=m(/OPR\/([\d.]+)/)}else if(/Firefox\//.test(u)){b='Firefox';v=m(/Firefox\/([\d.]+)/)}else if(/Chrome\//.test(u)){b='Chrome';v=m(/Chrome\/([\d.]+)/)}else if(/Safari\//.test(u)){b='Safari';v=m(/Version\/([\d.]+)/)}
+  let os='?';if(/Windows NT 10/.test(u))os='Windows 10/11';else if(/Windows/.test(u))os='Windows';else if(/Android/.test(u))os='Android '+m(/Android ([\d.]+)/);else if(/iPhone|iPad|iPod/.test(u))os='iOS '+m(/OS ([\d_]+)/).replace(/_/g,'.');else if(/Mac OS X/.test(u))os='macOS';else if(/Linux/.test(u))os='Linux';
+  return b+' '+v.split('.')[0]+' ('+v+') on '+os}
+function gpuInfo(){try{const c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return 'no WebGL';const e=gl.getExtension('WEBGL_debug_renderer_info');const r=e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);const lc=gl.getExtension('WEBGL_lose_context');if(lc)lc.loseContext();return String(r)}catch(_){return '?'}}
+const pad=(s,n)=>String(s).padEnd(n);   // the key column of the panel
+function dgCompute(){
+  const w10=dgWin(10000),w60=dgWin(60000),n=w10.iv.length,tgt=SET.vsync?HZM.hz:(fastWanted()?capFps():Math.min(capFps(),HZM.hz)),tms=1000/tgt;
+  const ivAvg=dgAvg(w10.iv),fps=ivAvg?1000/ivAvg:0,upA=dgAvg(w10.up),rnA=dgAvg(w10.rn),busy=ivAvg?Math.min(100,(upA+rnA)/ivAvg*100):0,sorted=w10.iv.slice().sort((a,b)=>a-b);
+  const p99=dgPct(sorted,.99),mx=sorted.length?sorted[sorted.length-1]:0,up99=dgPct(w10.up.slice().sort((a,b)=>a-b),.99),rn99=dgPct(w10.rn.slice().sort((a,b)=>a-b),.99);
+  const l1=dgLow(w60.iv,.01),l01=dgLow(w60.iv,.001),sl1=dgSessionLow(.01),sl01=dgSessionLow(.001);
+  const t60=Date.now()-60000,h60=DG.hitches.filter(h=>h.t>t60),lng=DG.long.filter(l=>l.end>performance.now()-10000);
+  const g=DG.rx.gaps.slice().sort((a,b)=>a-b),pg=DG.pings.slice(-30),pAvg=dgAvg(pg),pJit=pg.length>2?Math.sqrt(dgAvg(pg.map(x=>(x-pAvg)*(x-pAvg)))):0;
+  const online=role==='client'||P2P.isHost,hostMs=P2P.isHost&&P2P.ms>=0?P2P.ms:-1,heap=performance.memory;
+  const D=[];const add=(sev,txt)=>D.push({sev,txt});
+  if(document.hidden)add('warn','This tab is in the background: browsers slow hidden tabs down, so the numbers are not meaningful now.');
+  if(game!=='play')add('info','You are not in a game, the numbers come from the menu. Start playing to see how a real game runs.');
+  else if(n<30)add('info','Not enough frames measured yet (need about half a second of play).');
+  else{
+    if(fps<tgt*.9){
+      if(busy>85)add('bad','The game is slow: one frame needs '+(upA+rnA).toFixed(1)+' ms of work ('+upA.toFixed(1)+' ms game logic + '+rnA.toFixed(1)+' ms drawing), but only '+tms.toFixed(1)+' ms are available. '+(rnA>upA*1.5?'Drawing is the heavy part: try Settings > Potato mode, a smaller window or less zoom.':upA>rnA*1.5?'The game logic is the heavy part (many players and bots in this game).':'Logic and drawing both take long: this PC is running at its limit.'));
+      else add('bad','Frames come '+(1000/fps).toFixed(1)+' ms apart (wanted '+tms.toFixed(1)+' ms) although the game itself only needs '+(upA+rnA).toFixed(1)+' ms ('+busy.toFixed(0)+' % busy). The browser or system is making it wait: V-Sync or a screen at a lower refresh rate, battery saver or power saving, no hardware acceleration, or another program using the GPU.')}
+    if(h60.length>=3){const by={};for(const h of h60){const c=dgCause(h),k=c.startsWith('game logic')?'game logic':c.startsWith('drawing')?'drawing':c.startsWith('a browser task')?'browser tasks':'waiting';by[k]=(by[k]||0)+1}
+      add('warn','Stutter: '+h60.length+' frames over 50 ms in the last minute (worst '+Math.max(...h60.map(h=>h.ms)).toFixed(0)+' ms). Causes: '+Object.entries(by).map(([k,v])=>k+' x'+v).join(', ')+'.')}
+    else if(p99>tms*2.2&&p99>30)add('warn','The frame time is uneven: 1 in 100 frames takes '+p99.toFixed(0)+' ms (average '+ivAvg.toFixed(1)+' ms).');
+    if(lng.length>=2)add('warn',lng.length+' long browser tasks (longest '+Math.round(Math.max(...lng.map(l=>l.dur)))+' ms) in the last 10 seconds: something else is blocking this page (other scripts, garbage collection, browser extensions, other tabs).');
+    if(QS<.98)add('info','The game lowered its drawing resolution to '+Math.round(QS*100)+' % to keep up (it does this by itself when frames get slow).')}
+  if(online){
+    if(pg.length>=3&&pAvg>150)add('warn','High delay to the host: '+Math.round(pAvg)+' ms ping. Others\' actions arrive late and your own feel delayed.');
+    if(pg.length>=3&&pJit>40)add('warn','Unstable connection: the ping jumps by about '+Math.round(pJit)+' ms. Wi-Fi, mobile data or a busy network.');
+    if(g.length>=20&&dgPct(g,.95)>120)add('warn','World updates arrive unevenly: normally every 50 ms, 1 in 20 takes '+Math.round(dgPct(g,.95))+' ms (slowest '+Math.round(g[g.length-1])+' ms). That looks like lag or rubber-banding although the frame rate is fine.');
+    if(role==='client'&&!P2P.isHost&&now()-lastNet>.5&&lastNet)add('bad','No word from the host for '+(now()-lastNet).toFixed(1)+' s.');
+    if(hostMs>10)add('warn','You are the host and the game server step takes '+hostMs.toFixed(1)+' ms (limit about 14 ms): with more players or a slow PC everybody in your lobby will lag.');
+    if(P2P.isHost&&DG.rate.tkb>900)add('warn','You are the host and upload '+Math.round(DG.rate.tkb)+' KB/s to your players: a slow home upload line will cause lag for them.')}
+  if(heap&&heap.jsHeapSizeLimit&&heap.usedJSHeapSize>heap.jsHeapSizeLimit*.8)add('warn','The browser memory for this page is almost full ('+Math.round(heap.usedJSHeapSize/1048576)+' of '+Math.round(heap.jsHeapSizeLimit/1048576)+' MB): expect pauses.');
+  {const a=sfx.peek();if(a&&a.state!=='running')add('info','Audio is '+a.state+' (browsers wait for a click or key press before they play sound).')}
+  if(!D.some(d=>d.sev==='bad'||d.sev==='warn')&&game==='play'&&n>=30)add('ok','Everything looks stable: '+Math.round(fps)+' fps on average, the game needs '+busy.toFixed(0)+' % of every frame.');
+  const worst=D.find(d=>d.sev==='bad')||D.find(d=>d.sev==='warn')||D.find(d=>d.sev==='ok')||D[0];
+  return{w10,n,fps,tgt,tms,ivAvg,upA,rnA,busy,p99,mx,up99,rn99,l1,l01,sl1,sl01,h60,lng,g,pAvg,pJit,online,hostMs,heap,D,verdict:worst?worst.txt:'',sev:worst?worst.sev:'info'}}
+function dgSections(c){
+  const L=[],hz=HZM.hz,cn=navigator.connection||{},bat=DG.bat;
+  const row=(k,v)=>L.push(pad(k,24)+v);
+  L.push('PERFORMANCE (last 10 s, lows: last 60 s)');
+  row('FPS now / average',Math.round(MET.f)+' / '+(c.n>=2?c.fps.toFixed(1):'-')+'   target '+Math.round(c.tgt));
+  row('1 % low / 0.1 % low',(c.l1?c.l1.toFixed(0):'-')+' / '+(c.l01?c.l01.toFixed(0):'-')+' fps   (whole session: '+(c.sl1?c.sl1.toFixed(0):'-')+' / '+(c.sl01?c.sl01.toFixed(0):'-')+')'+(c.w10.iv.length<600?' (0.1 % needs a long measurement)':''));
+  row('Frame time avg/p99/max',c.n>=2?c.ivAvg.toFixed(1)+' / '+c.p99.toFixed(1)+' / '+c.mx.toFixed(1)+' ms':'-');
+  row('Game logic (update)',c.n>=2?dgAvg(c.w10.up).toFixed(2)+' ms avg, '+c.up99.toFixed(2)+' ms p99':'-');
+  row('Drawing (render)',c.n>=2?dgAvg(c.w10.rn).toFixed(2)+' ms avg, '+c.rn99.toFixed(2)+' ms p99':'-');
+  row('Idle / waiting',c.n>=2?Math.max(0,c.ivAvg-c.upA-c.rnA).toFixed(2)+' ms per frame (normal: the game waits for the next screen refresh)':'-');
+  row('Main thread busy',c.n>=2?c.busy.toFixed(0)+' %   (the real CPU/GPU load cannot be read by a web page)':'-');
+  row('Frames > 50 ms',c.h60.length+' in the last minute, '+DG.hitchN+' in this session');
+  row('Long browser tasks',DG.longN?c.lng.length+' in the last 10 s, '+DG.longN+' in this session':(typeof PerformanceObserver!=='undefined'&&PerformanceObserver.supportedEntryTypes&&PerformanceObserver.supportedEntryTypes.includes('longtask')?'none':'not available in this browser'));
+  if(c.heap)row('Page memory',Math.round(c.heap.usedJSHeapSize/1048576)+' MB of '+Math.round(c.heap.jsHeapSizeLimit/1048576)+' MB');
+  L.push('');L.push('NETWORK');
+  if(!c.online)row('Mode',role==='solo'?'solo game (no network)':role);
+  else{row('Mode',(P2P.isHost?'host':'client')+(P2P.slot||MIG.slot?' · lobby '+(P2P.isHost?P2P.slot:MIG.slot):'')+' · players '+(P2P.isHost?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length)));
+    row('Ping avg / jitter',role==='client'&&!P2P.isHost?(c.pAvg?Math.round(c.pAvg)+' ms / '+Math.round(c.pJit)+' ms (now '+(MET.ping>=0?Math.round(MET.ping):'-')+' ms)':'-'):'(you are the host)');
+    row('World updates',(DG.rate.sn).toFixed(0)+' per s'+(c.g.length>=5?', gap p50/p95/max '+Math.round(dgPct(c.g,.5))+' / '+Math.round(dgPct(c.g,.95))+' / '+Math.round(c.g[c.g.length-1])+' ms':''));
+    row('Data in / out',DG.rate.rkb.toFixed(0)+' KB/s in'+(P2P.isHost?', '+DG.rate.tkb.toFixed(0)+' KB/s out to players':''));
+    if(P2P.isHost)row('Server step (host)',c.hostMs>=0?c.hostMs.toFixed(1)+' ms of 14 ms ('+Math.round(c.hostMs/14*100)+' %)':'-');
+    else row('Last host message',lastNet?(now()-lastNet).toFixed(2)+' s ago':'-');
+    row('Next-host link',role==='client'&&!P2P.isHost?(MIG.sb&&MIG.sb.open&&!MIG.sb.dead?'ready':(MIG.succ.length&&MIG.succ[0]===(P2P.peer&&P2P.peer.id)?'you are next in line':'not ready')):'-');
+    row('Broker',P2P.state)}
+  L.push('');L.push('WORLD');
+  row('Game / state',game+(player?' · Lv '+L_(player)+' · '+player.state:'')+(duel?' · in a duel':''));
+  row('Players+bots',ents.length+(role==='client'?' visible':''));
+  row('Snacks/boxes/orbs',foods.length+' / '+boxes.length+' / '+orbs.length);
+  row('Effects',parts.length+' particles, '+floaters.length+' texts');
+  row('Resolution scale',Math.round(QS*100)+' %'+(SET.potato?' (Potato mode)':'')+' · canvas '+(cv?cv.width+'x'+cv.height:'-')+' · zoom '+Math.round(ZU*100)+' %');
+  L.push('');L.push('AUDIO');
+  const A=sfx.peek();row('Audio engine',A?A.state+' · '+A.sampleRate+' Hz · latency '+Math.round((A.baseLatency||0)*1000)+' ms'+(A.outputLatency?' (+'+Math.round(A.outputLatency*1000)+' ms output)':''):'not started yet');
+  const ms=music.state;row('Music',(music.on?'on':'off')+(ms?' · '+ms.m+' · '+ms.k+' '+Math.round(ms.at)+'/'+Math.round(ms.len)+' s':''));
+  L.push('');L.push('SYSTEM');
+  row('Browser',uaInfo());
+  row('CPU cores / memory',(navigator.hardwareConcurrency||'?')+' threads / '+(navigator.deviceMemory?'at least '+navigator.deviceMemory+' GB (browser rounds down)':'unknown'));
+  row('Graphics',DG.gpu||'...');
+  row('Screen',screen.width+'x'+screen.height+' @'+(+(devicePixelRatio||1).toFixed(2))+'x · window '+innerWidth+'x'+innerHeight+' · '+screen.colorDepth+' bit');
+  row('Refresh rate',hz+' Hz measured'+(SET.vsync?' (V-Sync on)':''));
+  row('Frame limit',SET.vsync?'= V-Sync':SET.fps+' fps'+(SET.fpsUser?' (your choice)':SET.fpsAuto?' (set automatically)':' (default)'));
+  row('Connection',(cn.effectiveType?cn.effectiveType+' · ':'')+(cn.downlink?cn.downlink+' Mbit/s down · ':'')+(cn.rtt!=null?'rtt '+cn.rtt+' ms':'')+(cn.saveData?' · data saver':'')||'unknown');
+  if(bat)row('Battery',Math.round(bat.level*100)+' %'+(bat.charging?' charging':' on battery (power saving can slow the game down)'));
+  row('Touch / language',(TOUCH?'touch':'mouse')+' · '+navigator.language+' · '+(document.hidden?'tab hidden':'tab visible'));
+  row('Game build',BUILD+' · settings '+CFGID+(LITE?' · LITE mode':''));
+  if(DG.cpu){const q=DG.cpu;L.push('');L.push('CPU TEST ('+new Date(q.at).toLocaleTimeString()+')');row('Speed',q.mops.toFixed(0)+' Mops/s (same test on every PC: higher is faster)');row('Evenness',q.cv.toFixed(1)+' % between 5 runs'+(q.cv<5?' (stable)':q.cv<15?' (uneven: other programs or power saving)':' (very uneven: the CPU speed jumps around)'));row('Timer delay',q.jAvg.toFixed(1)+' ms avg, '+q.jMax.toFixed(1)+' ms max')}
+  return L}
+const L_=e=>typeof L==='function'?L(e):'?';
+function dgHitchText(){if(!DG.hitches.length)return ['RECENT HITCHES','none so far'];const o=['RECENT HITCHES (frames over 50 ms)'];
+  for(const h of DG.hitches.slice(-8).reverse()){const d=new Date(h.t);o.push(('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2)+' · '+Math.round(h.ms)+' ms · update '+h.upd.toFixed(1)+' / draw '+h.rnd.toFixed(1)+' ms · '+h.ents+' players · '+h.st);o.push('   -> '+dgCause(h))}return o}
+function dgText(){const c=dgCompute();return ['Diagnostics: '+c.verdict,'',...c.D.map(d=>'['+d.sev+'] '+d.txt),'',...dgSections(c),'',...dgHitchText()].join('\n')}
+function dgGraph(c){const cv=$('dggraph'),x=cv.getContext('2d'),W=cv.width,H=cv.height,n=Math.min(DG.n,DG.cap,240),tms=c.tms;x.clearRect(0,0,W,H);x.fillStyle='rgba(255,255,255,.06)';x.fillRect(0,0,W,H);
+  const top=Math.max(40,tms*2.6),sy=v=>H-Math.min(1,v/top)*(H-4);
+  x.strokeStyle='rgba(255,255,255,.25)';x.fillStyle='rgba(255,255,255,.6)';x.font='9px monospace';
+  for(const v of [tms,tms*2,50].filter((v,i,a)=>v<top&&a.indexOf(v)===i)){const y=sy(v);x.beginPath();x.setLineDash([3,3]);x.moveTo(0,y);x.lineTo(W,y);x.stroke();x.setLineDash([]);x.fillText(v.toFixed(0)+' ms',2,y-2)}
+  const bw=W/240;for(let k=0;k<n;k++){const i=(DG.n-1-k)%DG.cap,iv=DG.iv[i],xx=W-(k+1)*bw;x.fillStyle=iv<tms*1.25?'#3fb950':iv<tms*2?'#f0b429':'#e5484d';x.fillRect(xx,sy(iv),Math.max(1,bw-.3),H-sy(iv));
+    x.fillStyle='rgba(60,110,255,.85)';const cost=DG.up[i]+DG.rn[i];x.fillRect(xx,sy(cost),Math.max(1,bw-.3),H-sy(cost))}
+  x.fillStyle='rgba(255,255,255,.7)';x.fillText('green/yellow/red = time between frames · blue = work the game did in that frame',2,9)}
+function dgRender(){if(!DG.open||DG.paused)return;
+  const t=performance.now(),dt=(t-DG.prev.t)/1000;if(DG.prev.t&&dt>.1){DG.rate.rkb=(DG.rx.b-DG.prev.rb)/1024/dt;DG.rate.rm=(DG.rx.m-DG.prev.rm)/dt;DG.rate.tkb=(DG.tx.b-DG.prev.tb)/1024/dt;DG.rate.sn=(DG.rx.snap-DG.prev.sn)/dt;DG.prev={t,rb:DG.rx.b,rm:DG.rx.m,tb:DG.tx.b,sn:DG.rx.snap}}else if(!DG.prev.t)DG.prev={t,rb:DG.rx.b,rm:DG.rx.m,tb:DG.tx.b,sn:DG.rx.snap};
+  const c=dgCompute(),v=$('dgverdict');v.className='s'+c.sev;
+  v.innerHTML=c.D.map(d=>'<div class="s'+d.sev+'">'+({bad:'● ',warn:'▲ ',ok:'✔ ',info:'ℹ '}[d.sev])+d.txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>').join('');
+  $('dgbody').textContent=[...dgSections(c),'',...dgHitchText()].join('\n');dgGraph(c)}
+async function dgCpu(){if(DG.cpuRun)return;DG.cpuRun=true;const b=$('dgcpu');b.textContent='Testing...';b.disabled=true;await new Promise(r=>setTimeout(r,60));
+  const runs=[];for(let r=0;r<5;r++){const t0=performance.now();let it=0,x=1,a=[];while(performance.now()-t0<250){for(let k=0;k<20000;k++){x=Math.sin(x)*1.0001+Math.sqrt(k+1)*1e-4;if((k&255)===0)a.push(x)}it+=20000;if(a.length>4000)a.length=0}runs.push(it/(performance.now()-t0)/1000)}
+  const lat=[];for(let r=0;r<20;r++){const t=performance.now();await new Promise(res=>setTimeout(res,0));lat.push(performance.now()-t)}
+  const m=dgAvg(runs),cv=Math.sqrt(dgAvg(runs.map(x=>(x-m)*(x-m))))/m*100;DG.cpu={mops:m,cv,jAvg:dgAvg(lat),jMax:Math.max(...lat),at:Date.now()};
+  DG.cpuRun=false;b.textContent='CPU test';b.disabled=false;dgRender()}
+function dgToggle(on){DG.open=on===undefined?!DG.open:!!on;$('diag').hidden=!DG.open;if(DG.open){if(!DG.gpu)DG.gpu=gpuInfo();try{if(navigator.getBattery&&!DG.bat)navigator.getBattery().then(b=>{DG.bat=b}).catch(()=>{})}catch(_){}DG.prev.t=0;dgRender()}}
+if(role!=='server'){
+  $('diagbtn').addEventListener('click',()=>dgToggle());$('dgclose').addEventListener('click',()=>dgToggle(false));$('setdiag').addEventListener('click',()=>{openSettings(false);dgToggle(true)});
+  $('dgpause').addEventListener('click',()=>{DG.paused=!DG.paused;$('dgpause').textContent=DG.paused?'Resume':'Pause';if(!DG.paused)dgRender()});
+  $('dgcpu').addEventListener('click',dgCpu);
+  $('dgcopy').addEventListener('click',()=>{const s=bugReport('Diagnostics')+'\n\n--- Diagnostics ---\n'+dgText();tryCopy(s).then(ok=>{const b=$('dgcopy');b.textContent=ok?'Copied!':'Copy failed';setTimeout(()=>{b.textContent='Copy'},1500)})});
+  setInterval(dgRender,250);
+  addEventListener('keydown',e=>{if(e.key==='F3'){e.preventDefault();dgToggle()}else if(e.key==='Escape'&&DG.open){e.preventDefault();e.stopImmediatePropagation();dgToggle(false)}},true)}
 function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);if(!HZM.quiet)frame()}   // always schedule the next frame first: one error must never freeze the game
 function frame(){
   const t=now(),raw=t-last;if(!gateOk(t))return;   // frame rate limit: skip this one
@@ -4059,9 +4212,12 @@ function frame(){
   if(raw>0&&raw<1)metFrame(t);if(t-MET.t>.4){MET.t=t;drawMetrics()}
   if(hitstop>0){hitstop-=dt;dt*=.12}
   shake*=Math.pow(.02,dt);kick*=Math.pow(.06,dt);
+  const tu0=performance.now();
   try{if(role==='client')updateClient(dt,t);else if(!leaveOpen)update(dt,t)}catch(e){reportErr(e,'update')}
   if(!isFinite(cam.x)||!isFinite(cam.y)||!isFinite(kick)||!isFinite(ZZ)){cam.x=player&&isFinite(player.x)?player.x:WORLD/2;cam.y=player&&isFinite(player.y)?player.y:WORLD/2;if(!isFinite(kick))kick=0;if(!isFinite(dz))dz=0;if(!isFinite(shake))shake=0;if(!isFinite(hitstop))hitstop=0}
-  try{render(t)}catch(e){reportErr(e,'render')}}
+  const tr0=performance.now();
+  try{render(t)}catch(e){reportErr(e,'render')}
+  if(raw>0&&raw<1)DG.push(raw,tr0-tu0,performance.now()-tr0,t)}   // for the diagnostics panel
 requestAnimationFrame(rafLoop);if(SET.vsync)setTimeout(calibHz,1500);
 })();
 </script>
