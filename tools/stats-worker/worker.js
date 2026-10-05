@@ -114,7 +114,7 @@ export class Stats extends DurableObject {
     const by = {};
     for (const r of rows) {
       let d; try { d = JSON.parse(r.data) } catch (_) { continue }
-      const o = by[r.dev] || (by[r.dev] = { device: r.dev, samples: 0, sessions: new Set(), first: r.t, last: r.t, builds: new Set(), sys: null, fps: [], l1: [], l01: [], busy: [], up: [], rn: [], ping: [], gap95: [], hostMs: [], secs: 0, sub: {}, extra: 0, heap: 0, qsMin: 1, hitches: 0, causes: {}, long: 0, worst: [], verdicts: {} });
+      const o = by[r.dev] || (by[r.dev] = { device: r.dev, samples: 0, sessions: new Set(), first: r.t, last: r.t, builds: new Set(), sys: null, fps: [], l1: [], l01: [], busy: [], up: [], rn: [], ping: [], gap95: [], hostMs: [], loaf: { n: 0, dur: 0, script: 0, layout: 0, render: 0 }, secs: 0, sub: {}, extra: 0, heap: 0, qsMin: 1, hitches: 0, causes: {}, long: 0, worst: [], verdicts: {} });
       o.last = r.t; o.sessions.add(r.sid); o.builds.add(r.build);
       if (r.kind === 'sys') { o.sys = d; continue }
       if (r.kind !== 'perf') continue;
@@ -124,13 +124,14 @@ export class Stats extends DurableObject {
       if (d.heap > o.heap) o.heap = d.heap; if (d.qs < o.qsMin) o.qsMin = d.qs;
       if (d.hitch) { o.hitches += d.hitch.n || 0; for (const [k, v] of Object.entries(d.hitch.causes || {})) o.causes[k] = (o.causes[k] || 0) + v; for (const w of d.hitch.worst || []) o.worst.push({ at: new Date(r.t).toISOString(), ...w }) }
       if (d.long) o.long += d.long.n || 0;
+      if (d.loaf) { for (const k of ['n', 'dur', 'script', 'layout', 'render']) o.loaf[k] += d.loaf[k] || 0 }
       o.secs += d.secs || 0; if (d.drawnOverScreen) o.extra++;
       for (const [k, v] of Object.entries(d.sub || {})) { const q = o.sub[k] || (o.sub[k] = { ms: 0, runs: 0, max: 0 }); q.ms += v.ms || 0; q.runs += v.n || 0; if (v.max > q.max) q.max = v.max }
       for (const [sev, txt] of d.diag || []) if (sev === 'bad' || sev === 'warn') { const k = sev + ': ' + String(txt).slice(0, 160); o.verdicts[k] = (o.verdicts[k] || 0) + 1 }
     }
     const avg = a => a.length ? +(a.reduce((x, y) => x + y, 0) / a.length).toFixed(1) : null, min = a => a.length ? +Math.min(...a).toFixed(1) : null, max = a => a.length ? +Math.max(...a).toFixed(1) : null;
     return Object.values(by).map(o => ({
-      device: o.device, minutesOfPlay: o.samples, secondsMeasured: Math.round(o.secs), samplesWithFrameLimitAboveScreen: o.extra, outsideUpdateRender: o.sub, sessions: o.sessions.size, from: new Date(o.first).toISOString(), to: new Date(o.last).toISOString(), builds: [...o.builds],
+      device: o.device, minutesOfPlay: o.samples, slowFrames: o.loaf, secondsMeasured: Math.round(o.secs), samplesWithFrameLimitAboveScreen: o.extra, outsideUpdateRender: o.sub, sessions: o.sessions.size, from: new Date(o.first).toISOString(), to: new Date(o.last).toISOString(), builds: [...o.builds],
       fps: { avg: avg(o.fps), min: min(o.fps) }, low1: { avg: avg(o.l1), min: min(o.l1) }, low01: { avg: avg(o.l01), min: min(o.l01) },
       busyPct: { avg: avg(o.busy), max: max(o.busy) }, updateMs: avg(o.up), renderMs: avg(o.rn), pingMs: { avg: avg(o.ping), max: max(o.ping) }, snapshotGapP95Ms: avg(o.gap95), hostStepMs: { avg: avg(o.hostMs), max: max(o.hostMs) },
       heapMB: o.heap, lowestResolutionScale: o.qsMin, hitchesOver50ms: o.hitches, hitchCauses: o.causes, longTasks: o.long,
