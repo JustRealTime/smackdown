@@ -96,6 +96,7 @@ Wichtig für das Gefühl: Bei vielen Bots ist die Anzahl herumliegender Snacks f
 - **Kleinere Karte:** `world.size: 8000`.
 - **Item abschalten:** bei `items.list` das `weight` auf `0` setzen.
 - **Legendäre Items fast nie:** bei `rarity.giftBox` und `rarity.underwaterBox` die vierte Zahl auf `0.1`.
+- **Große Lobbys:** `players.maxPerGame` (50), `network.bigLobbyFrom` / `updatesPerSecondBig` (ab so vielen Spielern weniger Updates pro Sekunde), `network.capStepMs` / `capBufferKB` (ab wann ein überlasteter Host niemanden mehr aufnimmt).
 - **Tipp-Tempo-Grenze:** `duel.maxWpm` (230) - schneller getippter Text wird vom Server zurückgehalten und gemeldet; nur senken, wenn ein Tippprogramm auffällt.
 - **Duelle kürzer:** `duel.baseWords` und `duel.maxWords` senken.
 - **Schneller aufsteigen:** `levels.snackValue` erhöhen oder `levels.costGrowth` senken.
