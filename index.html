@@ -453,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r74</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r75</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -781,6 +781,7 @@ network: {
   dataRadius: 1150,          // snacks, boxes and orbs further away than this are not sent
   updatesPerSecond: 20,      // how often the host sends the world (the game itself runs at 60). Lower = less data
   hostSilence: 1.2,          // seconds without any word from the host before the next player takes over (lower = faster change, but a short hiccup of the host can trigger it)
+  handover: { enabled: true, minScoreGap: 60, minHostScore: 100, sustainSeconds: 15, cooldownSeconds: 180 },   // the host gives the game to a player with a much better connection: when its own score (median delay + 2 x jitter + 4 x lost % + 60 for a weak PC) is at least minHostScore and at least minScoreGap worse than the best player's, for sustainSeconds in a row; at most one change per cooldownSeconds
   checkpointsPerSecond: 2,   // how often the host hands the next host a copy of the game (about 90 KB each with 12 players). With more than 6 players every other time
 },
 
@@ -993,7 +994,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r74';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r75';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -3606,9 +3607,59 @@ function startWorker(){
     if(d.err)reportErr({message:d.err.m,stack:d.err.st},'host')};   // errors of the game server in the worker were silent before
   w.onerror=ev=>{reportErr({message:'host server crashed: '+(ev&&ev.message||'unknown'),stack:ev&&ev.lineno?'worker:'+ev.lineno+':'+(ev.colno||0):''},'host')};
   P2P.poll=setInterval(()=>w.postMessage({q:1}),2000);P2P.mig=setInterval(hostMig,Math.round(1000/Math.max(.5,Math.min(5,+CFG.network.checkpointsPerSecond||2))))}
+/* ---------- connection quality and a host change when the host has the worse line (r75) ----------
+   Every online tab measures its OWN connection with a tiny request to Cloudflare every 4 s (median delay, jitter, lost requests): that says how good this player's internet is,
+   independent of who hosts. Clients report it with their ping. The host compares itself with its players; when it has clearly the worst line (or is too weak) for a while,
+   it hands the game to the player with the best line and goes on playing as a normal player. The same ranking decides who takes over when the host crashes. */
+const NQ={s:[],n:0,busy:false,rep:null,repT:0};
+function nqPush(v){NQ.s.push(v);if(NQ.s.length>15)NQ.s.shift()}
+function nqProbe(){if(NQ.busy||document.hidden||!(role==='client'||P2P.isHost))return;
+  const fk=typeof window!=='undefined'&&window.SNACK_NETQ_FAKE;if(fk){nqPush(fk.m+(Math.random()*2-1)*fk.j);return}
+  NQ.busy=true;const t0=performance.now(),ac=new AbortController(),to=setTimeout(()=>ac.abort(),3000);
+  fetch(((typeof window!=='undefined'&&window.SNACK_EDGE)||'https://typebite.io/favicon.svg')+'?q='+(NQ.n++),{method:'HEAD',mode:'no-cors',cache:'no-store',credentials:'omit',signal:ac.signal})
+    .then(()=>nqPush(performance.now()-t0),()=>nqPush(-1)).then(()=>{clearTimeout(to);NQ.busy=false})}
+setInterval(nqProbe,4000);
+function nqPerf(){let p=0;const w=dgWin(15000);if(w.iv.length>=60&&1000/dgAvg(w.iv)<40)p+=60;   // a slow PC (under 40 fps) is a poor host
+  if(DG.hitches.filter(h=>h.t>Date.now()-60000).length>=8)p+=40;if(QS<.7)p+=30;if(P2P.isHost&&P2P.ms>10)p+=60;return p}
+// what this tab reports: {m: median ms, j: jitter ms, l: lost %, n: samples, p: penalty for a weak PC}
+function nqReport(){const t=performance.now();if(NQ.rep&&t-NQ.repT<1500)return NQ.rep;
+  const fk=typeof window!=='undefined'&&window.SNACK_NETQ_FAKE;if(fk&&NQ.s.length<15)while(NQ.s.length<15)nqPush(fk.m+(Math.random()*2-1)*fk.j);
+  const ok=NQ.s.filter(x=>x>=0),lost=NQ.s.length-ok.length,n=NQ.s.length;let r;
+  if(n<3||ok.length<2)r={m:0,j:0,l:n?Math.round(lost/n*100):0,n:Math.min(n,2),p:nqPerf()};
+  else{const a=ok.slice().sort((x,y)=>x-y),m=a[a.length>>1],dev=a.map(x=>Math.abs(x-m)).sort((x,y)=>x-y);r={m:Math.round(m),j:Math.round(dev[dev.length>>1]*1.5),l:Math.round(lost/n*100),n,p:(fk&&fk.p)||nqPerf()}}
+  NQ.rep=r;NQ.repT=t;return r}
+const qScore=q=>q&&q.n>=5?q.m+2*q.j+4*q.l+(q.p||0):null;   // lower is better
+const HV=()=>Object.assign({enabled:true,minScoreGap:60,minHostScore:100,sustainSeconds:15,cooldownSeconds:180},CFG.network.handover||{},(typeof window!=='undefined'&&window.SNACK_HV)||{});   // window.SNACK_HV: test hook (changing CFG after the load would make the settings id differ)
+function candScore(c){const s=qScore(c.q);return s!=null?s:(c.rtt>=0?150+c.rtt:999)}
+function handoverCheck(rc){const h=HV();if(!h.enabled||P2P.stepping||MIG.active||game!=='play'||!rc.length){P2P.hvSince=0;return}
+  const t=now(),hs=qScore(nqReport());
+  if(hs==null||t-(P2P.lastHandover||-1e9)<h.cooldownSeconds){P2P.hvSince=0;return}
+  let best=null,bs=1e9;for(const c of rc){const s=qScore(c.q);if(s!=null&&(c.q.p||0)<60&&s<bs){bs=s;best=c}}   // a candidate needs measurements of its own and may not be a weak PC
+  if(!best||hs<h.minHostScore||hs-bs<h.minScoreGap){P2P.hvSince=0;return}
+  if(P2P.hvTarget!==best.conn.peer){P2P.hvTarget=best.conn.peer;P2P.hvSince=t}   // the target changed: start counting again
+  P2P.first=best.conn.peer;   // it is first in the list now, so every player has its standby link to it before the change
+  if(!P2P.hvSince)P2P.hvSince=t;
+  if(t-P2P.hvSince>=h.sustainSeconds&&!duel&&best.conn.open&&best.st&&best.st.joined){DG.ev.push({t:Date.now(),type:'handover',host:hs,to:bs,players:rc.length+1});if(DG.ev.length>10)DG.ev.shift();stepDown(best,rc)}}
+// the host gives the game to `target` and stays in it as a player
+function stepDown(target,rc){const w=P2P.worker;if(!P2P.isHost||!w||P2P.stepping)return;P2P.stepping=true;P2P.hvSince=0;P2P.lastHandover=now();
+  const list=[target.conn.peer,...rc.filter(c=>c!==target).map(c=>c.conn.peer)],key=MIG.key,slot=P2P.slot||MIG.slot||1;let ck=null;
+  const f=e=>{if(e.data&&e.data.ckpt&&!ck){ck=e.data.ckpt;sendCkpt([target],ck)}};w.addEventListener('message',f);try{w.postMessage({ck:1})}catch(_){}   // the target gets a fresh copy of the game
+  for(const c of rc){try{c.conn.send(JSON.stringify({t:'succ',list,slot}));c.conn.send(JSON.stringify({t:'note',msg:'The game moved to the player with the steadier connection.'}))}catch(_){}}
+  setTimeout(()=>{for(const c of rc){try{c.conn.send(JSON.stringify({t:'bye'}))}catch(_){}}},300);   // everybody (the target too) takes the normal host-change path
+  setTimeout(()=>{   // switch off the server part; this tab goes on as a player
+    clearInterval(P2P.poll);clearInterval(P2P.mig);for(const x of [P2P.peer,P2P.lobbyPeer])if(x){try{x.destroy()}catch(_){}}
+    try{w.removeEventListener('message',f);w.terminate()}catch(_){}
+    const old=ws;ws=null;if(old){old.onclose=old.onmessage=null}
+    P2P.worker=null;P2P.peer=null;P2P.lobbyPeer=null;P2P.conns=new Map();P2P.isHost=false;P2P.succ=[];P2P.players=[];P2P.stepping=false;P2P.slot=0;
+    MIG.slot=slot;MIG.key=key;MIG.ck=ck;MIG.succ=list;P2P.lobbyInfo={slot,host:''};showToast('Host moved to a steadier connection. The game goes on.','#9be564');
+    const np=new PeerC(undefined,peerOpts()),fail=()=>{if(MIG.active){MIG.active=false}netLost('Could not rejoin the game after the host change.')};
+    np.on('open',()=>{P2P.peer=np;np.on('connection',standbyIn);MIG.active=true;MIG.got=false;migStep(list.concat([np.id]),0,np.id,performance.now())});   // our own id last: with the last copy of the game we could host it again
+    np.on('error',e=>{if(!np.open&&!P2P.peer)fail()})},700)}
 // a few times a second (network.checkpointsPerSecond) the host tells each player who is next in line (best ping first) and hands the best candidate a copy of the game (in small parts; with more than 6 players every other time)
-function hostMig(){if(!P2P.isHost||!P2P.worker)return;
-  const rc=[...P2P.conns.values()].filter(c=>c.conn&&c.conn.open&&c.st&&c.st.joined).sort((a,b)=>(a.rtt>=0?a.rtt:999)-(b.rtt>=0?b.rtt:999));
+function hostMig(){if(!P2P.isHost||!P2P.worker||P2P.stepping)return;
+  const rc=[...P2P.conns.values()].filter(c=>c.conn&&c.conn.open&&c.st&&c.st.joined).sort((a,b)=>candScore(a)-candScore(b));   // the best connection first (r75)
+  if(P2P.first){const i=rc.findIndex(c=>c.conn.peer===P2P.first);if(i>0&&(P2P.first===P2P.hvTarget||candScore(rc[i])-candScore(rc[0])<30)){const [f]=rc.splice(i,1);rc.unshift(f)}}   // the first one stays first unless another is clearly better: the standby links do not jump around
+  if(rc.length)P2P.first=rc[0].conn.peer;handoverCheck(rc);
   P2P.succ=rc;const list=rc.map(c=>c.conn.peer);for(const c of rc){try{c.conn.send(JSON.stringify({t:'succ',list,slot:P2P.slot}))}catch(_){}}
   P2P.ckN=(P2P.ckN||0)+1;P2P.ckTargets=P2P.ckN%8===0?rc.slice(0,2):rc.slice(0,1);   // the best candidate gets every copy, the second one every eighth
   if(rc.length&&(rc.length<=6||P2P.ckN%2===0))P2P.worker.postMessage({ck:1})}
@@ -3619,7 +3670,7 @@ function bindPeer(p){const w=P2P.worker;
     const onData=d=>{let m;try{m=JSON.parse(d)}catch(_){return}
       if(m.t==='hello'){try{conn.send(JSON.stringify({t:'status',host:P2P.hostName,players:P2P.players.map(p=>({name:String(p.name).slice(0,14),lvl:p.lvl})),max:LOBBY_MAX}))}catch(_){}return}
       if(m.t==='join'&&!st.joined&&P2P.players.length>=LOBBY_MAX){try{conn.send(JSON.stringify({t:'full'}));setTimeout(()=>conn.close(),300)}catch(_){}return}
-      if(m.t==='ping'&&m.rtt>=0)ent.rtt=m.rtt;
+      if(m.t==='ping'){if(m.rtt>=0)ent.rtt=m.rtt;if(m.q&&typeof m.q==='object')ent.q={m:+m.q.m||0,j:+m.q.j||0,l:+m.q.l||0,n:+m.q.n||0,p:+m.q.p||0}}
       fromClient(cid,m,st)};
     conn.on('data',onData);
     conn.on('close',()=>{P2P.conns.delete(cid);if(st.joined)w.postMessage({leave:1,cid})});conn.on('error',()=>{});
@@ -3632,7 +3683,8 @@ function localSocket(){const cid=P2P.nextCid++,st={joined:false};
 function registerHost(slot,tries,keep){if(!P2P.isHost||!PeerC)return;slot=slot||1;tries=tries||0;const p=new PeerC(peerIdFor(slot),peerOpts());let opened=false;   // keep: the peer the players already use stays, this one is only the lobby name
   p.on('open',()=>{opened=true;if(!P2P.isHost){try{p.destroy()}catch(_){}return}if(keep){if(P2P.lobbyPeer){try{P2P.lobbyPeer.destroy()}catch(_){}}P2P.lobbyPeer=p}else{if(P2P.peer){try{P2P.peer.destroy()}catch(_){}}P2P.peer=p}P2P.slot=slot;P2P.state='up';bindPeer(p)});
   p.on('error',e=>{if(opened)return;try{p.destroy()}catch(_){}
-    if(e.type==='unavailable-id'){if(!keep&&joinInstead(slot))return;if(slot<LOBBY_SLOTS)registerHost(slot+1,0,keep);else if(game==='play')showToast('All game slots of this room are taken. Use another room name.','#ffc93c');return}
+    if(e.type==='unavailable-id'){if(keep&&tries<4){setTimeout(()=>registerHost(slot,tries+1,keep),700);return}   // after a host change the old host's lobby name is free a moment later
+      if(!keep&&joinInstead(slot))return;if(slot<LOBBY_SLOTS)registerHost(slot+1,0,keep);else if(game==='play')showToast('All game slots of this room are taken. Use another room name.','#ffc93c');return}
     if(tries<4&&P2P.isHost)setTimeout(()=>registerHost(slot,tries+1,keep),6000+tries*4000)})}
 // the lobby name is taken, so a game is running there (our own look missed it, or it started a moment ago): if we are still alone and just started, give up our empty world and join it instead of opening a second game
 function joinInstead(slot){if(!P2P.isHost||P2P.joinTried||MIG.active||[...P2P.conns.values()].some(c=>!c.local)||performance.now()-(P2P.startedAt||0)>30000)return false;
@@ -3695,8 +3747,9 @@ function onNet(m){lastNet=now();
     case 'succ':MIG.succ=Array.isArray(m.list)?m.list.slice(0,20):[];MIG.slot=+m.slot||1;standbyLink(MIG.succ);break;
     case 'ckpt':{if(!MIG.parts||MIG.parts.id!==m.id)MIG.parts={id:m.id,n:m.n,a:[],c:0};const P=MIG.parts;if(!P.a[m.i]){P.a[m.i]=m.d;P.c++}if(P.c===P.n){MIG.ck=P.a.join('');MIG.parts=null}break}
     case 'bye':hostLost();break;
+    case 'note':showToast(String(m.msg||'').slice(0,80),'#9be564');break;
     case 'welcome':
-      if(MIG.active){MIG.active=false;MIG.got=true;MIG.key=m.key||MIG.key;
+      if(MIG.active){MIG.active=false;MIG.got=true;MIG.key=m.key||MIG.key;if(P2P.lobbyInfo)P2P.lobbyInfo.host='';   // the new host's name is not known
         if(m.build===BUILD&&m.seed===WORLD_SEED&&role==='client'){lastNet=now();if(duel){duel=null;$('dbanner').hidden=true;$('duel').hidden=true;$('count').hidden=true;$('hud').hidden=false}pendingDuel=null;showToast('The host left. The game goes on.','#9be564');return}}   // the same world: no loading screen
       MIG.key=m.key||'';
       if(m.build!==BUILD||(m.cfg&&m.cfg!==CFGID)){const w=ws;role='solo';ws=null;try{w&&w.close()}catch(_){}p2pCleanup();
@@ -3745,7 +3798,7 @@ function becomeHost(){
   const name=($('name').value.trim()||'Player').slice(0,14);
   try{startWorker()}catch(e){MIG.active=false;netLost();return}
   P2P.isHost=true;P2P.hostName=name;if(MIG.ck)P2P.worker.postMessage({restore:MIG.ck});
-  const onConn=bindPeer(P2P.peer);for(const [conn,e] of MIG.in){try{conn.off('data',e.fn)}catch(_){}if(conn.open)onConn(conn,e.q)}MIG.in.clear();   // the players that were already linked to us come in at once, with what they sent
+  P2P.lastHandover=now();const onConn=bindPeer(P2P.peer);for(const [conn,e] of MIG.in){try{conn.off('data',e.fn)}catch(_){}if(conn.open)onConn(conn,e.q)}MIG.in.clear();   // the players that were already linked to us come in at once, with what they sent
   registerHost(1,0,true);attachSock(localSocket(),name,'',MIG.key)}
 function connectSucc(list,i,mine,t1,t0){
   if(!MIG.active)return;const peer=P2P.peer;if(performance.now()-t1>9000){migStep(list,i+1,mine,t0);return}
@@ -4437,7 +4490,7 @@ function drawMetrics(){if(role==='server')return;const on=SET.mfps||SET.mping||S
   if(SET.mmore&&TOUCH)l.push(VPDBG.replace(/ · /g,'\n'));
   if(SET.mmore)l.push('Players '+ents.length,'Res   '+Math.round(QS*100)+'%'+(SET.potato?' potato':''));
   metEl.textContent=l.filter(Boolean).join('\n');metEl.hidden=false}
-setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1){MET.sent=performance.now();netSend({t:'ping',c:MET.sent,rtt:MET.ping})}},2000);
+setInterval(()=>{if(role==='client'&&ws&&ws.readyState===1){MET.sent=performance.now();netSend({t:'ping',c:MET.sent,rtt:MET.ping,q:nqReport()})}},2000);
 /* activity counter (r66, r68): one anonymous heartbeat per open tab (random tab id, mode, humans in the lobby, host step time, ping) so the owner can see how many play and gets a mail when hosts struggle. The worker answers with the next interval. Not sent from localhost, test browsers or the Node server. */
 const HB={next:60,timer:0,key:''};
 function statsUrl(){return typeof window!=='undefined'&&window.SNACK_STATS_URL!==undefined?window.SNACK_STATS_URL:STATS_URL}
@@ -4552,6 +4605,8 @@ function dgSections(c){
   row('Long browser tasks',DG.longN?c.lng.length+' in the last 10 s, '+DG.longN+' in this session':(typeof PerformanceObserver!=='undefined'&&PerformanceObserver.supportedEntryTypes&&PerformanceObserver.supportedEntryTypes.includes('longtask')?'none':'not available in this browser'));
   if(c.heap)row('Page memory',Math.round(c.heap.usedJSHeapSize/1048576)+' MB of '+Math.round(c.heap.jsHeapSizeLimit/1048576)+' MB');
   L.push('');L.push('NETWORK');
+  {const q=nqReport(),sc=qScore(q);row('My connection (to Cloudflare)',q.n>=3?q.m+' ms median, jitter '+q.j+' ms, lost '+q.l+' %'+(q.p?', weak-PC penalty '+q.p:'')+(sc!=null?'  -> score '+Math.round(sc)+' (lower is better)':''):'measuring...')}
+  if(P2P.isHost&&P2P.conns.size>1){const a=[...P2P.conns.values()].filter(c=>c.conn&&c.st&&c.st.joined).map(c=>{const s=qScore(c.q);return s!=null?Math.round(s):'?'});if(a.length)row('Players, their score',a.join(', ')+(P2P.hvSince?'   (a host change is being prepared)':''))}
   if(!c.online)row('Mode',role==='solo'?'solo game (no network)':role);
   else{row('Mode',(P2P.isHost?'host':'client')+(P2P.slot||MIG.slot?' · lobby '+(P2P.isHost?P2P.slot:MIG.slot):'')+' · players '+(P2P.isHost?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length)));
     row('Ping avg / jitter',role==='client'&&!P2P.isHost?(c.pAvg?Math.round(c.pAvg)+' ms / '+Math.round(c.pJit)+' ms (now '+(MET.ping>=0?Math.round(MET.ping):'-')+' ms)':'-'):'(you are the host)');
@@ -4622,6 +4677,7 @@ if(role!=='server'){
   addEventListener('keydown',e=>{if(e.key==='F3'){e.preventDefault();dgToggle()}else if(e.key==='Escape'&&DG.open){e.preventDefault();e.stopImmediatePropagation();dgToggle(false)}},true)}
 /* ---------- device diagnostics upload (r72): only for devices the owner opted in with a link (?dev=NAME&dk=CODE, stored once in this browser).
    About once a minute of play a summary of the panel's numbers goes to the stats worker's database (no name, no IP), so the developer can read how the game runs on every device. ---------- */
+DG.ev=[];
 const DGU={cfg:null,sys:false,err:'',last:0,sent:0};
 try{const o=JSON.parse(localStorage.getItem('snackdown-diag')||'null');if(o&&o.dev&&o.dk)DGU.cfg=o}catch(_){}
 try{const q=new URLSearchParams(location.search),dk=q.get('dk'),dev=q.get('dev');if(dk&&dev){DGU.cfg={dev:dev.slice(0,20),dk:dk.slice(0,64)};localStorage.setItem('snackdown-diag',JSON.stringify(DGU.cfg));q.delete('dk');q.delete('dev');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}}catch(_){}
@@ -4637,7 +4693,7 @@ function dguSample(kind){const hz=HZM.hz;
     drawnOverScreen:!SET.vsync&&fastWanted(),hz:HZM.hz,
     hitch:{n:DG.hitchN-A.h0,causes,worst:hs.slice().sort((a,b)=>b.ms-a.ms).slice(0,3).map(h=>({at:hhms(h),ms:Math.round(h.ms),upd:r(h.upd),rnd:r(h.rnd),ents:h.ents,st:h.st,cause:dgCause(h).slice(0,90)}))},
     long:{n:DG.longN-A.l0,max:Math.round(Math.max(0,...lt.map(l=>l.dur)))},loaf,sub,
-    qs:r(QS),ents:ents.length,st:game+(duel?'+duel':''),role:P2P.isHost?'host':role,players:P2P.isHost?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length),
+    qs:r(QS),nq:nqReport(),ev:DG.ev.splice(0),ents:ents.length,st:game+(duel?'+duel':''),role:P2P.isHost?'host':role,players:P2P.isHost?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length),
     ping:P2P.isHost?-1:(c.pAvg?Math.round(c.pAvg):-1),jit:P2P.isHost?-1:Math.round(c.pJit),gap95:c.g.length>=10?Math.round(dgPct(c.g,.95)):-1,snaps:r(DG.rate.sn),rxkb:Math.round(DG.rate.rkb),txkb:Math.round(DG.rate.tkb),hostMs:c.hostMs>=0?r(c.hostMs):-1,
     heap:A.heapMax?Math.round(A.heapMax):-1,heapMin:A.heapMax?Math.round(A.heapMin):-1,verdict:c.verdict.slice(0,200),diag:c.D.slice(0,6).map(d=>[d.sev,d.txt.slice(0,220)])}}
 function dguSend(kind,leaving){const u=dguUrl();if(!DGU.cfg||!u||role==='server')return;

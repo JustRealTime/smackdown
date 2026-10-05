@@ -191,6 +191,7 @@ network: {
   dataRadius: 1150,          // snacks, boxes and orbs further away than this are not sent
   updatesPerSecond: 20,      // how often the host sends the world (the game itself runs at 60). Lower = less data
   hostSilence: 1.2,          // seconds without any word from the host before the next player takes over (lower = faster change, but a short hiccup of the host can trigger it)
+  handover: { enabled: true, minScoreGap: 60, minHostScore: 100, sustainSeconds: 15, cooldownSeconds: 180 },   // the host gives the game to a player with a much better connection: when its own score (median delay + 2 x jitter + 4 x lost % + 60 for a weak PC) is at least minHostScore and at least minScoreGap worse than the best player's, for sustainSeconds in a row; at most one change per cooldownSeconds
   checkpointsPerSecond: 2,   // how often the host hands the next host a copy of the game (about 90 KB each with 12 players). With more than 6 players every other time
 },
 
