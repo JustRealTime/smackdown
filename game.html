@@ -453,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r75</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r76</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -607,7 +607,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r75';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r76';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -1151,7 +1151,9 @@ function drawEatFood(e,t){
 const UNLOCKS=[[10,'shoulder pads'],[15,'muscles'],[25,'chest plate'],[40,'big muscles'],[50,'helmet'],[70,'gold armor'],[85,'cape'],[100,'crown'],[125,'blue aura'],[150,'flames'],[200,'wings'],[300,'rainbow aura'],[350,'ruby armor and star trail'],[400,'violet cape'],[450,'halo'],[500,'sapphire armor'],[600,'lightning'],[750,'obsidian armor and dark cape'],[800,'orbiting orbs'],[1000,'diamond armor and nebula'],[1500,'cosmic armor']];
 const MATS=[{a:'#c3ccd6',h:'#eef2f6',l:'#8e99a6'},{a:GOLD,h:'#fff0a8',l:'#d99a1a'},{a:'#e8475f',h:'#ffb3bd',l:'#a01e34'},{a:'#3d7dd8',h:'#a9ccff',l:'#1f4a99'},{a:'#3a3550',h:'#9a90c4',l:'#1a1626'},{a:'#8ee9ff',h:'#ffffff',l:'#3fb6d6'},{a:'#9b5de5',h:'#ffd6ff',l:'#5a2a9a'}];
 const CAPES=['#d62839','#7b2fbf','#231a4e'];
-function lookOf(lvl){const l=Math.floor(lvl);return{m:l>=40?2:l>=15?1:0,pads:l>=10,chest:l>=25,helmet:l>=50,mat:l>=1500?6:l>=1000?5:l>=750?4:l>=500?3:l>=350?2:l>=70?1:0,capeC:l>=750?2:l>=400?1:0,cape:l>=85,crown:l>=100,flames:l>=150,wings:l>=200}}
+const LOOKS=new Map();   // one shared look object per combination of armour thresholds (it was a new object per entity and frame)
+function lookOf(lvl){const l=Math.floor(lvl),m=l>=40?2:l>=15?1:0,mat=l>=1500?6:l>=1000?5:l>=750?4:l>=500?3:l>=350?2:l>=70?1:0,capeC=l>=750?2:l>=400?1:0,sig=m|(l>=10?4:0)|(l>=25?8:0)|(l>=50?16:0)|(mat<<5)|(capeC<<8)|(l>=85?1024:0)|(l>=100?2048:0)|(l>=150?4096:0)|(l>=200?8192:0);
+  let o=LOOKS.get(sig);if(!o){o={m,pads:l>=10,chest:l>=25,helmet:l>=50,mat,capeC,cape:l>=85,crown:l>=100,flames:l>=150,wings:l>=200};LOOKS.set(sig,o)}return o}
 const SKINS=['#ffd7b0','#f1c27d','#e0ac69','#c68642','#8d5524','#ffe0c7','#7bd389','#6ec3ff','#b48cff','#ff9ecb','#c9d3dc','#f4c542','#e8684a'];   // the last seven are fantasy skins: slime, ice, ghost, bubblegum, robot, gold, imp
 const SHIRTS=['#ff6b3d','#3db5ff','#9b5de5','#2ec4b6','#ff4f9a','#ffd23f','#5a8dee','#06d6a0','#ff9f1c','#7bdff2','#d00000','#2b2140','#f7f7f7'];
 const HAIRS=['#3b2417','#1f1a17','#e2b33c','#b5462b','#7a4a2a','#f5f0e6','#4b3b8f','#ff4f9a','#2ec4b6','#00e5ff','#7cff6b','#ff2e2e','#ffffff'];
@@ -1175,11 +1177,19 @@ const LNAME={band:'headband',cat:'cat ears',phones:'headphones',bunny:'bunny ear
   raglan:'baseball tee',tiedye:'tie-dye',ribs:'skeleton',fade:'gradient',longskirt:'long skirt',track:'track pants',swim:'swim trunks',flare:'flares',belt:'belted',stripe:'stripes',check:'checks'};
 const lname=v=>LNAME[v]||v;
 let SPRN=0;const SPR={},GW=20,GH=26,OX=2,OY=4,S=3,FY=24;
-function sprite(e,look,dir,frame){
+const SPQ=[];let SPQi=0,FQi=0,FIDS=null,CW=null;   // things to build ahead of time (see warmStep)
+// the picture of an entity is remembered on the entity (per look, direction and step), so drawing needs no key string any more (r76)
+// the character pictures are cells of a few big canvases (atlas) instead of one canvas each: a canvas is an object the browser's garbage collector has to trace, and 1400 of them made every collection slow (r76)
+const ATW=1000,ATH=1040,ATC=ATW/GW|0,ATR=ATH/GH|0,ATL={};let SCR=null,SCRG=null;
+function atlasCell(kind){let A=ATL[kind];if(!A||A.n>=ATC*ATR){const c=document.createElement('canvas');c.width=ATW;c.height=ATH;A=ATL[kind]={c,g:c.getContext('2d'),n:0}}const i=A.n++;return{c:A.c,g:A.g,x:(i%ATC)*GW,y:Math.floor(i/ATC)*GH}}
+function drawSpr(h,x,y,w,hh,g2){(g2||ctx).drawImage(h.c,h.x,h.y,GW,GH,x,y,w,hh)}
+function sprite(e,look,dir,frame){let m=e._sm;if(!m||m.look!==look){m=e._sm={look,d:{}}}const a=m.d[dir]||(m.d[dir]=[]);let h=a[frame];if(!h)h=a[frame]=spriteBuild(e,look,dir,frame);return h}
+function spriteBuild(e,look,dir,frame){
   const key=[look.m,look.pads,look.chest,look.helmet,look.mat,look.capeC,look.cape,look.crown,dir,frame,e.skin,e.shirt,e.hair,e.pants,e.hs,e.acc,e.acol,e.sty,e.pst,e.shorts,e.shoes,e.face,e.fcol,e.ex,e.ecol].join('|');
   if(SPR[key])return SPR[key];
-  if(++SPRN>3000){for(const k in SPR)delete SPR[k];SPRN=0}   // custom colours can make very many variants
-  const c=document.createElement('canvas');c.width=GW;c.height=GH;const g=c.getContext('2d');
+  if(++SPRN>3000){for(const k in SPR)delete SPR[k];SPRN=0;ATL.s=null;TINT.clear();ATL.t=null}   // custom colours can make very many variants
+  if(!SCR){SCR=document.createElement('canvas');SCR.width=GW;SCR.height=GH;SCRG=SCR.getContext('2d',{willReadFrequently:true})}
+  const c=SCR,g=SCRG;g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,GW,GH);   // one scratch canvas; the finished picture is copied into the atlas
   const P=(x,y,w,h,col)=>{if(w<=0||h<=0)return;g.fillStyle=col;g.fillRect(x+OX,y+OY,w,h)};
   const MT=MATS[look.mat],arm=MT.a,armHi=MT.h,armLo=MT.l,CAPE=CAPES[look.capeC];
   const shoe=e.shoes||SHOE,m=look.m,aw=m>=1?3:2,body=look.chest?arm:e.shirt,f1=frame===1,f2=frame===2;
@@ -1482,9 +1492,8 @@ if(e.sty==='stripe'){P(x,10,w,1,shade(e.shirt,.3));P(x,12,w,1,shade(e.shirt,.3))
     if(d[i+3]>0){o[i]=d[i];o[i+1]=d[i+1];o[i+2]=d[i+2];o[i+3]=255}
     else if(a(x-1,y)||a(x+1,y)||a(x,y-1)||a(x,y+1)){o[i]=ink[0];o[i+1]=ink[1];o[i+2]=ink[2];o[i+3]=255}}
   g.putImageData(out,0,0);
-  let res=c;
-  if(dir==='left'){res=document.createElement('canvas');res.width=GW;res.height=GH;const g2=res.getContext('2d');g2.translate(GW,0);g2.scale(-1,1);g2.drawImage(c,0,0)}
-  SPR[key]=res;return res;}
+  const cell=atlasCell('s'),g2=cell.g;if(dir==='left'){g2.save();g2.translate(cell.x+GW,cell.y);g2.scale(-1,1);g2.drawImage(c,0,0);g2.restore()}else g2.drawImage(c,cell.x,cell.y);
+  const res={c:cell.c,x:cell.x,y:cell.y};SPR[key]=res;return res;}
 
 /* ---------- rank titles, perk trees & items ---------- */
 const RANKS=[[1,'Rookie'],[10,'Bronze'],[25,'Silver'],[40,'Gold'],[60,'Platinum'],[80,'Diamond'],[100,'Legend'],[150,'Mythic'],[200,'Immortal'],[300,'Godlike'],[400,'Celestial'],[600,'Cosmic'],[800,'Eternal'],[1000,'Transcendent'],[1500,'Omnipotent']];
@@ -1629,7 +1638,7 @@ function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
     skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(CFG.players.botSkill[0],CFG.players.botSkill[1]),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),pst:pick(PSTY),shoes:pick(SHOECOLS),face:pick(FACES),fcol:pick(ACOLS),ex:pick(EXTRAS),ecol:pick(ACOLS),
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
     ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(CFG.players.botAggression[0],CFG.players.botAggression[1]),brave:rand(CFG.players.botBravery[0],CFG.players.botBravery[1]),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0,itemAt:0}};
-  calcStats(e);return e}
+  calcStats(e);if(role!=='server')spriteWarm(e);return e}
 function botLevel(){const bl=CFG.players.botLevels,tot=bl.reduce((a,b)=>a+(+b[0]||0),0);let r=Math.random()*tot;   // [chance, lowest, highest] per group
   for(const b of bl){r-=+b[0]||0;if(r<=0)return rand(+b[1]||1,Math.max(+b[1]||1,+b[2]||1))}return 1}
 function spawnBot(t){const used=new Set(ents.map(e=>e.name.replace(/ \(BOT\)$/,'')));const free=NAMES.filter(n=>!used.has(n));
@@ -1844,7 +1853,9 @@ const synth=(()=>{
     for(let i=0;i<notes.length;i++){const n=notes[i];if(ch[n.c].prog!==30||n.skip)continue;const sib=[];
       for(let j=i+1;j<notes.length&&notes[j].t-n.t<.004;j++){const m=notes[j];if(m.c===n.c&&(m.p===n.p+7||m.p===n.p+12))sib.push(m)}
       if(sib.length===2&&sib[0].p!==sib[1].p){n.pw=1;for(const m of sib)m.skip=1}}
-    return{notes,ch,len:len||last}}
+    const n=notes.length,aT=new Float64Array(n),aD=new Float64Array(n),aR=new Float64Array(n),aV=new Float64Array(n),aP=new Uint8Array(n),aC=new Uint8Array(n),aF=new Uint8Array(n);   // notes as typed arrays: t, duration, release, velocity, pitch, channel, flags (1 = skip, 2 = power chord)
+    for(let i=0;i<n;i++){const o=notes[i];aT[i]=o.t;aD[i]=o.d;aR[i]=o.r;aV[i]=o.v;aP[i]=o.p;aC[i]=o.c;aF[i]=(o.skip?1:0)|(o.pw?2:0)}
+    return{n,nt:aT,nd:aD,nr:aR,nv:aV,np:aP,nc:aC,nf:aF,ch,len:len||last}}
   // waves, noise and a soft room, made once per audio context
   const KITS=new WeakMap(),kr=p=>{try{if(p.automationRate)p.automationRate='k-rate'}catch(_){}};   // k-rate: filters and pitches change per block, not per sample (much cheaper)
   function kit(A){let k=KITS.get(A);if(k)return k;
@@ -1870,7 +1881,7 @@ const synth=(()=>{
     if(g===109||g===111)return['reed',.45,.25,8];if(g===110)return['solo',.5,.3,14];if(g<=114)return['bell',.65,.3,0];if(g<=117)return['timp',.9,.25,0];return['bell',.5,.3,0]}
   // one instance of a song: every channel gets volume, pan, a reverb send, a pitch-bend + vibrato input and (guitars) an amp
   function start(A,S,dst,verb,t0){const K=kit(A),F=A.createGain(),W=A.createGain();F.connect(dst);if(verb)W.connect(verb);const C=[],stops=[];
-    for(let c=0;c<16;c++){const s=S.ch[c];if(!S.notes.some(n=>n.c===c)){C.push(null);continue}
+    for(let c=0;c<16;c++){const s=S.ch[c];let has=false;for(let i=0;i<S.n;i++)if(S.nc[i]===c){has=true;break}if(!has){C.push(null);continue}
       const P=patch(s.prog,c),x={k:P[0],lv:P[1],g:s.prog},vol=A.createGain();vol.gain.value=0;
       const sch=(L,f)=>{for(const [t,v] of L)f(t,v)},ve=[...s.vol.map(e=>[e[0],0,e[1]]),...s.ex.map(e=>[e[0],1,e[1]])].sort((a,b)=>a[0]-b[0]);let cv=100/127,ce=1;
       for(const e of ve){if(e[1])ce=e[2];else cv=e[2];vol.gain.setValueAtTime(cv*ce,Math.max(0,t0+e[0]))}
@@ -1908,11 +1919,19 @@ const synth=(()=>{
     else if(p===65||p===66){tn(p===65?430:330,0,a*.3,.22,'triangle');nz(4200,'bandpass',1,a*.2,.03)}
     else if(p===80||p===81){tn(4200,0,a*.1,p===81?1:.12)}
     else nz(3000,'bandpass',.8,a*.18,.05)}
+  // the MIDI file is read in a worker (on a slow PC it took 50 ms on the page when a new song started)
+  let MW=null,MWid=0;const MWp=new Map();
+  function parseAsync(buf){const copy=buf.slice(0);if(typeof Worker==='undefined')return Promise.resolve(parse(copy));
+    try{if(!MW){MW=new Worker(URL.createObjectURL(new Blob(['onmessage=e=>{let r;try{r={id:e.data.id,S:('+parse.toString()+')(e.data.buf)}}catch(x){r={id:e.data.id,err:String(x&&x.message||x)}}const S=r.S;postMessage(r,S?[S.nt.buffer,S.nd.buffer,S.nr.buffer,S.nv.buffer,S.np.buffer,S.nc.buffer,S.nf.buffer]:[])}'],{type:'text/javascript'})));
+      MW.onmessage=e=>{const p=MWp.get(e.data.id);if(!p)return;MWp.delete(e.data.id);if(e.data.err)p[1](new Error(e.data.err));else p[0](e.data.S)};
+      MW.onerror=()=>{for(const p of MWp.values())p[2]();MWp.clear();MW=null}}
+      return new Promise((ok,no)=>{const id=++MWid;MWp.set(id,[ok,no,()=>{try{ok(parse(copy))}catch(e){no(e)}}]);MW.postMessage({id,buf},[buf])})}catch(_){return Promise.resolve(parse(copy))}}
+  let MLITE=false;
   const DRB=new Map();
   async function prep(A,S){await SFK.load();
-    if(SFK.ok){const keys={};for(const n of S.notes)(keys[n.c]=keys[n.c]||new Set()).add(n.p);
-      for(const c in keys){const R=SFK.regions(S.ch[c].prog,+c===9);if(!R)continue;for(const g of R)for(const k of keys[c])if(k>=g[0]&&k<=g[1]){SFK.buf(g[4]);break}}return}
-    const sr=A.sampleRate,need=[...new Set(S.notes.filter(n=>n.c===9).map(n=>n.p))].filter(p=>!DRB.has(sr+':'+p));
+    if(SFK.ok){const keys={};for(let i=0;i<S.n;i++)(keys[S.nc[i]]=keys[S.nc[i]]||new Set()).add(S.np[i]);
+      let t0=performance.now();for(const c in keys){const R=SFK.regions(S.ch[c].prog,+c===9);if(!R)continue;for(const g of R)for(const k of keys[c])if(k>=g[0]&&k<=g[1]){SFK.buf(g[4]);if(performance.now()-t0>4){await new Promise(r=>setTimeout(r,0));t0=performance.now()}break}}return}   // decoding in slices of about 4 ms: one big block stalled the page when a new song started
+    const sr=A.sampleRate,need=[...new Set([...S.np.subarray(0,S.n)].filter((p,i)=>S.nc[i]===9))].filter(p=>!DRB.has(sr+':'+p));
     await Promise.all(need.map(async p=>{const L=[49,57,52,81].includes(p)?2.4:[51,59,53,46].includes(p)?1.3:.7,oc=new OfflineAudioContext(1,Math.ceil(sr*L),sr);
       drumSynth(oc,kit(oc),{lv:1,in:oc.destination},0,p,1);DRB.set(sr+':'+p,await oc.startRendering())}))}
   function drum(A,x,t,p,v){const b=DRB.get(A.sampleRate+':'+p);if(!b)return;const s=A.createBufferSource(),g=A.createGain();s.buffer=b;g.gain.value=x.lv*(.15+.85*v*v);s.connect(g);g.connect(x.in);s.start(t)}
@@ -1924,8 +1943,8 @@ const synth=(()=>{
   const MODF=(sc,key,vel)=>{const x=(sc&127)===2?vel:key,ty=(sc>>10)&63,v=sc&256?127-x:x;
     const y=ty===1?(v>=127?1:v<=0?0:-.41667*Math.log10((127-v)/127)):ty===2?(v<=0?0:1+.41667*Math.log10(v/127)):ty===3?(v>=64?1:0):v/127;return sc&512?2*y-1:y};
   const HZ=c=>8.176*TC(Math.max(1500,Math.min(13500,c)));
-  function sfNote(A,x,t,key,v,r,drum){const vel=Math.max(1,Math.round(v*127));let end=t;
-    for(const g of x.sf){if(key<g[0]||key>g[1]||vel<g[2]||vel>g[3]||(LITE&&g[9]>150))continue;
+  function sfNote(A,x,t,key,v,r,drum){const vel=Math.max(1,Math.round(v*127));let end=t;const LT=LITE||MLITE;
+    for(const g of x.sf){if(key<g[0]||key>g[1]||vel<g[2]||vel>g[3]||(LT&&g[9]>150))continue;
       const md={48:0,8:0,9:0,11:0};for(const m of g[33]){let a=m[2]*MODF(m[0],key,vel);if(m[3])a*=MODF(m[3],key,vel);md[m[1]]+=a}
       const ab=SFK.buf(g[4]),rate=ab.sampleRate,src=A.createBufferSource(),gn=A.createGain(),gp=gn.gain;src.buffer=ab;
       src.detune.value=(key-g[5])*g[19]+g[6];if(x.vib)x.mod.connect(src.detune);
@@ -1937,12 +1956,12 @@ const synth=(()=>{
       let stop;if(drum&&!lp)stop=t+(ab.length-(g[24]||0))/rate+.05;
       else{const rr=Math.max(r,t1+att+.003);gp.setTargetAtTime(0,rr,tau);stop=rr+Math.min(tau*7,7)+.05;if(!lp)stop=Math.min(stop,t+(ab.length-(g[24]||0))/rate+.05)}
       let node=src;const fc=g[10]+md[8],mef=g[25]+md[11];
-      if(!NOFILT&&(LITE?fc<9500||mef>2200:fc<13300||mef>150)){const f=A.createBiquadFilter(),fr=f.frequency;f.type='lowpass';kr(fr);f.Q.value=Math.max(0,(g[11]+md[9])/10);fr.setValueAtTime(HZ(fc),t);
+      if(!NOFILT&&(LT?fc<9500||mef>2200:fc<13300||mef>150)){const f=A.createBiquadFilter(),fr=f.frequency;f.type='lowpass';kr(fr);f.Q.value=Math.max(0,(g[11]+md[9])/10);fr.setValueAtTime(HZ(fc),t);
         if(mef>150){const a=Math.max(.004,TC(g[26])),h=TC(g[27])*KOF((60-key)*g[31]),d=TC(g[28])*KOF((60-key)*g[32]),su=Math.max(0,Math.min(1,1-g[29]/1000)),ta=t1+a;   // the filter opens along the modulation envelope, then closes again
           fr.setValueAtTime(HZ(fc),t1);fr.exponentialRampToValueAtTime(HZ(fc+mef),ta);if(su<1){fr.setValueAtTime(HZ(fc+mef),ta+h);fr.exponentialRampToValueAtTime(HZ(fc+mef*su),ta+h+Math.max(.01,d*(1-su)))}}
         src.connect(f);node=f}
       node.connect(gn);
-      const q=LITE?0:Math.round(Math.max(-1,Math.min(1,g[9]/500))*4)/4;let pb=x.pan[q];
+      const q=LT?0:Math.round(Math.max(-1,Math.min(1,g[9]/500))*4)/4;let pb=x.pan[q];
       if(!pb){if(q&&A.createStereoPanner){pb=A.createStereoPanner();pb.pan.value=q;pb.connect(x.in)}else pb=x.in;x.pan[q]=pb}
       gn.connect(pb);
       if(g[18]){const o=x.ex&&x.ex[g[18]];if(o&&o.t<=t){o.g.cancelScheduledValues(t);o.g.setTargetAtTime(0,t,.006);try{o.s.stop(t+.05)}catch(_){}}(x.ex=x.ex||{})[g[18]]={g:gp,s:src,t}}
@@ -1995,7 +2014,7 @@ const synth=(()=>{
     else if(k==='lead'){const b=flt('lowpass',2400+v*2600,1.4);if(x.g===80)osc('square',f,0,b);else{osc('sawtooth',f,-7,b);osc('sawtooth',f,7,b)}env(.008,a*.9,.3,.85,.08)}
     else{osc(K.mute,f,-12);osc(K.mute,f,12);env(.5,a*.9,.8,.9,.9)}   // pads
     g.connect(x.in);for(const o of src){o.start(t);o.stop(Math.min(end,o.end||end))}return end}
-  return{parse,start,note,patch,kit,prep}})();
+  return{parse,parseAsync,start,note,patch,kit,prep,setLite:v=>{MLITE=!!v},get lite(){return MLITE}}})();
 
 const music=(()=>{
   // every moment of the game has its own songs; menu songs take turns, the others are picked at random
@@ -2010,9 +2029,9 @@ const music=(()=>{
     duel_moonlit:'music/duel_moonlit.mid',duel_fog:'music/duel_fog.mid',duel_heist:'music/duel_heist.mid',dead_alley:'music/dead_alley.mid'};
   const DB={nocturne:5.6,menu_adagio:4.1,menu_dream:8.9,menu_temple:7.8,play_coast:-2.5,play_skyline:-7,play_tropic:1.9,play_twilight:5.7,play_runway:1.2,play_sunrise:0.5,play_harbor:-3.6,menu_welcome:2,high_circus:-0.8,high_requiem:-2.9,high_carnival:-3.7,duel_moonlit:3.3,duel_fog:-0.3,duel_heist:1.8,dead_alley:7.8};   // loudness correction per song in dB (measured offline with tools: mix render)
   const MASTER=.38,LOOK=.5,XFADE=1,FADEIN=.5;   // a song change: the old song fades out for XFADE seconds, then the next fades in for FADEIN seconds
-  let pendT=0,on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
+  let warmBusy=false,warmed={},warmT=0,pendT=0,on=true,unlocked=false,mode='',A=null,mg=null,verb=null,cur=null,old=[],duckT=0,turn={},last={},pos={},cache={},waiting=false,gen=0;
   try{on=localStorage.getItem('snackdown-music')!=='0'}catch(_){}
-  const load=k=>cache[k]||(cache[k]=fetch(FILES[k]).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>synth.parse(b)).catch(e=>{logErr(e,'music '+k);return null}));
+  const load=k=>cache[k]||(cache[k]=fetch(FILES[k]).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(b=>synth.parseAsync(b)).catch(e=>{logErr(e,'music '+k);return null}));
   function setup(){if(mg)return true;A=sfx.ctx();if(!A)return false;mg=A.createGain();mg.gain.value=0;const cp=A.createDynamicsCompressor();cp.threshold.value=-10;cp.ratio.value=3;mg.connect(cp);
     const lim=A.createDynamicsCompressor();lim.threshold.value=-4;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.002;lim.release.value=.1;cp.connect(lim);lim.connect(A.destination);   // a limiter, so that loud moments (crash cymbals, slap) never clip
     
@@ -2025,12 +2044,12 @@ const music=(()=>{
   function play(k,at,m,fadeIn,when){const g=++gen;load(k).then(S=>S&&synth.prep(A,S).then(()=>S)).then(S=>{if(!S||g!==gen||!mg)return;last[m]=k;
     const t0=Math.max(when||0,A.currentTime+.08)-(at||0),I=synth.start(A,S,mg,verb,t0),lv=Math.pow(10,(DB[k]||0)/20);
     for(const n of[I.F.gain,I.W.gain]){n.setValueAtTime(0,A.currentTime);n.linearRampToValueAtTime(lv,A.currentTime+(fadeIn||.05))}
-    let i=0;while(i<S.notes.length&&S.notes[i].t<(at||0)-.01)i++;cur={k,S,I,i,t0,m,lv};pendT=0;
+    let i=0;while(i<S.n&&S.nt[i]<(at||0)-.01)i++;cur={k,S,I,i,t0,m,lv};pendT=0;
     if(at>0){const w=t0+at;let c=0;   // carrying on in the middle of a song: notes that were still sounding at that point (pads, held chords, bass) start now for the rest of their length
-      for(let j=i-1;j>=0&&c<64;j--){const n=S.notes[j];if(n.t+n.d<at-.0)continue;if(at-n.t>30)break;const x=I.C[n.c],rest=n.t+n.d-at;if(!x||(n.skip&&!x.sf)||rest<.25||n.t>at-.05)continue;c++;synth.note(A,x,w,n.p,n.v,t0+n.r,rest,x.sf?0:n.pw)}}})}
-  function pump(){if(!cur||!mg)return;const now=A.currentTime,N=cur.S.notes,lim=performance.now()+6;   // called every 30 ms; a run that has used 6 ms stops (the rest follows 30 ms later) as long as the next note is not due within 150 ms
-    while(cur.i<N.length&&cur.t0+N[cur.i].t<now+LOOK){const n=N[cur.i++],x=cur.I.C[n.c];if(x&&(!n.skip||x.sf)&&cur.t0+n.t>=now-.05)synth.note(A,x,cur.t0+n.t,n.p,n.v,cur.t0+n.r,n.d,x.sf?0:n.pw);if(performance.now()>lim&&cur.i<N.length&&cur.t0+N[cur.i].t>now+.15)break}
-    if(cur.i>=N.length&&now+LOOK>=cur.t0+cur.S.len){const s=cur,m=s.m;   // the song is over: loop it (one song in this mode) or go on with the next
+      for(let j=i-1;j>=0&&c<64;j--){const nt=S.nt[j],nd=S.nd[j];if(nt+nd<at-.0)continue;if(at-nt>30)break;const x=I.C[S.nc[j]],rest=nt+nd-at,fl=S.nf[j];if(!x||((fl&1)&&!x.sf)||rest<.25||nt>at-.05)continue;c++;synth.note(A,x,w,S.np[j],S.nv[j],t0+S.nr[j],rest,x.sf?0:(fl>>1))}}})}
+  function pump(){if(!cur||!mg)return;const now=A.currentTime,S=cur.S,N=S.n,lim=performance.now()+6;   // called every 30 ms; a run that has used 6 ms stops (the rest follows 30 ms later) as long as the next note is not due within 150 ms
+    while(cur.i<N&&cur.t0+S.nt[cur.i]<now+LOOK){const i=cur.i++,x=cur.I.C[S.nc[i]],fl=S.nf[i];if(x&&(!(fl&1)||x.sf)&&cur.t0+S.nt[i]>=now-.05)synth.note(A,x,cur.t0+S.nt[i],S.np[i],S.nv[i],cur.t0+S.nr[i],S.nd[i],x.sf?0:(fl>>1));if(performance.now()>lim&&cur.i<N&&cur.t0+S.nt[cur.i]>now+.15)break}
+    if(cur.i>=N&&now+LOOK>=cur.t0+cur.S.len){const s=cur,m=s.m;   // the song is over: loop it (one song in this mode) or go on with the next
       if(MODES[m].length===1){const I=synth.start(A,s.S,mg,verb,s.t0+s.S.len);for(const n of[I.F.gain,I.W.gain])n.value=s.lv;old.push({I:s.I,dead:s.t0+s.S.len+6});cur={...s,I,i:0,t0:s.t0+s.S.len}}
       else{old.push({I:s.I,dead:s.t0+s.S.len+6});cur=null;play(pick(m),0,m,.05,s.t0+s.S.len+.6)}}
     old=old.filter(s=>{if(now<s.dead)return true;for(const st of s.I.stops)try{st.stop()}catch(_){}try{s.I.F.disconnect();s.I.W.disconnect()}catch(_){}return false})}
@@ -2043,8 +2062,10 @@ const music=(()=>{
     setTimeout(()=>{if(g===gen){if(back)delete pos[m];play(k,back?back.at:0,m,prev?FADEIN:.8)}},prev?XFADE*1000:0)}
   const api={
     get on(){return on},
+    warm(){if(!unlocked||!A||warmBusy||LITE)return;warmBusy=true;const list=[...MODES.duel,...MODES.dead,...MODES.high].filter(k=>!warmed[k]);
+      (async()=>{for(const k of list){if(!on||document.hidden||!unlocked)break;try{const S=await load(k);if(S)await synth.prep(A,S)}catch(_){}warmed[k]=1;await new Promise(r=>setTimeout(r,1500))}warmBusy=false})()},
     unlock(){if(unlocked)return;if(!setup())return;unlocked=true;setInterval(()=>{const t0=performance.now();pump();DG.tm('musicPump',t0)},30);const m=mode;mode='';api.mode(m||'menu')},
-    mode(m){if(m===mode)return;const pm=mode;mode=m;if(!unlocked)return;
+    mode(m){if(m===mode)return;const pm=mode;mode=m;if(!unlocked)return;if(m==='play'&&!warmT)warmT=setTimeout(()=>api.warm(),8000);
       if(cur&&MODES[m]&&MODES[m].includes(cur.k)&&pm!=='settings'&&m!=='settings'){cur.m=m;return}   // the same songs (king and high level): keep playing
       change(m)},
     toggle(){on=!on;try{localStorage.setItem('snackdown-music',on?'1':'0')}catch(_){}const m=mode;mode='';if(on)api.mode(m);else{if(cur){fade(cur,.6);cur=null}gen++;mode=m}return on},
@@ -2225,7 +2246,7 @@ $('cprev').addEventListener('click',e=>{const b=e.target.closest('[data-dir]');i
 $('clevel').addEventListener('input',e=>{const v=+e.target.value;   // sliding past a level that unlocks armour etc. rings
   if(UNLOCKS.some(([l])=>(l>cLvl&&l<=v)||(l>v&&l<=cLvl)))sfx.uiShing();else sfx.uiSlide(Math.log(v)/Math.log(1000));cLvl=v;$('clevelv').textContent=cLvl});
 (function cloop(){if(!$('custom').hidden){const c=$('ccanvas'),g=c.getContext('2d');g.clearRect(0,0,240,300);g.imageSmoothingEnabled=false;
-    const fr=1+Math.floor(performance.now()/260)%2;g.drawImage(sprite(Object.assign({},LOOK),lookOf(cLvl),cDir,fr),40,50,160,208);}
+    const fr=1+Math.floor(performance.now()/260)%2;drawSpr(sprite(Object.assign({},LOOK),lookOf(cLvl),cDir,fr),40,50,160,208,g);}
   requestAnimationFrame(cloop)})();
 addEventListener('keydown',e=>{if(!$('custom').hidden&&e.key==='Escape'){closeCustom();sfx.uiClose()}});
 /* ---------- how to play: short animated demos drawn with the game's own sprites ---------- */
@@ -3446,11 +3467,27 @@ function resetSoloWorld(){
   for(let i=0;i<FOOD_OUT;i++)spawnFood(false);for(let i=0;i<FOOD_IN;i++)spawnFood(true);
   for(let i=0;i<BOX_OUT;i++)spawnBox(false);for(let i=0;i<BOX_IN;i++)spawnBox(true);for(let i=0;i<WATER_BOX;i++)spawnWaterBox();
   {const t=now();for(let i=0;i<BOTS;i++)spawnBot(t)}}
+function spriteWarm(e){if(role==='server')return;for(const d of ['down','up','left','right'])for(let f=0;f<3;f++)SPQ.push(e,d,f)}   // 12 small pictures, one slice per frame
+function chunkWarm(ms){if(chunkEpoch!==worldEpoch||!(W>0))return;
+  if(!CW){const v=toWorld(0,0),v2=toWorld(W,H),c0=Math.max(0,Math.floor(v.x/CH)-1),c1=Math.min(WORLD/CH|0,Math.floor(v2.x/CH)+1),d0=Math.max(0,Math.floor(v.y/CH)-1),d1=Math.min(WORLD/CH|0,Math.floor(v2.y/CH)+1);
+    for(let ci=c0;ci<=c1&&!CW;ci++)for(let cj=d0;cj<=d1;cj++){if(ci*CH>=WORLD||cj*CH>=WORLD||chunks.has(ci*1000+cj))continue;const c=document.createElement('canvas');c.width=c.height=CH;const g=c.getContext('2d');g.translate(-ci*CH,-cj*CH);CW={ci,cj,c,g,col:0,ep:worldEpoch};break}
+    if(!CW)return}
+  if(CW.ep!==worldEpoch){CW=null;return}
+  const t0=performance.now(),{ci,cj,c,g}=CW,main=ctx,i0=ci*CH/GT,cols=CH/GT;ctx=g;
+  try{do{paintTiles(i0+CW.col,i0+CW.col,cj*CH/GT,(cj+1)*CH/GT-1);CW.col++}while(CW.col<cols&&performance.now()-t0<ms)}finally{ctx=main}   // one column of tiles at a time
+  if(CW.col>=cols){const key=ci*1000+cj;if(!chunks.has(key)){chunks.set(key,c);if(chunks.size>72)chunks.delete(chunks.keys().next().value)}CW=null}}
+function warmStep(ms){if(role==='server')return;const t0=performance.now();
+  while(SPQi+2<SPQ.length&&performance.now()-t0<ms){const e=SPQ[SPQi++],d=SPQ[SPQi++],f=SPQ[SPQi++];if(!e.gone&&e.lvl>0)sprite(e,lookOf(e.lvl),d,f)}
+  if(SPQi+2>=SPQ.length){SPQ.length=0;SPQi=0}
+  if(performance.now()-t0<ms&&game==='play')chunkWarm(Math.max(1,ms-(performance.now()-t0)))}
+// the snack pictures are made while the menu is open (one every 60 ms): a picture takes longer than a frame has to spare
+function foodWarmMenu(){if(role==='server')return;if(!FIDS)FIDS=Object.keys(FOOD);if(FQi<FIDS.length&&game!=='play')foodImg(FIDS[FQi++]);if(FQi<FIDS.length)setTimeout(foodWarmMenu,60)}
+if(role!=='server')setTimeout(foodWarmMenu,2500);
 function makeClientEnt(r){const f=r.f,e={id:r.i,name:f.name,skin:f.skin,shirt:f.shirt,hair:f.hair,pants:f.pants,hs:f.hs,acc:f.acc,acol:f.acol,sty:f.sty,pst:f.pst,shoes:f.shoes,face:f.face,fcol:f.fcol,ex:f.ex,ecol:f.ecol,
   perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,smoke:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,dashCd:0,eatT:.6,stamina:100,
   x:r.x,y:r.y,tx:r.x,ty:r.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,dashT:0,slideT:0,sprinting:false,fled:{},protect:0,ghosts:[],ghostT:0,chomp:0,
   sq:0,sqv:0,lean:0,skidT:0,bites:0,chewT:0,lastStep:0,lvl:1,ep:0,isPlayer:false,human:false,snapAt:now(),_st:'move',_dash:false};
-  calcStats(e);return e}
+  calcStats(e);spriteWarm(e);return e}
 function recToEnt(e,r,t){
   e.snapAt=t;e.tx=r.x;e.ty=r.y;e.vx=r.vx;e.vy=r.vy;e.dir=DIRS[r.d]||'down';e.state=STATES[r.s]||'move';e.lvl=r.l;
   e.dashing=!!r.da;e.dashT=e.dashing?.1:0;e.slideT=r.sl?.4:0;e.sprinting=!!r.sp;e.chomp=r.ch?.3:0;e.human=!!r.h;e.adv=r.dl;
@@ -3841,8 +3878,11 @@ function drawDoorMats(h,t){const cx=h.x+h.w/2,cy=h.y+h.h/2,b=Math.sin(t*4)*4,pu=
     ctx.fillStyle='#8b5a2b';ctx.strokeStyle=INK;ctx.lineWidth=2.5;
     for(const sg of [-1,1]){const qx=px+(horiz?sg*(DOOR_G/2):0),qy=py+(horiz?0:sg*(DOOR_G/2));ctx.beginPath();ctx.roundRect(qx-6,qy-6,12,12,3);ctx.fill();ctx.stroke()}}}
 const TINT=new Map();
-function tintOf(spr,good,a){const k=(good?'g':'r')+a.toFixed(2);let m=TINT.get(spr);if(!m){m={};TINT.set(spr,m)}
-  if(!m[k]){const c=document.createElement('canvas');c.width=spr.width;c.height=spr.height;const g=c.getContext('2d');g.drawImage(spr,0,0);g.globalCompositeOperation='source-atop';g.fillStyle=good?'rgba(63,208,106,'+a+')':'rgba(255,77,106,'+a+')';g.fillRect(0,0,c.width,c.height);m[k]=c}
+let TSC=null,TSG=null;
+function tintOf(spr,good,a){const k=(good?'g':'r')+a.toFixed(2);let m=TINT.get(spr);if(!m){if(TINT.size>2500){TINT.clear();ATL.t=null}m={};TINT.set(spr,m)}
+  if(!m[k]){if(!TSC){TSC=document.createElement('canvas');TSC.width=GW;TSC.height=GH;TSG=TSC.getContext('2d')}
+    const g=TSG;g.globalCompositeOperation='source-over';g.clearRect(0,0,GW,GH);g.drawImage(spr.c,spr.x,spr.y,GW,GH,0,0,GW,GH);g.globalCompositeOperation='source-atop';g.fillStyle=good?'rgba(63,208,106,'+a+')':'rgba(255,77,106,'+a+')';g.fillRect(0,0,GW,GH);g.globalCompositeOperation='source-over';
+    const cell=atlasCell('t');cell.g.drawImage(TSC,cell.x,cell.y);m[k]={c:cell.c,x:cell.x,y:cell.y}}
   return m[k]}
 const BUFF_COL={magnet:'#ff6b6b',turbo:'#3db5ff',rocket:'#ff9f1c',blackhole:'#9b5de5',rubber:'#2ec4b6',rush:'#ff8fc2',radar:'#6fd36f',smoke:'#9a8fb0'};
 function drawAura(e,l,t){const tier=l>=300?5:l>=200?4:l>=150?3:l>=125?2:l>=100?1:0;if(!tier)return;
@@ -3900,14 +3940,14 @@ function drawEnt(e,t){
   drawAura(e,lv,t);
   {let br=0;for(const k in BUFF_COL){if(e.buff[k]>t){br++;const R=26+br*7,left=e.buff[k]-t;ctx.save();ctx.globalAlpha=left<1.5?.35+.35*Math.sin(t*14):.8;ctx.strokeStyle=BUFF_COL[k];ctx.lineWidth=3;ctx.setLineDash([9,7]);ctx.lineDashOffset=-t*40*(br%2?1:-1);
       ctx.beginPath();ctx.ellipse(e.x,e.y+16,R*1.25,R*.5,0,0,6.3);ctx.stroke();ctx.restore()}}}
-  for(const g of e.ghosts){ctx.globalAlpha=g.life*1.6;ctx.save();ctx.translate(g.x,g.y+FY);ctx.rotate(g.lean);ctx.scale(1-g.sq*.55,1+g.sq);ctx.drawImage(sprite(e,look,g.dir,0),-W0/2,-69,W0,H0);ctx.restore()}ctx.globalAlpha=1;
+  for(const g of e.ghosts){ctx.globalAlpha=g.life*1.6;ctx.save();ctx.translate(g.x,g.y+FY);ctx.rotate(g.lean);ctx.scale(1-g.sq*.55,1+g.sq);drawSpr(sprite(e,look,g.dir,0),-W0/2,-69,W0,H0);ctx.restore()}ctx.globalAlpha=1;
   const bob=e.state==='eat'?0:(frame?(e.sprinting?-2.5:-1.5):0);
   if(look.wings)drawWings(e,t);
   const wob=e.swim?Math.sin(t*5+e.id)*1.6+5:0;   // swimmers sit low in the water
   if(e.swim){ctx.save();ctx.beginPath();ctx.rect(e.x-90,e.y-140,180,140);ctx.clip()}
   ctx.save();if(hid)ctx.globalAlpha=e.isPlayer?.45:.2;ctx.translate(e.x,e.y+FY+bob+wob);ctx.rotate(e.lean+spin);ctx.scale(sx*sc*(1+puff),sy*sc);
-  if(advGood!==null){ctx.shadowColor=advGood?'#3fd06a':'#ff4d6a';ctx.shadowBlur=(14+advM*5)*advAl;ctx.drawImage(tintOf(spr,advGood,.22+advM*.05),-W0/2,-69,W0,H0)}   // the model itself is tinted and glows
-  else ctx.drawImage(spr,-W0/2,-69,W0,H0);ctx.restore();
+  if(advGood!==null){ctx.shadowColor=advGood?'#3fd06a':'#ff4d6a';ctx.shadowBlur=(14+advM*5)*advAl;drawSpr(tintOf(spr,advGood,.22+advM*.05),-W0/2,-69,W0,H0)}   // the model itself is tinted and glows
+  else drawSpr(spr,-W0/2,-69,W0,H0);ctx.restore();
   if(e.swim){ctx.restore();ctx.fillStyle='rgba(94,194,240,.5)';ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;
     for(let i=0;i<2;i++){const ph=(t*1.4+i*.5)%1;ctx.globalAlpha=1-ph;ctx.beginPath();ctx.ellipse(e.x,e.y+6,20+ph*16,7+ph*6,0,0,6.3);ctx.stroke()}ctx.globalAlpha=1;
     ctx.beginPath();ctx.ellipse(e.x,e.y+6,21,7,0,0,6.3);ctx.fill()}
@@ -3919,14 +3959,15 @@ function drawEnt(e,t){
   if(e.buff.shield>t){const pu=Math.sin(t*5)*2;ctx.fillStyle='rgba(159,220,255,.28)';ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y-6,42+pu,0,6.3);ctx.fill();ctx.stroke();
     ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.ellipse(e.x-16,e.y-30,7,4,-.6,0,6.3);ctx.fill()}
   else if(t<e.protect&&e.state==='move'){ctx.strokeStyle='rgba(61,181,255,.8)';ctx.lineWidth=3;ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(e.x,e.y-6,36,0,6.3);ctx.stroke();ctx.setLineDash([])}}
-function drawTag(e){const tt=now();const l=L(e),txt='Lv '+l+'  '+e.name;const dx=duel&&(duel.p===e||duel.o===e)?(duel.p===e?-1:1)*(duel.p.x<=duel.o.x?1:-1)*62:0;ctx.font='15px "Lilita One", "Arial Rounded MT Bold", sans-serif';ctx.textAlign='center';
+function drawTag(e){const tt=now();const l=L(e);if(e._tl!==l){e._tl=l;e._tt='Lv '+l+'  '+e.name}const txt=e._tt;const dx=duel&&(duel.p===e||duel.o===e)?(duel.p===e?-1:1)*(duel.p.x<=duel.o.x?1:-1)*62:0;ctx.font='15px "Lilita One", "Arial Rounded MT Bold", sans-serif';ctx.textAlign='center';
   ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.lineJoin='round';const y=e.y-lookOf(e.lvl).crown*9-58;
   ctx.strokeText(txt,e.x+dx,y);ctx.fillStyle=e.isPlayer?GOLD:'#fff';ctx.fillText(txt,e.x+dx,y);
   if(e.adv&&!e.isPlayer&&(e.state==='move'||e.state==='eat')){const good=e.adv>0,txt2=(good?'+':'\u2212')+Math.abs(e.adv),tw=ctx.measureText(txt).width;
     const px=e.x+dx+tw/2+20,al=clamp((640-Math.hypot(e.x-(player?player.x:e.x),e.y-(player?player.y:e.y)))/300,0,1);
     ctx.save();ctx.globalAlpha=al;ctx.fillStyle=good?'#3fd06a':'#ff4d6a';ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(px-17,y-17,34,22,11);ctx.fill();ctx.stroke();
     ctx.font='16px "Lilita One", sans-serif';ctx.fillStyle='#fff';ctx.lineWidth=3;ctx.strokeText(txt2,px,y-1);ctx.fillText(txt2,px,y-1);ctx.restore();ctx.font='15px "Lilita One", "Arial Rounded MT Bold", sans-serif'}
-  if(e.state==='move'&&Object.values(e.fled).some(v=>v>tt)){ctx.font='15px "Lilita One", sans-serif';ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.strokeText('😰 RUNNING',e.x+dx,y-22);ctx.fillStyle='#ff8fa0';ctx.fillText('😰 RUNNING',e.x+dx,y-22)}
+  let fl=false;if(e.state==='move')for(const k in e.fled){if(e.fled[k]>tt){fl=true;break}}
+  if(fl){ctx.font='15px "Lilita One", sans-serif';ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.strokeText('😰 RUNNING',e.x+dx,y-22);ctx.fillStyle='#ff8fa0';ctx.fillText('😰 RUNNING',e.x+dx,y-22)}
   if(e===king&&e.state!=='duel')drawCrown(e.x+dx,y-24,1.1,tt);
   if(e.state==='duel'&&!e.isPlayer&&!(duel&&duel.o===e)){ctx.font='18px "Lilita One", sans-serif';ctx.strokeText('VS',e.x+dx,y-20);ctx.fillStyle='#ff6b3d';ctx.fillText('VS',e.x+dx,y-20)}
   if(e.state==='duel'&&duel&&(duel.o===e||duel.p===e)){ctx.font='16px "Lilita One", sans-serif';ctx.strokeText('TYPING…',e.x+dx,y-20);ctx.fillStyle=GOLD;ctx.fillText('TYPING…',e.x+dx,y-20)}}
@@ -4135,7 +4176,7 @@ const DG={cap:3000,iv:new Float32Array(3000),up:new Float32Array(3000),rn:new Fl
 DG.accNew=()=>({n:0,sum:0,max:0,up:0,rn:0,hist:new Uint32Array(402),t:Date.now(),h0:DG.hitchN,l0:DG.longN,heapMin:1e9,heapMax:0,loaf:{n:0,dur:0,script:0,layout:0,render:0,blk:0,top:{}},sub:{net:{ms:0,max:0,n:0},musicPump:{ms:0,max:0,n:0},musicTick:{ms:0,max:0,n:0}}});
 DG.acc=DG.accNew();
 DG.lt=0;DG.lap=k=>{const n=performance.now(),S=DG.acc.sub,o=S[k]||(S[k]={ms:0,max:0,n:0}),d=n-DG.lt;DG.lt=n;o.ms+=d;o.n++;if(d>o.max)o.max=d};   // time since the last lap, booked on k
-DG.tm=(k,t0)=>{const d=performance.now()-t0,S=DG.acc.sub,o=S[k]||(S[k]={ms:0,max:0,n:0});o.ms+=d;o.n++;if(d>o.max)o.max=d};   // time spent outside update and render (network messages, music scheduling)
+DG.mp=0;DG.tm=(k,t0)=>{const d=performance.now()-t0;if(k==='musicPump')DG.mp+=d;const S=DG.acc.sub,o=S[k]||(S[k]={ms:0,max:0,n:0});o.ms+=d;o.n++;if(d>o.max)o.max=d};   // time spent outside update and render (network messages, music scheduling)
 DG.push=function(raw,upd,rnd,t){const i=DG.n%DG.cap;DG.iv[i]=raw*1000;DG.up[i]=upd;DG.rn[i]=rnd;DG.ts[i]=performance.now();DG.n++;DG.ema+=(raw-DG.ema)*.02;
   if(game!=='play')return;
   const bin=Math.min(401,Math.floor(raw*4000));DG.hist[bin]++;DG.hn++;   // 0.25 ms steps, frames of real play only
@@ -4291,6 +4332,7 @@ if(role!=='server'){
 /* ---------- device diagnostics upload (r72): only for devices the owner opted in with a link (?dev=NAME&dk=CODE, stored once in this browser).
    About once a minute of play a summary of the panel's numbers goes to the stats worker's database (no name, no IP), so the developer can read how the game runs on every device. ---------- */
 DG.ev=[];
+if(role!=='server')setInterval(()=>{const d=DG.mp-(DG.mpLast||0);DG.mpLast=DG.mp;if(game==='play'&&!synth.lite&&music.on&&d>20000*.012){synth.setLite(true);DG.ev.push({t:Date.now(),type:'musicLite',pumpMsPer20s:Math.round(d)})}},20000);   // over 1.2 % of the page for music scheduling in 20 s: simpler voices (one per stereo pair, no panner), the same as on a phone
 const DGU={cfg:null,sys:false,err:'',last:0,sent:0};
 try{const o=JSON.parse(localStorage.getItem('snackdown-diag')||'null');if(o&&o.dev&&o.dk)DGU.cfg=o}catch(_){}
 try{const q=new URLSearchParams(location.search),dk=q.get('dk'),dev=q.get('dev');if(dk&&dev){DGU.cfg={dev:dev.slice(0,20),dk:dk.slice(0,64)};localStorage.setItem('snackdown-diag',JSON.stringify(DGU.cfg));q.delete('dk');q.delete('dev');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}}catch(_){}
@@ -4332,7 +4374,7 @@ function frame(){
   if(!isFinite(cam.x)||!isFinite(cam.y)||!isFinite(kick)||!isFinite(ZZ)){cam.x=player&&isFinite(player.x)?player.x:WORLD/2;cam.y=player&&isFinite(player.y)?player.y:WORLD/2;if(!isFinite(kick))kick=0;if(!isFinite(dz))dz=0;if(!isFinite(shake))shake=0;if(!isFinite(hitstop))hitstop=0}
   const tr0=performance.now();
   try{render(t)}catch(e){reportErr(e,'render')}
-  if(raw>0&&raw<1)DG.push(raw,tr0-tu0,performance.now()-tr0,t)}   // for the diagnostics panel
+  if(raw>0&&raw<1){DG.push(raw,tr0-tu0,performance.now()-tr0,t);if(raw<.03){const w0=performance.now();warmStep(1.5);DG.tm('warm',w0)}}}   // for the diagnostics panel; and a small slice of building things ahead of time while the frame is quick
 requestAnimationFrame(rafLoop);if(SET.vsync)setTimeout(calibHz,1500);
 })();
 </script>
