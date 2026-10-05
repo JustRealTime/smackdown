@@ -32,7 +32,7 @@ E-Mail: <a href="mailto:alikesan2004@hotmail.com">alikesan2004@hotmail.com</a></
 <ul>
 <li>Es gibt <b>keine Benutzerkonten</b>, <b>keine Cookies</b>, <b>keine Werbung</b> und <b>keine Tracking-Werkzeuge</b>. Wir zählen nur anonym, wie viele Spiel-Fenster gerade offen sind (Abschnitt 6).</li>
 <li>Schriften und Musik werden von dieser Seite selbst ausgeliefert, nicht von Google oder anderen Anbietern.</li>
-<li>Online-Spiele mit anderen Spielern nutzen einen Vermittlungsdienst und eine direkte Verbindung zwischen den Browsern. Das passiert <b>nur, wenn du im Spiel „Yes, go online“ wählst</b>.</li>
+<li>Online-Spiele mit anderen Spielern nutzen einen Vermittlungsdienst und eine direkte Verbindung zwischen den Browsern. Das passiert, sobald du das Spiel öffnest (Online-Spiele sind immer eingeschaltet; im Menü steht ein Hinweis).</li>
 <li>Bei technischen Fehlern können anonyme Fehlerberichte an uns gesendet werden (Abschnitt 6).</li>
 </ul>
 
@@ -47,7 +47,7 @@ E-Mail: <a href="mailto:alikesan2004@hotmail.com">alikesan2004@hotmail.com</a></
 <p>Online-Spiele sind immer eingeschaltet. Sobald du das Spiel öffnest, passiert Folgendes (im Menü steht ein Hinweis darauf):</p>
 <ul>
 <li><b>Vermittlungsdienst (Signalisierung):</b> ein von uns betriebener Dienst auf Cloudflare Workers (typebite-signal.alikesan2004.workers.dev; Cloudflare, Inc., USA, weltweites Netzwerk). Dein Browser meldet sich dort mit einer zufälligen Kennung an und fragt nach laufenden Spielen; der Dienst reicht nur die kleinen Verbindungsnachrichten zwischen Browsern weiter. Dabei wird deine IP-Adresse an Cloudflare übertragen. Wir speichern nichts davon, die Kennungen leben nur im Arbeitsspeicher, solange die Verbindung offen ist. Die Spieldaten selbst laufen nicht über diesen Dienst.</li>
-<li><b>Direkte Verbindung zwischen Browsern (WebRTC):</b> Wer ein Spiel startet, ist Gastgeber („Host“): Sein Browser führt das Spiel aus. Die anderen Spieler verbinden sich direkt mit ihm. Dabei kennt der Host die IP-Adressen der Mitspieler, und die Mitspieler können die IP-Adresse des Hosts technisch ermitteln. Übertragen werden dein Spielname, das Aussehen deiner Figur, Spielzüge, Tipp-Ergebnisse und der Spielstand. Alle Mitspieler sehen deinen Spielnamen. <b>Wähle deshalb einen Namen, der dich nicht identifiziert.</b></li>
+<li><b>Direkte Verbindung zwischen Browsern (WebRTC):</b> Wer ein Spiel startet, ist Gastgeber („Host“): Sein Browser führt das Spiel aus. Die anderen Spieler verbinden sich direkt mit ihm. Dabei kennt der Host die IP-Adressen der Mitspieler, und die Mitspieler können die IP-Adresse des Hosts technisch ermitteln. Übertragen werden dein Spielname, das Aussehen deiner Figur, Spielzüge, im Duell der von dir getippte Text (damit der Host prüfen kann, wer zuerst fertig war) und der Spielstand. Alle Mitspieler sehen deinen Spielnamen. <b>Wähle deshalb einen Namen, der dich nicht identifiziert.</b></li>
 <li><b>Verbindungshilfen:</b> Damit Browser sich hinter Routern finden, nutzt das Spiel einen STUN-Dienst von Cloudflare (stun.cloudflare.com) und, wenn eine direkte Verbindung nicht möglich ist, Relay-Server (TURN) von Cloudflare Realtime. Dabei wird deine IP-Adresse an Cloudflare übertragen, und Spieldaten können (verschlüsselt) über das Relay laufen.</li>
 <li>Wir speichern keinen dieser Daten auf eigenen Servern. Der Host kann die Daten aber auf seinem Gerät verarbeiten.</li>
 </ul>
