@@ -107,7 +107,7 @@ footer{font-size:12px;color:var(--mute);text-align:center}
 <footer><a href="https://typebite.io/" style="color:inherit">typebite.io</a> · <a href="https://typebite.io/impressum" style="color:inherit">Impressum</a> · <a href="https://typebite.io/datenschutz" style="color:inherit">Datenschutz</a></footer>
 </main>
 <script>
-var D=__INIT__,PUBLIC=__PUBLIC__,API=__API__,K=new URLSearchParams(location.search).get('k')||'',H=24,lastHist=D?Date.now():0,lastOk=Date.now();   // PUBLIC: typebite.io/status (made by make-status.js), gets the sanitised data from API
+var D=null,PUBLIC=true,API="https://typebite-stats.alikesan2004.workers.dev/public",K=new URLSearchParams(location.search).get('k')||'',H=24,lastHist=D?Date.now():0,lastOk=Date.now();   // PUBLIC: typebite.io/status (made by make-status.js), gets the sanitised data from API
 var $=function(i){return document.getElementById(i)};
 var NAMES={host:'Host überlastet',net:'Verbindungen langsam',quota:'Tageslimit knapp'};
 function cls(p){return p>=100?'over':p>=60?'busy':''}

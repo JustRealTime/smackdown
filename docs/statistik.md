@@ -49,3 +49,9 @@ Je Art kommt höchstens alle 3 Stunden eine Mail.
 - **Auslastung in Prozent** = der schlechteste von drei Werten, und **100 % ist genau die Grenze, ab der die Warn-Mail kommt**: Host-Rechenzeit (Schrittzeit des langsamsten Hosts, Grenze 14 ms), Verbindung (mittlerer Ping der Spieler, Grenze 500 ms) und Tageslimit des Zählers (Grenze 40000 Herzschläge). Unter 60 % grün, 60 bis 99 % gelb, ab 100 % rot.
 - Danach: Verlauf der Spieler und der Auslastung (6 / 24 / 48 Stunden, ein Punkt alle 5 Minuten; der Verlauf beginnt erst ab Einrichtung), Zahlen von heute, die laufenden Lobbys mit ihrer Last, die letzten Tage, Spielversionen und die letzten Warn-Mails.
 - Die Seite lädt sich selbst alle 15 Sekunden neu, ohne Flackern. Dunkel oder hell richtet sich nach deinem Handy.
+
+## Die öffentliche Seite typebite.io/status
+- Dieselbe Seite ohne Passwort, für alle sichtbar: Spieler online, Ampel, Auslastung in Prozent, Verlauf, Zahlen von heute und die letzten Tage. **Nicht** drauf: Hosts, Spielversionen und Warn-Mails (die bleiben auf deinem privaten Link).
+- Im Menü des Spiels steht unten neben Impressum und Datenschutz der Link „Status“.
+- Die Datei `site/status.html` wird aus `tools/stats-worker/page.html` erzeugt: nach jeder Änderung an `page.html` einmal `node tools/stats-worker/make-status.js` ausführen und das Ergebnis committen.
+- Die Daten holt die Seite vom Worker (`/public`, 15 Sekunden zwischengespeichert, damit viele Besucher den Zähler nicht belasten). Jeder offene Status-Tab kostet eine Worker-Anfrage alle 15 s (nur wenn der Tab sichtbar ist).

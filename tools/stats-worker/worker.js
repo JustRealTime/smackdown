@@ -5,6 +5,7 @@
 //
 // Pages (only with the key, secret KEY):   /?k=KEY   the status page for the phone (page.html, fetches /json itself)     /json?k=KEY   the same as JSON (&h=0 without the history)
 //                                          /test?k=KEY   sends a test mail and shows if it worked
+// Public (no key):                        GET /public[?h=0]   sanitised data for typebite.io/status (site/status.html, made by make-status.js from page.html)
 // The game sends to:                       POST /hb   (text/plain JSON, answer: {next: seconds until the next heartbeat})
 import { DurableObject } from 'cloudflare:workers';
 import { EmailMessage } from 'cloudflare:email';
@@ -142,10 +143,10 @@ export class Stats extends DurableObject {
   async testMail() { await this.ready; return this.sendMail('Typebite: Testmail', 'Wenn du das liest, funktioniert die Warn-Mail.') }
 }
 
-const page = snap => PAGE.replace('__INIT__', JSON.stringify(snap).replace(/</g, '\\u003c'));
+const page = snap => PAGE.replace('__INIT__', JSON.stringify(snap).replace(/</g, '\\u003c')).replace('__PUBLIC__', 'false').replace('__API__', '""');
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const u = new URL(req.url), stub = env.STATS.get(env.STATS.idFromName('main'));
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     if (u.pathname === '/hb' && req.method === 'POST') {
@@ -156,6 +157,17 @@ export default {
       const b = { sid: p.sid, r: ['host', 'client', 'solo'].includes(p.r) ? p.r : 'solo', st: p.st === 'play' ? 'play' : 'menu', h: num(p.h, 99), ms: num(p.ms, 1000), rtt: num(p.rtt, 60000), b: String(p.b || '').slice(0, 12).replace(/[^\w.-]/g, '') };
       const next = await stub.hb(b);
       return new Response(JSON.stringify({ next }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
+    }
+    if (u.pathname === '/public' && req.method === 'GET') {   // for typebite.io/status: no hosts, versions or mails; cached 15 s so many viewers cost the object one request per 15 s
+      const full = u.searchParams.get('h') !== '0', ck = new Request(u.origin + '/public?h=' + (full ? 1 : 0)), cache = caches.default;
+      let r = await cache.match(ck);
+      if (!r) {
+        const snap = await stub.snapshot(full);
+        snap.hosts = []; snap.builds = {}; snap.mail = {}; snap.mailErr = '';
+        r = new Response(JSON.stringify(snap), { headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=15' } });
+        ctx.waitUntil(cache.put(ck, r.clone()));
+      }
+      return r;
     }
     const key = String(env.KEY || ''), given = u.searchParams.get('k') || '';
     if (!key || given.length !== key.length || [...key].reduce((a, c, i) => a | (c.charCodeAt(0) ^ given.charCodeAt(i)), 0)) return new Response('Typebite stats', { status: 403, headers: { 'Content-Type': 'text/plain' } });
