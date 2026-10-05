@@ -1,0 +1,12 @@
+{
+  // Typebite activity counter + overload mail. Deploy: cd tools/stats-worker && npx wrangler deploy   (guide: docs/statistik.md)
+  "name": "typebite-stats",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "durable_objects": { "bindings": [{ "name": "STATS", "class_name": "Stats" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Stats"] }],
+  // the repo is public, so no address and no password in this file. The receiver must be verified in Cloudflare (Email Routing -> Destination addresses)
+  "send_email": [{ "name": "MAIL" }],
+  "vars": { "MAIL_FROM": "alarm@typebite.io" }
+  // secrets (npx wrangler secret put NAME):  KEY = the password in the stats link, MAIL_TO = receiver of the warning mails, PUBLIC_URL = the full stats link (goes into the mails)
+}

@@ -1,3 +1,5 @@
 node_modules/
 bewerten/
 grafiken/
+.wrangler/
+.dev.vars
