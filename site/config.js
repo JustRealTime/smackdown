@@ -192,6 +192,10 @@ network: {
   updatesPerSecond: 20,      // how often the host sends the world (the game itself runs at 60). Lower = less data
 },
 
+// Automatic frame rate limit, once per browser: after afterSeconds of play, a PC whose average is above minAvg but below maxAvg (and not already
+// in step with its screen) gets the limit setTo. Not when the player picked a limit or V-Sync himself. enabled: false turns it off.
+autoFps: { enabled: true, afterSeconds: 60, minAvg: 60, maxAvg: 240, setTo: 120 },
+
 
 /* =============================================================================================
    11. ITEMS (gift box items)

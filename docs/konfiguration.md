@@ -45,6 +45,7 @@ Regeln: Jede Zeile endet mit einem Komma. Klammern `{ }` und `[ ]` nicht lösche
 | 8 `quests` | Wartezeiten, Aufgabenarten, Belohnungen |
 | 9 `camera` | Start-Zoom und wie weit man herauszoomen kann |
 | 10 `network` | Sichtradius und Updates pro Sekunde im Mehrspieler |
+| `autoFps` | Automatische FPS-Begrenzung beim ersten Start: nach wie vielen Sekunden Spiel geschaut wird, bei welchem Durchschnitt, und worauf begrenzt wird |
 | 11 `items` | alle 24 Items: Seltenheitsstufe, Gewicht, Dauer, Stapeln, Stärke |
 | 12 `perks` | alle 38 Perks: Stufe, Gewicht, Ränge, Wert pro Rang |
 | 13 `snacks` | alle 57 Snacks: Stufe, Gewicht, XP, Essdauer, Biome, Läden, Zusatzeffekt |
