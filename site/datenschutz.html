@@ -48,7 +48,7 @@ E-Mail: <a href="mailto:alikesan2004@hotmail.com">alikesan2004@hotmail.com</a></
 <ul>
 <li><b>Vermittlungsdienst (Signalisierung):</b> ein von uns betriebener Dienst auf Cloudflare Workers (typebite-signal.alikesan2004.workers.dev; Cloudflare, Inc., USA, weltweites Netzwerk). Dein Browser meldet sich dort mit einer zufälligen Kennung an und fragt nach laufenden Spielen; der Dienst reicht nur die kleinen Verbindungsnachrichten zwischen Browsern weiter. Dabei wird deine IP-Adresse an Cloudflare übertragen. Wir speichern nichts davon, die Kennungen leben nur im Arbeitsspeicher, solange die Verbindung offen ist. Die Spieldaten selbst laufen nicht über diesen Dienst.</li>
 <li><b>Direkte Verbindung zwischen Browsern (WebRTC):</b> Wer ein Spiel startet, ist Gastgeber („Host“): Sein Browser führt das Spiel aus. Die anderen Spieler verbinden sich direkt mit ihm. Dabei kennt der Host die IP-Adressen der Mitspieler, und die Mitspieler können die IP-Adresse des Hosts technisch ermitteln. Übertragen werden dein Spielname, das Aussehen deiner Figur, Spielzüge, im Duell der von dir getippte Text (damit der Host prüfen kann, wer zuerst fertig war) und der Spielstand. Alle Mitspieler sehen deinen Spielnamen. <b>Wähle deshalb einen Namen, der dich nicht identifiziert.</b></li>
-<li><b>Verbindungshilfen:</b> Damit Browser sich hinter Routern finden, nutzt das Spiel einen STUN-Dienst von Cloudflare (stun.cloudflare.com) und, wenn eine direkte Verbindung nicht möglich ist, Relay-Server (TURN) von Cloudflare Realtime. Dabei wird deine IP-Adresse an Cloudflare übertragen, und Spieldaten können (verschlüsselt) über das Relay laufen.</li>
+<li><b>Verbindungshilfen:</b> Damit Browser sich hinter Routern finden, nutzt das Spiel einen STUN-Dienst von Cloudflare (stun.cloudflare.com). Dabei wird deine IP-Adresse an Cloudflare übertragen. Ein Relay-Server (TURN) wird zurzeit nicht verwendet; wenn eine direkte Verbindung nicht möglich ist, kommt die Verbindung nicht zustande.</li>
 <li>Wir speichern keinen dieser Daten auf eigenen Servern. Der Host kann die Daten aber auf seinem Gerät verarbeiten.</li>
 </ul>
 <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Durchführung des Spiels mit Online-Modus) und Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem funktionierenden Mehrspielermodus; die übertragenen Daten sind auf IP-Adresse und Spielname beschränkt). Du kannst der Verarbeitung jederzeit widersprechen, indem du das Spiel schließt, oder per E-Mail an die oben genannte Adresse.</p>
@@ -62,7 +62,7 @@ E-Mail: <a href="mailto:alikesan2004@hotmail.com">alikesan2004@hotmail.com</a></
 <h2>7. Empfänger und Drittlandübermittlung</h2>
 <table>
 <tr><th>Empfänger</th><th>Zweck</th><th>Land</th></tr>
-<tr><td>Cloudflare</td><td>Auslieferung der Seite, Fehlerbericht-Dienst, Aktivitätszähler, Vermittlungsdienst und Verbindungshilfen (STUN/TURN) für Online-Spiele</td><td>USA / weltweit</td></tr>
+<tr><td>Cloudflare</td><td>Auslieferung der Seite, Fehlerbericht-Dienst, Aktivitätszähler, Vermittlungsdienst und Verbindungshilfe (STUN) für Online-Spiele</td><td>USA / weltweit</td></tr>
 <tr><td>GitHub</td><td>Speicherung der Fehlerberichte</td><td>USA</td></tr>
 <tr><td>Mitspieler / Host</td><td>Spielen (Name, Aussehen, IP-Adresse des Hosts bzw. der Mitspieler)</td><td>je nach Mitspieler</td></tr>
 </table>
