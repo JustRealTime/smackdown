@@ -453,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r77</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r78</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -781,6 +781,7 @@ network: {
   viewRadius: 1250,          // players further away than this (in units) are not sent to you
   dataRadius: 1150,          // snacks, boxes and orbs further away than this are not sent
   updatesPerSecond: 20,      // how often the host sends the world (the game itself runs at 60). Lower = less data
+  signalServer: 'typebite-signal.alikesan2004.workers.dev',   // the server that introduces the browsers to each other (and hands out STUN/TURN servers); '' = the public PeerJS cloud (0.peerjs.com)
   hostSilence: 1.2,          // seconds without any word from the host before the next player takes over (lower = faster change, but a short hiccup of the host can trigger it)
   handover: { enabled: true, minScoreGap: 60, minHostScore: 100, sustainSeconds: 15, cooldownSeconds: 180 },   // the host gives the game to a player with a much better connection: when its own score (median delay + 2 x jitter + 4 x lost % + 60 for a weak PC) is at least minHostScore and at least minScoreGap worse than the best player's, for sustainSeconds in a row; at most one change per cooldownSeconds
   checkpointsPerSecond: 2,   // how often the host hands the next host a copy of the game (about 90 KB each with 12 players). With more than 6 players every other time
@@ -995,7 +996,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r77';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r78';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -3631,7 +3632,12 @@ const MIG={succ:[],slot:1,key:'',ck:null,parts:null,active:false,got:false};   /
 const P2P={peer:null,lobbyPeer:null,worker:null,conns:new Map(),nextCid:1,isHost:false,players:[],poll:0,state:'unknown',hostName:'',slot:0};
 const LOBBY_SLOTS=Math.max(1,Math.min(20,Math.round(CFG.players.gamesPerRoom))), LOBBY_MAX=Math.max(1,Math.min(60,Math.round(CFG.players.maxPerGame)));   // up to 8 games per room name, 12 players per browser-hosted game (the host's upload is the limit)
 const peerIdFor=slot=>'typebite-'+(($('room').value||'public').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20)||'public')+'-'+slot;
-const peerOpts=()=>Object.assign({},(typeof window!=='undefined'&&window.SNACK_PEER)||{});
+// the signalling server (PeerJS protocol, tools/signal-worker) introduces the browsers to each other; STUN/TURN servers come from it (/ice). CFG.network.signalServer '' = the public PeerJS cloud.
+const ICEC={iceServers:[{urls:'stun:stun.cloudflare.com:3478'}]},SIG=String(CFG.network.signalServer||'').trim();
+const peerOpts=()=>{const o=typeof window!=='undefined'&&window.SNACK_PEER;return Object.assign(SIG?{host:SIG,port:443,secure:true,path:'/',key:'peerjs',config:ICEC}:{},o||{})};   // config is shared: peerjs reads it for every new connection, so the servers fetched below apply at once
+function fetchIce(){if(!SIG||typeof window==='undefined'||window.SNACK_PEER||window.SNACK_OFFLINE||!onlineOk())return;const ac=new AbortController(),to=setTimeout(()=>ac.abort(),5000);
+  fetch('https://'+SIG+'/ice',{signal:ac.signal}).then(r=>r.json()).then(d=>{clearTimeout(to);if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){ICEC.iceServers=d.iceServers;ICEC.turn=!!d.turn}}).catch(()=>{clearTimeout(to)});setTimeout(fetchIce,5*3600e3)}
+if(role!=='server')setTimeout(fetchIce,0);
 const WORKER_PRE='self.__SERVER__=true;self.window=self;const __stub=()=>{const f=function(){};return new Proxy(f,{get(t,k){if(k===Symbol.toPrimitive)return()=>"";if(k==="then")return undefined;if(k in t)return t[k];return __stub()},set(t,k,v){t[k]=v;return true},apply(){return __stub()},construct(){return __stub()}})};self.document=__stub();self.Audio=__stub();self.localStorage={getItem:()=>null,setItem(){}};self.innerWidth=1280;self.innerHeight=720;self.devicePixelRatio=1;self.requestAnimationFrame=()=>0;self.matchMedia=()=>({matches:false});\n';
 const WORKER_POST=`
 ;(()=>{const sim=self.__sim;let last=performance.now(),ms=0,errT=-1e9;

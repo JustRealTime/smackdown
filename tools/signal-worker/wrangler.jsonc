@@ -1,0 +1,9 @@
+{
+  // Typebite signalling server (PeerJS protocol) + TURN credentials. Deploy: cd tools/signal-worker && npx wrangler deploy   (guide: docs/signalserver.md)
+  "name": "typebite-signal",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "durable_objects": { "bindings": [{ "name": "HUB", "class_name": "Hub" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hub"] }]
+  // optional secrets for relayed connections (TURN, Cloudflare Realtime): TURN_KEY_ID and TURN_API_TOKEN. Without them only STUN is handed out.
+}

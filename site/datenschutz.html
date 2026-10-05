@@ -22,7 +22,7 @@ th{background:#f1e9ff}
 <body>
 <main><div class="card">
 <h1>Datenschutzerklärung</h1>
-<p class="muted">Stand: 1. Oktober 2026. Diese Erklärung beschreibt, welche Daten beim Besuch von typebite.io und beim Spielen verarbeitet werden (Datenschutz-Grundverordnung, DSGVO, und Datenschutzgesetz, DSG).</p>
+<p class="muted">Stand: 5. Oktober 2026. Diese Erklärung beschreibt, welche Daten beim Besuch von typebite.io und beim Spielen verarbeitet werden (Datenschutz-Grundverordnung, DSGVO, und Datenschutzgesetz, DSG).</p>
 
 <h2>1. Verantwortlicher</h2>
 <p>Ali Kesan, Neutorstraße 55, 5020 Salzburg, Österreich<br>
@@ -46,9 +46,9 @@ E-Mail: <a href="mailto:alikesan2004@hotmail.com">alikesan2004@hotmail.com</a></
 <h2>5. Online-Spiele (Vermittlungsdienst und direkte Verbindung)</h2>
 <p>Online-Spiele sind immer eingeschaltet. Sobald du das Spiel öffnest, passiert Folgendes (im Menü steht ein Hinweis darauf):</p>
 <ul>
-<li><b>Vermittlungsdienst PeerJS</b> (öffentlicher Dienst des PeerJS-Projekts, peerjs.com bzw. 0.peerjs.com; wir haben keinen Einfluss auf den Standort der Server, eine Verarbeitung auch außerhalb der EU ist möglich): Dein Browser meldet sich dort an und fragt nach laufenden Spielen. Dabei wird deine IP-Adresse übertragen. Die Spieldaten selbst laufen nicht über diesen Dienst.</li>
+<li><b>Vermittlungsdienst (Signalisierung):</b> ein von uns betriebener Dienst auf Cloudflare Workers (typebite-signal.alikesan2004.workers.dev; Cloudflare, Inc., USA, weltweites Netzwerk). Dein Browser meldet sich dort mit einer zufälligen Kennung an und fragt nach laufenden Spielen; der Dienst reicht nur die kleinen Verbindungsnachrichten zwischen Browsern weiter. Dabei wird deine IP-Adresse an Cloudflare übertragen. Wir speichern nichts davon, die Kennungen leben nur im Arbeitsspeicher, solange die Verbindung offen ist. Die Spieldaten selbst laufen nicht über diesen Dienst.</li>
 <li><b>Direkte Verbindung zwischen Browsern (WebRTC):</b> Wer ein Spiel startet, ist Gastgeber („Host“): Sein Browser führt das Spiel aus. Die anderen Spieler verbinden sich direkt mit ihm. Dabei kennt der Host die IP-Adressen der Mitspieler, und die Mitspieler können die IP-Adresse des Hosts technisch ermitteln. Übertragen werden dein Spielname, das Aussehen deiner Figur, Spielzüge, Tipp-Ergebnisse und der Spielstand. Alle Mitspieler sehen deinen Spielnamen. <b>Wähle deshalb einen Namen, der dich nicht identifiziert.</b></li>
-<li><b>Verbindungshilfen:</b> Damit Browser sich hinter Routern finden, nutzt die Bibliothek PeerJS einen STUN-Dienst von Google (stun.l.google.com, USA) und Relay-Server von PeerJS (turn.peerjs.com, EU und USA). Dabei wird deine IP-Adresse an diese Dienste übertragen, und Spieldaten können über das Relay laufen, wenn keine direkte Verbindung möglich ist.</li>
+<li><b>Verbindungshilfen:</b> Damit Browser sich hinter Routern finden, nutzt das Spiel einen STUN-Dienst von Cloudflare (stun.cloudflare.com) und, wenn eine direkte Verbindung nicht möglich ist, Relay-Server (TURN) von Cloudflare Realtime. Dabei wird deine IP-Adresse an Cloudflare übertragen, und Spieldaten können (verschlüsselt) über das Relay laufen.</li>
 <li>Wir speichern keinen dieser Daten auf eigenen Servern. Der Host kann die Daten aber auf seinem Gerät verarbeiten.</li>
 </ul>
 <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Durchführung des Spiels mit Online-Modus) und Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem funktionierenden Mehrspielermodus; die übertragenen Daten sind auf IP-Adresse und Spielname beschränkt). Du kannst der Verarbeitung jederzeit widersprechen, indem du das Spiel schließt, oder per E-Mail an die oben genannte Adresse.</p>
@@ -62,9 +62,7 @@ E-Mail: <a href="mailto:alikesan2004@hotmail.com">alikesan2004@hotmail.com</a></
 <h2>7. Empfänger und Drittlandübermittlung</h2>
 <table>
 <tr><th>Empfänger</th><th>Zweck</th><th>Land</th></tr>
-<tr><td>Cloudflare</td><td>Auslieferung der Seite, Fehlerbericht-Dienst</td><td>USA / weltweit</td></tr>
-<tr><td>PeerJS (Vermittlung, Relay)</td><td>Online-Spiele (beim Öffnen des Spiels)</td><td>nicht festgelegt, auch außerhalb der EU möglich</td></tr>
-<tr><td>Google (STUN)</td><td>Verbindungsaufbau beim Online-Spiel</td><td>USA</td></tr>
+<tr><td>Cloudflare</td><td>Auslieferung der Seite, Fehlerbericht-Dienst, Aktivitätszähler, Vermittlungsdienst und Verbindungshilfen (STUN/TURN) für Online-Spiele</td><td>USA / weltweit</td></tr>
 <tr><td>GitHub</td><td>Speicherung der Fehlerberichte</td><td>USA</td></tr>
 <tr><td>Mitspieler / Host</td><td>Spielen (Name, Aussehen, IP-Adresse des Hosts bzw. der Mitspieler)</td><td>je nach Mitspieler</td></tr>
 </table>
