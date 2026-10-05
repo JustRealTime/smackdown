@@ -400,7 +400,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 <button id="musicbtn" class="panel" type="button" aria-label="Toggle music">Music on</button>
 <button id="gear" class="panel" type="button" aria-label="Settings">Settings</button>
 <button id="diagbtn" class="panel" type="button" aria-label="Diagnostics (F3)">Stats</button>
-<div id="diag" hidden><div id="dghead"><b>Diagnostics</b><span id="dgsub">F3 opens and closes this</span><span class="sp"></span><button type="button" id="dgpause">Pause</button><button type="button" id="dgcpu">CPU test</button><button type="button" id="dgcopy">Copy</button><button type="button" id="dgclose">Close</button></div><div id="dgverdict"></div><canvas id="dggraph" width="560" height="90"></canvas><pre id="dgbody"></pre></div>
+<div id="diag" hidden><div id="dghead"><b>Diagnostics</b><span id="dgsub">F3 opens and closes this</span><span class="sp"></span><button type="button" id="dgsend" hidden>Send now</button><button type="button" id="dgoff" hidden>Stop upload</button><button type="button" id="dgpause">Pause</button><button type="button" id="dgcpu">CPU test</button><button type="button" id="dgcopy">Copy</button><button type="button" id="dgclose">Close</button></div><div id="dgverdict"></div><canvas id="dggraph" width="560" height="90"></canvas><pre id="dgbody"></pre></div>
 <div id="metrics" hidden></div>
 <div id="joy"><i id="joyk"></i></div>
 <button id="menubtn" class="tbtn round" type="button" aria-label="Menu">&#9776;</button>
@@ -453,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r71</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r72</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -993,7 +993,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r71';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r72';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -4479,8 +4479,8 @@ function uaInfo(){const u=navigator.userAgent,m=r=>{const x=u.match(r);return x?
   return b+' '+v.split('.')[0]+' ('+v+') on '+os}
 function gpuInfo(){try{const c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return 'no WebGL';const e=gl.getExtension('WEBGL_debug_renderer_info');const r=e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);const lc=gl.getExtension('WEBGL_lose_context');if(lc)lc.loseContext();return String(r)}catch(_){return '?'}}
 const pad=(s,n)=>String(s).padEnd(n);   // the key column of the panel
-function dgCompute(){
-  const w10=dgWin(10000),w60=dgWin(60000),n=w10.iv.length,tgt=SET.vsync?HZM.hz:(fastWanted()?capFps():Math.min(capFps(),HZM.hz)),tms=1000/tgt;
+function dgCompute(winMs){
+  const w10=dgWin(winMs||10000),w60=dgWin(60000),n=w10.iv.length,tgt=SET.vsync?HZM.hz:(fastWanted()?capFps():Math.min(capFps(),HZM.hz)),tms=1000/tgt;
   const ivAvg=dgAvg(w10.iv),fps=ivAvg?1000/ivAvg:0,upA=dgAvg(w10.up),rnA=dgAvg(w10.rn),busy=ivAvg?Math.min(100,(upA+rnA)/ivAvg*100):0,sorted=w10.iv.slice().sort((a,b)=>a-b);
   const p99=dgPct(sorted,.99),mx=sorted.length?sorted[sorted.length-1]:0,up99=dgPct(w10.up.slice().sort((a,b)=>a-b),.99),rn99=dgPct(w10.rn.slice().sort((a,b)=>a-b),.99);
   const l1=dgLow(w60.iv,.01),l01=dgLow(w60.iv,.001),sl1=dgSessionLow(.01),sl01=dgSessionLow(.001);
@@ -4569,8 +4569,12 @@ function dgGraph(c){const cv=$('dggraph'),x=cv.getContext('2d'),W=cv.width,H=cv.
   const bw=W/240;for(let k=0;k<n;k++){const i=(DG.n-1-k)%DG.cap,iv=DG.iv[i],xx=W-(k+1)*bw;x.fillStyle=iv<tms*1.25?'#3fb950':iv<tms*2?'#f0b429':'#e5484d';x.fillRect(xx,sy(iv),Math.max(1,bw-.3),H-sy(iv));
     x.fillStyle='rgba(60,110,255,.85)';const cost=DG.up[i]+DG.rn[i];x.fillRect(xx,sy(cost),Math.max(1,bw-.3),H-sy(cost))}
   x.fillStyle='rgba(255,255,255,.7)';x.fillText('green/yellow/red = time between frames · blue = work the game did in that frame',2,9)}
-function dgRender(){if(!DG.open||DG.paused)return;
+function dgRates(){
   const t=performance.now(),dt=(t-DG.prev.t)/1000;if(DG.prev.t&&dt>.1){DG.rate.rkb=(DG.rx.b-DG.prev.rb)/1024/dt;DG.rate.rm=(DG.rx.m-DG.prev.rm)/dt;DG.rate.tkb=(DG.tx.b-DG.prev.tb)/1024/dt;DG.rate.sn=(DG.rx.snap-DG.prev.sn)/dt;DG.prev={t,rb:DG.rx.b,rm:DG.rx.m,tb:DG.tx.b,sn:DG.rx.snap}}else if(!DG.prev.t)DG.prev={t,rb:DG.rx.b,rm:DG.rx.m,tb:DG.tx.b,sn:DG.rx.snap};
+}
+setInterval(()=>{if(role!=='server')dgRates()},2000);
+function dgRender(){if(!DG.open||DG.paused)return;
+  $('dgsub').textContent=DGU.cfg?'Auto-upload for "'+DGU.cfg.dev+'": '+(DGU.err?DGU.err:DGU.sent?DGU.sent+' sent, last '+Math.round((Date.now()-DGU.last)/1000)+' s ago':'on, first one after a minute of play'):'F3 opens and closes this';$('dgsend').hidden=$('dgoff').hidden=!DGU.cfg;
   const c=dgCompute(),v=$('dgverdict');v.className='s'+c.sev;
   v.innerHTML=c.D.map(d=>'<div class="s'+d.sev+'">'+({bad:'● ',warn:'▲ ',ok:'✔ ',info:'ℹ '}[d.sev])+d.txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>').join('');
   $('dgbody').textContent=[...dgSections(c),'',...dgHitchText()].join('\n');dgGraph(c)}
@@ -4579,14 +4583,40 @@ async function dgCpu(){if(DG.cpuRun)return;DG.cpuRun=true;const b=$('dgcpu');b.t
   const lat=[];for(let r=0;r<20;r++){const t=performance.now();await new Promise(res=>setTimeout(res,0));lat.push(performance.now()-t)}
   const m=dgAvg(runs),cv=Math.sqrt(dgAvg(runs.map(x=>(x-m)*(x-m))))/m*100;DG.cpu={mops:m,cv,jAvg:dgAvg(lat),jMax:Math.max(...lat),at:Date.now()};
   DG.cpuRun=false;b.textContent='CPU test';b.disabled=false;dgRender()}
-function dgToggle(on){DG.open=on===undefined?!DG.open:!!on;$('diag').hidden=!DG.open;if(DG.open){if(!DG.gpu)DG.gpu=gpuInfo();try{if(navigator.getBattery&&!DG.bat)navigator.getBattery().then(b=>{DG.bat=b}).catch(()=>{})}catch(_){}DG.prev.t=0;dgRender()}}
+function dgToggle(on){DG.open=on===undefined?!DG.open:!!on;$('diag').hidden=!DG.open;if(DG.open){if(!DG.gpu)DG.gpu=gpuInfo();try{if(navigator.getBattery&&!DG.bat)navigator.getBattery().then(b=>{DG.bat=b}).catch(()=>{})}catch(_){}dgRender()}}
 if(role!=='server'){
   $('diagbtn').addEventListener('click',()=>dgToggle());$('dgclose').addEventListener('click',()=>dgToggle(false));$('setdiag').addEventListener('click',()=>{openSettings(false);dgToggle(true)});
   $('dgpause').addEventListener('click',()=>{DG.paused=!DG.paused;$('dgpause').textContent=DG.paused?'Resume':'Pause';if(!DG.paused)dgRender()});
   $('dgcpu').addEventListener('click',dgCpu);
   $('dgcopy').addEventListener('click',()=>{const s=bugReport('Diagnostics')+'\n\n--- Diagnostics ---\n'+dgText();tryCopy(s).then(ok=>{const b=$('dgcopy');b.textContent=ok?'Copied!':'Copy failed';setTimeout(()=>{b.textContent='Copy'},1500)})});
+  $('dgsend').addEventListener('click',()=>{dguSend('sys');dguSend('perf');$('dgsend').textContent='Sent';setTimeout(()=>{$('dgsend').textContent='Send now'},1500)});
+  $('dgoff').addEventListener('click',()=>{DGU.cfg=null;try{localStorage.removeItem('snackdown-diag')}catch(_){}dgRender()});
   setInterval(dgRender,250);
   addEventListener('keydown',e=>{if(e.key==='F3'){e.preventDefault();dgToggle()}else if(e.key==='Escape'&&DG.open){e.preventDefault();e.stopImmediatePropagation();dgToggle(false)}},true)}
+/* ---------- device diagnostics upload (r72): only for devices the owner opted in with a link (?dev=NAME&dk=CODE, stored once in this browser).
+   About once a minute of play a summary of the panel's numbers goes to the stats worker's database (no name, no IP), so the developer can read how the game runs on every device. ---------- */
+const DGU={cfg:null,sys:false,err:'',last:0,sent:0};
+try{const o=JSON.parse(localStorage.getItem('snackdown-diag')||'null');if(o&&o.dev&&o.dk)DGU.cfg=o}catch(_){}
+try{const q=new URLSearchParams(location.search),dk=q.get('dk'),dev=q.get('dev');if(dk&&dev){DGU.cfg={dev:dev.slice(0,20),dk:dk.slice(0,64)};localStorage.setItem('snackdown-diag',JSON.stringify(DGU.cfg));q.delete('dk');q.delete('dev');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}}catch(_){}
+function dguUrl(){const u=statsUrl();return u?u.replace(/\/hb$/,'/diag'):''}
+function dguSample(kind){const hz=HZM.hz;
+  if(kind==='sys')return{k:'sys',browser:uaInfo(),ua:navigator.userAgent,cores:navigator.hardwareConcurrency||0,memGB:navigator.deviceMemory||0,gpu:DG.gpu||(DG.gpu=gpuInfo()),screen:screen.width+'x'+screen.height+'@'+(+(devicePixelRatio||1).toFixed(2)),win:innerWidth+'x'+innerHeight,hz,vsync:!!SET.vsync,fpsLimit:SET.fps,fpsUser:!!SET.fpsUser,fpsAuto:!!SET.fpsAuto,potato:!!SET.potato,lite:!!LITE,touch:!!TOUCH,lang:navigator.language,conn:(navigator.connection&&navigator.connection.effectiveType)||'',cfg:CFGID};
+  const c=dgCompute(60000),t60=Date.now()-60000,hs=DG.hitches.filter(h=>h.t>t60),causes={};
+  for(const h of hs){const x=dgCause(h),k=x.startsWith('game logic')?'update':x.startsWith('drawing')?'render':x.startsWith('a browser task')?'browserTask':'waiting';causes[k]=(causes[k]||0)+1}
+  const r=v=>+(+v).toFixed(1);
+  return{k:'perf',frames:c.n,fps:r(c.fps),l1:r(c.l1),l01:r(c.l01),p99:r(c.p99),mx:r(c.mx),up:r(c.upA),rn:r(c.rnA),busy:r(c.busy),tgt:Math.round(c.tgt),
+    hitch:{n:hs.length,causes,worst:hs.slice().sort((a,b)=>b.ms-a.ms).slice(0,3).map(h=>({ms:Math.round(h.ms),upd:r(h.upd),rnd:r(h.rnd),ents:h.ents,st:h.st,cause:dgCause(h).slice(0,90)}))},
+    long:{n:DG.long.filter(l=>l.end>performance.now()-60000).length,max:Math.round(Math.max(0,...DG.long.filter(l=>l.end>performance.now()-60000).map(l=>l.dur)))},
+    qs:r(QS),ents:ents.length,st:game+(duel?'+duel':''),role:P2P.isHost?'host':role,players:P2P.isHost?Math.max(1,P2P.players.length):Math.max(MIG.succ.length+1,ents.filter(e=>e.human).length),
+    ping:c.pAvg?Math.round(c.pAvg):-1,jit:Math.round(c.pJit),gap95:c.g.length>=10?Math.round(dgPct(c.g,.95)):-1,snaps:r(DG.rate.sn),rxkb:Math.round(DG.rate.rkb),txkb:Math.round(DG.rate.tkb),hostMs:c.hostMs>=0?r(c.hostMs):-1,
+    heap:c.heap?Math.round(c.heap.usedJSHeapSize/1048576):-1,verdict:c.verdict.slice(0,200),diag:c.D.slice(0,6).map(d=>[d.sev,d.txt.slice(0,220)])}}
+function dguSend(kind,leaving){const u=dguUrl();if(!DGU.cfg||!u||role==='server')return;
+  try{fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},credentials:'omit',keepalive:!!leaving,body:JSON.stringify({dk:DGU.cfg.dk,dev:DGU.cfg.dev,sid:ERRUP.sid,b:BUILD,s:dguSample(kind)})})
+    .then(r=>{DGU.err=r.ok?'':'rejected ('+r.status+')';if(r.ok){DGU.sent++;DGU.last=Date.now()}}).catch(()=>{DGU.err='no connection'})}catch(_){}}
+if(role!=='server'){
+  setInterval(()=>{if(!DGU.cfg||game!=='play'||document.hidden||(navigator.webdriver&&window.SNACK_STATS_URL===undefined))return;
+    if(!DGU.sys){DGU.sys=true;dguSend('sys')}dguSend('perf')},60000);
+  addEventListener('pagehide',()=>{if(DGU.cfg&&game==='play'&&DG.n>600)dguSend('perf',true)})}
 function rafLoop(ts){requestAnimationFrame(rafLoop);probeHz(ts);if(!HZM.quiet)frame()}   // always schedule the next frame first: one error must never freeze the game
 function frame(){
   const t=now(),raw=t-last;if(!gateOk(t))return;   // frame rate limit: skip this one

@@ -55,3 +55,11 @@ Je Art kommt höchstens alle 3 Stunden eine Mail.
 - Im Menü des Spiels steht unten neben Impressum und Datenschutz der Link „Status“.
 - Die Datei `site/status.html` wird aus `tools/stats-worker/page.html` erzeugt: nach jeder Änderung an `page.html` einmal `node tools/stats-worker/make-status.js` ausführen und das Ergebnis committen.
 - Die Daten holt die Seite vom Worker (`/public`, 15 Sekunden zwischengespeichert, damit viele Besucher den Zähler nicht belasten). Jeder offene Status-Tab kostet eine Worker-Anfrage alle 15 s (nur wenn der Tab sichtbar ist).
+
+## Geräte-Messwerte (Handy, Gaming-PC, Arbeits-PC)
+Damit Claude sehen kann, wie das Spiel auf deinen Geräten läuft, schicken freigeschaltete Geräte die Werte des Stats-Fensters automatisch an die Datenbank des Zählers.
+1. Öffne auf jedem Gerät **einmal** den passenden Link aus `grafiken/geraete-links.txt` (Form: `https://typebite.io/?dev=Handy&dk=CODE`) im normalen Browser. Danach merkt sich der Browser das Gerät, und die Adresszeile ist wieder sauber.
+2. Spiele wie immer. Etwa jede Minute Spiel geht eine Zusammenfassung raus. Im Stats-Fenster (F3 oder Knopf „Stats“) steht „Auto-upload for Handy: 12 sent, last 8 s ago“. Mit „Stop upload“ schaltest du es auf diesem Gerät wieder ab.
+3. Claude liest mit dem Passwort aus `grafiken/stats-link.txt` die Zusammenfassung pro Gerät (`/diag/summary`) oder die Rohdaten (`/diag.json`).
+- Nicht gesendet werden Name, IP-Adresse und Chat; nur Geräte- und Leistungswerte. Die Daten werden nach 30 Tagen gelöscht.
+- Der Gerätecode ist wie ein Passwort. Wenn er nicht mehr geheim ist: `npx wrangler secret put DIAG_KEY` mit einem neuen Wert, danach die Links neu öffnen.
