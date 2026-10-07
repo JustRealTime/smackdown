@@ -747,3 +747,5 @@ Ali (Screenshots der App): Quer war es vorher Vollbild und passte, jetzt gibt es
 - **Hochkant:** Rechteck wie in r86, aber in der iPhone-App ist der dunkle Streifen oben "Sicherheitsrand + 28 Pixel" (87 statt 59), damit die Unschärfe nur auf dunkler Fläche liegt. Menüs, Einstellungen und das Stats-Fenster haben denselben Abstand (`.overlay`, `#diag`).
 - **Getestet:** Emuliertes iPhone hochkant (Bild bei 87 Pixel, Einstellungen darunter) und quer (Bild 852x393 vollflächig, Knöpfe 59 Pixel vom Rand); Selbsttest und Handy-Emulation grün. **Nicht getestet:** echtes iPhone.
 
+## Runde 88 (BUILD r88) - stabiler Joystick
+Ali: Der Joystick am Handy soll stabil sein und nicht so wandern. Ursache: Ging der Daumen weiter als der Ring (46 Pixel), wurde der Stick-Fuß mitgezogen. Jetzt bleibt der Fuß genau dort, wo der Daumen aufgesetzt hat, der Knopf hört am Ringrand auf, die Richtung zählt weiter vom Fuß aus. Geprüft mit echten Touch-Ereignissen (Emulation): Fuß bleibt bei (68, 348), Knopf wird bei 46 Pixel begrenzt. Nicht geprüft: echtes Handy (Gefühl, Tot-Zone).

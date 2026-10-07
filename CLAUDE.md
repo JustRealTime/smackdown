@@ -83,7 +83,7 @@ The owner lives in Austria, writes the music themself, wants this to be monetize
 
 ## Working conventions
 - Match the surrounding code style (dense, short names, few comments). English UI text. German only in README/docs.
-- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r87; the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main. Tooling/doc-only commits (no change to game.html or site/config.js) skip the BUILD bump and the konzept round.
+- After changes: `python3 tools/build.py`, bump `const BUILD` near the top of the script (currently r88; r88: the touch joystick base stays where the thumb came down, the knob stops at the ring (before, the base was dragged along); the menu label is set from it, the static text in the HTML is only a fallback, keep it equal), append a section to docs/konzept.md, commit, push to main. Tooling/doc-only commits (no change to game.html or site/config.js) skip the BUILD bump and the konzept round.
 - Syntax check: extract the main `<script>` body to a .js file and run `node --check`.
 - Testing pattern that worked: serve the repo with `python3 -m http.server`, drive it with Playwright + Chromium (locally: `npm install` once, then `npx playwright install chromium`; Playwright finds the browser itself, `require('playwright').chromium.launch()`) using a TEMPORARY copy of game.html
   with `window.__d={...}` hooks appended before the final `})();` (never commit the hook copy). For P2P tests run a local PeerJS broker (`npm i --no-save peer`, so package.json stays clean; `PeerServer({port:9000,host:'127.0.0.1',path:'/'})`)
