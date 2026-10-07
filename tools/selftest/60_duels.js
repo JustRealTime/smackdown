@@ -98,11 +98,14 @@ SUITE.parts.push({ name: 'duels', async run(env, R) {
     SUITE.seed(89); const w = wins(10, 10, { wpm: 60, noise: .1 }, { wpm: 40, noise: .1 }, n); t.range('the faster typist wins', w.a / w.tot * 100, 80, 100, ' %');
     const w2 = wins(10, 10, { wpm: 45, noise: .1 }, { wpm: 40, noise: .1 }, n); t.info('45 vs 40 WPM: the faster wins', Math.round(w2.a / w2.tot * 100), ' %'); t.ok(w2.a / w2.tot > .4, 'a small speed edge is not a disadvantage (' + Math.round(w2.a / w2.tot * 100) + ' %)');
   });
-  await R.test('level gap: what does the higher level get (equal typing speed)?', t => {
+  await R.test('level gap: the higher level has an edge at equal typing speed, but skill still counts', t => {
     SUITE.seed(90); const rows = [];
-    for (const [lo, hi] of [[10, 14], [10, 20], [10, 30], [10, 60]]) { const w = wins(hi, lo, { wpm: 50, noise: .1 }, { wpm: 50, noise: .1 }, Math.round(n * .8)); rows.push([lo, hi, Math.round(w.a / w.tot * 100)]); }
+    for (const [lo, hi] of [[10, 14], [10, 20], [10, 40], [10, 80]]) { const w = wins(hi, lo, { wpm: 50, noise: .1 }, { wpm: 50, noise: .1 }, Math.round(n * 1.5)); rows.push([lo, hi, Math.round(w.a / w.tot * 100)]); }
     t.info('win rate of the HIGHER level at equal speed', rows.map(r => 'Lv' + r[1] + ' vs Lv' + r[0] + ': ' + r[2] + ' %').join(' | '));
-    for (const r of rows) { if (r[2] < 30) t.warn('Level ' + r[1] + ' loses ' + (100 - r[2]) + ' % of duels against level ' + r[0] + ' at the same typing speed: being the lower level is an advantage'); if (r[2] > 70) t.warn('Level ' + r[1] + ' wins ' + r[2] + ' % against level ' + r[0] + ' at the same typing speed: the higher level has a big advantage'); }
+    for (const r of rows) { t.range('higher level ' + r[1] + ' vs ' + r[0] + ' wins', r[2], r[1] - r[0] <= 4 ? 44 : 50, 88, ' %'); if (r[2] > 80) t.warn('Level ' + r[1] + ' wins ' + r[2] + ' % against level ' + r[0] + ' at the same typing speed: very one-sided'); }
+    const avg = rows.reduce((a, r) => a + r[2], 0) / rows.length; t.range('average over the gaps', avg, 55, 76, ' %');
+    // a clearly faster typist still wins against the higher level
+    const w = wins(30, 10, { wpm: 40, noise: .1 }, { wpm: 60, noise: .1 }, Math.round(n * .8)); t.range('Lv 30 at 40 WPM against Lv 10 at 60 WPM: the lower level (faster typist) wins', (w.tot - w.a) / w.tot * 100, 55, 100, ' %');
   });
   await R.test('Head Start and Flow State work against other players too', t => {
     SUITE.seed(91);
