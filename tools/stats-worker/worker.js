@@ -90,11 +90,11 @@ export class Stats extends DurableObject {
     return { total, host, net, quota, hostMs, netMs, netN: rtts.length, status: total >= 100 ? 'over' : total >= 60 ? 'busy' : 'ok' };
   }
   // device diagnostics: opt-in devices send a 'sys' sample once per session and a 'perf' sample about every minute of play
-  async diagAdd(dev, sid, build, kind, data) {
+  async diagAdd(dev, sid, build, kind, data, cap) {
     await this.ready;
     const sql = this.ctx.storage.sql, t = Date.now();
     const n = sql.exec('SELECT COUNT(*) AS n FROM diag WHERE dev = ? AND t > ?', dev, t - 86400000).one().n;
-    if (n >= DIAG_PER_DAY) return false;
+    if (n >= (cap || DIAG_PER_DAY)) return false;
     sql.exec('INSERT INTO diag (t, dev, sid, build, kind, data) VALUES (?, ?, ?, ?, ?, ?)', t, dev, sid, build, kind, data);
     if (Math.random() < .02) sql.exec('DELETE FROM diag WHERE t < ?', t - DIAG_KEEP_DAYS * 86400000);
     return true;
@@ -235,12 +235,14 @@ export default {
       if (txt.length > 120000) return new Response('too big', { status: 413, headers: CORS });
       let p; try { p = JSON.parse(txt) } catch (_) { return new Response('bad', { status: 400, headers: CORS }) }
       const dk = String(env.DIAG_KEY || '');
-      if (!dk || !p || typeof p.dk !== 'string' || p.dk.length !== dk.length || [...dk].reduce((a, c, i) => a | (c.charCodeAt(0) ^ p.dk.charCodeAt(i)), 0)) return new Response('no', { status: 403, headers: CORS });
-      const dev = String(p.dev || '').replace(/[^\w .-]/g, '').slice(0, 20), sid = String(p.sid || '').replace(/[^a-z0-9]/g, '').slice(0, 12), b = String(p.b || '').replace(/[^\w.-]/g, '').slice(0, 12);
+      const authed = dk && p && typeof p.dk === 'string' && p.dk.length === dk.length && ![...dk].reduce((a, c, i) => a | (c.charCodeAt(0) ^ p.dk.charCodeAt(i)), 0);
+      const anon = !authed && p && p.s && p.s.k === 'display' && txt.length < 60000;   // a display report without a device code (a home-screen app on an iPhone has its own storage): kept as device 'anon', at most 150 a day
+      if (!authed && !anon) return new Response('no', { status: 403, headers: CORS });
+      const dev = anon ? 'anon' : String(p.dev || '').replace(/[^\w .-]/g, '').slice(0, 20), sid = String(p.sid || '').replace(/[^a-z0-9]/g, '').slice(0, 12), b = String(p.b || '').replace(/[^\w.-]/g, '').slice(0, 12);
       const kind = p.s && (p.s.k === 'sys' || p.s.k === 'perf' || p.s.k === 'test' || p.s.k === 'display') ? p.s.k : '';
       if (!dev || !sid || !kind) return new Response('bad', { status: 400, headers: CORS });
       if (kind !== 'test' && kind !== 'display' && txt.length > DIAG_MAX_BYTES) return new Response('too big', { status: 413, headers: CORS });   // a self test report (kind test) is bigger
-      const ok = await stub.diagAdd(dev, sid, b, kind, JSON.stringify(p.s));
+      const ok = await stub.diagAdd(dev, sid, b, kind, JSON.stringify(p.s), anon ? 150 : DIAG_PER_DAY);
       return new Response(ok ? '{}' : '{"full":1}', { headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
     const key = String(env.KEY || ''), given = u.searchParams.get('k') || '';
