@@ -18,7 +18,7 @@ const os = require('os');
 
 const PORT = +process.argv[2] || +process.env.PORT || 8080;
 const ROOT = path.join(__dirname, '..');
-const GAME = path.join(ROOT, 'game.html');
+const GAME = process.env.SNACK_GAME || path.join(ROOT, 'game.html');
 const CFG_FILE = process.env.SNACK_CONFIG || path.join(ROOT, 'site', 'config.js');   // the game settings, the same file the website uses
 const PAGE = process.env.SNACK_PAGE || (fs.existsSync(path.join(ROOT, 'index.html')) ? path.join(ROOT, 'index.html') : GAME);
 

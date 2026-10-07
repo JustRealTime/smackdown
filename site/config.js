@@ -45,7 +45,9 @@ players: {
   botRespawn: 1,                     // eaten bots are replaced at about this many per second. Bots eat each other, so the map is never completely full:
                                      // 0.8 = about 115 bots around, 2 = about 165, 4 = about 220 (with bots: 240)
   botLevels: [[70, 1, 5], [23, 5, 12], [7, 12, 22]],   // level of a new bot: [chance in %, lowest level, highest level]
-  botSkill: [-8, 14],                // typing speed of bots: this many words per minute more or less than the base (see duel.botWpm)
+  botSkill: [-14, 28],               // typing speed of bots: this many words per minute more or less than the base (see duel.botWpm)
+  botSkillSkew: 1.6,                 // 1 = every value is equally likely; higher = most bots are slow and only a few are fast typists
+  botTypes: { balanced: 3, farmer: 2, hunter: 1.5, sprinter: 1, tank: 1, scavenger: 1, coward: 1 },   // how common each kind of bot is (weights). farmer: eats, avoids fights; hunter: chases; sprinter: very fast walker but slow typist; tank: slow walker, fast typist, brave; scavenger: loves gift boxes and orbs; coward: runs from everyone
   botAggression: [0.25, 0.9],        // each bot gets a random value in this range: how often it hunts someone weaker
   botBravery: [0, 1],                // each bot gets a random value: above 0.75 it never runs away
   botItems: 1,                       // how many items a bot can carry at the same time
@@ -152,6 +154,7 @@ duel: {
   botWpm: 32, botWpmPerLevel: 0.1, botWpmMaxLevelBonus: 14, botWpmMin: 18, botWpmMax: 100,
   botVsBot: [1.8, 3],        // how long a duel between two bots lasts (seconds)
   botVsBotLevelEdge: 0.006,  // win chance per level of difference ...
+  botVsBotSkillEdge: 0.004,  // ... and per word per minute of typing speed difference ...
   botVsBotMaxEdge: 0.2,      // ... but never more than this
   caughtEdge: 0.12,          // win chance bonus for catching somebody
   keyboardEdge: 0.1,         // win chance bonus for a keyboard item

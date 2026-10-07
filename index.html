@@ -453,7 +453,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r80</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r81</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -635,7 +635,9 @@ players: {
   botRespawn: 1,                     // eaten bots are replaced at about this many per second. Bots eat each other, so the map is never completely full:
                                      // 0.8 = about 115 bots around, 2 = about 165, 4 = about 220 (with bots: 240)
   botLevels: [[70, 1, 5], [23, 5, 12], [7, 12, 22]],   // level of a new bot: [chance in %, lowest level, highest level]
-  botSkill: [-8, 14],                // typing speed of bots: this many words per minute more or less than the base (see duel.botWpm)
+  botSkill: [-14, 28],               // typing speed of bots: this many words per minute more or less than the base (see duel.botWpm)
+  botSkillSkew: 1.6,                 // 1 = every value is equally likely; higher = most bots are slow and only a few are fast typists
+  botTypes: { balanced: 3, farmer: 2, hunter: 1.5, sprinter: 1, tank: 1, scavenger: 1, coward: 1 },   // how common each kind of bot is (weights). farmer: eats, avoids fights; hunter: chases; sprinter: very fast walker but slow typist; tank: slow walker, fast typist, brave; scavenger: loves gift boxes and orbs; coward: runs from everyone
   botAggression: [0.25, 0.9],        // each bot gets a random value in this range: how often it hunts someone weaker
   botBravery: [0, 1],                // each bot gets a random value: above 0.75 it never runs away
   botItems: 1,                       // how many items a bot can carry at the same time
@@ -742,6 +744,7 @@ duel: {
   botWpm: 32, botWpmPerLevel: 0.1, botWpmMaxLevelBonus: 14, botWpmMin: 18, botWpmMax: 100,
   botVsBot: [1.8, 3],        // how long a duel between two bots lasts (seconds)
   botVsBotLevelEdge: 0.006,  // win chance per level of difference ...
+  botVsBotSkillEdge: 0.004,  // ... and per word per minute of typing speed difference ...
   botVsBotMaxEdge: 0.2,      // ... but never more than this
   caughtEdge: 0.12,          // win chance bonus for catching somebody
   keyboardEdge: 0.1,         // win chance bonus for a keyboard item
@@ -1000,7 +1003,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r80';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r81';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -2039,13 +2042,28 @@ function cleanLook(l){if(!l||typeof l!=='object')return null;const o={};
   return o}
 const randomLook=()=>({skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),shoes:pick(SHOECOLS),acol:pick(ACOLS),fcol:pick(ACOLS),ecol:pick(ACOLS),hs:pick(HS_ALL),acc:pick(ACCS),sty:pick(SHIRTSTY),pst:pick(PSTY),face:pick(FACES),ex:pick(EXTRAS)});
 let ents=[],player=null,nextId=1;
+// bot types (r81): every bot gets one when it is made. a / b = aggression and bravery (0..1, placed inside the ranges of the settings), s = walking speed factor,
+// k = typing skill in words per minute (added to the bot's base), seek / prey / loot = how far it looks for snacks / victims / boxes and orbs (units), th = seconds between two thoughts
+const BOTT={balanced:{a:[.3,.8],b:[.2,.9],s:[.95,1.05],k:0,seek:800,prey:460,loot:560,th:.3},
+  farmer:{a:[0,.25],b:[0,.5],s:[.92,1.04],k:-5,seek:1050,prey:300,loot:760,th:.3},
+  hunter:{a:[.8,1],b:[.7,1],s:[1,1.1],k:4,seek:600,prey:680,loot:380,th:.22},
+  sprinter:{a:[.4,.75],b:[.1,.6],s:[1.08,1.16],k:-9,seek:850,prey:520,loot:600,th:.26},
+  tank:{a:[.4,.7],b:[.85,1],s:[.84,.92],k:8,seek:700,prey:500,loot:500,th:.4},
+  scavenger:{a:[.1,.4],b:[.2,.7],s:[.98,1.08],k:-2,seek:700,prey:380,loot:1250,th:.3},
+  coward:{a:[0,.12],b:[0,.12],s:[1.05,1.15],k:-4,seek:900,prey:250,loot:700,th:.28}};
+function botAi(e){const T=BOTT[e.bt]||BOTT.balanced,P=CFG.players;   // the part that is thrown anew after a checkpoint
+  e.ai.hg=rand(.75,1.2);e.ai.aggr=P.botAggression[0]+(P.botAggression[1]-P.botAggression[0])*rand(T.a[0],T.a[1]);e.ai.brave=P.botBravery[0]+(P.botBravery[1]-P.botBravery[0])*rand(T.b[0],T.b[1]);e.ai.T=T}
+function botSetup(e){const w=CFG.players.botTypes||{},P=CFG.players;let tot=0;for(const k in BOTT)tot+=Math.max(0,+w[k]||0);
+  let r=Math.random()*tot,bt='balanced';for(const k in BOTT){const x=Math.max(0,+w[k]||0);if(x>0){r-=x;if(r<=0){bt=k;break}}}
+  e.bt=bt;const T=BOTT[bt];e.spd=rand(T.s[0],T.s[1]);   // slow and fast walkers, slow and fast typists (a few very fast ones)
+  e.skill=P.botSkill[0]+(P.botSkill[1]-P.botSkill[0])*Math.pow(Math.random(),P.botSkillSkew||1)+T.k;botAi(e)}
 function makeEnt(name,lvl,isPlayer,t){const p=freeSpot(40);
   const e={id:nextId++,perks:{},picksDone:0,items:[null,null,null,null,null,null,null],buff:{magnet:0,turbo:0,shield:0,rush:0,smoke:0,rocket:0,radar:0,freeze:0,rubber:0,blackhole:0},dashCharges:1,bubbleT:0,eatT:.6,chain:0,lastEat:-99,name,lvl,isPlayer,human:isPlayer,x:p.x,y:p.y,vx:0,vy:0,r:RAD,dir:'down',walk:0,state:'move',stateT:0,eatFood:null,
     dashT:0,dashCd:0,stamina:100,sprinting:false,fled:{},protect:t+CFG.players.spawnProtection,ghosts:[],ghostT:0,want:{ux:0,uy:0,f:0},chomp:0,
     skin:pick(SKINS),shirt:pick(SHIRTS),hair:pick(HAIRS),pants:pick(PANTS),skill:rand(CFG.players.botSkill[0],CFG.players.botSkill[1]),hs:pick(HSTYLES),acc:pick(ACCS),acol:pick(ACOLS),sty:pick(SHIRTSTY),pst:pick(PSTY),shoes:pick(SHOECOLS),face:pick(FACES),fcol:pick(ACOLS),ex:pick(EXTRAS),ecol:pick(ACOLS),
     sq:0,sqv:0,lean:0,slideT:0,skidT:0,bites:0,chewT:0,lastStep:0,
     ai:{t:Math.random()*.3,mode:'food',target:null,hold:0,wx:rand(100,WORLD-100),wy:rand(100,WORLD-100),aggr:rand(CFG.players.botAggression[0],CFG.players.botAggression[1]),brave:rand(CFG.players.botBravery[0],CFG.players.botBravery[1]),lx:p.x,ly:p.y,stuck:0,sx:0,sy:0,itemAt:0}};
-  calcStats(e);if(role!=='server')spriteWarm(e);return e}
+  botSetup(e);calcStats(e);if(role!=='server')spriteWarm(e);return e}
 function botLevel(){const bl=CFG.players.botLevels,tot=bl.reduce((a,b)=>a+(+b[0]||0),0);let r=Math.random()*tot;   // [chance, lowest, highest] per group
   for(const b of bl){r-=+b[0]||0;if(r<=0)return rand(+b[1]||1,Math.max(+b[1]||1,+b[2]||1))}return 1}
 function spawnBot(t){const used=new Set(ents.map(e=>e.name.replace(/ \(BOT\)$/,'')));const free=NAMES.filter(n=>!used.has(n));
@@ -2906,35 +2924,64 @@ function choose(i){
 for(const id of ['hud'])$(id).addEventListener('pointerenter',()=>{overUI=true}),$(id).addEventListener('pointerleave',()=>{overUI=false});
 
 /* ---------- AI ---------- */
+const botMean=e=>clamp(DU.botWpm+e.skill+Math.min(L(e)*DU.botWpmPerLevel,DU.botWpmMaxLevelBonus),DU.botWpmMin,DU.botWpmMax);
+// what a bot can tell about a duel with another one: phrase lengths, both typing speeds (a human is guessed to be as fast as the thinking bot itself times its own guess (ai.hg, 0.75 cocky .. 1.2 careful), so bots do attack humans and are sometimes wrong), Warm Fingers and Head Start. 0..1 = chance that a wins
+function winOdds(a,b,t,me){const [pa,pb]=duelWords(a,b,(b.fled[a.id]||0)>t,(a.fled[b.id]||0)>t,keyItemOf(a),keyItemOf(b));
+  const ta=Math.max(.4,pa.n-a.st.warm)*60/(a.human?botMean(me)*me.ai.hg:botMean(a))+b.st.head,tb=Math.max(.4,pb.n-b.st.warm)*60/(b.human?botMean(me)*me.ai.hg:botMean(b))+a.st.head;
+  return 1/(1+Math.exp(-3.5*Math.log(tb/ta)))}
+function fleeDir(b,thr){const ai=b.ai;let best=0,bs=-1e9;
+  for(let k=0;k<12;k++){const a=k*.5236,ux=Math.cos(a),uy=Math.sin(a);let s=0;
+    for(const o of thr){const d0=Math.hypot(b.x-o.x,b.y-o.y)||1;s+=Math.hypot(b.x+ux*220-o.x,b.y+uy*220-o.y)*(1+300/d0)}
+    for(let m=60;m<=240;m+=60)if(wallHit(b.x+ux*m,b.y+uy*m,18)){s-=(m<=60?900:m<=120?500:200);break}   // do not run into a wall
+    const ex=b.x+ux*220,ey=b.y+uy*220;if(ex<90||ex>WORLD-90||ey<90||ey>WORLD-90)s-=400;
+    s+=70*(ux*(ai.fx||0)+uy*(ai.fy||0));   // keep the way it already runs
+    if(s>bs){bs=s;best=a}}
+  ai.fx=Math.cos(best);ai.fy=Math.sin(best);return best}
 function botThink(b,t){
-  const ai=b.ai,lb=L(b);
-  const bs=firstItem(b),bk=bs>=0?b.items[bs]:null;
-  if(bk&&!ITEMS[bk].auto&&t>ai.itemAt){const m=ai.mode,fight=m==='flee'||m==='chase';   // bots use items too
-    const ok={shield:m==='flee',smoke:m==='flee',turbo:fight,magnet:m==='food',rush:m==='food',bomb:m==='food',freeze:fight,rocket:fight,ticket:true,radar:true,shock:m==='flee',nova:m==='flee',energy:m==='flee'||m==='chase',apple:true,clover:true,rubber:fight,teleport:m==='flee',crystal:true,blackhole:m==='food'}[bk];if(ok||t>ai.itemAt+25)useItem(b,t,bs)}
-  if(ai.hold>0&&ai.target&&ai.target.state!=='eaten'&&ai.target.state!=='duel'&&t>ai.target.protect&&ai.target.buff.smoke<=t){ai.hold-=.3}
+  const ai=b.ai,lb=L(b),T=ai.T||BOTT.balanced;ai.th=T.th;
+  const bs=b.items.findIndex(k=>k&&!ITEMS[k].auto),bk=bs>=0?b.items[bs]:null;
+  let threat=null,td=1e9,thr=[],prey=null,pv=0,dang=null;
+  if(ai.hold>0&&ai.target&&ai.target.state!=='eaten'&&ai.target.state!=='duel'&&t>ai.target.protect&&ai.target.buff.smoke<=t){ai.hold-=ai.th}
   else{ai.hold=0;ai.target=null;
-    let threat=null,td=1e9,prey=null,ps=0;
-    const bh=houseAt(b.x,b.y);
+    const bh=houseAt(b.x,b.y),fleeAt=.7+ai.brave*.2,need=.68-ai.aggr*.3,tr=300+160*(1-ai.brave);
     for(const o of ents){if(o===b||o.state==='eaten'||o.state==='duel'||t<o.protect||o.buff.smoke>t)continue;
-      const d=Math.hypot(o.x-b.x,o.y-b.y);if(d>560)continue;
+      const d=Math.hypot(o.x-b.x,o.y-b.y);if(d>Math.max(T.prey,tr)+80)continue;
       const oh=houseAt(o.x,o.y);if(oh!==bh&&d>180)continue;
-      const lo=L(o);
-      if(lo>=lb+3&&d<340&&d<td){threat=o;td=d}
-      else if((lo<=lb-1||o.state==='eat')&&d<460){const s=(o.state==='eat'?2.2:1)*(1+(lb-lo)*.08)/d;if(s>ps){ps=s;prey=o}}}
-    const kd=king&&king!==b&&king.state==='move'&&t>=king.protect&&king.buff.smoke<=t?Math.hypot(king.x-b.x,king.y-b.y):1e9;   // everybody hunts the king
-    if(kd<1100&&ai.brave>.3&&lb>=L(king)*.3){ai.mode='chase';ai.target=king;ai.hold=rand(2,4)}
-    else if(threat&&ai.brave<.75){ai.mode='flee';ai.target=threat}
-    else if(prey&&Math.random()<ai.aggr){ai.mode='chase';ai.target=prey;ai.hold=rand(1.2,2.4)}
-    else{let best=null,bd=750;const bi=Math.floor(b.x/FGC),bj=Math.floor(b.y/FGC);   // nearest snack: look through the grid cells around the bot
-      for(let ci=bi-5;ci<=bi+5;ci++)for(let cj=bj-5;cj<=bj+5;cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(const f of cell){if(f.gone)continue;const d=Math.abs(f.x-b.x)+Math.abs(f.y-b.y);if(d<bd){bd=d;best=f}}}
-      if(best){ai.mode='food';ai.wx=best.x;ai.wy=best.y}else{ai.mode='wander';if(Math.hypot(ai.wx-b.x,ai.wy-b.y)<60){ai.wx=rand(100,WORLD-100);ai.wy=rand(100,WORLD-100)}}}}
+      if(o.state==='move'&&o.buff.freeze<=t&&d<tr&&winOdds(o,b,t,b)>fleeAt){thr.push(o);if(d<td){threat=o;td=d}}
+      else if((o.state==='move'||o.state==='eat')&&d<T.prey&&b.state==='move'){const p=winOdds(b,o,t,b);   // somebody it is likely to beat: the richer and the closer, the better (eating ones cannot get away)
+        if(p>need&&(L(o)<=lb+2||p>.85)){const s=p*(o.state==='eat'?1.9:1)*(1+Math.max(0,L(o)-lb)*.05+Math.min(L(o),lb)*.01)/(d+60);if(s>pv){pv=s;prey=o}}}}
+    const kd=king&&king!==b&&king.state==='move'&&t>=king.protect&&king.buff.smoke<=t?Math.hypot(king.x-b.x,king.y-b.y):1e9;   // the King is worth a lot, but only if it can be beaten
+    if(kd<1100&&ai.brave>.3&&winOdds(b,king,t,b)>Math.max(.4,need-.1)){ai.mode='chase';ai.target=king;ai.hold=rand(2,4)}
+    else if(threat&&ai.brave<.9){ai.mode='flee';ai.target=threat}
+    else if(prey&&Math.random()<.35+ai.aggr*.65){ai.mode='chase';ai.target=prey;ai.hold=rand(1.2,2.4)}
+    else{// loot: snacks, gift boxes and orbs, each weighed by what it gives and how far away it is; nothing close to somebody dangerous
+      let best=null,bsc=0,bx=0,by=0,bm='food';const bi=Math.floor(b.x/FGC),bj=Math.floor(b.y/FGC),R=Math.ceil(T.seek/FGC),sx=ai.skx,sy=ai.sky,skip=t<ai.skt;
+      const bad=(x,y)=>(skip&&Math.abs(x-sx)<40&&Math.abs(y-sy)<40)||(threat&&Math.hypot(x-threat.x,y-threat.y)<230);
+      for(let ci=bi-R;ci<=bi+R;ci++)for(let cj=bj-R;cj<=bj+R;cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(const f of cell){if(f.gone)continue;
+        const d=Math.abs(f.x-b.x)+Math.abs(f.y-b.y);if(d>T.seek)continue;if(bad(f.x,f.y))continue;
+        const fd=FOOD[f.t]||FOOD.apple,sc=(fd.xp+(fd.fx&&fd.fx.length?1.5:0))/(d+70+fd.et*60);if(sc>bsc){bsc=sc;best=f;bx=f.x;by=f.y;bm='food'}}}
+      if(itemRoom(b))for(const x of boxes){if(x.water&&b.bt!=='scavenger')continue;const d=Math.abs(x.x-b.x)+Math.abs(x.y-b.y);if(d>T.loot||bad(x.x,x.y))continue;
+        const sc=(x.water?7:4.5)/(d+70);if(sc>bsc){bsc=sc;best=x;bx=x.x;by=x.y;bm='box'}}
+      for(const o of orbs){const d=Math.abs(o.x-b.x)+Math.abs(o.y-b.y);if(d>T.loot||bad(o.x,o.y))continue;const sc=(o.v*b.st.orbx/1.7)/(d+70);if(sc>bsc){bsc=sc;best=o;bx=o.x;by=o.y;bm='orb'}}
+      if(best){ai.mode='food';ai.lootK=bm;ai.wx=bx;ai.wy=by}
+      else{ai.mode='wander';ai.lootK='';if(Math.hypot(ai.wx-b.x,ai.wy-b.y)<60||ai.wt===undefined||t>ai.wt){   // nothing near: walk toward some snack somewhere (not blindly)
+          const f=foods.length?foods[(Math.random()*foods.length)|0]:null;let tx=f&&!bad(f.x,f.y)?f.x:rand(100,WORLD-100),ty=f&&!bad(f.x,f.y)?f.y:rand(100,WORLD-100);
+          for(let i=0;i<4&&foods.length;i++){const g=foods[(Math.random()*foods.length)|0];if(Math.hypot(g.x-b.x,g.y-b.y)<Math.hypot(tx-b.x,ty-b.y)&&!bad(g.x,g.y)){tx=g.x;ty=g.y}}
+          ai.wx=tx;ai.wy=ty;ai.wt=t+rand(8,16)}}}}
+  if(!threat&&ai.mode==='flee'&&ai.target)threat=ai.target;
+  if(bk&&t>ai.itemAt){const m=ai.mode,fl=m==='flee',ch=m==='chase',near=threat?Math.hypot(threat.x-b.x,threat.y-b.y):1e9,td2=ai.target&&ch?Math.hypot(ai.target.x-b.x,ai.target.y-b.y):1e9;   // bots use items too, when it helps
+    const ok={shield:fl&&near<280,smoke:fl&&near<320,turbo:fl||ch,magnet:m==='food',rush:m==='food',bomb:m==='food',freeze:(fl&&near<320)||(ch&&td2<240),rocket:fl||ch,ticket:true,radar:true,shock:fl&&near<280,nova:fl&&near<320,
+      energy:(fl||ch)&&(b.stamina<40||b.dashCharges<1),apple:true,clover:true,rubber:fl||ch,teleport:fl&&near<190,crystal:true,blackhole:m==='food',sticky:ents.some(o=>o!==b&&o.state==='move'&&o.items.some(Boolean)&&Math.hypot(o.x-b.x,o.y-b.y)<ITEMS.sticky.p.radius)}[bk];
+    if(ok||t>ai.itemAt+25)useItem(b,t,bs)}
   const moved=Math.hypot(b.x-ai.lx,b.y-ai.ly);ai.lx=b.x;ai.ly=b.y;
-  if(ai.stuck<=0&&b.state==='move'&&b.want.f>.5&&moved<12){ai.stuck=.9;const a=Math.random()*6.28;ai.sx=Math.cos(a);ai.sy=Math.sin(a)}
+  if(ai.stuck<=0&&b.state==='move'&&b.want.f>.5&&moved<12){ai.stuck=.9;const a=Math.random()*6.28;ai.sx=Math.cos(a);ai.sy=Math.sin(a);
+    if(ai.mode==='food'){ai.skx=ai.wx;ai.sky=ai.wy;ai.skt=t+8}}   // a snack it cannot reach is left alone for a while
   let tx,ty,sprint=false,dash=false;
-  if(ai.stuck>0){ai.stuck-=.3;b.want={ux:ai.sx,uy:ai.sy,f:1,sprint:false,dash:false};return}
-  if(ai.mode==='flee'&&ai.target){const o=ai.target,d=Math.hypot(b.x-o.x,b.y-o.y)||1;tx=b.x+(b.x-o.x)/d*200;ty=b.y+(b.y-o.y)/d*200;sprint=true;dash=d<150&&Math.random()<.35}
-  else if(ai.mode==='chase'&&ai.target){const o=ai.target,d=Math.hypot(b.x-o.x,b.y-o.y);tx=o.x;ty=o.y;sprint=d<320;dash=d<130&&Math.random()<.3}
-  else{tx=ai.wx;ty=ai.wy}
+  if(ai.stuck>0){ai.stuck-=ai.th;b.want={ux:ai.sx,uy:ai.sy,f:1,sprint:false,dash:false};return}
+  if(ai.mode==='flee'&&ai.target){const o=ai.target,d=Math.hypot(b.x-o.x,b.y-o.y)||1,a=fleeDir(b,thr.length?thr:[o]);tx=b.x+Math.cos(a)*200;ty=b.y+Math.sin(a)*200;
+    sprint=(b.stamina>8||b.buff.turbo>t)&&d<420;dash=d<150&&b.dashCharges>0&&Math.random()<.4}
+  else if(ai.mode==='chase'&&ai.target){const o=ai.target,d=Math.hypot(b.x-o.x,b.y-o.y);tx=o.x+o.vx*.25;ty=o.y+o.vy*.25;sprint=d<340&&b.stamina>(ai.brave>.7?10:30);dash=d<140&&b.dashCharges>0&&Math.random()<.3}
+  else{tx=ai.wx;ty=ai.wy;const d0=Math.hypot(tx-b.x,ty-b.y);sprint=ai.lootK&&d0>260&&b.stamina>75&&Math.random()<.3}
   const dx=tx-b.x,dy=ty-b.y,d=Math.hypot(dx,dy)||1;
   b.want={ux:dx/d,uy:dy/d,f:clamp(d/60,0,1)*(ai.mode==='wander'?.7:1),sprint,dash};
 }
@@ -3075,7 +3122,7 @@ function stepEnt(e,dt,t){
   else if(e.state==='eaten'){e.stateT-=dt;const w=e.eater;if(w){e.x+=(w.x-e.x)*Math.min(1,dt*6);e.y+=(w.y-10-e.y)*Math.min(1,dt*6)}return}
   else{
     const frozen=bf.freeze>t,w=frozen?{ux:0,uy:0,f:0,sprint:false,dash:false}:e.want,turbo=bf.turbo>t,rk=bf.rocket>t;
-    let sp=BASE*w.f*st.speed*(1-Math.min(MV.slowdownMax,L(e)*MV.slowdownPerLevel))*(turbo?1+ITEMS.turbo.p.speedBonus*stackN(e,'turbo',t):1)*(timeWarp.until>t&&timeWarp.owner!==e?ITEMS.warp.p.slowdown:1)*(swim?MV.swimSpeed:1);   // bigger levels are a little slower
+    let sp=BASE*w.f*st.speed*(e.human?1:e.spd||1)*(1-Math.min(MV.slowdownMax,L(e)*MV.slowdownPerLevel))*(turbo?1+ITEMS.turbo.p.speedBonus*stackN(e,'turbo',t):1)*(timeWarp.until>t&&timeWarp.owner!==e?ITEMS.warp.p.slowdown:1)*(swim?MV.swimSpeed:1);   // bigger levels are a little slower
     const spr=w.sprint&&(e.stamina>1||turbo)&&w.f>.2&&!swim;
     if(spr){sp*=st.sprintx;if(!turbo)e.stamina=Math.max(0,e.stamina-MV.sprintDrain*dt)}else e.stamina=Math.min(st.staMax,e.stamina+(w.f<.2?MV.regenResting:MV.regenMoving)*dt*st.regen);
     e.sprinting=spr;
@@ -3143,7 +3190,7 @@ function startDuel(a,b,t){a.state='duel';b.state='duel';a.vx=a.vy=b.vx=b.vy=0;
   const kOf=e=>{const i=e.items.findIndex(k=>k==='gkeys')>=0?e.items.indexOf('gkeys'):e.items.indexOf('keys');if(i<0)return false;const k=e.items[i];e.items[i]=null;return k},ka=kOf(a),kb=kOf(b);   // Pro Keyboard is used up by the duel
   if(role==='server'&&(a.human||b.human)){srvStartDuel(a,b,aCaught,bCaught,ka,kb,t);return}
   if(a.isPlayer||b.isPlayer){const p=a.isPlayer?a:b,o=a.isPlayer?b:a;openTypingDuel(p,o,a.isPlayer?aCaught:bCaught,a.isPlayer?bCaught:aCaught,a.isPlayer?ka:kb,a.isPlayer?kb:ka)}
-  else{const la=a.lvl+2,lb=b.lvl+2;let pa=.5-clamp((la-lb)*DU.botVsBotLevelEdge,-DU.botVsBotMaxEdge,DU.botVsBotMaxEdge)+(aCaught?DU.caughtEdge:0)-(bCaught?DU.caughtEdge:0)+(ka?DU.keyboardEdge:0)-(kb?DU.keyboardEdge:0);botDuels.push({a,b,end:t+rand(DU.botVsBot[0],DU.botVsBot[1]),pa:clamp(pa,.15,.85)})}}
+  else{const la=a.lvl+2,lb=b.lvl+2;let pa=.5-clamp((la-lb)*DU.botVsBotLevelEdge,-DU.botVsBotMaxEdge,DU.botVsBotMaxEdge)+clamp((botMean(a)-botMean(b))*DU.botVsBotSkillEdge,-DU.botVsBotMaxEdge,DU.botVsBotMaxEdge)+(aCaught?DU.caughtEdge:0)-(bCaught?DU.caughtEdge:0)+(ka?DU.keyboardEdge:0)-(kb?DU.keyboardEdge:0);botDuels.push({a,b,end:t+rand(DU.botVsBot[0],DU.botVsBot[1]),pa:clamp(pa,.15,.85)})}}
 function finishDuel(w,l,t){w.state='move';w.protect=t+DU.winnerProtection+w.st.afterwin;w.chomp=.6;
   // you never get everything: a winner takes about half of what the loser collected (less for much weaker victims) and
   // one win is capped at 15 levels of your own; another 20% drops as orbs, the rest is gone
@@ -3184,7 +3231,7 @@ function gapCut(me,op){const d=L(op)-L(me);if(d<DU.gapFrom)return 0;return clamp
 function sentenceWords(me,op,caught,kb){const base=stakeWords(me,op),chase=caught?Math.max(0,DU.caughtWords-op.st.slippery):0,perk=me.st.short,
     under=(L(op)>L(me)?me.st.underdog:0)+gapCut(me,op),curse=op.st.curse,key=kb==='gkeys'?Math.max(1,Math.floor(base*ITEMS.gkeys.p.share)):kb?ITEMS.keys.p.words:0;
   return{n:clamp(base-chase-perk-under+curse-key,DU.shortestPhrase,DU.longestPhrase),base,chase,perk,key,curse,under}}
-const botWpm=e=>clamp(DU.botWpm+e.skill+Math.min(L(e)*DU.botWpmPerLevel,DU.botWpmMaxLevelBonus)+rand(-3,3),DU.botWpmMin,DU.botWpmMax);   // how fast a bot types
+const botWpm=e=>clamp(botMean(e)*rand(.92,1.08),DU.botWpmMin,DU.botWpmMax);   // how fast a bot types in this duel (its own base speed, a good or a bad day)
 function openTypingDuel(p,o,pCaught,oCaught,pKb,oKb){
   const [ps,os]=duelWords(p,o,pCaught,oCaught,pKb,oKb);
   const text=makePhrase(ps.n),otext=makePhrase(os.n);
@@ -3272,7 +3319,7 @@ function update(dt,t){
     player.want=joy.on&&$('settings').hidden&&!leaveOpen?{ux:joy.ux,uy:joy.uy,f:joy.f,sprint:shift,dash:dashPressed}:!TOUCH&&d>6&&$('settings').hidden&&!MAP.hover?{ux:dx/d,uy:dy/d,f:clamp((d-6)/110,0,1),sprint:shift,dash:dashPressed}:{ux:0,uy:0,f:0,sprint:false,dash:dashPressed}}
   dashPressed=false;
   if(role==='server')srvApplyInputs(t);
-  for(const e of ents){if(!e.human&&e.state==='move'){e.ai.t-=dt;if(e.ai.t<=0){e.ai.t=.3;botThink(e,t)}}stepEnt(e,dt,t)}
+  for(const e of ents){if(!e.human&&e.state==='move'){e.ai.t-=dt;if(e.ai.t<=0){e.ai.t=e.ai.th||.3;botThink(e,t)}}stepEnt(e,dt,t)}
   // duel triggers
   for(let i=0;i<ents.length;i++){const a=ents[i];if((a.state!=='move'&&a.state!=='eat')||t<a.protect)continue;
     for(let j=i+1;j<ents.length;j++){const b=ents[j];if((b.state!=='move'&&b.state!=='eat')||t<b.protect)continue;
@@ -3463,13 +3510,13 @@ const CK_DROP={sd:1,eater:1,eatFood:1,h:1,ai:1,ghosts:1,st:1,inHouse:1},CK_LOOK=
 function srvCheckpoint(){const es=[];
   for(const e of ents){if(e.gone||e.state==='eaten')continue;let o;
     if(e.human){o={};for(const k in e){if(CK_DROP[k])continue;const v=e[k];if(typeof v==='function')continue;o[k]=v}o.hkey=e.h?e.h.key:e.hkey}   // players: everything
-    else{o={id:e.id,name:e.name,lvl:e.lvl,x:e.x,y:e.y,items:e.items,perks:e.perks,picksDone:e.picksDone,skill:e.skill};for(const k of CK_LOOK)o[k]=e[k]}   // bots: what makes them look and play the same
+    else{o={id:e.id,name:e.name,lvl:e.lvl,x:e.x,y:e.y,items:e.items,perks:e.perks,picksDone:e.picksDone,skill:e.skill,bt:e.bt,spd:e.spd};for(const k of CK_LOOK)o[k]=e[k]}   // bots: what makes them look and play the same
     if(o.state==='duel'||o.state==='eat'){o.state='move';o.stateT=0}   // a duel in progress is cancelled
     es.push(o)}
   return JSON.stringify({v:1,seed:WORLD_SEED,now:now(),nextId,es,foods:foods.flatMap(f=>[Math.round(f.x),Math.round(f.y),Math.max(0,FOODS.indexOf(f.t))*2+(f.inside?1:0)]),boxes:boxes.map(b=>[Math.round(b.x),Math.round(b.y),b.inside?1:0,b.water?1:0])})}
 function srvRestore(ck){ck=typeof ck==='string'?JSON.parse(ck):ck;
   CLK=ck.now-performance.now()/1000;buildWorld(ck.seed);const t=now();ents=[];
-  for(const o of ck.es){const e=makeEnt(o.name,o.lvl,false,t);Object.assign(e,o);
+  for(const o of ck.es){const e=makeEnt(o.name,o.lvl,false,t);Object.assign(e,o);if(o.bt)botAi(e);
     if(o.hkey){e.human=true;e.hkey=o.hkey;e.want={ux:0,uy:0,f:0,sprint:false,dash:false};e.protect=Math.max(e.protect||0,t+25);e.ghosts=[]}   // players who have not come back yet stand still and cannot be touched
     calcStats(e);ents.push(e)}
   nextId=Math.max(ck.nextId||1,...ents.map(e=>e.id+1));
@@ -3492,19 +3539,20 @@ function srvLeave(cid){
 const srvNote=ev=>{try{if(typeof postMessage==='function')postMessage({note:ev});else if(typeof console!=='undefined')console.warn('suspect',JSON.stringify(ev))}catch(_){}};   // the host's page (and the stats) hear about suspicious behaviour
 function srvMsg(cid,m){
   const h=humans.get(cid);if(!h||!m)return;
-  const tn=now();h.rl=Math.min(200,(h.rl===undefined?200:h.rl)+(tn-(h.rlt||tn))*100);h.rlt=tn;if(--h.rl<0){h.abuse=(h.abuse||0)+1;if(h.abuse===200)srvNote({type:'flood',name:h.name});return}   // about 100 messages a second are allowed (movement, typing), more is dropped
+  const tn=now();h.rl=Math.min(200,(h.rl===undefined?200:h.rl)+(tn-(h.rlt||tn))*100);h.rlt=tn;if(--h.rl<0){h.rl=Math.max(h.rl,-100);h.abuse=(h.abuse||0)+1;if(h.abuse===200)srvNote({type:'flood',name:h.name});return}   // about 100 messages a second are allowed (movement, typing), more is dropped
   switch(m.t){
-    case 'in':{const i=h.inp,l=Math.hypot(+m.ux||0,+m.uy||0)||1;i.ux=(+m.ux||0)/l;i.uy=(+m.uy||0)/l;i.f=clamp(+m.f||0,0,1);i.sp=!!m.sp;if(m.da)h.dashQ=true;break}
+    case 'in':{const i=h.inp,fin=v=>Number.isFinite(+v)?clamp(+v,-1e6,1e6):0,ux=fin(m.ux),uy=fin(m.uy),l=Math.hypot(ux,uy)||1;i.ux=ux/l;i.uy=uy/l;i.f=clamp(+m.f||0,0,1);i.sp=!!m.sp;if(m.da)h.dashQ=true;break}   // 1e999 in JSON is Infinity: it would turn the position into NaN
     case 'use':h.useQ=1+clamp(m.s|0,0,SLOTS-1);break;
     case 'choose':srvChoose(h,m.i|0);break;
     case 'ping':send(h,{t:'pong',c:+m.c||0});break;
     case 'prog':{const e=h.e;if(e&&e.sd&&!e.sd.done&&e.sd.phase==='type'&&typeof m.x==='string'){const sd=e.sd,s=sd.a===e?'a':'b',txt=sd['t'+s],x=m.x.slice(0,txt.length+20);
       // the player sends what it has typed; the server compares it with the phrase it handed out. Claims of progress or of being finished are not believed.
       let ok=0;while(ok<x.length&&ok<txt.length&&x.charCodeAt(ok)===txt.charCodeAt(ok))ok++;
-      const allow=(now()-sd.start)*(DU.maxWpm||230)*5/60+4;   // nobody types faster than maxWpm: what is beyond that is held back and counted
+      const wk=Math.min(sd[s].st.warm||0,txt.split(' ').length-1),wc=wk>0?txt.split(' ').slice(0,wk).join(' ').length+1:0;   // Warm Fingers: the first words are typed for the player at once
+      const allow=(now()-sd.start)*(DU.maxWpm||230)*5/60+4+wc;   // nobody types faster than maxWpm: what is beyond that is held back and counted
       if(ok>allow){ok=Math.floor(allow);sd['f'+s]=(sd['f'+s]||0)+1}
       sd['p'+s]=ok;sd['s'+s]=clamp(+m.s||0,0,ok);   // a streak cannot be longer than what was typed correctly
-      if(ok>=txt.length&&x.length===txt.length)sd['d'+s]=true}break}
+      if(ok>=txt.length&&x.length===txt.length&&sd['c'+s]===undefined)sd['c'+s]=now()}break}   // the moment the player was done
     case 'done':break;   // older clients said so when they were finished: the server works it out itself now
     case 'respawn':if(!h.e)srvSpawn(h,h.respawnLvl||1,now()),h.respawnLvl=1;break}}
 function srvApplyInputs(t){
@@ -3539,15 +3587,18 @@ function srvEndDuel(sd,ws,t){
   finishDuel(w,l,t);
   if(w.human){w.won=(w.won||0)+1;send(w.h,{t:'dend',win:true,gain:+(w.lvl-lv0).toFixed(2)})}
   if(l.human)send(l.h,{t:'dend',win:false,saved:l.state!=='eaten',by:w.name})}
+// a player's finish counts at the moment it was done plus what the opponent's perks add: Head Start (the opponent starts late) and Flow State (the opponent types slower once its streak is long enough). Only against other players, a bot's progress is slowed directly.
+function humanDone(sd,s,o){const c=sd['c'+s];if(c===undefined)return Infinity;const op=sd[o];return op.human?c+op.st.head+(op.st.flow?(sd['fa'+o]||0)*(1/PK.flow.slowdown-1):0):c}   // fa = how long the opponent's streak was long enough while this player was still typing
 function srvDuels(dt,t){
   for(const sd of sds){if(sd.done)continue;
     if(sd.a.gone||sd.b.gone){sd.done=true;continue}
     sd.countT-=dt;
     if(sd.phase==='count'&&sd.countT<=0){sd.phase='type';sd.start=t;for(const s of ['a','b'])if(sd[s].human)send(sd[s].h,{t:'dgo'})}
     if(sd.phase!=='type')continue;
-    let win=null;
+    let win=null;const ea=sd.a.human?humanDone(sd,'a','b'):Infinity,eb=sd.b.human?humanDone(sd,'b','a'):Infinity;
+    if(Math.min(ea,eb)<=t)win=ea<=eb?'a':'b';   // the better finish counts (Head Start and Flow State can turn the order round)
     for(const s of ['a','b']){const o=s==='a'?'b':'a',me=sd[s],op=sd[o];
-      if(me.human){if(sd['d'+s])win=win||s}
+      if(me.human){if(me.st.flow&&op.human&&sd['s'+s]>=PK.flow.streak&&sd['c'+o]===undefined)sd['fa'+s]=(sd['fa'+s]||0)+dt}
       else{sd['dl'+s]-=dt;const slow=op.human&&op.st.flow&&sd['s'+o]>=PK.flow.streak?PK.flow.slowdown:1;
         if(sd['dl'+s]<=0)sd['p'+s]+=sd['w'+s]*5/60*dt*rand(.6,1.4)*slow;
         if(sd['p'+s]>=sd['t'+s].length)win=win||s}}
@@ -3574,7 +3625,9 @@ function srvSnapshot(h,t){
   h.known=known;
   // snacks and boxes: the full list only when the player has none yet and every 6 s (in case something got lost); in between only what appeared (fa/ba) and what is gone (fr/br, keys)
   const full=!h.fs||t-h.fsT>6;
-  const dl=(L0,get,k0,k1,k2)=>{const cur=new Map();for(const f of L0)if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2){const a=get(f);cur.set((a[0]*16384)+a[1],a)}
+  const dl=(L0,get,k0,k1,k2)=>{const cur=new Map(),take=f=>{if(Math.abs(f.x-me.x)<R2&&Math.abs(f.y-me.y)<R2){const a=get(f);cur.set((a[0]*16384)+a[1],a)}};
+    if(L0===foods){for(let ci=Math.floor((me.x-R2)/FGC);ci<=Math.floor((me.x+R2)/FGC);ci++)for(let cj=Math.floor((me.y-R2)/FGC);cj<=Math.floor((me.y+R2)/FGC);cj++){const cell=fgrid.get(ci*1000+cj);if(cell)for(let k=0;k<cell.length;k++)if(!cell[k].gone)take(cell[k])}}   // snacks: only the grid cells around the player, not all of them
+    else for(const f of L0)take(f)
     const old=h[k0];h[k0]=cur;if(full||!old){m[k1==='fa'?'f':'b']=[...cur.values()];return}
     const add=[],gone=[];for(const [k,a] of cur)if(!old.has(k))add.push(a);for(const k of old.keys())if(!cur.has(k))gone.push(k);
     if(add.length)m[k1]=add;if(gone.length)m[k2]=gone};
@@ -3600,7 +3653,7 @@ function srvStep(dt){
   if(tickN%(humans.size>=(CFG.network.bigLobbyFrom||1e9)?SNAP_BIG:SNAP_EVERY)===0)for(const h of humans.values())if(h.e)srvSnapshot(h,t);   // a crowded game sends less often (the upload of the host is the limit)
   boardAt-=dt;if(boardAt<=0){boardAt=.5;for(const h of humans.values())srvBoard(h)}
   const out=outbox;outbox=[];return out}
-if(role==='server')globalThis.__sim={startDuel:srvStartDuel,msg0:srvMsg,ckpt:srvCheckpoint,restore:srvRestore,join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,boxes,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
+if(role==='server')globalThis.__sim={ev:s=>eval(s),startDuel:srvStartDuel,msg0:srvMsg,ckpt:srvCheckpoint,restore:srvRestore,join:srvJoin,cleanLook,players:()=>[...humans.values()].filter(h=>h.e&&h.alive).map(h=>({name:h.name,lvl:L(h.e)})),leave:srvLeave,msg:srvMsg,step:srvStep,count:()=>({humans:humans.size,ents:ents.length,foods:foods.length}),dbg:()=>({ents,humans,foods,boxes,king,gainLvl,finishDuel,now,walls,houses,trees,decor,ponds,buildWorld,WORLD,doorZones})};
 
 /* ---------- multiplayer, client side: the server runs the rules, this tab shows the world and sends input ---------- */
 let pendingDuel=null, ws=null, myId=0, cl=new Map(), netOwed=0, radarList=[], kingPos=null, lastIn='', inSentAt=0, wasKing=false;
@@ -4811,6 +4864,76 @@ function frame(){
   try{render(t)}catch(e){reportErr(e,'render')}
   if(raw>0&&raw<1){DG.push(raw,tr0-tu0,performance.now()-tr0,t);if(raw<.03){const w0=performance.now();warmStep(1.5);DG.tm('warm',w0)}}}   // for the diagnostics panel; and a small slice of building things ahead of time while the frame is quick
 requestAnimationFrame(rafLoop);if(SET.vsync)setTimeout(calibHz,1500);
+/* ---------- self test page (r81): typebite.io/?selftest=1, add &deep=1 for the long version ----------
+   The rules part (tools/selftest, built into site/selftest.js) runs in a Web Worker that holds its own copy of this game as a server, in a private world with a fake clock.
+   The page part (drawing, menus, music, a real game, the network) runs here in the tab. Results go on the screen, can be copied, and are sent to the developer when this device has its device code. */
+const ST_POST=`
+;(()=>{const SUITE=self.TYPEBITE_SELFTEST;onmessage=async e=>{const d=e.data;if(!d||d.cmd!=='run')return;
+  try{const R=SUITE.runner({deep:d.deep,post:m=>postMessage(m)});const env=SUITE.attach(self.__sim);
+    for(const p of SUITE.parts){if(p.side==='client')continue;await p.run(env,R)}
+    postMessage({type:'done'})}catch(x){postMessage({type:'crash',msg:String(x&&x.stack||x)})}}})();`;
+function selfTestPage(){
+  window.TYPEBITE_EV=s=>eval(s);   // the page part of the suite reaches into this scope (only on this page)
+  const deep=/[?&]deep\b/.test(location.search),recs=[],groups=[];let running=false,startAt=0,worker=null,doneAll=false,crash='';
+  const css=document.createElement('style');css.textContent=`
+  #st{position:fixed;inset:0;z-index:99999;background:#fffdf8;color:#2b2140;font:15px/1.45 var(--body,system-ui);overflow:auto;padding:18px 16px 60px;user-select:text}
+  #st.mini{inset:auto 0 0 0;height:74px;overflow:hidden;border-top:3px solid #2b2140;padding:8px 16px}
+  #st h1{font:900 26px var(--head,system-ui);margin:0 0 4px;color:#ff6b3d} #st .sub{opacity:.75;margin-bottom:10px;max-width:760px} #st .wrap{max-width:880px;margin:0 auto}
+  #st button{font:800 15px var(--body,system-ui);padding:9px 16px;border:3px solid #2b2140;border-radius:12px;background:#3db5ff;color:#fff;cursor:pointer;margin:4px 6px 4px 0} #st button.go{background:#ff6b3d;font-size:18px;padding:12px 26px} #st button:disabled{opacity:.5;cursor:default}
+  #st .bar{height:16px;border:3px solid #2b2140;border-radius:10px;background:#eee;overflow:hidden;margin:10px 0}#st .bar i{display:block;height:100%;width:0;background:#6ab04c;transition:width .2s}
+  #st .sum{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}#st .sum b{padding:6px 14px;border-radius:10px;border:3px solid #2b2140;font-size:18px}
+  #st .p{background:#d8f5c8}#st .f{background:#ffc9c9}#st .w{background:#ffe9a8}#st .k{background:#e5e5e5}
+  #st h2{font:900 18px var(--head,system-ui);margin:20px 0 6px;border-bottom:3px solid #2b2140;padding-bottom:3px}
+  #st .t{display:flex;gap:8px;padding:5px 8px;border-radius:8px;margin:2px 0;cursor:pointer;align-items:baseline}#st .t:hover{background:#f3ecd9}#st .t .i{width:62px;font-weight:900;flex:none}#st .t .n{flex:1}#st .t .ms{opacity:.55;font-size:12px;flex:none}
+  #st .t.pass .i{color:#2e8b2e}#st .t.fail .i{color:#d11}#st .t.warn .i{color:#c78a00}#st .t.skip .i{color:#888}
+  #st .d{margin:0 0 6px 78px;font:12.5px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;background:#f7f2e4;border-radius:8px;padding:8px 10px;display:none}#st .d.open{display:block}
+  #st .m{color:#1f6fb5}#st .x{color:#c01;font-weight:700}#st .cur{margin:6px 0;font-weight:800}`;document.head.appendChild(css);
+  const root=document.createElement('div');root.id='st';root.innerHTML=`<div class="wrap"><h1>Typebite Self Test</h1>
+   <div class="sub">This checks the real game in this browser: rules (items, perks, snacks, duels, bots, balance, the server), pictures, menus, music, a real game and the network. It takes about ${deep?'8 to 12':'3 to 5'} minutes${deep?' (long version)':''}. Nothing is sent to other players. Keep this tab open and visible while it runs.</div>
+   <div id="stbtns"><button class="go" id="stgo">Start the test</button> <a href="?selftest=1&deep=1" style="margin-left:10px">${deep?'':'long version'}</a></div><div class="bar"><i id="stbar"></i></div><div class="cur" id="stcur"></div><div class="sum" id="stsum"></div><div id="stout"></div></div>`;document.body.appendChild(root);
+  const $s=id=>document.getElementById(id);
+  const sec=ms=>(ms/1000).toFixed(0)+' s';
+  function counts(){const c={pass:0,fail:0,warn:0,skip:0};for(const r of recs)c[r.s]++;return c}
+  function head(){const c=counts();$s('stsum').innerHTML=`<b class="p">${c.pass} passed</b><b class="w">${c.warn} warnings</b><b class="f">${c.fail} failed</b>${c.skip?`<b class="k">${c.skip} skipped</b>`:''}<b class="k">${recs.length} tests · ${sec(performance.now()-startAt)}</b>`}
+  function row(r){const m=(r.m||[]).map(x=>esc2(x.k+' = '+x.v+(x.u||'')+(x.lo!==undefined?'  (should be '+x.lo+' … '+x.hi+')':''))).join('\n'),d=(r.d||[]).map(l=>/^[✗!]/.test(l)?`<span class="x">${esc2(l)}</span>`:esc2(l)).join('\n');
+    return `<div class="t ${r.s}" onclick="this.nextSibling.classList.toggle('open')"><span class="i">${{pass:'ok',fail:'FAIL',warn:'warning',skip:'skipped'}[r.s]}</span><span class="n">${esc2(r.n)}</span><span class="ms">${r.ms} ms</span></div><div class="d${r.s==='fail'||r.s==='warn'?' open':''}">${d}${d&&m?'\n':''}<span class="m">${m}</span>${!d&&!m?'passed '+r.ok+' checks':''}</div>`}
+  function addRec(r){recs.push(r);let g=groups.find(x=>x.n===r.g);if(!g){g={n:r.g,el:document.createElement('div')};g.el.innerHTML=`<h2>${esc2(r.g)}</h2>`;$s('stout').appendChild(g.el);groups.push(g)}
+    g.el.insertAdjacentHTML('beforeend',row(r));head();$s('stbar').style.width=Math.min(97,recs.length/Math.max(60,(deep?190:170))*100)+'%'}
+  function report(){const c=counts(),L=[];L.push('TYPEBITE SELF TEST · build '+BUILD+' · settings '+CFGID+(deep?' · long version':'')+' · '+new Date().toISOString());L.push(navigator.userAgent);L.push(screen.width+'x'+screen.height+' @'+(devicePixelRatio||1)+' · '+(navigator.hardwareConcurrency||'?')+' cores · '+(navigator.deviceMemory||'?')+' GB');
+    L.push('RESULT: '+c.pass+' passed, '+c.warn+' warnings, '+c.fail+' failed'+(c.skip?', '+c.skip+' skipped':'')+' in '+sec(performance.now()-startAt));if(crash)L.push('CRASH: '+crash);let g='';
+    for(const r of recs){if(r.g!==g){g=r.g;L.push('','== '+g)}L.push({pass:'ok  ',fail:'FAIL',warn:'warn',skip:'skip'}[r.s]+' '+r.n+'  ['+r.ms+' ms]');if(r.s!=='pass'||r.m.length)for(const l of r.d)L.push('       '+l);for(const x of r.m)L.push('       · '+x.k+' = '+x.v+(x.u||'')+(x.lo!==undefined?' (should be '+x.lo+' … '+x.hi+')':''))}
+    return L.join('\n')}
+  function json(){return{v:1,build:BUILD,cfg:CFGID,deep,t:new Date().toISOString(),ua:navigator.userAgent,screen:screen.width+'x'+screen.height,summary:counts(),crash,secs:Math.round((performance.now()-startAt)/1000),tests:recs}}
+  function upload(auto){const u=dguUrl();if(!DGU.cfg||!u){if(!auto)$s('stcur').textContent='This device has no device code: use Copy and send the text.';return}
+    const c=counts(),s={k:'test',build:BUILD,cfg:CFGID,deep,summary:c,crash,secs:Math.round((performance.now()-startAt)/1000),ua:navigator.userAgent.slice(0,200),screen:screen.width+'x'+screen.height,cores:navigator.hardwareConcurrency||0,
+      tests:recs.map(r=>[r.g,r.n.slice(0,110),r.s[0],r.ms,r.s==='pass'?[]:r.d.slice(0,8).map(x=>String(x).slice(0,260)),r.m.slice(0,14).map(x=>[x.k.slice(0,80),x.v,x.u||'',x.lo,x.hi])])};
+    let body=JSON.stringify({dk:DGU.cfg.dk,dev:DGU.cfg.dev,sid:ERRUP.sid,b:BUILD,s});if(body.length>95000){for(const t of s.tests)t[5]=[];body=JSON.stringify({dk:DGU.cfg.dk,dev:DGU.cfg.dev,sid:ERRUP.sid,b:BUILD,s})}
+    fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},credentials:'omit',body}).then(r=>{$s('stcur').textContent=r.ok?'Sent to the developer. Thank you!':'The upload was refused ('+r.status+'). Use Copy instead.'}).catch(()=>{$s('stcur').textContent='No connection for the upload. Use Copy instead.'})}
+  function finish(){doneAll=true;running=false;root.classList.remove('mini');$s('stbar').style.width='100%';head();window.__stResult=json();
+    $s('stbtns').innerHTML=`<button id="stcopy">Copy the report</button><button id="stdl">Download (.json)</button>${DGU.cfg?'<button id="stsend">Send to the developer</button>':''}<button id="stagain">Run again</button><button id="stclose">Back to the game</button>`;
+    $s('stcopy').onclick=()=>{tryCopy(report());$s('stcur').textContent='Copied.'};$s('stdl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(json(),null,1)],{type:'application/json'}));a.download='typebite-selftest-'+BUILD+'.json';a.click()};
+    if($s('stsend'))$s('stsend').onclick=()=>upload(false);$s('stagain').onclick=()=>location.reload();$s('stclose').onclick=()=>{root.remove();css.remove()};
+    const c=counts();$s('stcur').textContent=c.fail?c.fail+' test(s) failed. Click a red line for details.':c.warn?'Done. Everything works, '+c.warn+' warning(s) are findings to look at.':'Done. Everything passed.';
+    if(DGU.cfg)upload(true);window.scrollTo(0,0);root.scrollTop=0}
+  async function start(){if(running)return;running=true;startAt=performance.now();recs.length=0;$s('stbtns').innerHTML='<i style="opacity:.6">running…</i>';$s('stcur').textContent='Loading the test…';
+    let src='';try{const r=await fetch('selftest.js?v='+encodeURIComponent(BUILD),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);src=await r.text()}catch(x){crash='the test file could not be loaded: '+x.message;$s('stcur').textContent=crash+' (it exists only on the website, not in the single downloaded file)';running=false;$s('stbtns').innerHTML='<button class="go" onclick="location.reload()">Try again</button>';return}
+    (0,eval)(src);const SUITE=window.TYPEBITE_SELFTEST;if(!SUITE){crash='the test file is broken';return}
+    try{sfx.init()}catch(_){}
+    // 1. the rules, in a worker
+    $s('stcur').textContent='Rules: items, perks, snacks, duels, bots, balance, the server …';
+    await new Promise(res=>{const code=WORKER_PRE+'self.TYPEBITE_CONFIG='+JSON.stringify(CFG)+';\n'+SELF_CODE+'\n'+src+'\n'+ST_POST;
+      try{worker=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})))}catch(x){crash='no Web Worker: '+x.message;res();return}
+      worker.onmessage=e=>{const m=e.data;if(m.type==='test')addRec(m.rec);else if(m.type==='group')$s('stcur').textContent='Rules: '+m.name;else if(m.type==='done'){res()}else if(m.type==='crash'){crash=m.msg;res()}};
+      worker.onerror=ev=>{crash='worker error: '+(ev.message||'')+' line '+ev.lineno;res()};worker.postMessage({cmd:'run',deep})});
+    try{worker&&worker.terminate()}catch(_){}
+    // 2. the page
+    root.classList.add('mini');let R=SUITE.runner({deep,post:m=>{if(m.type==='group'){$s('stcur').textContent='Page: '+m.name;root.classList.toggle('mini',/real game/i.test(m.name))}else if(m.type==='test')addRec(m.rec)}});
+    try{const env={C:{ev:window.TYPEBITE_EV}};for(const p of SUITE.parts)if(p.side==='client')await p.run(env,R)}catch(x){crash=(crash?crash+' | ':'')+'page part: '+String(x&&x.stack||x).slice(0,400)}
+    try{toMenu()}catch(_){}finish()}
+  $s('stgo').onclick=start;
+  if(/[?&]autorun\b/.test(location.search))start();
+}
+if(role!=='server'&&typeof location!=='undefined'&&/[?&]selftest\b/.test(location.search))setTimeout(selfTestPage,300);
 })();
 </script>
 </body>

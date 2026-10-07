@@ -96,6 +96,7 @@ Wichtig für das Gefühl: Bei vielen Bots ist die Anzahl herumliegender Snacks f
 - **Kleinere Karte:** `world.size: 8000`.
 - **Item abschalten:** bei `items.list` das `weight` auf `0` setzen.
 - **Legendäre Items fast nie:** bei `rarity.giftBox` und `rarity.underwaterBox` die vierte Zahl auf `0.1`.
+- **Bots:** `players.botTypes` (wie oft jede Art vorkommt: balanced, farmer, hunter, sprinter, tank, scavenger, coward; Gewichte), `botSkill` und `botSkillSkew` (Tippgeschwindigkeit: Spanne in Wörtern pro Minute, höherer Skew = mehr langsame und wenige schnelle), `botAggression`, `botBravery` (Spanne, in der jede Art ihren Wert hat), `duel.botVsBotSkillEdge` (wie stark das Tipptempo ein Bot-gegen-Bot-Duell entscheidet). Was jede Art kann (Lauftempo 0,84 bis 1,16, Sichtweiten, Denkpause) steht im Code bei `BOTT` und im Selbsttest (`docs/selbsttest.md`).
 - **Große Lobbys:** `players.maxPerGame` (50), `network.bigLobbyFrom` / `updatesPerSecondBig` (ab so vielen Spielern weniger Updates pro Sekunde), `network.capStepMs` / `capBufferKB` (ab wann ein überlasteter Host niemanden mehr aufnimmt).
 - **Tipp-Tempo-Grenze:** `duel.maxWpm` (230) - schneller getippter Text wird vom Server zurückgehalten und gemeldet; nur senken, wenn ein Tippprogramm auffällt.
 - **Duelle kürzer:** `duel.baseWords` und `duel.maxWords` senken.
