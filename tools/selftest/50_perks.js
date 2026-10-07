@@ -97,10 +97,10 @@ SUITE.parts.push({ name: 'perks', async run(env, R) {
     for (let la = 1; la <= 250; la += 7) for (let lb = 1; lb <= 250; lb += 11) {
       const a = env.ent(spot.x, spot.y, la), b = env.ent(spot.x + 50, spot.y, lb), [pa, pb] = X.duelWords(a, b, false, false, false, false);
       if (pa.n < X.DU.shortestPhrase || pb.n < X.DU.shortestPhrase || pa.n > X.DU.longestPhrase || pb.n > X.DU.longestPhrase) bounds = false;
-      if (pa.n !== pb.n && Math.abs(la - lb) >= 0) lowerFewer = lowerFewer && true; if ((la > lb && pa.edge < pb.edge) || (la < lb && pa.edge > pb.edge) || (la === lb && (pa.edge || pb.edge)) || (Math.abs(la - lb) < X.DU.gapFrom && (pa.edge || pb.edge))) edgeOk = false; if (Math.min(pa.n, pb.n) < Math.ceil(Math.max(pa.n, pb.n) / 2)) floorOk = false;
+      if (Math.abs(la - lb) >= X.DU.gapFrom && ((la > lb) !== (pa.n <= pb.n))) edgeOk = false; if (Math.min(pa.n, pb.n) < Math.ceil(Math.max(pa.n, pb.n) / 2)) floorOk = false;
       if (X.stakeWords(a, b) !== X.stakeWords(b, a)) sym = false; X.ents = [];
     }
-    t.ok(bounds, 'phrase length is always between ' + X.DU.shortestPhrase + ' and ' + X.DU.longestPhrase); t.ok(edgeOk, 'only the higher level gets the edge (shorter words), never the lower one, and not below a gap of ' + X.DU.gapFrom); t.ok(floorOk, 'nobody types less than half of what the other types'); t.ok(sym, 'both start from the same base length');
+    t.ok(bounds, 'phrase length is always between ' + X.DU.shortestPhrase + ' and ' + X.DU.longestPhrase); t.ok(edgeOk, 'from a gap of ' + X.DU.gapFrom + ' levels the higher level never types more words than the lower one'); t.ok(floorOk, 'nobody types less than half of what the other types'); t.ok(sym, 'both start from the same base length');
     const e1 = env.ent(1, 1, 1), e2 = env.ent(1, 1, 1); t.range('words at level 1 vs 1', X.stakeWords(e1, e2), X.DU.minWords, X.DU.minWords + 1); const h1 = env.ent(1, 1, 150), h2 = env.ent(1, 1, 150); t.range('words at level 150 vs 150', X.stakeWords(h1, h2), 8, X.DU.maxWords);
   });
   await R.test('Head Start, Autocorrect, Warm Fingers, Flow State, King Hunter, Plunder: the numbers', t => {

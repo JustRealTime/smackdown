@@ -132,9 +132,9 @@ duel: {
   countdown: 5.6,            // seconds from the first touch until you can type
   // how many words each side starts with:  baseWords + (level A + level B)/levelSumDivisor + level gap/gapDivisor
   baseWords: 3, levelSumDivisor: 24, gapDivisor: 10, minWords: 3, maxWords: 20,
-  // the HIGHER level always has an edge: its phrase has the same number of words but shorter ones. From a gap of gapFrom levels, every gapLevelsPerWord levels
-  // of difference take one word's worth of letters off the phrase (at most gapMaxShare of it). 50 and 0.10 = about 4 % fewer letters at a gap of 10, 7 % at 20, 10 % (the most) from a gap of 40
-  gapFrom: 4, gapLevelsPerWord: 50, gapMaxShare: 0.10,
+  // the HIGHER level always has an edge: it types fewer words than the lower one (before perks and items, which come on top). From a gap of gapFrom levels
+  // one word fewer per gapLevelsPerWord levels of difference, at least 1, at most gapMaxShare of the phrase
+  gapFrom: 4, gapLevelsPerWord: 9, gapMaxShare: 0.3,
   caughtWords: 2,            // words fewer for the one who caught somebody running away
   keyboardWords: 1,          // Pro Keyboard: words fewer
   shortestPhrase: 2, longestPhrase: 26,   // after everything is added up

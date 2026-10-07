@@ -11,7 +11,7 @@ const BRIDGE = `({
   ITEMS,ITEM_DEF,PERKS,PERK_BY,PERK_DEF,TREES,TIERS,TIER_ODDS,WATER_ODDS,FOOD,FOODS,FOOD_ODDS,PERK_ODDS,NAMES,WORDS,RANKS,
   makeEnt,botSetup,botAi,botMean,botWpm,botThink,winOdds,stepEnt,update,calcStats,gainXp,gainLvl,lvlCost,snackGain,xpOf,L,rankOf,
   useItem,giveItem,addItem,addBuff,stackN,firstItem,freeSlot,itemRoom,slotsOf,owedPicks,rollOffer,rollItem,rollFood,rollTier,perkR,treePts,
-  spawnFood,spawnBox,spawnBot,startDuel,finishDuel,stakeWords,gapEdge,sentenceWords,duelWords,advOf,keyItemOf,dropOrbs,questEvent,startQuest,questStep,foodFx,
+  spawnFood,spawnBox,spawnBot,startDuel,finishDuel,stakeWords,gapCut,sentenceWords,duelWords,advOf,keyItemOf,dropOrbs,questEvent,startQuest,questStep,foodFx,
   srvJoin,srvLeave,srvMsg,srvStep,srvSpawn,srvSnapshot,srvRec,srvCheckpoint,srvRestore,srvStartDuel,srvEndDuel,srvDuels,srvChoose,srvOffer,srvApplyInputs,
   safeName,nameBad,nameNorm,cleanLook,buildWorld,freeSpot,wallHit,waterAt,houseAt,biomeAt,collide,fgBuild,makePhrase,now,clamp,rand,
   setClock(t){CLK=t-performance.now()/1000}
