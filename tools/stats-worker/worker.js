@@ -237,9 +237,9 @@ export default {
       const dk = String(env.DIAG_KEY || '');
       if (!dk || !p || typeof p.dk !== 'string' || p.dk.length !== dk.length || [...dk].reduce((a, c, i) => a | (c.charCodeAt(0) ^ p.dk.charCodeAt(i)), 0)) return new Response('no', { status: 403, headers: CORS });
       const dev = String(p.dev || '').replace(/[^\w .-]/g, '').slice(0, 20), sid = String(p.sid || '').replace(/[^a-z0-9]/g, '').slice(0, 12), b = String(p.b || '').replace(/[^\w.-]/g, '').slice(0, 12);
-      const kind = p.s && (p.s.k === 'sys' || p.s.k === 'perf' || p.s.k === 'test') ? p.s.k : '';
+      const kind = p.s && (p.s.k === 'sys' || p.s.k === 'perf' || p.s.k === 'test' || p.s.k === 'display') ? p.s.k : '';
       if (!dev || !sid || !kind) return new Response('bad', { status: 400, headers: CORS });
-      if (kind !== 'test' && txt.length > DIAG_MAX_BYTES) return new Response('too big', { status: 413, headers: CORS });   // a self test report (kind test) is bigger
+      if (kind !== 'test' && kind !== 'display' && txt.length > DIAG_MAX_BYTES) return new Response('too big', { status: 413, headers: CORS });   // a self test report (kind test) is bigger
       const ok = await stub.diagAdd(dev, sid, b, kind, JSON.stringify(p.s));
       return new Response(ok ? '{}' : '{"full":1}', { headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
