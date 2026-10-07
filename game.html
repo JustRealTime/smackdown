@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Typebite</title>
-<meta name="theme-color" content="#8fd16a">
+<meta name="theme-color" content="#2b2140">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -50,18 +50,9 @@
 }
 [hidden]{display:none!important}
 html,body{height:100%;overflow:hidden}
-html{background:var(--grass);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px)}
-html.tall,html.tall body{overflow:visible;height:auto}
-html.tall body{min-height:100lvh}
-body{margin:0;background:var(--grass);color:var(--ink);font-family:var(--body);font-size:15px;user-select:none}
+html{background:#2b2140;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px)}
+body{margin:0;position:fixed;inset:0;width:100%;overscroll-behavior:none;background:#2b2140;color:var(--ink);font-family:var(--body);font-size:15px;user-select:none}
 #vp{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100lvh;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);box-sizing:border-box;visibility:hidden;pointer-events:none}
-#tbar{position:fixed;left:0;right:0;top:0;height:var(--sat);z-index:3;display:none;pointer-events:none}
-html.tf2 #tbar{display:block;background:#8fd16a}html.tf3 #tbar{display:block;background:#2b2140}
-html.tf4 #game{transform:translateZ(0);will-change:transform;backface-visibility:hidden}
-html.tf5,html.tf5 body{position:fixed;width:100%;height:100%;overflow:hidden}html.tf5 #game{position:absolute}
-html.tf6,html.tf6 body{overscroll-behavior:none;position:fixed;inset:0;width:100%}
-#vpd,#vps{position:fixed;left:0;top:0;width:100vw;visibility:hidden;pointer-events:none}#vpd{height:100vh;height:100dvh}#vps{height:100vh;height:100svh}
-#laybadge{position:fixed;left:50%;transform:translateX(-50%);top:calc(2px + var(--sat));z-index:9;display:none;align-items:center;gap:2px;background:rgba(43,33,64,.78);color:#fff;border-radius:99px;font:800 11px var(--body);padding:1px 4px}body.touch.inplay #laybadge{display:flex}#laybadge button{background:none;border:0;color:#fff;font:900 16px var(--body);padding:0 8px}#laybadge b{min-width:16px;text-align:center}#laybadge small{opacity:.7;max-width:34vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:9px}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
 .panel{background:var(--panel);color:var(--ink);border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink)}
 .overlay{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(43,33,64,.35)}
@@ -397,8 +388,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
 </head>
 <body>
 
-<div id="vp"></div><div id="tbar"></div><div id="vpd"></div><div id="vps"></div>
-<div id="laybadge"><button type="button" id="layb1">‹</button><b id="laybadgen">1</b><button type="button" id="layb2">›</button><small id="laybadget"></small></div>
+<div id="vp"></div>
 <canvas id="game"></canvas>
 <div id="flash"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mk" viewBox="0 0 512 512"><defs> <mask id="bite" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"> <rect width="512" height="512" fill="#fff"/> <circle cx="392" cy="128" r="84" fill="#000"/><circle cx="452" cy="206" r="54" fill="#000"/><circle cx="330" cy="86" r="48" fill="#000"/> </mask> <clipPath id="cut"><circle cx="256" cy="256" r="176"/></clipPath> </defs> <g mask="url(#bite)"> <circle cx="256" cy="276" r="176" fill="#2b2140"/> <circle cx="256" cy="256" r="176" fill="#fff5e0" stroke="#2b2140" stroke-width="18"/> </g> <defs> <mask id="o1" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="#fff"/><circle cx="452" cy="206" r="54" fill="#000"/><circle cx="330" cy="86" r="48" fill="#000"/></mask> <mask id="o2" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="#fff"/><circle cx="392" cy="128" r="84" fill="#000"/><circle cx="330" cy="86" r="48" fill="#000"/></mask> <mask id="o3" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="#fff"/><circle cx="392" cy="128" r="84" fill="#000"/><circle cx="452" cy="206" r="54" fill="#000"/></mask> </defs> <g clip-path="url(#cut)" fill="none" stroke="#2b2140" stroke-width="18"> <circle cx="392" cy="128" r="84" mask="url(#o1)"/><circle cx="452" cy="206" r="54" mask="url(#o2)"/><circle cx="330" cy="86" r="48" mask="url(#o3)"/> </g> <g fill="#2b2140"> <rect x="168" y="196" width="176" height="52" rx="14"/><rect x="230" y="196" width="52" height="170" rx="14"/> <circle cx="170" cy="330" r="13"/><circle cx="346" cy="322" r="13"/><circle cx="202" cy="150" r="12"/><circle cx="300" cy="394" r="12"/> </g> <g fill="#fff5e0" stroke="#2b2140" stroke-width="6"><circle cx="462" cy="96" r="12"/><circle cx="486" cy="148" r="8"/><circle cx="420" cy="52" r="8"/></g></symbol></svg>
@@ -461,7 +451,7 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
     <div class="row"><button class="btn alt" type="button" id="custbtn">Customize</button><button class="btn alt" type="button" id="howbtn">How to play</button><button class="btn alt" type="button" id="guidebtn">Guide: items &amp; perks</button><button class="btn alt" type="button" id="setbtn">Settings</button></div>
     <p class="small" id="lobbyinfo"></p>
     <p class="small" id="mpstatus"></p>
-    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r85</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a> · <button class="lnk" type="button" id="laybtn">Layout 1</button> · <button class="lnk" type="button" id="tfbtn">Top 0</button> · <a class="lnk" href="?display=1">Display check</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
+    <p class="small"><span id="buildtag" style="opacity:.6">Alpha · Build r86</span> · <button class="lnk" type="button" id="bugbtn">Report a problem</button> · <a class="lnk" href="https://typebite.io/impressum" target="_blank" rel="noopener">Impressum</a> · <a class="lnk" href="https://typebite.io/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a class="lnk" href="https://typebite.io/status" target="_blank" rel="noopener">Status</a> · <a class="lnk" href="?display=1">Display check</a><span id="errnote" hidden> · errors are sent to the developer automatically (no names)</span></p>
     <dl class="how">
       <dt><kbd>Mouse</kbd></dt><dd>Your snacker walks toward the cursor</dd>
       <dt><kbd>Shift</kbd></dt><dd>Sprint while you have stamina</dd>
@@ -481,9 +471,6 @@ body.touch #settings .panel,body.touch #gpanel{max-height:calc(100vh - 20px)}
   <div class="panel">
     <h2>Settings</h2>
     <button class="btn alt tonly" type="button" id="fsbtn" style="align-self:flex-start">Fullscreen</button>
-    <div class="srow" style="gap:8px"><span>Screen layout</span><button class="btn alt" type="button" id="layp" style="padding:4px 14px">‹</button><b id="laynum">1</b><button class="btn alt" type="button" id="layn" style="padding:4px 14px">›</button></div>
-    <p class="small" id="layname"></p>
-    <div class="srow" style="gap:8px"><span>Top fix (test)</span><button class="btn alt" type="button" id="tfp" style="padding:4px 14px">‹</button><b id="tfnum">0</b><button class="btn alt" type="button" id="tfn" style="padding:4px 14px">›</button></div>
     <h3>Sound</h3>
     <label class="srow"><span>Music</span><input type="range" min="0" max="100" data-k="mv"><output></output></label>
     <label class="srow"><span>Sound effects</span><input type="range" min="0" max="100" data-k="sv"><output></output></label>
@@ -618,7 +605,7 @@ const CFG=(()=>{
   return D?merge(D,U||{},''):(U||{})})();   // without a built-in copy (game.html opened from the repo) config.js is all there is
 const CFGID=(()=>{let h=2166136261;const s=JSON.stringify(CFG);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)})();   // fingerprint of all settings: everybody in one game must have the same
 if(role!=='server'&&CFGW.length){const b=$('cfgbar');b.hidden=false;b.textContent='config.js: '+CFGW.slice(0,4).join(' · ')+(CFGW.length>4?' · …':'')+'  (the built-in value is used instead, click to hide)';b.onclick=()=>{b.hidden=true}}
-const BUILD='r85';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
+const BUILD='r86';   // the ONE version constant: menu label and join check both use it, so host and joiners can never disagree silently
 const ERR_URL='https://snackdown-errors.alikesan2004.workers.dev/';   // error relay (tools/error-relay/worker.js, setup in docs/fehler-upload.md): errors are uploaded to a private GitHub repo. Empty = off
 const STATS_URL='https://typebite-stats.alikesan2004.workers.dev/hb';   // activity counter (tools/stats-worker/worker.js, docs/statistik.md): an anonymous heartbeat about once a minute. Empty = off
 var JT=[],jmark=l=>{JT.push([l,performance.now()])},ERRLOG=[],errShown=0,PERF={hist:[],slow:0,worst:0,grace:0},lastNet=0,ERRUP={sid:Math.random().toString(36).slice(2,10),n:0,timer:0,last:0};   // var on purpose: bug reports must work even if start-up crashed half way
@@ -634,54 +621,20 @@ let ctx=cv.getContext('2d');
 let W=0,H=0,DPR=1,Z=1,ZU=CFG.camera.startZoom,ZZ=1,shake=0,kick=0,dz=0,hitstop=0;
 const restart=(el,cls)=>{el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)};
 const flash=()=>restart($('flash'),'go');
-/* ---------- screen layouts (r84): numbered ways to fit the picture and the buttons onto a phone. Switch them in the menu footer, in the settings or with the badge in the game;
-   the number is also in the display check report (?display=1), so "layout 7 is the best" is all that has to be said. h = which height the picture gets, sa = how the buttons keep away from notch and home bar,
-   fit 'safe' = the picture lives inside the safe area only (grass bars around it), fs = ask the browser for fullscreen on the first touch ---------- */
-const LAYOUTS=[
- {n:'Automatic (the old way)',h:'auto',sa:'env'},
- {n:'Window height, safe areas',h:'inner',sa:'env'},
- {n:'Window height, small fixed margins',h:'inner',sa:'none'},
- {n:'Largest height (under the bars), safe areas',h:'lvh',sa:'env'},
- {n:'Dynamic height, safe areas',h:'dvh',sa:'env'},
- {n:'Smallest height, safe areas',h:'svh',sa:'env'},
- {n:'Visual viewport, safe areas',h:'vv',sa:'env'},
- {n:'Whole screen, safe areas',h:'screen',sa:'env'},
- {n:'Largest height, extra margins',h:'lvh',sa:'extra'},
- {n:'Dynamic height, margins of at least 20 / 16',h:'dvh',sa:'min'},
- {n:'Picture inside the safe area (grass bars)',h:'dvh',sa:'env',fit:'safe'},
- {n:'Picture inside the safe area + fullscreen',h:'lvh',sa:'env',fit:'safe',fs:1}];
-let LAYOUT=1,CVL=0,CVT=0;try{const q=new URLSearchParams(location.search).get('layout');LAYOUT=+(q||localStorage.getItem('snackdown-layout')||1)||1;if(q)localStorage.setItem('snackdown-layout',LAYOUT)}catch(_){}
-if(LAYOUT<1||LAYOUT>LAYOUTS.length)LAYOUT=1;
-function layoutVars(){const L=LAYOUTS[LAYOUT-1],r=document.documentElement.style,e={t:'env(safe-area-inset-top,0px)',b:'env(safe-area-inset-bottom,0px)',l:'env(safe-area-inset-left,0px)',r:'env(safe-area-inset-right,0px)'};
-  const v=(k)=>L.sa==='none'?'0px':L.sa==='extra'?'calc('+e[k]+' + '+({t:14,b:18,l:6,r:6})[k]+'px)':L.sa==='min'?'max('+e[k]+','+({t:20,b:16,l:6,r:6})[k]+'px)':e[k];
-  r.setProperty('--sat',v('t'));r.setProperty('--sab',v('b'));r.setProperty('--sal',v('l'));r.setProperty('--sar',v('r'));document.documentElement.dataset.layout=LAYOUT}
-function applyLayout(n){if(n!==undefined){LAYOUT=((n-1+LAYOUTS.length)%LAYOUTS.length)+1;try{localStorage.setItem('snackdown-layout',LAYOUT)}catch(_){}}
-  layoutVars();resize();for(const id of ['laynum','laynum2'])if($(id))$(id).textContent=LAYOUT;if($('laybadgen'))$('laybadgen').textContent=LAYOUT+'·'+TOPFIX;
-  if($('layname'))$('layname').textContent=LAYOUTS[LAYOUT-1].n;if($('laybtn'))$('laybtn').textContent='Layout '+LAYOUT+' of '+LAYOUTS.length;if($('laybadget'))$('laybadget').textContent=LAYOUTS[LAYOUT-1].n}
-let TOPFIX=0;try{const q=new URLSearchParams(location.search).get('topfix');TOPFIX=+(q||localStorage.getItem('snackdown-topfix')||0)||0;if(q)localStorage.setItem('snackdown-topfix',TOPFIX)}catch(_){}
-if(TOPFIX<0||TOPFIX>6)TOPFIX=0;
-// experiments against the soft blur at the top of the screen in the iPhone app (r85): 1 picture starts 1 px lower, 2 solid green bar under the status bar, 3 solid dark bar, 4 own graphics layer for the picture, 5 page fixed (no scroll view), 6 page fixed + no overscroll
-function applyTopFix(n){if(n!==undefined){TOPFIX=((n%7)+7)%7;try{localStorage.setItem('snackdown-topfix',TOPFIX)}catch(_){}}
-  for(let i=1;i<=6;i++)document.documentElement.classList.toggle('tf'+i,TOPFIX===i);for(const id of ['tfnum'])if($(id))$(id).textContent=TOPFIX;if($('tfbtn'))$('tfbtn').textContent='Top '+TOPFIX;if($('laybadgen'))$('laybadgen').textContent=LAYOUT+'·'+TOPFIX;resize()}
-layoutVars();
+/* ---------- screen fit (r86): the picture is ONE plain rectangle inside the safe area of the screen. Whatever lies outside it (status bar, notch, dynamic island, home bar, rounded corners)
+   is a solid dark bar. No scrolling, no layouts to choose, the same rule for every phone, every browser and the home-screen app. The earlier numbered layouts (r84/r85) are gone. ---------- */
+const LAYOUTS=[{n:'Rectangle inside the safe area'}];let LAYOUT=1,TOPFIX=0,CVL=0,CVT=0;
 let QS=1;   // quality scale: lowered automatically when the frame rate stays low
 let VPDBG='';
 function resize(){DPR=Math.max(.5,Math.min(2,window.devicePixelRatio||1)*QS);W=innerWidth;H=innerHeight;CVL=CVT=0;
-  if(typeof __SERVER__==='undefined'){const L=LAYOUTS[LAYOUT-1]||LAYOUTS[0],r=$('vp').getBoundingClientRect(),cs=getComputedStyle($('vp'));   // #vp = the largest viewport (lvh) with the real safe areas as padding
-   const st=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));   // home-screen app on iPhone: the window can be shorter than the screen
-   if(L.h==='auto'){   // the old way
-     if(r.width>=innerWidth-1&&r.height>=innerHeight&&r.height<innerHeight+200){W=Math.round(r.width);H=Math.round(r.height)}
-     if(st&&window.screen){const a=Math.max(screen.width,screen.height),b=Math.min(screen.width,screen.height),fh=innerWidth>innerHeight?b:a;if(fh>H&&fh-H<140)H=fh}}
-   else{const hh=id=>Math.round($(id).getBoundingClientRect().height);let h=innerHeight,w=innerWidth;
-     if(L.h==='lvh')h=hh('vp');else if(L.h==='dvh')h=hh('vpd');else if(L.h==='svh')h=hh('vps');
-     else if(L.h==='vv'&&window.visualViewport){h=Math.round(visualViewport.height);w=Math.round(visualViewport.width)}
-     else if(L.h==='screen'&&window.screen){const a=Math.max(screen.width,screen.height),b=Math.min(screen.width,screen.height);h=innerWidth>innerHeight?b:a}
-     W=w;H=h;
-     if(L.fit==='safe'){const pt=parseFloat(cs.paddingTop)||0,pb=parseFloat(cs.paddingBottom)||0,pl=parseFloat(cs.paddingLeft)||0,pr=parseFloat(cs.paddingRight)||0;CVT=pt;CVL=pl;H=Math.max(100,H-pt-pb);W=Math.max(100,W-pl-pr)}}
-   if(TOPFIX===1){CVT+=1;H-=1}
-   const custom=CVL||CVT;cv.style.left=CVL?CVL+'px':'';cv.style.top=CVT?CVT+'px':'';cv.style.width=custom||W!==innerWidth?W+'px':'';cv.style.height=custom||H!==innerHeight?H+'px':'';
-   document.documentElement.classList.toggle('tall',H+CVT>innerHeight+4&&st);
-   VPDBG='inner '+innerWidth+'x'+innerHeight+' · lvh '+Math.round(r.height)+' · screen '+screen.width+'x'+screen.height+' · canvas '+W+'x'+H+' · app '+(st?'yes':'no')+' · layout '+LAYOUT+' · safe '+cs.paddingTop+'/'+cs.paddingBottom+(window.visualViewport?' · visual '+Math.round(visualViewport.height):'')}
+  if(typeof __SERVER__==='undefined'){const cs=getComputedStyle($('vp')),st=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));   // #vp has the real safe areas as padding
+   let pt=parseFloat(cs.paddingTop)||0,pr=parseFloat(cs.paddingRight)||0,pb=parseFloat(cs.paddingBottom)||0,pl=parseFloat(cs.paddingLeft)||0;
+   // iPhone home-screen app: the window is as high as the screen minus the status bar, so the home bar already lies outside of it: the bottom safe area must not be taken off again
+   if(st&&window.screen&&pt>0){const sh=innerWidth>innerHeight?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height),gap=sh-innerHeight;if(gap>=pt-3&&gap<=pt+pb+8)pb=0}
+   CVT=pt;CVL=pl;W=Math.max(100,innerWidth-pl-pr);H=Math.max(100,innerHeight-pt-pb);
+   cv.style.left=CVL+'px';cv.style.top=CVT+'px';cv.style.width=W+'px';cv.style.height=H+'px';
+   const rs=document.documentElement.style;rs.setProperty('--sat',pt+'px');rs.setProperty('--sab',pb+'px');rs.setProperty('--sal',pl+'px');rs.setProperty('--sar',pr+'px');   // the buttons keep these distances from the screen edges
+   VPDBG='inner '+innerWidth+'x'+innerHeight+' · screen '+screen.width+'x'+screen.height+' · canvas '+W+'x'+H+' at '+CVL+','+CVT+' · app '+(st?'yes':'no')+' · safe '+pt+'/'+pr+'/'+pb+'/'+pl+(window.visualViewport?' · visual '+Math.round(visualViewport.height):'')}
   const nw=Math.round(W*DPR),nh=Math.round(H*DPR);if(cv.width!==nw)cv.width=nw;if(cv.height!==nh)cv.height=nh;   // setting the size clears the picture: only when it really changed
   calcZ()}
 function calcZ(){Z=Math.max(.72,Math.min(1.1,Math.min(W,H)/780))*ZU}
@@ -4517,16 +4470,12 @@ function frame(){
   try{render(t)}catch(e){reportErr(e,'render')}
   if(raw>0&&raw<1){DG.push(raw,tr0-tu0,performance.now()-tr0,t);if(raw<.03){const w0=performance.now();warmStep(1.5);DG.tm('warm',w0)}}}   // for the diagnostics panel; and a small slice of building things ahead of time while the frame is quick
 requestAnimationFrame(rafLoop);if(SET.vsync)setTimeout(calibHz,1500);
-/* layout switches (menu footer, settings, the badge in the game) */
-for(const [id,d] of [['layp',-1],['layn',1],['layb1',-1],['layb2',1]])$(id).addEventListener('click',()=>applyLayout(LAYOUT+d));
-$('laybtn').addEventListener('click',()=>applyLayout(LAYOUT+1));$('tfbtn').addEventListener('click',()=>applyTopFix(TOPFIX+1));$('tfp').addEventListener('click',()=>applyTopFix(TOPFIX-1));$('tfn').addEventListener('click',()=>applyTopFix(TOPFIX+1));applyLayout();applyTopFix();
-// the window of a home-screen app is not final when the page starts (iPhone: the height changes a moment later without any event): look again at start and whenever one of the heights changes
-{let last='';const key=()=>innerWidth+'x'+innerHeight+'/'+Math.round($('vp').getBoundingClientRect().height)+'/'+Math.round($('vpd').getBoundingClientRect().height)+'/'+Math.round($('vps').getBoundingClientRect().height)+'/'+(window.visualViewport?Math.round(visualViewport.height):0);
+/* measure again whenever the window or the safe areas change (the height of a home-screen app is not final at start, and iOS sends no event for it) */
+if(typeof __SERVER__==='undefined'){let last='';const key=()=>{const r=$('vp').getBoundingClientRect(),cs=getComputedStyle($('vp'));return innerWidth+'x'+innerHeight+'/'+Math.round(r.height)+'/'+cs.paddingTop+cs.paddingRight+cs.paddingBottom+cs.paddingLeft+'/'+(window.visualViewport?Math.round(visualViewport.height):0)};
   const chk=()=>{const k=key();if(k!==last){last=k;resize()}};
-  if(window.ResizeObserver){const ro=new ResizeObserver(chk);for(const id of ['vp','vpd','vps'])ro.observe($(id))}
+  if(window.ResizeObserver)new ResizeObserver(chk).observe($('vp'));
   for(const ev of ['load','pageshow','focus','visibilitychange','orientationchange'])addEventListener(ev,()=>{chk();setTimeout(chk,300);setTimeout(chk,1200)});
   if(window.visualViewport)visualViewport.addEventListener('resize',chk);setInterval(chk,500);chk()}
-addEventListener('pointerdown',()=>{const L=LAYOUTS[LAYOUT-1];if(L.fs&&!document.fullscreenElement&&document.documentElement.requestFullscreen)try{document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(_){}},{passive:true});
 /* ---------- display check (r84): typebite.io/?display=1 (also the 'Display check' link in the menu footer, which works inside the home-screen app too).
    Collects everything about how this phone / browser / home-screen app shows the page and where every button of the game really sits, and sends it (with the device code) to the developer. ---------- */
 function displayCheck(){
@@ -4576,7 +4525,7 @@ function displayCheck(){
       now:snap()}};
   const LOG=[];const lg=(ev)=>{const s=snap();LOG.push({t:Math.round(performance.now()),ev,inner:s.inner,vv:s.vv,lvh:s.units.lvh,dvh:s.units.dvh,svh:s.units.svh,canvas:s.canvas.join('x'),scrollY:s.scroll[1]});if(LOG.length>70)LOG.shift();$d('dclog').textContent=LOG.map(l=>l.t+' ms  '+l.ev+'  inner '+l.inner.join('x')+(l.vv?'  vv '+l.vv.w+'x'+l.vv.h+'@'+l.vv.top:'')+'  lvh/dvh/svh '+l.lvh+'/'+l.dvh+'/'+l.svh+'  canvas '+l.canvas+'  scrollY '+l.scrollY).join('\n')};
   for(const ev of ['resize','orientationchange','scroll','pageshow','visibilitychange','fullscreenchange','webkitfullscreenchange'])addEventListener(ev,()=>lg(ev),{passive:true});if(window.visualViewport){visualViewport.addEventListener('resize',()=>lg('vv.resize'));visualViewport.addEventListener('scroll',()=>lg('vv.scroll'))}
-  const RECTS={};const ids=['start','hud','board','mini','itemslot','btnDash','btnSprint','menubtn','setbtn','gear','quest','kingbar','metrics','lobbytag','minilogo','mute','musicbtn','duel','perks','statusbar','joy','laybadge','toast','count'];
+  const RECTS={};const ids=['start','hud','board','mini','itemslot','btnDash','btnSprint','menubtn','setbtn','gear','quest','kingbar','metrics','lobbytag','minilogo','mute','musicbtn','duel','perks','statusbar','joy','toast','count'];
   const measure=(label)=>{const s=snap(),sat=s.safe[0],sab=s.safe[2],sal=s.safe[3],sar=s.safe[1],vw=innerWidth,vh=s.units.lvh||innerHeight,out={};
     for(const id of ids){const e=document.getElementById(id);if(!e)continue;const cs=getComputedStyle(e);if(cs.display==='none'||e.hidden||cs.visibility==='hidden')continue;const r=e.getBoundingClientRect();if(r.width<2||r.height<2)continue;
       const o={x:Math.round(r.left),y:Math.round(r.top),w:Math.round(r.width),h:Math.round(r.height),r:Math.round(vw-r.right),b:Math.round(vh-r.bottom)},flags=[];
