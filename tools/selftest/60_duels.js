@@ -71,6 +71,18 @@ SUITE.parts.push({ name: 'duels', async run(env, R) {
     SUITE.seed(85); const { A, B } = pair(10, 10); env.srv(7); t.ok(A.e.state === 'duel', 'duel is running'); X.srvLeave(B.cid); env.srv(.5, (s, out) => { for (const [c, m] of out) if (c === A.cid) A.msgs.push(m); });
     t.ok(A.e.state === 'move', 'the other one is free again'); t.ok(A.msgs.some(m => m.t === 'dend' && m.win), 'and told that he won'); t.eq(X.sds.length, 0, 'no duel left over'); t.ok(A.e.protect > env.clock(), 'protected for a moment');
   });
+  await R.test('a duel dropped by the server (one side gone) is reported to the one who stays (r90)', t => {
+    SUITE.seed(185); const { A, B } = pair(10, 10); env.srv(7); t.ok(A.e.state === 'duel', 'duel is running'); B.e.gone = true; env.srv(.5, (s, out) => { for (const [c, m] of out) if (c === A.cid) A.msgs.push(m); });
+    t.ok(A.msgs.some(m => m.t === 'dend'), 'the remaining player gets a duel end message'); t.ok(A.e.state === 'move', 'and is free again'); t.eq(X.sds.length, 0, 'no duel left over');
+  });
+  await R.test('the server sends a heartbeat for the duel, also during the countdown (r90)', t => {
+    SUITE.seed(186); const { A, B } = pair(10, 10); let n = 0, first = null, t0 = env.clock(); env.srv(2.5, (s, out) => { for (const [c, m] of out) if (c === A.cid && m.t === 'dprog') { n++; if (first === null) first = env.clock() - t0; } });
+    t.ok(n >= 10, 'about ten messages a second during the countdown (' + n + ' in 2.5 s)'); t.ok(first !== null && first < .5, 'the first one comes quickly');
+  });
+  await R.test('the finished phrase counts even when it arrives in one piece (r90)', t => {
+    SUITE.seed(187); const { A, B } = pair(10, 10); let end = null; env.srv(14, (s, out) => { const d = X.sds[0]; if (d && d.phase === 'type' && env.clock() - d.start > 7) { X.srvMsg(A.cid, { t: 'prog', x: d.ta, s: d.ta.length }); } for (const [c, m] of out) if (c === A.cid && m.t === 'dend') end = m; if (end) return false; });
+    t.ok(end && end.win, 'the duel ends with a win for the one who sent the whole phrase');
+  });
   await R.test('a duel nobody finishes ends by itself', t => {
     SUITE.seed(86); const { A, B } = pair(10, 10); let end = null; const t0 = env.clock(); env.srv(X.DU.timeout + 20, (s, out) => { for (const [c, m] of out) if (m.t === 'dend') end = end || env.clock(); if (end) return false; });
     t.ok(end !== null, 'it ended'); t.range('after (limit ' + X.DU.timeout + ' s + countdown)', end - t0, X.DU.timeout - 1, X.DU.timeout + 10, ' s'); env.srv(2); t.ok(!X.sds.length, 'nothing left over');

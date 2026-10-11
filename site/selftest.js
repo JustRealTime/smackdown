@@ -909,6 +909,18 @@ SUITE.parts.push({ name: 'duels', async run(env, R) {
     SUITE.seed(85); const { A, B } = pair(10, 10); env.srv(7); t.ok(A.e.state === 'duel', 'duel is running'); X.srvLeave(B.cid); env.srv(.5, (s, out) => { for (const [c, m] of out) if (c === A.cid) A.msgs.push(m); });
     t.ok(A.e.state === 'move', 'the other one is free again'); t.ok(A.msgs.some(m => m.t === 'dend' && m.win), 'and told that he won'); t.eq(X.sds.length, 0, 'no duel left over'); t.ok(A.e.protect > env.clock(), 'protected for a moment');
   });
+  await R.test('a duel dropped by the server (one side gone) is reported to the one who stays (r90)', t => {
+    SUITE.seed(185); const { A, B } = pair(10, 10); env.srv(7); t.ok(A.e.state === 'duel', 'duel is running'); B.e.gone = true; env.srv(.5, (s, out) => { for (const [c, m] of out) if (c === A.cid) A.msgs.push(m); });
+    t.ok(A.msgs.some(m => m.t === 'dend'), 'the remaining player gets a duel end message'); t.ok(A.e.state === 'move', 'and is free again'); t.eq(X.sds.length, 0, 'no duel left over');
+  });
+  await R.test('the server sends a heartbeat for the duel, also during the countdown (r90)', t => {
+    SUITE.seed(186); const { A, B } = pair(10, 10); let n = 0, first = null, t0 = env.clock(); env.srv(2.5, (s, out) => { for (const [c, m] of out) if (c === A.cid && m.t === 'dprog') { n++; if (first === null) first = env.clock() - t0; } });
+    t.ok(n >= 10, 'about ten messages a second during the countdown (' + n + ' in 2.5 s)'); t.ok(first !== null && first < .5, 'the first one comes quickly');
+  });
+  await R.test('the finished phrase counts even when it arrives in one piece (r90)', t => {
+    SUITE.seed(187); const { A, B } = pair(10, 10); let end = null; env.srv(14, (s, out) => { const d = X.sds[0]; if (d && d.phase === 'type' && env.clock() - d.start > 7) { X.srvMsg(A.cid, { t: 'prog', x: d.ta, s: d.ta.length }); } for (const [c, m] of out) if (c === A.cid && m.t === 'dend') end = m; if (end) return false; });
+    t.ok(end && end.win, 'the duel ends with a win for the one who sent the whole phrase');
+  });
   await R.test('a duel nobody finishes ends by itself', t => {
     SUITE.seed(86); const { A, B } = pair(10, 10); let end = null; const t0 = env.clock(); env.srv(X.DU.timeout + 20, (s, out) => { for (const [c, m] of out) if (m.t === 'dend') end = end || env.clock(); if (end) return false; });
     t.ok(end !== null, 'it ended'); t.range('after (limit ' + X.DU.timeout + ' s + countdown)', end - t0, X.DU.timeout - 1, X.DU.timeout + 10, ' s'); env.srv(2); t.ok(!X.sds.length, 'nothing left over');
@@ -1267,7 +1279,7 @@ const CBRIDGE = `({
   $,joy,SET,DG,sfx,synth,music,FOODS,FOOD,ITEMS,PERKS,TREES,DEMOS,GW,GH,LOOK,makeEnt,lookOf,sprite,foodImg,FSZ,FCS,drawFoodSprite,
   SHIRTSTY0,PSTY0,ACCS,FACES,EXTRAS,HSTYLES,SKINS,SHIRTS,HAIRS,NOCOL,LNAME,
   buildGuide,openGuide,startGame,toMenu,openSettings,render,updateVisuals,startDuel,handleTyping,endTypingDuel,bugReport,dgCompute,dgSections,perfLine,now,
-  P2P,PeerC,peerOpts,ICEC,SIG,ONLINE:typeof ONLINE!=='undefined'?ONLINE:'',onlineOk,BUILD,CFGID,CFG,TOUCH,WORLD,mouse,cam,
+  cl,openNetDuel,P2P,PeerC,peerOpts,ICEC,SIG,ONLINE:typeof ONLINE!=='undefined'?ONLINE:'',onlineOk,BUILD,CFGID,CFG,TOUCH,WORLD,mouse,cam,
   setName(n){$('name').value=n},setMouse(x,y){mouse.x=x;mouse.y=y}
 })`;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1376,6 +1388,13 @@ SUITE.parts.push({ name: 'client', side: 'client', async run(env, R) {
     const press = ch => E.handleTyping({ key: ch, ctrlKey: false, metaKey: false, altKey: false, preventDefault() {} }); const typo = text[0] === 'a' ? 'b' : 'a'; press(typo); t.ok(E.duel.typed.length === 1 && E.duel.typed !== text.slice(0, 1) || E.duel.forgive >= 0, 'a wrong letter is shown as a typo'); press('Backspace' === 'x' ? 'x' : ' ');
     E.handleTyping({ key: 'Backspace', preventDefault() {} }); if (E.duel.typed.length) E.handleTyping({ key: 'Backspace', preventDefault() {} }); t.eq(E.duel.typed.length <= 1 ? 0 : 1, 0, 'backspace removes it');
     for (const ch of text) { if (!E.duel) break; press(ch); await sleep(15); } await sleep(300); t.ok(!E.duel, 'typing the whole phrase ends the duel'); t.ok(bot.state === 'eaten' || bot.gone || E.ents.indexOf(bot) < 0 || bot.state !== 'duel', 'the bot lost'); t.ok(p.lvl > lvl0, 'and the player got XP (' + lvl0.toFixed(2) + ' → ' + p.lvl.toFixed(2) + ')'); t.ok(E.$('duel').hidden, 'the duel window closes'); t.eq(errs0(), e0, 'no errors');
+  });
+  await R.test('a network duel window that hears nothing from the server closes by itself (r90)', async t => {
+    const e0 = errs0(); if (E.game !== 'play') { E.toMenu(); await sleep(150); E.startGame(); await sleep(250); }
+    const ghost = E.makeEnt('Ghost', 3, false, E.now()); ghost.x = E.player.x + 30; ghost.y = E.player.y; E.cl.set(9999, ghost);
+    E.openNetDuel({ opp: 9999, text: 'hello there world', oLen: 17, myN: 3, oppN: 3, banner: { main: 'EVEN FIGHT', sub: 'x', cls: 'neutral' } });
+    t.ok(!!E.duel && E.duel.net, 'a network duel is open'); await sleep(400); t.ok(!!E.duel, 'it stays open while the server is quiet for a moment');
+    E.duel.gp = E.now() - 9; await sleep(400); t.ok(!E.duel, 'after 8 s without a word from the server the window closes'); t.ok(E.$('duel').hidden, 'and is hidden'); E.cl.delete(9999); t.eq(errs0(), e0, 'no errors');
   });
   await R.test('going back to the menu and playing again works', async t => {
     const e0 = errs0(); E.toMenu(); await sleep(250); t.eq(E.game, 'menu', 'back in the menu'); t.ok(!E.$('start').hidden, 'the start screen is shown'); E.startGame(); await sleep(400); t.eq(E.game, 'play', 'playing again'); E.toMenu(); await sleep(150); t.eq(errs0(), e0, 'no errors');

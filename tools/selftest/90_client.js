@@ -7,7 +7,7 @@ const CBRIDGE = `({
   $,joy,SET,DG,sfx,synth,music,FOODS,FOOD,ITEMS,PERKS,TREES,DEMOS,GW,GH,LOOK,makeEnt,lookOf,sprite,foodImg,FSZ,FCS,drawFoodSprite,
   SHIRTSTY0,PSTY0,ACCS,FACES,EXTRAS,HSTYLES,SKINS,SHIRTS,HAIRS,NOCOL,LNAME,
   buildGuide,openGuide,startGame,toMenu,openSettings,render,updateVisuals,startDuel,handleTyping,endTypingDuel,bugReport,dgCompute,dgSections,perfLine,now,
-  P2P,PeerC,peerOpts,ICEC,SIG,ONLINE:typeof ONLINE!=='undefined'?ONLINE:'',onlineOk,BUILD,CFGID,CFG,TOUCH,WORLD,mouse,cam,
+  cl,openNetDuel,P2P,PeerC,peerOpts,ICEC,SIG,ONLINE:typeof ONLINE!=='undefined'?ONLINE:'',onlineOk,BUILD,CFGID,CFG,TOUCH,WORLD,mouse,cam,
   setName(n){$('name').value=n},setMouse(x,y){mouse.x=x;mouse.y=y}
 })`;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -116,6 +116,13 @@ SUITE.parts.push({ name: 'client', side: 'client', async run(env, R) {
     const press = ch => E.handleTyping({ key: ch, ctrlKey: false, metaKey: false, altKey: false, preventDefault() {} }); const typo = text[0] === 'a' ? 'b' : 'a'; press(typo); t.ok(E.duel.typed.length === 1 && E.duel.typed !== text.slice(0, 1) || E.duel.forgive >= 0, 'a wrong letter is shown as a typo'); press('Backspace' === 'x' ? 'x' : ' ');
     E.handleTyping({ key: 'Backspace', preventDefault() {} }); if (E.duel.typed.length) E.handleTyping({ key: 'Backspace', preventDefault() {} }); t.eq(E.duel.typed.length <= 1 ? 0 : 1, 0, 'backspace removes it');
     for (const ch of text) { if (!E.duel) break; press(ch); await sleep(15); } await sleep(300); t.ok(!E.duel, 'typing the whole phrase ends the duel'); t.ok(bot.state === 'eaten' || bot.gone || E.ents.indexOf(bot) < 0 || bot.state !== 'duel', 'the bot lost'); t.ok(p.lvl > lvl0, 'and the player got XP (' + lvl0.toFixed(2) + ' → ' + p.lvl.toFixed(2) + ')'); t.ok(E.$('duel').hidden, 'the duel window closes'); t.eq(errs0(), e0, 'no errors');
+  });
+  await R.test('a network duel window that hears nothing from the server closes by itself (r90)', async t => {
+    const e0 = errs0(); if (E.game !== 'play') { E.toMenu(); await sleep(150); E.startGame(); await sleep(250); }
+    const ghost = E.makeEnt('Ghost', 3, false, E.now()); ghost.x = E.player.x + 30; ghost.y = E.player.y; E.cl.set(9999, ghost);
+    E.openNetDuel({ opp: 9999, text: 'hello there world', oLen: 17, myN: 3, oppN: 3, banner: { main: 'EVEN FIGHT', sub: 'x', cls: 'neutral' } });
+    t.ok(!!E.duel && E.duel.net, 'a network duel is open'); await sleep(400); t.ok(!!E.duel, 'it stays open while the server is quiet for a moment');
+    E.duel.gp = E.now() - 9; await sleep(400); t.ok(!E.duel, 'after 8 s without a word from the server the window closes'); t.ok(E.$('duel').hidden, 'and is hidden'); E.cl.delete(9999); t.eq(errs0(), e0, 'no errors');
   });
   await R.test('going back to the menu and playing again works', async t => {
     const e0 = errs0(); E.toMenu(); await sleep(250); t.eq(E.game, 'menu', 'back in the menu'); t.ok(!E.$('start').hidden, 'the start screen is shown'); E.startGame(); await sleep(400); t.eq(E.game, 'play', 'playing again'); E.toMenu(); await sleep(150); t.eq(errs0(), e0, 'no errors');
