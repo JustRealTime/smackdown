@@ -749,3 +749,11 @@ Ali (Screenshots der App): Quer war es vorher Vollbild und passte, jetzt gibt es
 
 ## Runde 88 (BUILD r88) - stabiler Joystick
 Ali: Der Joystick am Handy soll stabil sein und nicht so wandern. Ursache: Ging der Daumen weiter als der Ring (46 Pixel), wurde der Stick-Fuß mitgezogen. Jetzt bleibt der Fuß genau dort, wo der Daumen aufgesetzt hat, der Knopf hört am Ringrand auf, die Richtung zählt weiter vom Fuß aus. Geprüft mit echten Touch-Ereignissen (Emulation): Fuß bleibt bei (68, 348), Knopf wird bei 46 Pixel begrenzt. Nicht geprüft: echtes Handy (Gefühl, Tot-Zone).
+
+## Runde 89 (BUILD r89) - Relay (TURN) eingeschaltet, mit Kostenbremse
+Ali: Ein Freund spielt, Ali sieht dessen Welt nicht. Messung: Vermittlung funktioniert (Antwort kommt an), aber die direkte Verbindung zwischen den Netzen kommt nicht zustande (Mobilfunk-/Carrier-NAT oder strenger Router). Ali: "ja gerne, aber sobald es mehr als 1 EUR kostet soll es automatisch abgeschaltet werden".
+- **Relay:** Cloudflare Realtime TURN (Abo ohne Kosten bis 1000 GB im Monat, danach 0,05 $ pro GB), App `typebite`, Schlüssel als Geheimnisse des Vermittlungsservers. Getestet: erzwungene Relay-Verbindung zwischen zwei Browsern (Kandidatentyp relay, Rundlauf 61 ms), `/ice` liefert STUN und TURN mit Zugangsdaten.
+- **Kostenbremse:** Alle 30 Minuten liest der Server den Relay-Verbrauch des Monats über die Cloudflare-Analyse-Schnittstelle (eigener Lese-Schlüssel "typebite-turn-usage-read", nur "Account Analytics: Lesen"). Ab 900 GB (Gratis-Kontingent 1000 GB, also 0 EUR) liefert `/ice` kein Relay mehr, bis zum nächsten Monat. Kann der Verbrauch dreimal hintereinander nicht gelesen werden, geht das Relay ebenfalls aus. Geprüft mit lokalem Lauf: richtiger Schlüssel gibt 0 Bytes und Relay an; falscher Schlüssel gibt nach 3 Prüfungen Relay aus. Die Zugangsdaten gelten 6 Stunden, das Spiel holt alle 90 Minuten neue.
+- **Datenschutz:** Relay von Cloudflare wieder im Text (Abschnitt 5 und Tabelle).
+- **Nicht getestet:** Eine echte Verbindung des Freundes über das Relay (er war nicht mehr online); der Abschaltfall bei echtem Verbrauch über 900 GB (nur mit falschem Schlüssel simuliert).
+

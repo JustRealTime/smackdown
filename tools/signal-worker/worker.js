@@ -9,7 +9,7 @@
 //   GET  /status             {sockets:N}
 import { DurableObject } from 'cloudflare:workers';
 
-const KEY = 'peerjs', MAX_SOCKETS = 4000, MAX_MSG = 24000, STALE_MS = 30000, ICE_TTL = 86400;
+const KEY = 'peerjs', MAX_SOCKETS = 4000, MAX_MSG = 24000, STALE_MS = 30000, ICE_TTL = 21600;   // relay credentials last 6 hours (the game fetches new ones every 90 minutes)
 const ORIGINS = /^(https:\/\/(www\.)?typebite\.io|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?|https:\/\/typebite[\w-]*\.alikesan2004\.workers\.dev)$/;
 const RELAY = new Set(['OFFER', 'ANSWER', 'CANDIDATE', 'LEAVE', 'EXPIRE']);
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
@@ -23,17 +23,50 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     if (u.pathname === '/peerjs/id' || u.pathname === '/' + KEY + '/id') return text(rid());
     if (u.pathname === '/ice') return ice(env, ctx);
-    if (u.pathname === '/peerjs' || u.pathname === '/status') return env.HUB.get(env.HUB.idFromName('hub')).fetch(req);
+    if (u.pathname === '/peerjs') return env.HUB.get(env.HUB.idFromName('hub')).fetch(req);
+    if (u.pathname === '/status') {   // sockets from the hub, the relay guard from its own object
+      let sockets = null, turn = null;
+      try { sockets = (await (await env.HUB.get(env.HUB.idFromName('hub')).fetch(req)).json()).sockets } catch (_) {}
+      try { turn = await (await guardOf(env).fetch(new Request('https://hub/turn'))).json() } catch (_) {}
+      return json({ sockets, turn });
+    }
     return text('Typebite signalling server', u.pathname === '/' ? 200 : 404);
-  }
+  },
+  // every 30 minutes: how much relay traffic has this month used? Over the limit (default 900 GB, the first 1000 GB are free) the relay is switched off until next month, so it can never cost money.
+  async scheduled(ev, env, ctx) { ctx.waitUntil(checkUsage(env)) }
 };
+
+const guardOf = env => env.HUB.get(env.HUB.idFromName('guard'));   // the relay guard keeps its state in an object of its own (the one with the sockets stays untouched)
+async function checkUsage(env) {
+  const hub = guardOf(env), state = await (await hub.fetch(new Request('https://hub/turn'))).json();
+  if (!env.TURN_KEY_ID) return;
+  const now = new Date(), month = now.toISOString().slice(0, 7), since = month + '-01T00:00:00Z', limit = (+env.TURN_LIMIT_GB || 900) * 1e9;
+  let bytes = null, err = '';
+  if (env.ANALYTICS_TOKEN && env.CF_ACCOUNT_ID) {
+    try {
+      const q = 'query($a:string!,$s:Time!,$e:Time!,$k:string!){viewer{accounts(filter:{accountTag:$a}){callsTurnUsageAdaptiveGroups(limit:1000,filter:{datetime_geq:$s,datetime_leq:$e,keyId:$k}){sum{egressBytes}}}}}';
+      const r = await fetch('https://api.cloudflare.com/client/v4/graphql', { method: 'POST', headers: { Authorization: 'Bearer ' + env.ANALYTICS_TOKEN, 'content-type': 'application/json' },
+        body: JSON.stringify({ query: q, variables: { a: env.CF_ACCOUNT_ID, s: since, e: now.toISOString(), k: env.TURN_KEY_ID } }) });
+      const d = await r.json(), g = d && d.data && d.data.viewer && d.data.viewer.accounts && d.data.viewer.accounts[0];
+      if (!g) throw new Error(JSON.stringify(d.errors || d).slice(0, 200));
+      bytes = (g.callsTurnUsageAdaptiveGroups || []).reduce((a, x) => a + (x.sum && x.sum.egressBytes || 0), 0);
+    } catch (e) { err = String(e.message || e) }
+  } else err = 'no analytics token';
+  // without a reading the relay is switched off after 3 failed checks in a row (an hour and a half), so a broken guard can never run unnoticed
+  const fails = bytes === null ? (state.month === month ? state.fails || 0 : 0) + 1 : 0;
+  const off = bytes !== null ? bytes >= limit : fails >= 3;
+  await hub.fetch(new Request('https://hub/turn', { method: 'POST', body: JSON.stringify({ month, bytes, off, fails, err, at: now.toISOString(), limit }) }));
+}
 
 async function ice(env, ctx) {
   const stun = [{ urls: 'stun:stun.cloudflare.com:3478' }];
   if (!env.TURN_KEY_ID || !env.TURN_API_TOKEN) return json({ iceServers: stun, turn: false }, 200, { 'cache-control': 'public, max-age=300' });
+  let st = {};
+  try { st = await (await guardOf(env).fetch(new Request('https://hub/turn'))).json() } catch (_) {}
+  if (st.off) return json({ iceServers: stun, turn: false, off: 'monthly relay limit reached' }, 200, { 'cache-control': 'public, max-age=300' });
   const ck = new Request('https://typebite-signal.internal/ice-v1'), cache = caches.default;
   const hit = await cache.match(ck);
-  if (hit) return new Response(hit.body, { headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'public, max-age=1800' } });
+  if (hit) return new Response(hit.body, { headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'public, max-age=900' } });
   try {
     const r = await fetch('https://rtc.live.cloudflare.com/v1/turn/keys/' + env.TURN_KEY_ID + '/credentials/generate-ice-servers', {
       method: 'POST', headers: { Authorization: 'Bearer ' + env.TURN_API_TOKEN, 'content-type': 'application/json' }, body: JSON.stringify({ ttl: ICE_TTL })
@@ -41,8 +74,8 @@ async function ice(env, ctx) {
     if (!r.ok) throw new Error('turn ' + r.status);
     const d = await r.json(), servers = (d.iceServers || []).map(s => ({ ...s, urls: [].concat(s.urls).filter(x => !/:53(\?|$)/.test(x)) }));   // port 53 is blocked in browsers
     const body = JSON.stringify({ iceServers: servers.length ? servers : stun, turn: servers.some(s => s.credential) });
-    ctx.waitUntil(cache.put(ck, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=21600' } })));   // one set of credentials for everybody, renewed every 6 hours
-    return new Response(body, { headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'public, max-age=1800' } });
+    ctx.waitUntil(cache.put(ck, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=7200' } })));   // one set of credentials for everybody, renewed every 2 hours
+    return new Response(body, { headers: { 'content-type': 'application/json', ...CORS, 'cache-control': 'public, max-age=900' } });
   } catch (e) { return json({ iceServers: stun, turn: false, error: String(e.message || e) }, 200, { 'cache-control': 'no-store' }) }
 }
 
@@ -51,7 +84,12 @@ export class Hub extends DurableObject {
 
   async fetch(req) {
     const u = new URL(req.url);
-    if (u.pathname === '/status') return json({ sockets: this.ctx.getWebSockets().length });
+    if (u.pathname === '/status') return json({ sockets: this.ctx.getWebSockets().length, turn: (await this.ctx.storage.get('turn')) || null });
+    if (u.pathname === '/turn') {   // the relay guard's state (only the worker itself calls this)
+      if (req.method === 'POST') { const o = JSON.parse(await req.text()); await this.ctx.storage.put('turn', o); return json(o); }
+      const o = (await this.ctx.storage.get('turn')) || {}, month = new Date().toISOString().slice(0, 7);
+      return json(o.month === month ? o : { month, off: false, bytes: 0, fails: 0 });   // a new month starts with the relay on
+    }
     if (req.headers.get('Upgrade') !== 'websocket') return text('expected a websocket', 426);
     const origin = req.headers.get('Origin');
     const pair = new WebSocketPair(), [client, server] = Object.values(pair);

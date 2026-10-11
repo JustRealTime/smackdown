@@ -4,6 +4,8 @@
   "main": "worker.js",
   "compatibility_date": "2026-10-01",
   "durable_objects": { "bindings": [{ "name": "HUB", "class_name": "Hub" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hub"] }]
-  // optional secrets for relayed connections (TURN, Cloudflare Realtime): TURN_KEY_ID and TURN_API_TOKEN. Without them only STUN is handed out.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hub"] }],
+  "triggers": { "crons": ["*/30 * * * *"] },
+  "vars": { "CF_ACCOUNT_ID": "f5bf833bcb73139efe66b7cbb062ce07", "TURN_LIMIT_GB": "900" }
+  // secrets for relayed connections (TURN, Cloudflare Realtime): TURN_KEY_ID and TURN_API_TOKEN (without them only STUN is handed out) and ANALYTICS_TOKEN (read-only, reads the monthly relay traffic for the guard)
 }
