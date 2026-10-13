@@ -135,6 +135,9 @@ duel: {
   // the HIGHER level always has an edge: it types fewer words than the lower one (before perks and items, which come on top). From a gap of gapFrom levels
   // one word fewer per gapLevelsPerWord levels of difference, at least 1, at most gapMaxShare of the phrase
   gapFrom: 4, gapLevelsPerWord: 9, gapMaxShare: 0.3,
+  // a BIG gap counts for more (r91): between gapBigFrom and gapBigTo levels of difference the cap of the cut grows from gapMaxShare to gapBigShare of the phrase,
+  // and the floor (nobody types fewer than floorShare of the other's words) falls from floorShare to floorBigShare. Lv 134 against Lv 1: about 5 words against 21.
+  gapBigFrom: 40, gapBigTo: 120, gapBigShare: 0.8, floorShare: 0.5, floorBigShare: 0.12,
   caughtWords: 2,            // words fewer for the one who caught somebody running away
   keyboardWords: 1,          // Pro Keyboard: words fewer
   shortestPhrase: 2, longestPhrase: 26,   // after everything is added up
